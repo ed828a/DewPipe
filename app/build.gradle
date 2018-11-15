@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 28
@@ -43,7 +45,7 @@ ext {
     supportLibVersion = '28.0.0'
     exoPlayerLibVersion = '2.8.4' //2.9.0
     roomDbLibVersion = '1.1.1'
-    leakCanaryLibVersion = '1.5.4' //1.6.1
+    leakCanaryLibVersion = '1.6.1' //1.6.1
     okHttpLibVersion = '3.11.0'
     icepickLibVersion = '3.2.0'
     stethoLibVersion = '1.5.0'
@@ -97,4 +99,8 @@ dependencies {
 
     implementation "com.squareup.okhttp3:okhttp:${okHttpLibVersion}"
     debugImplementation "com.facebook.stetho:stetho-okhttp3:${stethoLibVersion}"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+repositories {
+    mavenCentral()
 }
