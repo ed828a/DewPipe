@@ -39,7 +39,7 @@ public class DebugApp extends App {
 
     @Override
     protected Downloader getDownloader() {
-        return org.schabi.newpipe.Downloader.init(new OkHttpClient.Builder()
+        return org.schabi.newpipe.Downloader.Companion.init(new OkHttpClient.Builder()
                 .addNetworkInterceptor(new StethoInterceptor()));
     }
 

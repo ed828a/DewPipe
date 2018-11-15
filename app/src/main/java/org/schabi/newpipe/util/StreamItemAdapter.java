@@ -147,7 +147,7 @@ public class StreamItemAdapter<T extends Stream> extends BaseAdapter {
                         continue;
                     }
 
-                    final long contentLength = Downloader.getInstance().getContentLength(stream.getUrl());
+                    final long contentLength = Downloader.instance.getContentLength(stream.getUrl());
                     streamsWrapper.setSize(stream, contentLength);
                     hasChanged = true;
                 }
