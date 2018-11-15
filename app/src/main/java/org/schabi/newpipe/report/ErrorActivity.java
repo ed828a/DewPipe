@@ -99,8 +99,8 @@ public class ErrorActivity extends AppCompatActivity {
     }
 
     private static void startErrorActivity(Class returnActivity, Context context, ErrorInfo errorInfo, List<Throwable> el) {
-        ActivityCommunicator ac = ActivityCommunicator.getCommunicator();
-        ac.returnActivity = returnActivity;
+        ActivityCommunicator ac = ActivityCommunicator.Companion.getCommunicator();
+        ac.setReturnActivity(returnActivity);
         Intent intent = new Intent(context, ErrorActivity.class);
         intent.putExtra(ERROR_INFO, errorInfo);
         intent.putExtra(ERROR_LIST, elToSl(el));
@@ -193,8 +193,8 @@ public class ErrorActivity extends AppCompatActivity {
         TextView infoView = findViewById(R.id.errorInfosView);
         TextView errorMessageView = findViewById(R.id.errorMessageView);
 
-        ActivityCommunicator ac = ActivityCommunicator.getCommunicator();
-        returnActivity = ac.returnActivity;
+        ActivityCommunicator ac = ActivityCommunicator.Companion.getCommunicator();
+        returnActivity = ac.getReturnActivity();
         errorInfo = intent.getParcelableExtra(ERROR_INFO);
         errorList = intent.getStringArrayExtra(ERROR_LIST);
 

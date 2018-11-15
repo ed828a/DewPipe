@@ -1,4 +1,4 @@
-package org.schabi.newpipe;
+package org.schabi.newpipe
 
 /*
  * Created by Christian Schabesberger on 24.12.15.
@@ -23,17 +23,22 @@ package org.schabi.newpipe;
 /**
  * Singleton:
  * Used to send data between certain Activity/Services within the same process.
- * This can be considered as an ugly hack inside the Android universe. **/
-public class ActivityCommunicator {
+ * This can be considered as an ugly hack inside the Android universe.  */
+class ActivityCommunicator {
 
-    private static ActivityCommunicator activityCommunicator;
+    @Volatile
+    var returnActivity: Class<*>? = null
 
-    public static ActivityCommunicator getCommunicator() {
-        if(activityCommunicator == null) {
-            activityCommunicator = new ActivityCommunicator();
-        }
-        return activityCommunicator;
+    companion object {
+
+        private var activityCommunicator: ActivityCommunicator? = null
+
+        val communicator: ActivityCommunicator
+            get() {
+                if (activityCommunicator == null) {
+                    activityCommunicator = ActivityCommunicator()
+                }
+                return activityCommunicator!!
+            }
     }
-
-    public volatile Class returnActivity;
 }
