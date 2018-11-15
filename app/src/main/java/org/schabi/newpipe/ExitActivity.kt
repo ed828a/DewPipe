@@ -1,11 +1,10 @@
+package org.schabi.newpipe
 
-package org.schabi.newpipe;
-
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Build;
-import android.os.Bundle;
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
+import android.os.Build
+import android.os.Bundle
 
 /*
  * Copyright (C) Hans-Christoph Steiner 2016 <hans@eds.org>
@@ -25,30 +24,32 @@ import android.os.Bundle;
  * along with NewPipe.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-public class ExitActivity extends Activity {
+class ExitActivity : Activity() {
 
     @SuppressLint("NewApi")
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
         if (Build.VERSION.SDK_INT >= 21) {
-            finishAndRemoveTask();
+            finishAndRemoveTask()
         } else {
-            finish();
+            finish()
         }
 
-        System.exit(0);
+        System.exit(0)
     }
 
-    public static void exitAndRemoveFromRecentApps(Activity activity) {
-        Intent intent = new Intent(activity, ExitActivity.class);
+    companion object {
 
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
-                | Intent.FLAG_ACTIVITY_CLEAR_TASK
-                | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        fun exitAndRemoveFromRecentApps(activity: Activity) {
+            val intent = Intent(activity, ExitActivity::class.java)
 
-        activity.startActivity(intent);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                    or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+                    or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    or Intent.FLAG_ACTIVITY_NO_ANIMATION)
+
+            activity.startActivity(intent)
+        }
     }
 }

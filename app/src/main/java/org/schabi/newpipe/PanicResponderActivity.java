@@ -37,7 +37,7 @@ public class PanicResponderActivity extends Activity {
         if (intent != null && PANIC_TRIGGER_ACTION.equals(intent.getAction())) {
             // TODO explicitly clear the search results once they are restored when the app restarts
             // or if the app reloads the current video after being killed, that should be cleared also
-            ExitActivity.exitAndRemoveFromRecentApps(this);
+            ExitActivity.Companion.exitAndRemoveFromRecentApps(this);
         }
 
         if (Build.VERSION.SDK_INT >= 21) {
