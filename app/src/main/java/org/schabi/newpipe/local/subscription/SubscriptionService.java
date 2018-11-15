@@ -61,7 +61,7 @@ public class SubscriptionService {
     private final Scheduler subscriptionScheduler;
 
     private SubscriptionService(Context context) {
-        db = NewPipeDatabase.getInstance(context.getApplicationContext());
+        db = NewPipeDatabase.INSTANCE.getInstance(context.getApplicationContext());
         subscription = getSubscriptionInfos();
 
         final Executor subscriptionExecutor = Executors.newFixedThreadPool(SUBSCRIPTION_THREAD_POOL_SIZE);

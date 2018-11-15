@@ -55,7 +55,7 @@ public final class BookmarkFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (activity == null) return;
-        final AppDatabase database = NewPipeDatabase.getInstance(activity);
+        final AppDatabase database = NewPipeDatabase.INSTANCE.getInstance(activity);
         localPlaylistManager = new LocalPlaylistManager(database);
         remotePlaylistManager = new RemotePlaylistManager(database);
         disposables = new CompositeDisposable();

@@ -47,7 +47,7 @@ public final class PlaylistCreationDialog extends PlaylistDialog {
                 .setPositiveButton(R.string.create, (dialogInterface, i) -> {
                     final String name = nameInput.getText().toString();
                     final LocalPlaylistManager playlistManager =
-                            new LocalPlaylistManager(NewPipeDatabase.getInstance(getContext()));
+                            new LocalPlaylistManager(NewPipeDatabase.INSTANCE.getInstance(getContext()));
                     final Toast successToast = Toast.makeText(getActivity(),
                             R.string.playlist_creation_success,
                             Toast.LENGTH_SHORT);

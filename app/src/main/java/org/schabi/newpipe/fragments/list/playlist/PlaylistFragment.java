@@ -96,7 +96,7 @@ public class PlaylistFragment extends BaseListInfoFragment<PlaylistInfo> {
         super.onCreate(savedInstanceState);
         disposables = new CompositeDisposable();
         isBookmarkButtonReady = new AtomicBoolean(false);
-        remotePlaylistManager = new RemotePlaylistManager(NewPipeDatabase.getInstance(
+        remotePlaylistManager = new RemotePlaylistManager(NewPipeDatabase.INSTANCE.getInstance(
                 requireContext()));
     }
 
