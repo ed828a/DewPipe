@@ -285,9 +285,9 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
             }
         }
         return PlaylistPlayQueue(
-                currentInfo.serviceId,
-                currentInfo.url,
-                currentInfo.nextPageUrl,
+                currentInfo!!.serviceId,
+                currentInfo!!.url,
+                currentInfo!!.nextPageUrl,
                 infoItems,
                 index
         )

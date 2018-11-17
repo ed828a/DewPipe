@@ -78,7 +78,7 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
         if (activity != null
                 && useAsFrontPage
                 && isVisibleToUser) {
-            setTitle(if (currentInfo != null) currentInfo.name else name)
+            setTitle(if (currentInfo != null) currentInfo!!.name else name)
         }
     }
 
@@ -187,7 +187,7 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
         val onError = Consumer<Throwable>{ throwable: Throwable ->
             animateView(headerSubscribeButton, false, 100)
             showSnackBarError(throwable, UserAction.SUBSCRIPTION,
-                    NewPipe.getNameOfService(currentInfo.serviceId),
+                    NewPipe.getNameOfService(currentInfo!!.serviceId),
                     "Get subscription status",
                     0)
         }
@@ -247,7 +247,7 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
         val onError = { throwable: Throwable ->
             onUnrecoverableError(throwable,
                     UserAction.SUBSCRIPTION,
-                    NewPipe.getNameOfService(currentInfo.serviceId),
+                    NewPipe.getNameOfService(currentInfo!!.serviceId),
                     "Subscription Change",
                     R.string.subscription_change_failed)
         }
@@ -376,9 +376,9 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
             }
         }
         return ChannelPlayQueue(
-                currentInfo.serviceId,
-                currentInfo.url,
-                currentInfo.nextPageUrl,
+                currentInfo!!.serviceId,
+                currentInfo!!.url,
+                currentInfo!!.nextPageUrl,
                 streamItems,
                 index
         )
