@@ -336,7 +336,7 @@ public class NavigationHelper {
                                             String name) {
         if (name == null) name = "";
         defaultTransaction(fragmentManager)
-                .replace(R.id.fragment_holder, PlaylistFragment.getInstance(serviceId, url, name))
+                .replace(R.id.fragment_holder, PlaylistFragment.Companion.getInstance(serviceId, url, name))
                 .addToBackStack(null)
                 .commit();
     }
