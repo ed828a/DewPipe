@@ -75,7 +75,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
     @State
     var name: String? = null
     @State
-    lateinit var url: String
+    var url: String? = null
 
     private var currentInfo: StreamInfo? = null
     private var currentWorker: Disposable? = null
@@ -213,7 +213,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
 
         // Check if it was loading when the fragment was stopped/paused,
         if (wasLoading.getAndSet(false)) {
-            selectAndLoadVideo(serviceId, url, name!!)
+            selectAndLoadVideo(serviceId, url!!, name!!)
         }
     }
 
@@ -285,7 +285,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         if (serializable is StreamInfo) {
 
             currentInfo = serializable
-            InfoCache.getInstance().putInfo(serviceId, url, currentInfo!!)
+            InfoCache.getInstance().putInfo(serviceId, url!!, currentInfo!!)
         }
 
         serializable = savedState.getSerializable(STACK_KEY)
@@ -610,7 +610,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
             R.id.action_play_with_kodi -> {
                 try {
                     NavigationHelper.playWithKore(activity, Uri.parse(
-                            url.replace("https", "http")))
+                            url?.replace("https", "http")))
                 } catch (e: Exception) {
                     if (DEBUG) Log.i(TAG, "Failed to start kore", e)
                     showInstallKoreDialog(activity)
@@ -710,7 +710,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         if (DEBUG) Log.d(TAG, "prepareAndHandleInfo() called with: info = [$info], scrollToTop = [$scrollToTop]")
 
         setInitialData(info.serviceId, info.originalUrl, info.name)
-        pushToStack(serviceId, url, name)
+        pushToStack(serviceId, url!!, name)
         showLoading()
 
         Log.d(TAG, "prepareAndHandleInfo() called parallaxScrollRootView.getScrollY(): " + parallaxScrollRootView!!.scrollY)
@@ -727,7 +727,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
 
     protected fun prepareAndLoadInfo() {
         parallaxScrollRootView!!.smoothScrollTo(0, 0)
-        pushToStack(serviceId, url, name)
+        pushToStack(serviceId, url!!, name)
         startLoading(false)
     }
 
@@ -927,7 +927,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         }
     }
 
-    protected fun setInitialData(serviceId: Int, url: String, name: String) {
+    protected fun setInitialData(serviceId: Int, url: String?, name: String) {
         this.serviceId = serviceId
         this.url = url
         this.name = if (!TextUtils.isEmpty(name)) name else ""
@@ -989,7 +989,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         super.handleResult(info)
 
         setInitialData(info.serviceId, info.originalUrl, info.name)
-        pushToStack(serviceId, url, name)
+        pushToStack(serviceId, url!!, name)
 
         animateView(thumbnailPlayButton, true, 200)
         videoTitleTextView!!.text = name
