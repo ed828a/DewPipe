@@ -289,7 +289,7 @@ public class NavigationHelper {
                                           int serviceId,
                                           String searchString) {
         defaultTransaction(fragmentManager)
-                .replace(R.id.fragment_holder, SearchFragment.getInstance(serviceId, searchString))
+                .replace(R.id.fragment_holder, SearchFragment.Companion.getInstance(serviceId, searchString))
                 .addToBackStack(SEARCH_FRAGMENT_TAG)
                 .commit();
     }

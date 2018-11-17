@@ -135,7 +135,7 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
         return headerRootLayout
     }
 
-    override fun initViews(rootView: View, savedInstanceState: Bundle) {
+    override fun initViews(rootView: View, savedInstanceState: Bundle?) {
         super.initViews(rootView, savedInstanceState)
 
         infoListAdapter.useMiniItemVariants(true)
