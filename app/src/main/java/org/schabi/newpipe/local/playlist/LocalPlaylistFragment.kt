@@ -196,7 +196,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
         }
     }
 
-    override fun initViews(rootView: View, savedInstanceState: Bundle) {
+    override fun initViews(rootView: View, savedInstanceState: Bundle?) {
         super.initViews(rootView, savedInstanceState)
         setTitle(name)
     }
