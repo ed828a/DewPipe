@@ -5,6 +5,7 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 
 import com.grack.nanojson.JsonObject;
 import com.grack.nanojson.JsonSink;
@@ -22,6 +23,8 @@ import org.schabi.newpipe.util.KioskTranslator;
 import org.schabi.newpipe.util.ThemeHelper;
 
 public abstract class Tab {
+    protected final String TAG = getClass().getSimpleName() + "@" + Integer.toHexString(hashCode());
+
     Tab() {
     }
 
@@ -384,7 +387,8 @@ public abstract class Tab {
 
         @Override
         public ChannelFragment getFragment() {
-            return ChannelFragment.getInstance(channelServiceId, channelUrl, channelName);
+            Log.d(TAG, "ChannelTab::getFragment called");
+            return ChannelFragment.Companion.getInstance(channelServiceId, channelUrl, channelName);
         }
 
         @Override

@@ -325,7 +325,7 @@ public class NavigationHelper {
             String name) {
         if (name == null) name = "";
         defaultTransaction(fragmentManager)
-                .replace(R.id.fragment_holder, ChannelFragment.getInstance(serviceId, url, name))
+                .replace(R.id.fragment_holder, ChannelFragment.Companion.getInstance(serviceId, url, name))
                 .addToBackStack(null)
                 .commit();
     }

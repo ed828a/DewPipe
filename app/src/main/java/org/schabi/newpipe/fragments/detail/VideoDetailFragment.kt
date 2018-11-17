@@ -499,11 +499,13 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
     private fun initThumbnailViews(info: StreamInfo) {
         thumbnailImageView!!.setImageResource(R.drawable.dummy_thumbnail_dark)
         if (!TextUtils.isEmpty(info.thumbnailUrl)) {
-            val infoServiceName = NewPipe.getNameOfService(info.serviceId)
+            val infoServiceName: String = NewPipe.getNameOfService(info.serviceId)
             val onFailListener = object : SimpleImageLoadingListener() {
                 override fun onLoadingFailed(imageUri: String?, view: View?, failReason: FailReason) {
-                    showSnackBarError(failReason.cause, UserAction.LOAD_IMAGE,
-                            infoServiceName, imageUri, R.string.could_not_load_thumbnails)
+                    imageUri?.let {
+                        showSnackBarError(failReason.cause, UserAction.LOAD_IMAGE,
+                                infoServiceName, imageUri, R.string.could_not_load_thumbnails)
+                    }
                 }
             }
 
