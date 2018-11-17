@@ -684,7 +684,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         // Get stack item from the new top
         val peek = stack.peek()
 
-        selectAndLoadVideo(peek.serviceId, peek.url, if (!TextUtils.isEmpty(peek.title)) peek.title else "")
+        selectAndLoadVideo(peek.serviceId, peek.url, if (!TextUtils.isEmpty(peek.title)) peek.title!! else "")
         return true
     }
 
