@@ -320,7 +320,7 @@ public abstract class Tab {
 
         @Override
         public KioskFragment getFragment() throws ExtractionException {
-            return KioskFragment.getInstance(kioskServiceId, kioskId);
+            return KioskFragment.Companion.getInstance(kioskServiceId, kioskId);
         }
 
         @Override

@@ -1181,13 +1181,13 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
     }
 
     companion object {
-        val AUTO_PLAY = "auto_play"
+        const val AUTO_PLAY = "auto_play"
 
         // Amount of videos to show on start
-        private val INITIAL_RELATED_VIDEOS = 8
-        private val RELATED_STREAMS_UPDATE_FLAG = 0x1
-        private val RESOLUTIONS_MENU_UPDATE_FLAG = 0x2
-        private val TOOLBAR_ITEMS_UPDATE_FLAG = 0x4
+        private const val INITIAL_RELATED_VIDEOS = 8
+        private const val RELATED_STREAMS_UPDATE_FLAG = 0x1
+        private const val RESOLUTIONS_MENU_UPDATE_FLAG = 0x2
+        private const val TOOLBAR_ITEMS_UPDATE_FLAG = 0x4
 
 
         //////////////////////////////////////////////////////////////////////////
@@ -1202,9 +1202,9 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         // State Saving
         ///////////////////////////////////////////////////////////////////////////
 
-        private val INFO_KEY = "info_key"
-        private val STACK_KEY = "stack_key"
-        private val WAS_RELATED_EXPANDED_KEY = "was_related_expanded_key"
+        private const val INFO_KEY = "info_key"
+        private const val STACK_KEY = "stack_key"
+        private const val WAS_RELATED_EXPANDED_KEY = "was_related_expanded_key"
 
         private fun showInstallKoreDialog(context: Context) {
             val builder = AlertDialog.Builder(context)

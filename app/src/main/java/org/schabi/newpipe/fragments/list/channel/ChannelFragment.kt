@@ -433,6 +433,6 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
         // Channel Subscription
         ///////////////////////////////////////////////////////////////////////////
 
-        private val BUTTON_DEBOUNCE_INTERVAL = 100
+        private const val BUTTON_DEBOUNCE_INTERVAL = 100
     }
 }

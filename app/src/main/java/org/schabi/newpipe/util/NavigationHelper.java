@@ -364,7 +364,7 @@ public class NavigationHelper {
 
     public static void openKioskFragment(FragmentManager fragmentManager, int serviceId, String kioskId) throws ExtractionException {
         defaultTransaction(fragmentManager)
-                .replace(R.id.fragment_holder, KioskFragment.getInstance(serviceId, kioskId))
+                .replace(R.id.fragment_holder, KioskFragment.Companion.getInstance(serviceId, kioskId))
                 .addToBackStack(null)
                 .commit();
     }
@@ -492,7 +492,7 @@ public class NavigationHelper {
 
         switch (linkType) {
             case STREAM:
-                rIntent.putExtra(VideoDetailFragment.Companion.getAUTO_PLAY(),
+                rIntent.putExtra(VideoDetailFragment.AUTO_PLAY,
                         PreferenceManager.getDefaultSharedPreferences(context)
                         .getBoolean(context.getString(R.string.autoplay_through_intent_key), false));
                 break;
