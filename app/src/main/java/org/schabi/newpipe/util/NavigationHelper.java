@@ -309,7 +309,7 @@ public class NavigationHelper {
             return;
         }
 
-        VideoDetailFragment instance = VideoDetailFragment.getInstance(serviceId, url, title);
+        VideoDetailFragment instance = VideoDetailFragment.Companion.getInstance(serviceId, url, title);
         instance.setAutoplay(autoPlay);
 
         defaultTransaction(fragmentManager)
@@ -492,7 +492,7 @@ public class NavigationHelper {
 
         switch (linkType) {
             case STREAM:
-                rIntent.putExtra(VideoDetailFragment.AUTO_PLAY,
+                rIntent.putExtra(VideoDetailFragment.Companion.getAUTO_PLAY(),
                         PreferenceManager.getDefaultSharedPreferences(context)
                         .getBoolean(context.getString(R.string.autoplay_through_intent_key), false));
                 break;
