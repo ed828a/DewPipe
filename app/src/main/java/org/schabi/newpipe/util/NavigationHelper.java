@@ -372,7 +372,7 @@ public class NavigationHelper {
     public static void openLocalPlaylistFragment(FragmentManager fragmentManager, long playlistId, String name) {
         if (name == null) name = "";
         defaultTransaction(fragmentManager)
-                .replace(R.id.fragment_holder, LocalPlaylistFragment.getInstance(playlistId, name))
+                .replace(R.id.fragment_holder, LocalPlaylistFragment.Companion.getInstance(playlistId, name))
                 .addToBackStack(null)
                 .commit();
     }
