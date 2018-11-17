@@ -233,7 +233,7 @@ class MainActivity : AppCompatActivity() {
 
         serviceArrow = hView.findViewById(R.id.drawer_arrow)
         headerServiceView = hView.findViewById(R.id.drawer_header_service_view)
-        val action = hView.findViewById<Button>(R.id.drawer_header_action_button)
+        val action = hView.findViewById<View>(R.id.drawer_header_action_button)
         action.setOnClickListener { view -> toggleServices() }
     }
 
