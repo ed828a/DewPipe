@@ -285,7 +285,10 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         if (serializable is StreamInfo) {
 
             currentInfo = serializable
-            InfoCache.getInstance().putInfo(serviceId, url!!, currentInfo!!)
+            url?.let {
+                InfoCache.getInstance().putInfo(serviceId, url!!, currentInfo!!)
+            }
+
         }
 
         serializable = savedState.getSerializable(STACK_KEY)
