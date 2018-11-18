@@ -230,13 +230,23 @@ class ChooseTabsFragment : Fragment() {
         when (type) {
             Tab.Type.KIOSK -> {
                 val selectFragment = SelectKioskFragment()
-                selectFragment.setOnSelectedLisener { serviceId, kioskId, kioskName -> addTab(Tab.KioskTab(serviceId, kioskId)) }
+                selectFragment.setOnSelectedLisener(object: SelectKioskFragment.OnSelectedLisener{
+                    override fun onKioskSelected(serviceId: Int, kioskId: String, kioskName: String) {
+                        addTab(Tab.KioskTab(serviceId, kioskId))
+                    }
+                } )
+
                 selectFragment.show(requireFragmentManager(), "select_kiosk")
                 return
             }
             Tab.Type.CHANNEL -> {
                 val selectFragment = SelectChannelFragment()
-                selectFragment.setOnSelectedLisener { serviceId, url, name -> addTab(Tab.ChannelTab(serviceId, url, name)) }
+                selectFragment.setOnSelectedLisener(object: SelectChannelFragment.OnSelectedLisener{
+                    override fun onChannelSelected(serviceId: Int, url: String, name: String) {
+                        addTab(Tab.ChannelTab(serviceId, url, name))
+                    }
+                })
+
                 selectFragment.show(requireFragmentManager(), "select_channel")
                 return
             }
