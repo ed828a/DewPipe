@@ -127,7 +127,7 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
         val commands = arrayOf(context.resources.getString(R.string.enqueue_on_background), context.resources.getString(R.string.enqueue_on_popup), context.resources.getString(R.string.start_here_on_main), context.resources.getString(R.string.start_here_on_background), context.resources.getString(R.string.start_here_on_popup), context.resources.getString(R.string.append_playlist), context.resources.getString(R.string.share))
 
         val actions = { dialogInterface: DialogInterface, i: Int ->
-            val index = Math.max(infoListAdapter.itemsList.indexOf(item), 0)
+            val index = Math.max(infoListAdapter!!.itemsList.indexOf(item), 0)
             when (i) {
                 0 -> NavigationHelper.enqueueOnBackgroundPlayer(context, SinglePlayQueue(item))
                 1 -> NavigationHelper.enqueueOnPopupPlayer(activity, SinglePlayQueue(item))
@@ -370,7 +370,7 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
 
     private fun getPlayQueue(index: Int): PlayQueue {
         val streamItems = ArrayList<StreamInfoItem>()
-        for (i in infoListAdapter.itemsList) {
+        for (i in infoListAdapter!!.itemsList) {
             if (i is StreamInfoItem) {
                 streamItems.add(i)
             }

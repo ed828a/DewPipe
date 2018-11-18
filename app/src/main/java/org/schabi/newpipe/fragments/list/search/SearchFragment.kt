@@ -174,11 +174,11 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
         if (!TextUtils.isEmpty(searchString)) {
             if (wasLoading.getAndSet(false)) {
                 search(searchString, contentFilter, sortFilter)
-            } else if (infoListAdapter.itemsList.size == 0) {
+            } else if (infoListAdapter!!.itemsList.size == 0) {
                 if (savedState == null) {
                     search(searchString, contentFilter, sortFilter)
                 } else if (!isLoading.get() && !wasSearchFocused) {
-                    infoListAdapter.clearStreamItemList()
+                    infoListAdapter!!.clearStreamItemList()
                     showEmptyState()
                 }
             }
@@ -506,7 +506,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
 
     override fun onBackPressed(): Boolean {
         if (suggestionsPanel!!.visibility == View.VISIBLE
-                && infoListAdapter.itemsList.size > 0
+                && infoListAdapter!!.itemsList.size > 0
                 && !isLoading.get()) {
             hideSuggestionsPanel()
             hideKeyboardSearch()
@@ -631,7 +631,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
 
         lastSearchedString = this.searchString
         this.searchString = searchString
-        infoListAdapter.clearStreamItemList()
+        infoListAdapter!!.clearStreamItemList()
         hideSuggestionsPanel()
         hideKeyboardSearch()
 
@@ -767,11 +767,11 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
         nextPageUrl = result.nextPageUrl
         currentPageUrl = result.url
 
-        if (infoListAdapter.itemsList.size == 0) {
+        if (infoListAdapter!!.itemsList.size == 0) {
             if (!result.relatedItems.isEmpty()) {
-                infoListAdapter.addInfoItemList(result.relatedItems)
+                infoListAdapter!!.addInfoItemList(result.relatedItems)
             } else {
-                infoListAdapter.clearStreamItemList()
+                infoListAdapter!!.clearStreamItemList()
                 showEmptyState()
                 return
             }
@@ -783,7 +783,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
     override fun handleNextItems(result: ListExtractor.InfoItemsPage<*>) {
         showListFooter(false)
         currentPageUrl = result.nextPageUrl
-        infoListAdapter.addInfoItemList(result.items)
+        infoListAdapter!!.addInfoItemList(result.items)
         nextPageUrl = result.nextPageUrl
 
         if (!result.errors.isEmpty()) {
@@ -797,7 +797,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
         if (super.onError(exception)) return true
 
         if (exception is SearchExtractor.NothingFoundException) {
-            infoListAdapter.clearStreamItemList()
+            infoListAdapter!!.clearStreamItemList()
             showEmptyState()
         } else {
             val errorId = if (exception is ParsingException)

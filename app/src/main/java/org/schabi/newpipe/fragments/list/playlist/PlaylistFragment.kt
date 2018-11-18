@@ -138,7 +138,7 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
     override fun initViews(rootView: View, savedInstanceState: Bundle?) {
         super.initViews(rootView, savedInstanceState)
 
-        infoListAdapter.useMiniItemVariants(true)
+        infoListAdapter!!.useMiniItemVariants(true)
     }
 
     override fun showStreamDialog(item: StreamInfoItem) {
@@ -149,7 +149,7 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
         val commands = arrayOf(context.resources.getString(R.string.enqueue_on_background), context.resources.getString(R.string.enqueue_on_popup), context.resources.getString(R.string.start_here_on_main), context.resources.getString(R.string.start_here_on_background), context.resources.getString(R.string.start_here_on_popup), context.resources.getString(R.string.share))
 
         val actions = DialogInterface.OnClickListener { dialogInterface, i ->
-            val index = Math.max(infoListAdapter.itemsList.indexOf(item), 0)
+            val index = Math.max(infoListAdapter!!.itemsList.indexOf(item), 0)
             when (i) {
                 0 -> NavigationHelper.enqueueOnBackgroundPlayer(context, SinglePlayQueue(item))
                 1 -> NavigationHelper.enqueueOnPopupPlayer(activity, SinglePlayQueue(item))
@@ -279,7 +279,7 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
 
     private fun getPlayQueue(index: Int): PlayQueue {
         val infoItems = ArrayList<StreamInfoItem>()
-        for (i in infoListAdapter.itemsList) {
+        for (i in infoListAdapter!!.itemsList) {
             if (i is StreamInfoItem) {
                 infoItems.add(i)
             }

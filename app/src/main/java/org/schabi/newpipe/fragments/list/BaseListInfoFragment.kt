@@ -45,7 +45,7 @@ abstract class BaseListInfoFragment<I : ListInfo<*>> : BaseListFragment<I, ListE
         super.onResume()
         // Check if it was loading when the fragment was stopped/paused,
         if (wasLoading.getAndSet(false)) {
-            if (hasMoreItems() && infoListAdapter.itemsList.size > 0) {
+            if (hasMoreItems() && infoListAdapter!!.itemsList.size > 0) {
                 loadMoreItems()
             } else {
                 doInitialLoadLogic()
@@ -138,7 +138,7 @@ abstract class BaseListInfoFragment<I : ListInfo<*>> : BaseListFragment<I, ListE
     override fun handleNextItems(result: ListExtractor.InfoItemsPage<*>) {
         super.handleNextItems(result)
         currentNextPageUrl = result.nextPageUrl
-        infoListAdapter.addInfoItemList(result.items)
+        infoListAdapter!!.addInfoItemList(result.items)
 
         showListFooter(hasMoreItems())
     }
@@ -157,12 +157,12 @@ abstract class BaseListInfoFragment<I : ListInfo<*>> : BaseListFragment<I, ListE
         name = result.name
         setTitle(result.name)
 
-        if (infoListAdapter.itemsList.size == 0) {
+        if (infoListAdapter!!.itemsList.size == 0) {
             if (result.relatedItems.size > 0) {
-                infoListAdapter.addInfoItemList(result.relatedItems)
+                infoListAdapter!!.addInfoItemList(result.relatedItems)
                 showListFooter(hasMoreItems())
             } else {
-                infoListAdapter.clearStreamItemList()
+                infoListAdapter!!.clearStreamItemList()
                 showEmptyState()
             }
         }

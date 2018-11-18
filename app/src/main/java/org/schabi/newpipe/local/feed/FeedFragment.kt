@@ -136,7 +136,7 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
         if (subscriptionObserver != null) subscriptionObserver!!.dispose()
 
         if (allItemsLoaded.get()) {
-            if (infoListAdapter.itemsList.size == 0) {
+            if (infoListAdapter!!.itemsList.size == 0) {
                 showEmptyState()
             } else {
                 showListFooter(false)
@@ -160,7 +160,7 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
         super.handleResult(result)
 
         if (result.isEmpty()) {
-            infoListAdapter.clearStreamItemList()
+            infoListAdapter!!.clearStreamItemList()
             showEmptyState()
             return
         }
@@ -188,12 +188,12 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
                 if (feedSubscriber != null) feedSubscriber!!.cancel()
                 feedSubscriber = s
 
-                var requestSize = FEED_LOAD_COUNT - infoListAdapter.itemsList.size
+                var requestSize = FEED_LOAD_COUNT - infoListAdapter!!.itemsList.size
                 if (wasLoading.getAndSet(false)) requestSize = FEED_LOAD_COUNT
 
                 val hasToLoad = requestSize > 0
                 if (hasToLoad) {
-                    requestLoadedAtomic.set(infoListAdapter.itemsList.size)
+                    requestLoadedAtomic.set(infoListAdapter!!.itemsList.size)
                     requestFeed(requestSize)
                 }
                 isLoading.set(hasToLoad)
@@ -265,9 +265,9 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
 
                 val item = channelInfo.relatedItems[0]
                 // Keep requesting new items if the current one already exists
-                val itemExists = doesItemExist(infoListAdapter.itemsList, item)
+                val itemExists = doesItemExist(infoListAdapter!!.itemsList, item)
                 if (!itemExists) {
-                    infoListAdapter.addInfoItem(item)
+                    infoListAdapter!!.addInfoItem(item)
                     //updateSubscription(channelInfo);
                 } else {
                     requestFeed(1)
@@ -309,7 +309,7 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
                     showListFooter(false)
                     isLoading.set(false)
                     hideLoading()
-                    if (infoListAdapter.itemsList.size == 0) {
+                    if (infoListAdapter!!.itemsList.size == 0) {
                         showEmptyState()
                     }
                 }
@@ -346,7 +346,7 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
         if (DEBUG) Log.d(TAG, "resetFragment() called")
         if (subscriptionObserver != null) subscriptionObserver!!.dispose()
         if (compositeDisposable != null) compositeDisposable!!.clear()
-        if (infoListAdapter != null) infoListAdapter.clearStreamItemList()
+        if (infoListAdapter != null) infoListAdapter!!.clearStreamItemList()
 
         delayHandler.removeCallbacksAndMessages(null)
         requestLoadedAtomic.set(0)
