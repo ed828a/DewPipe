@@ -309,7 +309,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
             R.id.detail_controls_background -> openBackgroundPlayer(false)
             R.id.detail_controls_popup -> openPopupPlayer(false)
             R.id.detail_controls_playlist_append -> if (fragmentManager != null && currentInfo != null) {
-                PlaylistAppendDialog.fromStreamInfo(currentInfo)
+                PlaylistAppendDialog.fromStreamInfo(currentInfo!!)
                         .show(fragmentManager!!, TAG)
             }
             R.id.detail_controls_download -> if (PermissionHelper.checkStoragePermissions(activity, PermissionHelper.DOWNLOAD_DIALOG_REQUEST_CODE)) {
