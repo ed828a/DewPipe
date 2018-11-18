@@ -120,7 +120,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
     private val itemTouchCallback: ItemTouchHelper.SimpleCallback
         get() {
             var directions = ItemTouchHelper.UP or ItemTouchHelper.DOWN
-            if (isGridLayout) {
+            if (isGridLayout()) {
                 directions = directions or (ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT)
             }
             return object : ItemTouchHelper.SimpleCallback(directions,
@@ -143,7 +143,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
 
                     val sourceIndex = source.adapterPosition
                     val targetIndex = target.adapterPosition
-                    val isSwapped = itemListAdapter.swapItems(sourceIndex, targetIndex)
+                    val isSwapped = itemListAdapter!!.swapItems(sourceIndex, targetIndex)
                     if (isSwapped) saveChanges()
                     return isSwapped
                 }
@@ -226,7 +226,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
         itemTouchHelper = ItemTouchHelper(itemTouchCallback)
         itemTouchHelper!!.attachToRecyclerView(itemsList)
 
-        itemListAdapter.setSelectedListener(object : OnClickGesture<LocalItem>() {
+        itemListAdapter!!.setSelectedListener(object : OnClickGesture<LocalItem>() {
             override fun selected(selectedItem: LocalItem) {
                 if (selectedItem is PlaylistStreamEntry) {
                     NavigationHelper.openVideoDetailFragment(fragmentManager,
@@ -283,7 +283,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
 
     override fun onPause() {
         super.onPause()
-        itemsListState = itemsList.layoutManager!!.onSaveInstanceState()
+        itemsListState = itemsList!!.layoutManager!!.onSaveInstanceState()
 
         // Save on exit
         saveImmediate()
@@ -292,7 +292,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
     override fun onDestroyView() {
         super.onDestroyView()
 
-        if (itemListAdapter != null) itemListAdapter.unsetSelectedListener()
+        if (itemListAdapter != null) itemListAdapter!!.unsetSelectedListener()
         if (headerBackgroundButton != null) headerBackgroundButton!!.setOnClickListener(null)
         if (headerPlayAllButton != null) headerPlayAllButton!!.setOnClickListener(null)
         if (headerPopupButton != null) headerPopupButton!!.setOnClickListener(null)
@@ -321,19 +321,19 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
         super.handleResult(result)
         if (itemListAdapter == null) return
 
-        itemListAdapter.clearStreamItemList()
+        itemListAdapter!!.clearStreamItemList()
 
         if (result.isEmpty()) {
             showEmptyState()
             return
         }
 
-        itemListAdapter.addItems(result)
+        itemListAdapter!!.addItems(result)
         if (itemsListState != null) {
-            itemsList.layoutManager!!.onRestoreInstanceState(itemsListState)
+            itemsList!!.layoutManager!!.onRestoreInstanceState(itemsListState)
             itemsListState = null
         }
-        setVideoCount(itemListAdapter.itemsList.size.toLong())
+        setVideoCount(itemListAdapter!!.itemsList.size.toLong())
 
         headerPlayAllButton!!.setOnClickListener { view -> NavigationHelper.playOnMainPlayer(activity, playQueue) }
         headerPopupButton!!.setOnClickListener { view -> NavigationHelper.playOnPopupPlayer(activity, playQueue) }
@@ -416,8 +416,8 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
     private fun deleteItem(item: PlaylistStreamEntry) {
         if (itemListAdapter == null) return
 
-        itemListAdapter.removeItem(item)
-        setVideoCount(itemListAdapter.itemsList.size.toLong())
+        itemListAdapter!!.removeItem(item)
+        setVideoCount(itemListAdapter!!.itemsList.size.toLong())
         saveChanges()
     }
 
@@ -439,7 +439,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
             return
         }
 
-        val items = itemListAdapter.itemsList
+        val items = itemListAdapter!!.itemsList
         val streamIds = ArrayList<Long>(items.size)
         for (item in items) {
             if (item is PlaylistStreamEntry) {
@@ -473,7 +473,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
         val commands = arrayOf(context.resources.getString(R.string.enqueue_on_background), context.resources.getString(R.string.enqueue_on_popup), context.resources.getString(R.string.start_here_on_main), context.resources.getString(R.string.start_here_on_background), context.resources.getString(R.string.start_here_on_popup), context.resources.getString(R.string.set_as_playlist_thumbnail), context.resources.getString(R.string.delete), context.resources.getString(R.string.share))
 
         val actions = DialogInterface.OnClickListener { dialog, which ->
-            val index = Math.max(itemListAdapter.itemsList.indexOf(item), 0)
+            val index = Math.max(itemListAdapter!!.itemsList.indexOf(item), 0)
             when (which) {
                 0 -> NavigationHelper.enqueueOnBackgroundPlayer(context,
                         SinglePlayQueue(infoItem))
@@ -508,7 +508,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
             return SinglePlayQueue(emptyList(), 0)
         }
 
-        val infoItems = itemListAdapter.itemsList
+        val infoItems = itemListAdapter!!.itemsList
         val streamInfoItems = ArrayList<StreamInfoItem>(infoItems.size)
         for (item in infoItems) {
             if (item is PlaylistStreamEntry) {

@@ -107,7 +107,7 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
     override fun initListeners() {
         super.initListeners()
 
-        itemListAdapter.setSelectedListener(object : OnClickGesture<LocalItem>() {
+        itemListAdapter!!.setSelectedListener(object : OnClickGesture<LocalItem>() {
             override fun selected(selectedItem: LocalItem) {
                 val fragmentManager = fm
 
@@ -157,7 +157,7 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
 
     override fun onPause() {
         super.onPause()
-        itemsListState = itemsList.layoutManager!!.onSaveInstanceState()
+        itemsListState = itemsList!!.layoutManager!!.onSaveInstanceState()
     }
 
     override fun onDestroyView() {
@@ -182,16 +182,16 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
     override fun handleResult(result: List<PlaylistLocalItem>) {
         super.handleResult(result)
 
-        itemListAdapter.clearStreamItemList()
+        itemListAdapter!!.clearStreamItemList()
 
         if (result.isEmpty()) {
             showEmptyState()
             return
         }
 
-        itemListAdapter.addItems(result)
+        itemListAdapter!!.addItems(result)
         if (itemsListState != null) {
-            itemsList.layoutManager!!.onRestoreInstanceState(itemsListState)
+            itemsList!!.layoutManager!!.onRestoreInstanceState(itemsListState)
             itemsListState = null
         }
         hideLoading()

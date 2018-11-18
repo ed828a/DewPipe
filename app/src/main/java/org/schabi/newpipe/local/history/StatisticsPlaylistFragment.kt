@@ -146,7 +146,7 @@ class StatisticsPlaylistFragment : BaseLocalListFragment<List<StreamStatisticsEn
     override fun initListeners() {
         super.initListeners()
 
-        itemListAdapter.setSelectedListener(object : OnClickGesture<LocalItem>() {
+        itemListAdapter!!.setSelectedListener(object : OnClickGesture<LocalItem>() {
             override fun selected(selectedItem: LocalItem) {
                 if (selectedItem is StreamStatisticsEntry) {
                     NavigationHelper.openVideoDetailFragment(fm,
@@ -181,13 +181,13 @@ class StatisticsPlaylistFragment : BaseLocalListFragment<List<StreamStatisticsEn
 
     override fun onPause() {
         super.onPause()
-        itemsListState = itemsList.layoutManager!!.onSaveInstanceState()
+        itemsListState = itemsList!!.layoutManager!!.onSaveInstanceState()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
 
-        if (itemListAdapter != null) itemListAdapter.unsetSelectedListener()
+        if (itemListAdapter != null) itemListAdapter!!.unsetSelectedListener()
         if (headerBackgroundButton != null) headerBackgroundButton!!.setOnClickListener(null)
         if (headerPlayAllButton != null) headerPlayAllButton!!.setOnClickListener(null)
         if (headerPopupButton != null) headerPopupButton!!.setOnClickListener(null)
@@ -208,16 +208,16 @@ class StatisticsPlaylistFragment : BaseLocalListFragment<List<StreamStatisticsEn
 
         playlistCtrl!!.visibility = View.VISIBLE
 
-        itemListAdapter.clearStreamItemList()
+        itemListAdapter!!.clearStreamItemList()
 
         if (result.isEmpty()) {
             showEmptyState()
             return
         }
 
-        itemListAdapter.addItems(processResult(result))
+        itemListAdapter!!.addItems(processResult(result))
         if (itemsListState != null) {
-            itemsList.layoutManager!!.onRestoreInstanceState(itemsListState)
+            itemsList!!.layoutManager!!.onRestoreInstanceState(itemsListState)
             itemsListState = null
         }
 
@@ -273,7 +273,7 @@ class StatisticsPlaylistFragment : BaseLocalListFragment<List<StreamStatisticsEn
         val commands = arrayOf(context.resources.getString(R.string.enqueue_on_background), context.resources.getString(R.string.enqueue_on_popup), context.resources.getString(R.string.start_here_on_main), context.resources.getString(R.string.start_here_on_background), context.resources.getString(R.string.start_here_on_popup), context.resources.getString(R.string.delete), context.resources.getString(R.string.share))
 
         val actions = DialogInterface.OnClickListener { dialog, which ->
-            val index = Math.max(itemListAdapter.itemsList.indexOf(item), 0)
+            val index = Math.max(itemListAdapter!!.itemsList.indexOf(item), 0)
             when (which) {
                 0 -> NavigationHelper.enqueueOnBackgroundPlayer(context, SinglePlayQueue(infoItem))
                 1 -> NavigationHelper.enqueueOnPopupPlayer(activity, SinglePlayQueue(infoItem))
@@ -291,7 +291,7 @@ class StatisticsPlaylistFragment : BaseLocalListFragment<List<StreamStatisticsEn
     }
 
     private fun deleteEntry(index: Int) {
-        val infoItem = itemListAdapter.itemsList[index]
+        val infoItem = itemListAdapter!!.itemsList[index]
         if (infoItem is StreamStatisticsEntry) {
             val onDelete = recordManager!!.deleteStreamHistory(infoItem.streamId)
                     .observeOn(AndroidSchedulers.mainThread())
@@ -321,7 +321,7 @@ class StatisticsPlaylistFragment : BaseLocalListFragment<List<StreamStatisticsEn
             return SinglePlayQueue(emptyList(), 0)
         }
 
-        val infoItems = itemListAdapter.itemsList
+        val infoItems = itemListAdapter!!.itemsList
         val streamInfoItems = ArrayList<StreamInfoItem>(infoItems.size)
         for (item in infoItems) {
             if (item is StreamStatisticsEntry) {
