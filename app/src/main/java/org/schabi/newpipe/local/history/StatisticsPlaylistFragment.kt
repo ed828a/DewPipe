@@ -115,7 +115,7 @@ class StatisticsPlaylistFragment : BaseLocalListFragment<List<StreamStatisticsEn
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
         if (activity != null && isVisibleToUser) {
-            setTitle(activity.getString(R.string.title_activity_history))
+            setTitle(activity!!.getString(R.string.title_activity_history))
         }
     }
 
@@ -131,7 +131,7 @@ class StatisticsPlaylistFragment : BaseLocalListFragment<List<StreamStatisticsEn
     }
 
     override fun getListHeader(): View? {
-        val headerRootLayout = activity.layoutInflater.inflate(R.layout.statistic_playlist_control,
+        val headerRootLayout = activity!!.layoutInflater.inflate(R.layout.statistic_playlist_control,
                 itemsList, false)
         playlistCtrl = headerRootLayout.findViewById(R.id.playlist_control)
         headerPlayAllButton = headerRootLayout.findViewById(R.id.playlist_ctrl_play_all_button)
@@ -149,7 +149,7 @@ class StatisticsPlaylistFragment : BaseLocalListFragment<List<StreamStatisticsEn
         itemListAdapter!!.setSelectedListener(object : OnClickGesture<LocalItem>() {
             override fun selected(selectedItem: LocalItem) {
                 if (selectedItem is StreamStatisticsEntry) {
-                    NavigationHelper.openVideoDetailFragment(fm,
+                    NavigationHelper.openVideoDetailFragment(getFM(),
                             selectedItem.serviceId,
                             selectedItem.url,
                             selectedItem.title)

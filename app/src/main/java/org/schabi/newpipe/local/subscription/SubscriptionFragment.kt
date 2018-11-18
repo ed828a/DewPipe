@@ -100,7 +100,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
 
     protected val gridLayoutManager: RecyclerView.LayoutManager
         get() {
-            val resources = activity.resources
+            val resources = activity!!.resources
             var width = resources.getDimensionPixelSize(R.dimen.video_item_grid_thumbnail_image_width)
             width += (24 * resources.displayMetrics.density).toInt()
             val spanCount = Math.floor(resources.displayMetrics.widthPixels / width.toDouble()).toInt()
@@ -176,14 +176,14 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
         if (activity != null && isVisibleToUser) {
-            setTitle(activity.getString(R.string.tab_subscriptions))
+            setTitle(activity!!.getString(R.string.tab_subscriptions))
         }
     }
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
         infoListAdapter = InfoListAdapter(activity)
-        subscriptionService = SubscriptionService.getInstance(activity)
+        subscriptionService = SubscriptionService.getInstance(activity!!)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -210,7 +210,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
         importExportOptionsState = importExportOptions!!.onSaveInstanceState()
 
         if (subscriptionBroadcastReceiver != null && activity != null) {
-            LocalBroadcastManager.getInstance(activity).unregisterReceiver(subscriptionBroadcastReceiver!!)
+            LocalBroadcastManager.getInstance(activity!!).unregisterReceiver(subscriptionBroadcastReceiver!!)
         }
     }
 
@@ -237,7 +237,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         super.onCreateOptionsMenu(menu, inflater)
 
-        val supportActionBar = activity.supportActionBar
+        val supportActionBar = activity!!.supportActionBar
         if (supportActionBar != null) {
             supportActionBar.setDisplayShowTitleEnabled(true)
             setTitle(getString(R.string.tab_subscriptions))
@@ -248,7 +248,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
         if (activity == null) return
 
         if (subscriptionBroadcastReceiver != null) {
-            LocalBroadcastManager.getInstance(activity).unregisterReceiver(subscriptionBroadcastReceiver!!)
+            LocalBroadcastManager.getInstance(activity!!).unregisterReceiver(subscriptionBroadcastReceiver!!)
         }
 
         val filters = IntentFilter()
@@ -260,7 +260,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
             }
         }
 
-        LocalBroadcastManager.getInstance(activity).registerReceiver(subscriptionBroadcastReceiver!!, filters)
+        LocalBroadcastManager.getInstance(activity!!).registerReceiver(subscriptionBroadcastReceiver!!, filters)
     }
 
     private fun addItemView(title: String, @DrawableRes icon: Int, container: ViewGroup): View {
@@ -309,12 +309,12 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
     }
 
     private fun onImportFromServiceSelected(serviceId: Int) {
-        val fragmentManager = fm
+        val fragmentManager = getFM()
         NavigationHelper.openSubscriptionsImportFragment(fragmentManager, serviceId)
     }
 
     private fun onImportPreviousSelected() {
-        startActivityForResult(FilePickerActivityHelper.chooseSingleFile(activity), REQUEST_IMPORT_CODE)
+        startActivityForResult(FilePickerActivityHelper.chooseSingleFile(activity!!), REQUEST_IMPORT_CODE)
     }
 
     private fun onExportSelected() {
@@ -322,7 +322,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
         val exportName = "newpipe_subscriptions_$date.json"
         val exportFile = File(Environment.getExternalStorageDirectory(), exportName)
 
-        startActivityForResult(FilePickerActivityHelper.chooseFileToSave(activity, exportFile.absolutePath), REQUEST_EXPORT_CODE)
+        startActivityForResult(FilePickerActivityHelper.chooseFileToSave(activity!!, exportFile.absolutePath), REQUEST_EXPORT_CODE)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -333,7 +333,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
                 if (!exportFile.parentFile.canWrite() || !exportFile.parentFile.canRead()) {
                     Toast.makeText(activity, R.string.invalid_directory, Toast.LENGTH_SHORT).show()
                 } else {
-                    activity.startService(Intent(activity, SubscriptionsExportService::class.java)
+                    activity!!.startService(Intent(activity, SubscriptionsExportService::class.java)
                             .putExtra(SubscriptionsExportService.KEY_FILE_PATH, exportFile.absolutePath))
                 }
             } else if (requestCode == REQUEST_IMPORT_CODE) {
@@ -356,7 +356,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
         itemsList = rootView.findViewById(R.id.items_list)
         itemsList!!.layoutManager = if (useGrid) gridLayoutManager else listLayoutManager
 
-        val headerRootLayout: View = activity.layoutInflater.inflate(R.layout.subscription_header, itemsList, false)
+        val headerRootLayout: View = activity!!.layoutInflater.inflate(R.layout.subscription_header, itemsList, false)
         infoListAdapter!!.setHeader(headerRootLayout)
         whatsNewItemListHeader = headerRootLayout.findViewById(R.id.whats_new)
         importExportListHeader = headerRootLayout.findViewById(R.id.import_export)
@@ -388,7 +388,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
         infoListAdapter!!.setOnChannelSelectedListener(object : OnClickGesture<ChannelInfoItem>() {
 
             override fun selected(selectedItem: ChannelInfoItem) {
-                val fragmentManager = fm
+                val fragmentManager = getFM()
                 NavigationHelper.openChannelFragment(fragmentManager,
                         selectedItem.serviceId,
                         selectedItem.url,
@@ -403,7 +403,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
 
 
         whatsNewItemListHeader!!.setOnClickListener { v ->
-            val fragmentManager = fm
+            val fragmentManager = getFM()
             NavigationHelper.openWhatsNewFragment(fragmentManager)
         }
         importExportListHeader!!.setOnClickListener { v -> importExportOptions!!.switchState() }

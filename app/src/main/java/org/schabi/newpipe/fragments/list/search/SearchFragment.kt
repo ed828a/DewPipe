@@ -164,11 +164,15 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
         try {
             service = NewPipe.getService(serviceId)
         } catch (e: Exception) {
-            ErrorActivity.reportError(getActivity(), e, getActivity()!!.javaClass,
-                    getActivity()!!.findViewById(android.R.id.content),
-                    ErrorActivity.ErrorInfo.make(UserAction.UI_ERROR,
-                            "",
-                            "", R.string.general_error))
+            val context = getActivity()
+            context?.let{
+                ErrorActivity.reportError(it, e, it.javaClass,
+                        getActivity()!!.findViewById(android.R.id.content),
+                        ErrorActivity.ErrorInfo.make(UserAction.UI_ERROR,
+                                "",
+                                "", R.string.general_error))
+            }
+
         }
 
         if (!TextUtils.isEmpty(searchString)) {
@@ -231,7 +235,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
         suggestionsRecyclerView!!.adapter = suggestionListAdapter
         suggestionsRecyclerView!!.layoutManager = LayoutManagerSmoothScroller(activity)
 
-        searchToolbarContainer = activity.findViewById(R.id.toolbar_search_container)
+        searchToolbarContainer = activity!!.findViewById(R.id.toolbar_search_container)
         searchEditText = searchToolbarContainer!!.findViewById(R.id.toolbar_search_edit_text)
         searchClear = searchToolbarContainer!!.findViewById(R.id.toolbar_search_clear)
     }
@@ -290,7 +294,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         super.onCreateOptionsMenu(menu, inflater)
 
-        val supportActionBar = activity.supportActionBar
+        val supportActionBar = activity!!.supportActionBar
         if (supportActionBar != null) {
             supportActionBar.setDisplayShowTitleEnabled(false)
             supportActionBar.setDisplayHomeAsUpEnabled(true)
@@ -458,7 +462,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
         if (searchEditText == null) return
 
         if (searchEditText!!.requestFocus()) {
-            val imm = activity.getSystemService(
+            val imm = activity!!.getSystemService(
                     Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(searchEditText, InputMethodManager.SHOW_IMPLICIT)
         }
@@ -468,7 +472,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
         if (DEBUG) Log.d(TAG, "hideKeyboardSearch() called")
         if (searchEditText == null) return
 
-        val imm = activity.getSystemService(
+        val imm = activity!!.getSystemService(
                 Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(searchEditText!!.windowToken,
                 InputMethodManager.HIDE_NOT_ALWAYS)
@@ -481,7 +485,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
                 searchEditText == null || disposables == null)
             return
         val query = item.query
-        AlertDialog.Builder(activity)
+        AlertDialog.Builder(activity!!)
                 .setTitle(query)
                 .setMessage(R.string.delete_item_search_history)
                 .setCancelable(true)
@@ -621,7 +625,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe({ intent ->
                             fragmentManager!!.popBackStackImmediate()
-                            activity.startActivity(intent)
+                            activity!!.startActivity(intent)
                         }, { throwable -> showError(getString(R.string.url_not_supported_toast), false) }))
                 return
             }
@@ -734,7 +738,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
         else
             R.string.general_error
         onUnrecoverableError(exception, UserAction.GET_SUGGESTIONS,
-                NewPipe.getNameOfService(serviceId), searchString, errorId)
+                NewPipe.getNameOfService(serviceId), searchString!!, errorId)
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -758,9 +762,13 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
 
     override fun handleResult(result: SearchInfo) {
         val exceptions = result.errors
-        if (!exceptions.isEmpty() && !(exceptions.size == 1 && exceptions[0] is SearchExtractor.NothingFoundException)) {
-            showSnackBarError(result.errors, UserAction.SEARCHED,
-                    NewPipe.getNameOfService(serviceId), searchString, 0)
+        if (!exceptions.isEmpty() && !(exceptions.size == 1 && exceptions[0] is SearchExtractor.NothingFoundException && searchString != null)) {
+            showSnackBarError(
+                    result.errors,
+                    UserAction.SEARCHED,
+                    NewPipe.getNameOfService(serviceId),
+                    searchString!!,
+                    0)
         }
 
         lastSearchedString = searchString
@@ -805,7 +813,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
             else
                 R.string.general_error
             onUnrecoverableError(exception, UserAction.SEARCHED,
-                    NewPipe.getNameOfService(serviceId), searchString, errorId)
+                    NewPipe.getNameOfService(serviceId), searchString!!, errorId)
         }
 
         return true

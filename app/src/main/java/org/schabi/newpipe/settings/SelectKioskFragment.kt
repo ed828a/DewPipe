@@ -164,7 +164,7 @@ class SelectKioskFragment : DialogFragment() {
 
     protected fun onError(e: Throwable) {
         val activity = activity
-        ErrorActivity.reportError(activity, e,
+        ErrorActivity.reportError(activity!!, e,
                 activity!!.javaClass, null,
                 ErrorActivity.ErrorInfo.make(UserAction.UI_ERROR,
                         "none", "", R.string.app_ui_crash))

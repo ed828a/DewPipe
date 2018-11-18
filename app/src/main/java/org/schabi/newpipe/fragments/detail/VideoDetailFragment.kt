@@ -167,7 +167,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
             separator.layoutParams = params
 
             val typedValue = TypedValue()
-            activity.theme.resolveAttribute(R.attr.separator_color, typedValue, true)
+            activity?.theme?.resolveAttribute(R.attr.separator_color, typedValue, true)
             separator.setBackgroundColor(typedValue.data)
 
             return separator
@@ -325,7 +325,11 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
                             currentInfo!!.uploaderUrl,
                             currentInfo!!.uploaderName)
                 } catch (e: Exception) {
-                    ErrorActivity.reportUiError(getActivity() as AppCompatActivity?, e)
+                    val context = getActivity()
+                    context?.let {
+                        ErrorActivity.reportUiError(it as AppCompatActivity, e)
+                    }
+
                 }
 
             }
@@ -375,8 +379,12 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         if (relatedStreamsView!!.childCount > initialCount) {
             relatedStreamsView!!.removeViews(initialCount,
                     relatedStreamsView!!.childCount - initialCount)
-            relatedStreamExpandButton!!.setImageDrawable(ContextCompat.getDrawable(
-                    activity, ThemeHelper.resolveResourceIdFromAttr(activity, R.attr.expand)))
+
+                activity?.let {
+                    relatedStreamExpandButton!!.setImageDrawable(ContextCompat.getDrawable(
+                            it as Context, ThemeHelper.resolveResourceIdFromAttr(activity, R.attr.expand)))
+                }
+
             return
         }
 
@@ -386,9 +394,12 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
             //Log.d(TAG, "i = " + i);
             relatedStreamsView!!.addView(infoItemBuilder!!.buildView(relatedStreamsView!!, item))
         }
-        relatedStreamExpandButton!!.setImageDrawable(
-                ContextCompat.getDrawable(activity,
-                        ThemeHelper.resolveResourceIdFromAttr(activity, R.attr.collapse)))
+        activity?.let {
+            relatedStreamExpandButton!!.setImageDrawable(
+                    ContextCompat.getDrawable(it as Context,
+                            ThemeHelper.resolveResourceIdFromAttr(activity, R.attr.collapse)))
+        }
+
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -397,7 +408,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
 
     override fun initViews(rootView: View, savedInstanceState: Bundle?) {
         super.initViews(rootView, savedInstanceState)
-        spinnerToolbar = activity.findViewById<View>(R.id.toolbar).findViewById(R.id.toolbar_spinner)
+        spinnerToolbar = activity!!.findViewById<View>(R.id.toolbar).findViewById(R.id.toolbar_spinner)
 
         parallaxScrollRootView = rootView.findViewById(R.id.detail_main_content)
 
@@ -555,7 +566,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
             relatedStreamExpandButton!!.visibility = View.VISIBLE
 
             relatedStreamExpandButton!!.setImageDrawable(ContextCompat.getDrawable(
-                    activity, ThemeHelper.resolveResourceIdFromAttr(activity, R.attr.expand)))
+                    activity!!, ThemeHelper.resolveResourceIdFromAttr(activity, R.attr.expand)))
         } else {
             if (info.nextVideo == null) setRelatedStreamsVisibility(View.GONE)
             relatedStreamExpandButton!!.visibility = View.GONE
@@ -576,7 +587,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
 
         updateMenuItemVisibility()
 
-        val supportActionBar = activity.supportActionBar
+        val supportActionBar = activity!!.supportActionBar
         if (supportActionBar != null) {
             supportActionBar.setDisplayHomeAsUpEnabled(true)
             supportActionBar.setDisplayShowTitleEnabled(false)
@@ -587,7 +598,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
 
         // show kodi if set in settings
         menu!!.findItem(R.id.action_play_with_kodi).isVisible = PreferenceManager.getDefaultSharedPreferences(activity).getBoolean(
-                activity.getString(R.string.show_play_with_kodi_key), false)
+                activity!!.getString(R.string.show_play_with_kodi_key), false)
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -616,7 +627,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
                             url?.replace("https", "http")))
                 } catch (e: Exception) {
                     if (DEBUG) Log.i(TAG, "Failed to start kore", e)
-                    showInstallKoreDialog(activity)
+                    showInstallKoreDialog(activity!!)
                 }
 
                 return true
@@ -633,7 +644,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
     private fun setupActionBar(info: StreamInfo) {
         if (DEBUG) Log.d(TAG, "setupActionBarHandler() called with: info = [$info]")
         val isExternalPlayerEnabled = PreferenceManager.getDefaultSharedPreferences(activity)
-                .getBoolean(activity.getString(R.string.use_external_video_player_key), false)
+                .getBoolean(activity!!.getString(R.string.use_external_video_player_key), false)
 
         sortedVideoStreams = ListHelper.getSortedStreamVideosList(activity, info.videoStreams, info.videoOnlyStreams, false)
         selectedVideoStreamIndex = ListHelper.getDefaultResolutionIndex(activity, sortedVideoStreams)
@@ -762,12 +773,12 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         val audioStream = currentInfo!!.audioStreams[ListHelper.getDefaultAudioFormat(activity, currentInfo!!.audioStreams)]
 
         val useExternalAudioPlayer = PreferenceManager.getDefaultSharedPreferences(activity)
-                .getBoolean(activity.getString(R.string.use_external_audio_player_key), false)
+                .getBoolean(activity!!.getString(R.string.use_external_audio_player_key), false)
 
         if (!useExternalAudioPlayer && android.os.Build.VERSION.SDK_INT >= 16) {
             openNormalBackgroundPlayer(append)
         } else {
-            startOnExternalPlayer(activity, currentInfo!!, audioStream)
+            startOnExternalPlayer(activity!!, currentInfo!!, audioStream)
         }
     }
 
@@ -783,9 +794,9 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         } else {
             Toast.makeText(activity, R.string.popup_playing_toast, Toast.LENGTH_SHORT).show()
             val intent = NavigationHelper.getPlayerIntent(
-                    activity, PopupVideoPlayer::class.java, itemQueue, selectedVideoStream!!.resolution
+                    activity!!, PopupVideoPlayer::class.java, itemQueue, selectedVideoStream!!.resolution
             )
-            activity.startService(intent)
+            activity!!.startService(intent)
         }
     }
 
@@ -794,7 +805,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
 
         if (PreferenceManager.getDefaultSharedPreferences(activity)
                         .getBoolean(this.getString(R.string.use_external_video_player_key), false)) {
-            startOnExternalPlayer(activity, currentInfo!!, selectedVideoStream!!)
+            startOnExternalPlayer(activity!!, currentInfo!!, selectedVideoStream!!)
         } else {
             openNormalPlayer(selectedVideoStream)
         }
@@ -811,11 +822,11 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
 
     private fun openNormalPlayer(selectedVideoStream: VideoStream?) {
         val mIntent: Intent
-        val useOldPlayer = PlayerHelper.isUsingOldPlayer(activity) || Build.VERSION.SDK_INT < 16
+        val useOldPlayer = PlayerHelper.isUsingOldPlayer(activity!!) || Build.VERSION.SDK_INT < 16
         if (!useOldPlayer) {
             // ExoPlayer
             val playQueue = SinglePlayQueue(currentInfo)
-            mIntent = NavigationHelper.getPlayerIntent(activity,
+            mIntent = NavigationHelper.getPlayerIntent(activity!!,
                     MainVideoPlayer::class.java,
                     playQueue,
                     selectedVideoStream!!.getResolution())
@@ -939,7 +950,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
     private fun setErrorImage(imageResource: Int) {
         if (thumbnailImageView == null || activity == null) return
 
-        thumbnailImageView!!.setImageDrawable(ContextCompat.getDrawable(activity, imageResource))
+        thumbnailImageView!!.setImageDrawable(ContextCompat.getDrawable(activity!!, imageResource))
         animateView(thumbnailImageView, false, 0, 0
         ) { animateView(thumbnailImageView, true, 500) }
     }
@@ -1004,7 +1015,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         } else {
             uploaderTextView!!.visibility = View.GONE
         }
-        uploaderThumb!!.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.buddy))
+        uploaderThumb!!.setImageDrawable(ContextCompat.getDrawable(activity!!, R.drawable.buddy))
 
         if (info.viewCount >= 0) {
             videoCountView!!.text = Localization.localizeViewCount(activity, info.viewCount)
@@ -1043,11 +1054,11 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
 
         if (info.duration > 0) {
             detailDurationView!!.text = Localization.getDurationString(info.duration)
-            detailDurationView!!.setBackgroundColor(ContextCompat.getColor(activity, R.color.duration_background_color))
+            detailDurationView!!.setBackgroundColor(ContextCompat.getColor(activity!!, R.color.duration_background_color))
             animateView(detailDurationView, true, 100)
         } else if (info.streamType == StreamType.LIVE_STREAM) {
             detailDurationView!!.setText(R.string.duration_live)
-            detailDurationView!!.setBackgroundColor(ContextCompat.getColor(activity, R.color.live_duration_background_color))
+            detailDurationView!!.setBackgroundColor(ContextCompat.getColor(activity!!, R.color.live_duration_background_color))
             animateView(detailDurationView, true, 100)
         } else {
             detailDurationView!!.visibility = View.GONE
@@ -1125,7 +1136,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
             downloadDialog.setAudioStreams(currentInfo!!.audioStreams)
             downloadDialog.setSelectedVideoStream(selectedVideoStreamIndex)
 
-            downloadDialog.show(activity.supportFragmentManager, "downloadDialog")
+            downloadDialog.show(activity!!.supportFragmentManager, "downloadDialog")
         } catch (e: Exception) {
             Toast.makeText(activity,
                     R.string.could_not_setup_download_menu,
@@ -1156,7 +1167,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
             onUnrecoverableError(exception,
                     UserAction.REQUESTED_STREAM,
                     NewPipe.getNameOfService(serviceId),
-                    url,
+                    url!!,
                     errorId)
         }
 

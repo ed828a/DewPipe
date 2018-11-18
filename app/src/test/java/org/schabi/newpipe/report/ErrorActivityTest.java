@@ -17,19 +17,19 @@ public class ErrorActivityTest {
     @Test
     public void getReturnActivity() {
         Class<? extends Activity> returnActivity;
-        returnActivity = ErrorActivity.getReturnActivity(MainActivity.class);
+        returnActivity = ErrorActivity.Companion.getReturnActivity(MainActivity.class);
         assertEquals(MainActivity.class, returnActivity);
 
-        returnActivity = ErrorActivity.getReturnActivity(RouterActivity.class);
+        returnActivity = ErrorActivity.Companion.getReturnActivity(RouterActivity.class);
         assertEquals(RouterActivity.class, returnActivity);
 
-        returnActivity = ErrorActivity.getReturnActivity(null);
+        returnActivity = ErrorActivity.Companion.getReturnActivity(null);
         assertNull(returnActivity);
 
-        returnActivity = ErrorActivity.getReturnActivity(Integer.class);
+        returnActivity = ErrorActivity.Companion.getReturnActivity(Integer.class);
         assertEquals(MainActivity.class, returnActivity);
 
-        returnActivity = ErrorActivity.getReturnActivity(VideoDetailFragment.class);
+        returnActivity = ErrorActivity.Companion.getReturnActivity(VideoDetailFragment.class);
         assertEquals(MainActivity.class, returnActivity);
     }
 

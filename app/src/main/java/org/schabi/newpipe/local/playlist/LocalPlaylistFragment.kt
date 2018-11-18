@@ -61,7 +61,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
     @State
     var playlistId: Long? = null
     @State
-    var name: String? = null
+    var name: String = ""
     @State
     var itemsListState: Parcelable? = null
 
@@ -188,7 +188,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
     // Fragment Lifecycle - Views
     ///////////////////////////////////////////////////////////////////////////
 
-    override fun setTitle(title: String?) {
+    override fun setTitle(title: String) {
         super.setTitle(title)
 
         if (headerTitleView != null) {
@@ -202,7 +202,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
     }
 
     override fun getListHeader(): View? {
-        headerRootLayout = activity.layoutInflater.inflate(R.layout.local_playlist_header,
+        headerRootLayout = activity!!.layoutInflater.inflate(R.layout.local_playlist_header,
                 itemsList, false)
 
         headerTitleView = headerRootLayout!!.findViewById(R.id.playlist_title_view)

@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 
 /*
  * Copyright (C) Hans-Christoph Steiner 2016 <hans@eds.org>
@@ -24,7 +25,7 @@ import android.os.Bundle
  * along with NewPipe.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class ExitActivity : Activity() {
+class ExitActivity : AppCompatActivity() {
 
     @SuppressLint("NewApi")
     override fun onCreate(savedInstanceState: Bundle?) {

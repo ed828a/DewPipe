@@ -84,7 +84,7 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
-        subscriptionService = SubscriptionService.getInstance(activity)
+        subscriptionService = SubscriptionService.getInstance(activity!!)
         Log.d(TAG, "ChannelFragment::onAttach called")
     }
 
@@ -103,7 +103,7 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
     ///////////////////////////////////////////////////////////////////////////
 
     override fun getListHeader(): View? {
-        headerRootLayout = activity.layoutInflater.inflate(R.layout.channel_header, itemsList, false)
+        headerRootLayout = activity!!.layoutInflater.inflate(R.layout.channel_header, itemsList, false)
         headerChannelBanner = headerRootLayout!!.findViewById(R.id.channel_banner_image)
         headerAvatarView = headerRootLayout!!.findViewById(R.id.channel_avatar_view)
         headerTitleView = headerRootLayout!!.findViewById(R.id.channel_title_view)
@@ -152,7 +152,7 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         super.onCreateOptionsMenu(menu, inflater)
-        val supportActionBar = activity.supportActionBar
+        val supportActionBar = activity!!.supportActionBar
         if (useAsFrontPage && supportActionBar != null) {
             supportActionBar.setDisplayHomeAsUpEnabled(false)
         } else {
@@ -292,10 +292,10 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
         val backgroundDuration = if (isButtonVisible) 300 else 0
         val textDuration = if (isButtonVisible) 200 else 0
 
-        val subscribeBackground = ContextCompat.getColor(activity, R.color.subscribe_background_color)
-        val subscribeText = ContextCompat.getColor(activity, R.color.subscribe_text_color)
-        val subscribedBackground = ContextCompat.getColor(activity, R.color.subscribed_background_color)
-        val subscribedText = ContextCompat.getColor(activity, R.color.subscribed_text_color)
+        val subscribeBackground = ContextCompat.getColor(activity!!, R.color.subscribe_background_color)
+        val subscribeText = ContextCompat.getColor(activity!!, R.color.subscribe_text_color)
+        val subscribedBackground = ContextCompat.getColor(activity!!, R.color.subscribed_background_color)
+        val subscribedText = ContextCompat.getColor(activity!!, R.color.subscribed_text_color)
 
         if (!isSubscribed) {
             headerSubscribeButton!!.setText(R.string.subscribe_button_title)

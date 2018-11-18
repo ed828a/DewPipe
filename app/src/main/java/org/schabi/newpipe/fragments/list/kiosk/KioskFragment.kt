@@ -90,7 +90,7 @@ class KioskFragment : BaseListInfoFragment<KioskInfo>() {
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         super.onCreateOptionsMenu(menu, inflater)
-        val supportActionBar = activity.supportActionBar
+        val supportActionBar = activity!!.supportActionBar
         if (supportActionBar != null && useAsFrontPage) {
             supportActionBar.setDisplayHomeAsUpEnabled(false)
         }

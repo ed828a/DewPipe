@@ -61,12 +61,12 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
 
     protected open fun getListHeader(): View? = null
 
-    protected open fun getListFooter(): View = activity.layoutInflater.inflate(R.layout.pignate_footer, itemsList, false)
+    protected open fun getListFooter(): View = activity!!.layoutInflater.inflate(R.layout.pignate_footer, itemsList, false)
 
     protected fun getListLayoutManager(): RecyclerView.LayoutManager = LinearLayoutManager(activity)
 
     protected fun getGridLayoutManager(): RecyclerView.LayoutManager {
-        val resources = activity.resources
+        val resources = activity!!.resources
         var width = resources.getDimensionPixelSize(R.dimen.video_item_grid_thumbnail_image_width)
         width += (24 * resources.displayMetrics.density).toInt()
         val spanCount = Math.floor(resources.displayMetrics.widthPixels / width.toDouble()).toInt()
@@ -141,7 +141,7 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
 
     override fun onSaveInstanceState(bundle: Bundle) {
         super.onSaveInstanceState(bundle)
-        savedState = StateSaver.tryToSave(activity.isChangingConfigurations, savedState, bundle, this)
+        savedState = StateSaver.tryToSave(activity!!.isChangingConfigurations, savedState, bundle, this)
     }
 
     override fun onRestoreInstanceState(bundle: Bundle) {
@@ -183,12 +183,15 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
             override fun selected(selectedItem: ChannelInfoItem) {
                 try {
                     onItemSelected(selectedItem)
-                    NavigationHelper.openChannelFragment(fm,
+                    NavigationHelper.openChannelFragment(getFM(),
                             selectedItem.serviceId,
                             selectedItem.url,
                             selectedItem.name)
                 } catch (e: Exception) {
-                    ErrorActivity.reportUiError(getActivity() as AppCompatActivity?, e)
+                    val context = getActivity()
+                    context?.let {
+                        ErrorActivity.reportUiError(it as AppCompatActivity, e)
+                    }
                 }
 
             }
@@ -198,12 +201,16 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
             override fun selected(selectedItem: PlaylistInfoItem) {
                 try {
                     onItemSelected(selectedItem)
-                    NavigationHelper.openPlaylistFragment(fm,
+                    NavigationHelper.openPlaylistFragment(getFM(),
                             selectedItem.serviceId,
                             selectedItem.url,
                             selectedItem.name)
                 } catch (e: Exception) {
-                    ErrorActivity.reportUiError(getActivity() as AppCompatActivity?, e)
+                    val context = getActivity()
+                    context?.let{
+                        ErrorActivity.reportUiError(it as AppCompatActivity, e)
+                    }
+
                 }
 
             }
@@ -219,7 +226,7 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
 
     private fun onStreamSelected(selectedItem: StreamInfoItem) {
         onItemSelected(selectedItem)
-        NavigationHelper.openVideoDetailFragment(fm,
+        NavigationHelper.openVideoDetailFragment(getFM(),
                 selectedItem.serviceId, selectedItem.url, selectedItem.name)
     }
 
@@ -260,7 +267,7 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         if (DEBUG) Log.d(TAG, "onCreateOptionsMenu() called with: menu = [$menu], inflater = [$inflater]")
         super.onCreateOptionsMenu(menu, inflater)
-        val supportActionBar = activity.supportActionBar
+        val supportActionBar = activity!!.supportActionBar
         if (supportActionBar != null) {
             supportActionBar.setDisplayShowTitleEnabled(true)
             if (useAsFrontPage) {
@@ -324,6 +331,6 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
 
     companion object {
 
-        private val LIST_MODE_UPDATE_FLAG = 0x32
+        private const val LIST_MODE_UPDATE_FLAG = 0x32
     }
 }

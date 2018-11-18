@@ -227,7 +227,7 @@ public final class ExtractorHelper {
             } else {
                 int errorId = exception instanceof YoutubeStreamExtractor.DecryptException ? R.string.youtube_signature_decryption_error :
                         exception instanceof ParsingException ? R.string.parsing_error : R.string.general_error;
-                ErrorActivity.reportError(handler, context, exception, MainActivity.class, null, ErrorActivity.ErrorInfo.make(userAction,
+                ErrorActivity.Companion.reportError(handler, context, exception, MainActivity.class, null, ErrorActivity.ErrorInfo.Companion.make(userAction,
                         serviceId == -1 ? "none" : NewPipe.getNameOfService(serviceId), url + (optionalErrorMessage == null ? "" : optionalErrorMessage), errorId));
             }
         });

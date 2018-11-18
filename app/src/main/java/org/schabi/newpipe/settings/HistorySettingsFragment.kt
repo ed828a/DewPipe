@@ -56,7 +56,7 @@ class HistorySettingsFragment : BasePreferenceFragment() {
                                                     Toast.LENGTH_SHORT).show()
                                         },
                                         { throwable ->
-                                            ErrorActivity.reportError(context,
+                                            ErrorActivity.reportError(context!!,
                                                     throwable,
                                                     SettingsActivity::class.java, null,
                                                     ErrorActivity.ErrorInfo.make(
@@ -71,7 +71,7 @@ class HistorySettingsFragment : BasePreferenceFragment() {
                                 .subscribe(
                                         { howManyDeleted -> },
                                         { throwable ->
-                                            ErrorActivity.reportError(context,
+                                            ErrorActivity.reportError(context!!,
                                                     throwable,
                                                     SettingsActivity::class.java, null,
                                                     ErrorActivity.ErrorInfo.make(
@@ -101,7 +101,7 @@ class HistorySettingsFragment : BasePreferenceFragment() {
                                                     Toast.LENGTH_SHORT).show()
                                         },
                                         { throwable ->
-                                            ErrorActivity.reportError(context,
+                                            ErrorActivity.reportError(context!!,
                                                     throwable,
                                                     SettingsActivity::class.java, null,
                                                     ErrorActivity.ErrorInfo.make(

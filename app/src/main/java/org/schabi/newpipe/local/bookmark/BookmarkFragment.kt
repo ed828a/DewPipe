@@ -71,7 +71,7 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (activity == null) return
-        val database = NewPipeDatabase.getInstance(activity)
+        val database = NewPipeDatabase.getInstance(activity!!)
         localPlaylistManager = LocalPlaylistManager(database)
         remotePlaylistManager = RemotePlaylistManager(database)
         disposables = CompositeDisposable()
@@ -82,7 +82,7 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
                               savedInstanceState: Bundle?): View? {
 
         if (!useAsFrontPage) {
-            setTitle(activity.getString(R.string.tab_bookmarks))
+            setTitle(activity!!.getString(R.string.tab_bookmarks))
         }
         return inflater.inflate(R.layout.fragment_bookmarks, container, false)
     }
@@ -91,7 +91,7 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
         if (activity != null && isVisibleToUser) {
-            setTitle(activity.getString(R.string.tab_bookmarks))
+            setTitle(activity!!.getString(R.string.tab_bookmarks))
         }
     }
 
@@ -109,7 +109,7 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
 
         itemListAdapter!!.setSelectedListener(object : OnClickGesture<LocalItem>() {
             override fun selected(selectedItem: LocalItem) {
-                val fragmentManager = fm
+                val fragmentManager = getFM()
 
                 if (selectedItem is PlaylistMetadataEntry) {
                     NavigationHelper.openLocalPlaylistFragment(fragmentManager, selectedItem.uid,

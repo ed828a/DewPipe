@@ -20,17 +20,17 @@ public class ErrorInfoTest {
 
     @Test
     public void errorInfo_testParcelable() {
-        ErrorInfo info = ErrorInfo.make(UserAction.USER_REPORT, "youtube", "request", R.string.general_error);
+        ErrorInfo info = ErrorInfo.Companion.make(UserAction.USER_REPORT, "youtube", "request", R.string.general_error);
         // Obtain a Parcel object and write the parcelable object to it:
         Parcel parcel = Parcel.obtain();
         info.writeToParcel(parcel, 0);
         parcel.setDataPosition(0);
-        ErrorInfo infoFromParcel = ErrorInfo.CREATOR.createFromParcel(parcel);
+        ErrorInfo infoFromParcel = ErrorInfo.Companion.getCREATOR().createFromParcel(parcel);
 
-        assertEquals(UserAction.USER_REPORT, infoFromParcel.userAction);
-        assertEquals("youtube", infoFromParcel.serviceName);
-        assertEquals("request", infoFromParcel.request);
-        assertEquals(R.string.general_error, infoFromParcel.message);
+        assertEquals(UserAction.USER_REPORT, infoFromParcel.getUserAction());
+        assertEquals("youtube", infoFromParcel.getServiceName());
+        assertEquals("request", infoFromParcel.getRequest());
+        assertEquals(R.string.general_error, infoFromParcel.getMessage());
 
         parcel.recycle();
     }

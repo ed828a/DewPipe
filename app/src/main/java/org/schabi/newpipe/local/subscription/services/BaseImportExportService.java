@@ -146,9 +146,9 @@ public abstract class BaseImportExportService extends Service {
     protected void stopAndReportError(@Nullable Throwable error, String request) {
         stopService();
 
-        final ErrorActivity.ErrorInfo errorInfo = ErrorActivity.ErrorInfo.make(UserAction.SUBSCRIPTION, "unknown",
+        final ErrorActivity.ErrorInfo errorInfo = ErrorActivity.ErrorInfo.Companion.make(UserAction.SUBSCRIPTION, "unknown",
                 request, R.string.general_error);
-        ErrorActivity.reportError(this, error != null ? Collections.singletonList(error) : Collections.emptyList(),
+        ErrorActivity.Companion.reportError(this, error != null ? Collections.singletonList(error) : Collections.emptyList(),
                 null, null, errorInfo);
     }
 

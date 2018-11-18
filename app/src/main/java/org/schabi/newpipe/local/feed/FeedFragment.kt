@@ -47,7 +47,7 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        subscriptionService = SubscriptionService.getInstance(activity)
+        subscriptionService = SubscriptionService.getInstance(activity!!)
 
         FEED_LOAD_COUNT = howManyItemsToLoad()
     }
@@ -55,7 +55,7 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         if (!useAsFrontPage) {
-            setTitle(activity.getString(R.string.fragment_whats_new))
+            setTitle(activity!!.getString(R.string.fragment_whats_new))
         }
         return inflater.inflate(R.layout.fragment_feed, container, false)
     }
@@ -90,14 +90,14 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
         if (activity != null && isVisibleToUser) {
-            setTitle(activity.getString(R.string.fragment_whats_new))
+            setTitle(activity!!.getString(R.string.fragment_whats_new))
         }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         super.onCreateOptionsMenu(menu, inflater)
 
-        val supportActionBar = activity.supportActionBar
+        val supportActionBar = activity!!.supportActionBar
 
         if (useAsFrontPage) {
             supportActionBar!!.setDisplayShowTitleEnabled(true)
@@ -375,7 +375,7 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
 
     private fun howManyItemsToLoad(): Int {
         val heightPixels = resources.displayMetrics.heightPixels
-        val itemHeightPixels = activity.resources.getDimensionPixelSize(R.dimen.video_item_search_height)
+        val itemHeightPixels = activity!!.resources.getDimensionPixelSize(R.dimen.video_item_search_height)
 
         val items = if (itemHeightPixels > 0)
             heightPixels / itemHeightPixels + OFF_SCREEN_ITEMS_COUNT

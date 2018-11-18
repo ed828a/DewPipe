@@ -95,7 +95,7 @@ class MainFragment : BaseFragment(), TabLayout.OnTabSelectedListener {
         if (DEBUG) Log.d(TAG, "onCreateOptionsMenu() called with: menu = [$menu], inflater = [$inflater]")
         inflater!!.inflate(R.menu.main_fragment_menu, menu)
 
-        val supportActionBar = activity.supportActionBar
+        val supportActionBar = activity?.supportActionBar
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
     }
 
@@ -108,7 +108,10 @@ class MainFragment : BaseFragment(), TabLayout.OnTabSelectedListener {
                             ServiceHelper.getSelectedServiceId(activity),
                             "")
                 } catch (e: Exception) {
-                    ErrorActivity.reportUiError(getActivity() as AppCompatActivity?, e)
+                    val context = getActivity()
+                    context?.let{
+                        ErrorActivity.reportUiError(it as AppCompatActivity, e)
+                    }
                 }
 
                 return true
@@ -168,8 +171,12 @@ class MainFragment : BaseFragment(), TabLayout.OnTabSelectedListener {
             }
 
             if (throwable != null) {
-                ErrorActivity.reportError(activity, throwable, activity.javaClass, null,
-                        ErrorActivity.ErrorInfo.make(UserAction.UI_ERROR, "none", "", R.string.app_ui_crash))
+                val context = activity
+                context?.let {
+                    ErrorActivity.reportError(it as Context, throwable, it.javaClass, null,
+                            ErrorActivity.ErrorInfo.make(UserAction.UI_ERROR, "none", "", R.string.app_ui_crash))
+                }
+
                 return BlankFragment()
             }
 

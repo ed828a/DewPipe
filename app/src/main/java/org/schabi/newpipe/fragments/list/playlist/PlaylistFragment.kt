@@ -119,7 +119,7 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
     ///////////////////////////////////////////////////////////////////////////
 
     override fun getListHeader(): View? {
-        headerRootLayout = activity.layoutInflater.inflate(R.layout.playlist_header, itemsList, false)
+        headerRootLayout = activity!!.layoutInflater.inflate(R.layout.playlist_header, itemsList, false)
         headerTitleView = headerRootLayout!!.findViewById(R.id.playlist_title_view)
         headerUploaderLayout = headerRootLayout!!.findViewById(R.id.uploader_layout)
         headerUploaderName = headerRootLayout!!.findViewById(R.id.uploader_name)
@@ -249,7 +249,10 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
                                 result.uploaderUrl,
                                 result.uploaderName)
                     } catch (e: Exception) {
-                        ErrorActivity.reportUiError(getActivity() as AppCompatActivity?, e)
+                        val context = getActivity()
+                        context?.let{
+                            ErrorActivity.reportUiError( it as AppCompatActivity, e)
+                        }
                     }
                 }
             }

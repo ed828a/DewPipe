@@ -62,9 +62,9 @@ class SubscriptionsImportFragment : BaseFragment() {
 
         setupServiceVariables()
         if (supportedSources!!.isEmpty() && currentServiceId != Constants.NO_SERVICE_ID) {
-            ErrorActivity.reportError(activity, emptyList(), null, null, ErrorActivity.ErrorInfo.make(UserAction.SOMETHING_ELSE,
+            ErrorActivity.reportError(activity!!, emptyList(), null, null, ErrorActivity.ErrorInfo.make(UserAction.SOMETHING_ELSE,
                     NewPipe.getNameOfService(currentServiceId), "Service don't support importing", R.string.general_error))
-            activity.finish()
+            activity!!.finish()
         }
     }
 
@@ -110,7 +110,7 @@ class SubscriptionsImportFragment : BaseFragment() {
             setInfoText("")
         }
 
-        val supportActionBar = activity.supportActionBar
+        val supportActionBar = activity!!.supportActionBar
         if (supportActionBar != null) {
             supportActionBar.setDisplayShowTitleEnabled(true)
             setTitle(getString(R.string.import_title))
@@ -139,7 +139,7 @@ class SubscriptionsImportFragment : BaseFragment() {
     }
 
     fun onImportFile() {
-        startActivityForResult(FilePickerActivityHelper.chooseSingleFile(activity), REQUEST_IMPORT_FILE_CODE)
+        startActivityForResult(FilePickerActivityHelper.chooseSingleFile(activity!!), REQUEST_IMPORT_FILE_CODE)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -179,7 +179,9 @@ open class App : Application() {
         } catch (ace: ACRAConfigurationException) {
             ace.printStackTrace()
             ErrorActivity.reportError(this,
-                    ace, null, null,
+                    ace,
+                    null,
+                    null,
                     ErrorActivity.ErrorInfo.make(UserAction.SOMETHING_ELSE, "none",
                             "Could not initialize ACRA crash report", R.string.app_ui_crash))
         }

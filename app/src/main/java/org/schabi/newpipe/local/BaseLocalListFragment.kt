@@ -46,10 +46,10 @@ abstract class BaseLocalListFragment<I, N> : BaseStateFragment<I>(), ListViewCon
 
     protected open fun getListHeader(): View? = null
 
-    protected fun getListFooter(): View = activity.layoutInflater.inflate(R.layout.pignate_footer, itemsList, false)
+    protected fun getListFooter(): View = activity!!.layoutInflater.inflate(R.layout.pignate_footer, itemsList, false)
 
     protected fun getGridLayoutManager(): RecyclerView.LayoutManager {
-        val resources = activity.resources
+        val resources = activity!!.resources
         var width = resources.getDimensionPixelSize(R.dimen.video_item_grid_thumbnail_image_width)
         width += (24 * resources.displayMetrics.density).toInt()
         val spanCount = Math.floor(resources.displayMetrics.widthPixels / width.toDouble()).toInt()
@@ -132,7 +132,7 @@ abstract class BaseLocalListFragment<I, N> : BaseStateFragment<I>(), ListViewCon
             Log.d(TAG, "onCreateOptionsMenu() called with: menu = [" + menu +
                     "], inflater = [" + inflater + "]")
 
-        val supportActionBar = activity.supportActionBar ?: return
+        val supportActionBar = activity!!.supportActionBar ?: return
 
         supportActionBar.setDisplayShowTitleEnabled(true)
     }
