@@ -3,6 +3,7 @@ package org.schabi.newpipe.local.subscription
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.PendingIntent.getActivity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.DialogInterface
@@ -370,7 +371,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
         setupExportToItems(headerRootLayout.findViewById(R.id.export_to_options))
 
         if (importExportOptionsState != null) {
-            importExportOptions!!.onRestoreInstanceState(importExportOptionsState)
+            importExportOptions!!.onRestoreInstanceState(importExportOptionsState!!)
             importExportOptionsState = null
         }
 
@@ -379,7 +380,11 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
     }
 
     private fun getExpandIconSyncListener(iconView: ImageView): CollapsibleView.StateListener {
-        return CollapsibleView.StateListener { newState -> animateRotation(iconView, 250, if (newState == CollapsibleView.COLLAPSED) 0 else 180) }
+        return object : CollapsibleView.StateListener {
+            override fun onStateChanged(newState: Int) {
+                animateRotation(iconView, 250, if (newState == CollapsibleView.COLLAPSED) 0 else 180)
+            }
+        }
     }
 
     override fun initListeners() {
