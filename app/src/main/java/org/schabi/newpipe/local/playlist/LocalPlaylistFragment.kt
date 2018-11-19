@@ -1,7 +1,5 @@
 package org.schabi.newpipe.local.playlist
 
-import android.app.Activity
-import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import android.os.Parcelable
@@ -16,7 +14,12 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-
+import icepick.State
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
+import io.reactivex.disposables.Disposables
+import io.reactivex.subjects.PublishSubject
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import org.schabi.newpipe.NewPipeDatabase
@@ -24,28 +27,18 @@ import org.schabi.newpipe.R
 import org.schabi.newpipe.database.LocalItem
 import org.schabi.newpipe.database.playlist.PlaylistStreamEntry
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
-import org.schabi.newpipe.local.BaseLocalListFragment
 import org.schabi.newpipe.info_list.InfoItemDialog
+import org.schabi.newpipe.local.BaseLocalListFragment
 import org.schabi.newpipe.player.playqueue.PlayQueue
 import org.schabi.newpipe.player.playqueue.SinglePlayQueue
 import org.schabi.newpipe.report.UserAction
+import org.schabi.newpipe.util.AnimationUtils.animateView
 import org.schabi.newpipe.util.Localization
 import org.schabi.newpipe.util.NavigationHelper
 import org.schabi.newpipe.util.OnClickGesture
-
-import java.util.ArrayList
-import java.util.Collections
+import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
-
-import icepick.State
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.disposables.Disposables
-import io.reactivex.subjects.PublishSubject
-
-import org.schabi.newpipe.util.AnimationUtils.animateView
 
 class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, Void>() {
 
