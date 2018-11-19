@@ -433,7 +433,7 @@ class ErrorActivity : AppCompatActivity() {
          * @param returnActivity the activity to return to
          * @return the casted return activity or null
          */
-        internal fun getReturnActivity(returnActivity: Class<*>?): Class<out Activity>? {
+        fun getReturnActivity(returnActivity: Class<*>?): Class<out Activity>? {
             var checkedReturnActivity: Class<out Activity>? = null
             if (returnActivity != null) {
                 if (Activity::class.java.isAssignableFrom(returnActivity)) {
