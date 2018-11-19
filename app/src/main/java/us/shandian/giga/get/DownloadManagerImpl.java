@@ -57,7 +57,7 @@ public class DownloadManagerImpl implements DownloadManager {
         DownloadMission existingMission = getMissionByLocation(location, name);
         if (existingMission != null) {
             // Already downloaded or downloading
-            if (existingMission.finished) {
+            if (existingMission.getFinished()) {
                 // Overwrite mission
                 deleteMission(mMissions.indexOf(existingMission));
             } else {
@@ -73,8 +73,8 @@ public class DownloadManagerImpl implements DownloadManager {
         }
 
         DownloadMission mission = new DownloadMission(name, url, location);
-        mission.timestamp = System.currentTimeMillis();
-        mission.threadCount = threads;
+        mission.setTimestamp(System.currentTimeMillis());
+        mission.setThreadCount(threads);
         mission.addListener(new MissionListener(mission));
         new Initializer(mission).start();
         return insertMission(mission);
@@ -83,7 +83,7 @@ public class DownloadManagerImpl implements DownloadManager {
     @Override
     public void resumeMission(int i) {
         DownloadMission d = getMission(i);
-        if (!d.running && d.errCode == -1) {
+        if (!d.getRunning() && d.getErrCode() == -1) {
             d.start();
         }
     }
@@ -91,7 +91,7 @@ public class DownloadManagerImpl implements DownloadManager {
     @Override
     public void pauseMission(int i) {
         DownloadMission d = getMission(i);
-        if (d.running) {
+        if (d.getRunning()) {
             d.pause();
         }
     }
@@ -99,7 +99,7 @@ public class DownloadManagerImpl implements DownloadManager {
     @Override
     public void deleteMission(int i) {
         DownloadMission mission = getMission(i);
-        if (mission.finished) {
+        if (mission.getFinished()) {
             mDownloadDataSource.deleteMission(mission);
         }
         mission.delete();
@@ -123,7 +123,7 @@ public class DownloadManagerImpl implements DownloadManager {
         Collections.sort(missions, new Comparator<DownloadMission>() {
             @Override
             public int compare(DownloadMission o1, DownloadMission o2) {
-                return Long.compare(o1.timestamp, o2.timestamp);
+                return Long.compare(o1.getTimestamp(), o2.getTimestamp());
             }
         });
     }
@@ -148,9 +148,9 @@ public class DownloadManagerImpl implements DownloadManager {
                 }
                 mDownloadDataSource.deleteMission(mission);
             } else {
-                mission.length = downloadedFile.length();
-                mission.finished = true;
-                mission.running = false;
+                mission.setLength(downloadedFile.length());
+                mission.setFinished(true);
+                mission.setRunning(false);
                 mMissions.add(mission);
             }
         }
@@ -172,15 +172,15 @@ public class DownloadManagerImpl implements DownloadManager {
                 if (sub.isFile() && sub.getName().endsWith(".giga")) {
                     DownloadMission mis = Utility.readFromFile(sub.getAbsolutePath());
                     if (mis != null) {
-                        if (mis.finished) {
+                        if (mis.getFinished()) {
                             if (!sub.delete()) {
                                 Log.w(TAG, "Unable to delete .giga file: " + sub.getPath());
                             }
                             continue;
                         }
 
-                        mis.running = false;
-                        mis.recovered = true;
+                        mis.setRunning(false);
+                        mis.setRecovered(true);
                         insertMission(mis);
                     }
                 }
@@ -206,7 +206,7 @@ public class DownloadManagerImpl implements DownloadManager {
         if (mMissions.size() > 0) {
             do {
                 m = mMissions.get(++i);
-            } while (m.timestamp > mission.timestamp && i < mMissions.size() - 1);
+            } while (m.getTimestamp() > mission.getTimestamp() && i < mMissions.size() - 1);
 
             //if (i > 0) i--;
         } else {
@@ -229,7 +229,7 @@ public class DownloadManagerImpl implements DownloadManager {
     @Nullable
     DownloadMission getMissionByLocation(String location, String name) {
         for (DownloadMission mission : mMissions) {
-            if (location.equals(mission.location) && name.equals(mission.name)) {
+            if (location.equals(mission.getLocation()) && name.equals(mission.getName())) {
                 return mission;
             }
         }
@@ -304,23 +304,23 @@ public class DownloadManagerImpl implements DownloadManager {
         @Override
         public void run() {
             try {
-                URL url = new URL(mission.url);
+                URL url = new URL(mission.getUrl());
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                mission.length = conn.getContentLength();
+                mission.setLength(conn.getContentLength());
 
-                if (mission.length <= 0) {
-                    mission.errCode = DownloadMission.ERROR_SERVER_UNSUPPORTED;
+                if (mission.getLength() <= 0) {
+                    mission.setErrCode(DownloadMission.Companion.getERROR_SERVER_UNSUPPORTED());
                     //mission.notifyError(DownloadMission.ERROR_SERVER_UNSUPPORTED);
                     return;
                 }
 
                 // Open again
                 conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestProperty("Range", "bytes=" + (mission.length - 10) + "-" + mission.length);
+                conn.setRequestProperty("Range", "bytes=" + (mission.getLength() - 10) + "-" + mission.getLength());
 
                 if (conn.getResponseCode() != 206) {
                     // Fallback to single thread if no partial content support
-                    mission.fallback = true;
+                    mission.setFallback(true);
 
                     if (DEBUG) {
                         Log.d(TAG, "falling back");
@@ -331,25 +331,25 @@ public class DownloadManagerImpl implements DownloadManager {
                     Log.d(TAG, "response = " + conn.getResponseCode());
                 }
 
-                mission.blocks = mission.length / BLOCK_SIZE;
+                mission.setBlocks(mission.getLength() / BLOCK_SIZE);
 
-                if (mission.threadCount > mission.blocks) {
-                    mission.threadCount = (int) mission.blocks;
+                if (mission.getThreadCount() > mission.getBlocks()) {
+                    mission.setThreadCount((int) mission.getBlocks());
                 }
 
-                if (mission.threadCount <= 0) {
-                    mission.threadCount = 1;
+                if (mission.getThreadCount() <= 0) {
+                    mission.setThreadCount(1);
                 }
 
-                if (mission.blocks * BLOCK_SIZE < mission.length) {
-                    mission.blocks++;
+                if (mission.getBlocks() * BLOCK_SIZE < mission.getLength()) {
+                    mission.setBlocks(mission.getBlocks() + 1);
                 }
 
 
-                new File(mission.location).mkdirs();
-                new File(mission.location + "/" + mission.name).createNewFile();
-                RandomAccessFile af = new RandomAccessFile(mission.location + "/" + mission.name, "rw");
-                af.setLength(mission.length);
+                new File(mission.getLocation()).mkdirs();
+                new File(mission.getLocation() + "/" + mission.getName()).createNewFile();
+                RandomAccessFile af = new RandomAccessFile(mission.getLocation() + "/" + mission.getName(), "rw");
+                af.setLength(mission.getLength());
                 af.close();
 
                 mission.start();

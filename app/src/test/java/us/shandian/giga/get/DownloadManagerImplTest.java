@@ -59,17 +59,17 @@ public class DownloadManagerImplTest {
         randomAccessFile.close();
         DownloadMission downloadMission = new DownloadMission(file.getName(),
                 "http://google.com/?q=how+to+google", file.getParent());
-        downloadMission.blocks = 1000;
-        downloadMission.done = 1000;
-        downloadMission.finished = true;
+        downloadMission.setBlocks(1000);
+        downloadMission.setDone(1000);
+        downloadMission.setFinished(true);
         return spy(downloadMission);
     }
 
     private static void assertMissionEquals(String message, DownloadMission expected, DownloadMission actual) {
         if(expected == actual) return;
-        assertEquals(message + ": Name", expected.name, actual.name);
-        assertEquals(message + ": Location", expected.location, actual.location);
-        assertEquals(message + ": Url", expected.url, actual.url);
+        assertEquals(message + ": Name", expected.getName(), actual.getName());
+        assertEquals(message + ": Location", expected.getLocation(), actual.getLocation());
+        assertEquals(message + ": Url", expected.getUrl(), actual.getUrl());
     }
 
     @Test
@@ -78,7 +78,7 @@ public class DownloadManagerImplTest {
         long millis = System.currentTimeMillis();
         for(int i = 0; i < 50; ++i){
             DownloadMission  mission = generateFinishedDownloadMission();
-            mission.timestamp = millis - i; // reverse order by timestamp
+            mission.setTimestamp(millis - i); // reverse order by timestamp
             missions.add(mission);
         }
 
@@ -112,11 +112,11 @@ public class DownloadManagerImplTest {
     @Test
     public void resumeMission() {
         DownloadMission mission = missions.get(0);
-        mission.running = true;
+        mission.setRunning(true);
         verify(mission, never()).start();
         downloadManager.resumeMission(0);
         verify(mission, never()).start();
-        mission.running = false;
+        mission.setRunning(false);
         downloadManager.resumeMission(0);
         verify(mission, times(1)).start();
     }
@@ -124,10 +124,10 @@ public class DownloadManagerImplTest {
     @Test
     public void pauseMission() {
         DownloadMission mission = missions.get(0);
-        mission.running = false;
+        mission.setRunning(false);
         downloadManager.pauseMission(0);
         verify(mission, never()).pause();
-        mission.running = true;
+        mission.setRunning(true);
         downloadManager.pauseMission(0);
         verify(mission, times(1)).pause();
     }
@@ -157,16 +157,16 @@ public class DownloadManagerImplTest {
     public void sortByTimestamp() {
         ArrayList<DownloadMission> downloadMissions = new ArrayList<>();
         DownloadMission mission = new DownloadMission();
-        mission.timestamp = 0;
+        mission.setTimestamp(0);
 
         DownloadMission mission1 = new DownloadMission();
-        mission1.timestamp = Integer.MAX_VALUE + 1L;
+        mission1.setTimestamp(Integer.MAX_VALUE + 1L);
 
         DownloadMission mission2 = new DownloadMission();
-        mission2.timestamp = 2L * Integer.MAX_VALUE ;
+        mission2.setTimestamp(2L * Integer.MAX_VALUE);
 
         DownloadMission mission3 = new DownloadMission();
-        mission3.timestamp = 2L * Integer.MAX_VALUE + 5L;
+        mission3.setTimestamp(2L * Integer.MAX_VALUE + 5L);
 
 
         downloadMissions.add(mission3);

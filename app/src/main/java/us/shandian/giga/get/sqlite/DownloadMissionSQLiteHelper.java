@@ -70,11 +70,11 @@ public class DownloadMissionSQLiteHelper extends SQLiteOpenHelper {
      */
     public static ContentValues getValuesOfMission(DownloadMission downloadMission) {
         ContentValues values = new ContentValues();
-        values.put(KEY_URL, downloadMission.url);
-        values.put(KEY_LOCATION, downloadMission.location);
-        values.put(KEY_NAME, downloadMission.name);
-        values.put(KEY_DONE, downloadMission.done);
-        values.put(KEY_TIMESTAMP, downloadMission.timestamp);
+        values.put(KEY_URL, downloadMission.getUrl());
+        values.put(KEY_LOCATION, downloadMission.getLocation());
+        values.put(KEY_NAME, downloadMission.getName());
+        values.put(KEY_DONE, downloadMission.getDone());
+        values.put(KEY_TIMESTAMP, downloadMission.getTimestamp());
         return values;
     }
 
@@ -95,9 +95,9 @@ public class DownloadMissionSQLiteHelper extends SQLiteOpenHelper {
         String location = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LOCATION));
         String url = cursor.getString(cursor.getColumnIndexOrThrow(KEY_URL));
         DownloadMission mission = new DownloadMission(name, url, location);
-        mission.done = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_DONE));
-        mission.timestamp = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_TIMESTAMP));
-        mission.finished = true;
+        mission.setDone(cursor.getLong(cursor.getColumnIndexOrThrow(KEY_DONE)));
+        mission.setTimestamp(cursor.getLong(cursor.getColumnIndexOrThrow(KEY_TIMESTAMP)));
+        mission.setFinished(true);
         return mission;
     }
 }

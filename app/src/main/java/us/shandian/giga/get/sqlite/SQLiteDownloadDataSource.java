@@ -61,7 +61,7 @@ public class SQLiteDownloadDataSource implements DownloadDataSource {
         String whereClause = KEY_LOCATION + " = ? AND " +
                 KEY_NAME + " = ?";
         int rowsAffected = database.update(MISSIONS_TABLE_NAME, values,
-                whereClause, new String[]{downloadMission.location, downloadMission.name});
+                whereClause, new String[]{downloadMission.getLocation(), downloadMission.getName()});
         if (rowsAffected != 1) {
             Log.e(TAG, "Expected 1 row to be affected by update but got " + rowsAffected);
         }
@@ -74,6 +74,6 @@ public class SQLiteDownloadDataSource implements DownloadDataSource {
         database.delete(MISSIONS_TABLE_NAME,
                 KEY_LOCATION + " = ? AND " +
                         KEY_NAME + " = ?",
-                new String[]{downloadMission.location, downloadMission.name});
+                new String[]{downloadMission.getLocation(), downloadMission.getName()});
     }
 }

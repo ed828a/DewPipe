@@ -111,7 +111,7 @@ class MissionAdapter(private val mContext: Activity?,
         ViewCompat.setBackground(h.bkg, h.progress)
 
         h.observer = MissionObserver(this, h)
-        ms.addListener(h.observer)
+        ms.addListener(h.observer!!)
 
         updateProgress(h)
     }
