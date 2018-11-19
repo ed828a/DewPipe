@@ -175,7 +175,7 @@ public class DownloadManagerImplTest {
         downloadMissions.add(mission);
 
 
-        DownloadManagerImpl.sortByTimestamp(downloadMissions);
+        DownloadManagerImpl.Companion.sortByTimestamp(downloadMissions);
 
         assertEquals(mission, downloadMissions.get(0));
         assertEquals(mission1, downloadMissions.get(1));

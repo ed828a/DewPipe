@@ -1,18 +1,16 @@
-package us.shandian.giga.get;
-
-import java.util.List;
+package us.shandian.giga.get
 
 /**
- * Provides access to the storage of {@link DownloadMission}s
+ * Provides access to the storage of [DownloadMission]s
  */
-public interface DownloadDataSource {
+interface DownloadDataSource {
 
     /**
      * Load all missions
      *
      * @return a list of download missions
      */
-    List<DownloadMission> loadMissions();
+    fun loadMissions(): List<DownloadMission>
 
     /**
      * Add a download mission to the storage
@@ -20,7 +18,7 @@ public interface DownloadDataSource {
      * @param downloadMission the download mission to add
      * @return the identifier of the mission
      */
-    void addMission(DownloadMission downloadMission);
+    fun addMission(downloadMission: DownloadMission?)
 
     /**
      * Update a download mission which exists in the storage
@@ -28,7 +26,7 @@ public interface DownloadDataSource {
      * @param downloadMission the download mission to update
      * @throws IllegalArgumentException if the mission was not added to storage
      */
-    void updateMission(DownloadMission downloadMission);
+    fun updateMission(downloadMission: DownloadMission?)
 
 
     /**
@@ -36,5 +34,5 @@ public interface DownloadDataSource {
      *
      * @param downloadMission the mission to delete
      */
-    void deleteMission(DownloadMission downloadMission);
+    fun deleteMission(downloadMission: DownloadMission?)
 }

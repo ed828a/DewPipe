@@ -68,7 +68,7 @@ class DownloadManagerService : Service() {
             val paths = ArrayList<String>(2)
             paths.add(NewPipeSettings.getVideoDownloadPath(this))
             paths.add(NewPipeSettings.getAudioDownloadPath(this))
-            mManager = DownloadManagerImpl(paths, mDataSource, this)
+            mManager = DownloadManagerImpl(paths, mDataSource!!, this)
             if (DEBUG) {
                 Log.d(TAG, "mManager == null")
                 Log.d(TAG, "Download directory: $paths")
@@ -118,7 +118,7 @@ class DownloadManagerService : Service() {
     private fun startMissionAsync(url: String?, location: String, name: String,
                                   isAudio: Boolean, threads: Int) {
         mHandler!!.post {
-            val missionId = mManager!!.startMission(url, location, name, isAudio, threads)
+            val missionId = mManager!!.startMission(url!!, location, name, isAudio, threads)
             mBinder!!.onMissionAdded(mManager!!.getMission(missionId))
         }
     }

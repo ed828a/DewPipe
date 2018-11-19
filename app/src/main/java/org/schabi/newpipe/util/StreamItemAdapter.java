@@ -173,11 +173,11 @@ public class StreamItemAdapter<T extends Stream> extends BaseAdapter {
         }
 
         public String getFormattedSize(int streamIndex) {
-            return Utility.formatBytes(getSizeInBytes(streamIndex));
+            return Utility.INSTANCE.formatBytes(getSizeInBytes(streamIndex));
         }
 
         public String getFormattedSize(T stream) {
-            return Utility.formatBytes(getSizeInBytes(stream));
+            return Utility.INSTANCE.formatBytes(getSizeInBytes(stream));
         }
 
         public void setSize(int streamIndex, long sizeInBytes) {
