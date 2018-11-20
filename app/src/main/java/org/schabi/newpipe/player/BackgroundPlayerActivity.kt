@@ -2,11 +2,9 @@ package org.schabi.newpipe.player
 
 import android.content.Intent
 import android.view.MenuItem
-
 import org.schabi.newpipe.R
+import org.schabi.newpipe.player.BackgroundPlayer.Companion.ACTION_CLOSE
 import org.schabi.newpipe.util.PermissionHelper
-
-import org.schabi.newpipe.player.BackgroundPlayer.ACTION_CLOSE
 
 class BackgroundPlayerActivity : ServicePlayerActivity() {
 
