@@ -52,8 +52,9 @@ import org.schabi.newpipe.BuildConfig
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.stream.VideoStream
 import org.schabi.newpipe.player.BasePlayer.STATE_PLAYING
-import org.schabi.newpipe.player.VideoPlayer.DEFAULT_CONTROLS_DURATION
-import org.schabi.newpipe.player.VideoPlayer.DEFAULT_CONTROLS_HIDE_TIME
+import org.schabi.newpipe.player.VideoPlayer.Companion.DEFAULT_CONTROLS_DURATION
+import org.schabi.newpipe.player.VideoPlayer.Companion.DEFAULT_CONTROLS_HIDE_TIME
+import org.schabi.newpipe.player.VideoPlayer.Companion.RENDERER_UNAVAILABLE
 import org.schabi.newpipe.player.event.PlayerEventListener
 import org.schabi.newpipe.player.helper.LockManager
 import org.schabi.newpipe.player.helper.PlayerHelper
@@ -195,8 +196,8 @@ class PopupVideoPlayer : Service() {
         popupGestureDetector = GestureDetector(this, listener)
         rootView.setOnTouchListener(listener)
 
-        playerImpl!!.loadingPanel.minimumWidth = popupLayoutParams!!.width
-        playerImpl!!.loadingPanel.minimumHeight = popupLayoutParams!!.height
+        playerImpl!!.loadingPanel!!.minimumWidth = popupLayoutParams!!.width
+        playerImpl!!.loadingPanel!!.minimumHeight = popupLayoutParams!!.height
         windowManager!!.addView(rootView, popupLayoutParams)
     }
 
@@ -460,7 +461,7 @@ class PopupVideoPlayer : Service() {
         var closingOverlayView: View? = null
             private set
 
-        override fun handleIntent(intent: Intent) {
+        override fun handleIntent(intent: Intent?) {
             super.handleIntent(intent)
 
             resetNotification()
@@ -566,25 +567,26 @@ class PopupVideoPlayer : Service() {
             super.onUpdateProgress(currentProgress, duration, bufferPercent)
         }
 
-        override fun getQualityResolver(): VideoPlaybackResolver.QualityResolver {
-            return object : VideoPlaybackResolver.QualityResolver {
-                override fun getDefaultResolutionIndex(sortedVideos: List<VideoStream>): Int {
-                    return ListHelper.getPopupDefaultResolutionIndex(context, sortedVideos)
-                }
+        override val qualityResolver: VideoPlaybackResolver.QualityResolver
+            get () {
+                return object : VideoPlaybackResolver.QualityResolver {
+                    override fun getDefaultResolutionIndex(sortedVideos: List<VideoStream>): Int {
+                        return ListHelper.getPopupDefaultResolutionIndex(context, sortedVideos)
+                    }
 
-                override fun getOverrideResolutionIndex(sortedVideos: List<VideoStream>,
-                                                        playbackQuality: String): Int {
-                    return ListHelper.getPopupResolutionIndex(context, sortedVideos,
-                            playbackQuality)
+                    override fun getOverrideResolutionIndex(sortedVideos: List<VideoStream>,
+                                                            playbackQuality: String): Int {
+                        return ListHelper.getPopupResolutionIndex(context, sortedVideos,
+                                playbackQuality)
+                    }
                 }
             }
-        }
 
         ///////////////////////////////////////////////////////////////////////////
         // Thumbnail Loading
         ///////////////////////////////////////////////////////////////////////////
 
-        override fun onLoadingComplete(imageUri: String, view: View?, loadedImage: Bitmap) {
+        override fun onLoadingComplete(imageUri: String, view: View?, loadedImage: Bitmap?) {
             super.onLoadingComplete(imageUri, view, loadedImage)
             // rebuild notification here since remote view does not release bitmaps,
             // causing memory leaks
@@ -800,7 +802,7 @@ class PopupVideoPlayer : Service() {
 
         /*package-private*/ internal fun enableVideoRenderer(enable: Boolean) {
             val videoRendererIndex = getRendererIndex(C.TRACK_TYPE_VIDEO)
-            if (videoRendererIndex != VideoPlayer.RENDERER_UNAVAILABLE) {
+            if (videoRendererIndex != RENDERER_UNAVAILABLE) {
                 trackSelector.setParameters(trackSelector.buildUponParameters()
                         .setRendererDisabled(videoRendererIndex, !enable))
             }
@@ -958,7 +960,7 @@ class PopupVideoPlayer : Service() {
             if (event.pointerCount == 2 && !isResizing) {
                 if (DEBUG) Log.d(TAG, "onTouch() 2 finger pointer detected, enabling resizing.")
                 playerImpl!!.showAndAnimateControl(-1, true)
-                playerImpl!!.loadingPanel.visibility = View.GONE
+                playerImpl!!.loadingPanel!!.visibility = View.GONE
 
                 playerImpl!!.hideControls(0, 0)
                 animateView(playerImpl!!.currentDisplaySeek, false, 0, 0)

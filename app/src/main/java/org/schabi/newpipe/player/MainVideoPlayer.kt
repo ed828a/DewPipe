@@ -52,8 +52,8 @@ import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.stream.VideoStream
 import org.schabi.newpipe.fragments.OnScrollBelowItemsListener
 import org.schabi.newpipe.player.BasePlayer.STATE_PLAYING
-import org.schabi.newpipe.player.VideoPlayer.DEFAULT_CONTROLS_DURATION
-import org.schabi.newpipe.player.VideoPlayer.DEFAULT_CONTROLS_HIDE_TIME
+import org.schabi.newpipe.player.VideoPlayer.Companion.DEFAULT_CONTROLS_DURATION
+import org.schabi.newpipe.player.VideoPlayer.Companion.DEFAULT_CONTROLS_HIDE_TIME
 import org.schabi.newpipe.player.helper.PlaybackParameterDialog
 import org.schabi.newpipe.player.helper.PlayerHelper
 import org.schabi.newpipe.player.playqueue.PlayQueueItem
@@ -178,9 +178,9 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
 
-        if (playerImpl!!.isSomePopupMenuVisible()) {
-            playerImpl!!.qualityPopupMenu.dismiss()
-            playerImpl!!.playbackSpeedPopupMenu.dismiss()
+        if (playerImpl!!.isSomePopupMenuVisible) {
+            playerImpl!!.qualityPopupMenu!!.dismiss()
+            playerImpl!!.playbackSpeedPopupMenu!!.dismiss()
         }
     }
 
@@ -442,7 +442,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             titleTextView!!.isSelected = true
             channelTextView!!.isSelected = true
 
-            getRootView().keepScreenOn = true
+            rootView.keepScreenOn = true
         }
 
         override fun setupSubtitleView(view: SubtitleView,
@@ -463,7 +463,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             val listener = PlayerGestureListener()
             gestureDetector = GestureDetector(context, listener)
             gestureDetector!!.setIsLongpressEnabled(false)
-            rootView.setOnTouchListener(listener)
+            rootView!!.setOnTouchListener(listener)
 
             queueButton!!.setOnClickListener(this)
             repeatButton!!.setOnClickListener(this)
@@ -478,7 +478,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             switchBackgroundButton!!.setOnClickListener(this)
             switchPopupButton!!.setOnClickListener(this)
 
-            rootView.addOnLayoutChangeListener { view, l, t, r, b, ol, ot, or, ob ->
+            rootView!!.addOnLayoutChangeListener { view, l, t, r, b, ol, ot, or, ob ->
                 if (l != ol || t != ot || r != or || b != ob) {
                     // Use smaller value to be consistent between screen orientations
                     // (and to make usage easier)
@@ -565,7 +565,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             )
             context.startService(intent)
 
-            (controlAnimationView.parent as View).visibility = View.GONE
+            (controlAnimationView!!.parent as View).visibility = View.GONE
             destroy()
             finish()
         }
@@ -587,7 +587,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             )
             context.startService(intent)
 
-            (controlAnimationView.parent as View).visibility = View.GONE
+            (controlAnimationView!!.parent as View).visibility = View.GONE
             destroy()
             finish()
         }
@@ -630,7 +630,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             if (getCurrentState() != BasePlayer.STATE_COMPLETED) {
                 controlsVisibilityHandler.removeCallbacksAndMessages(null)
                 animateView(controlsRoot, true, DEFAULT_CONTROLS_DURATION.toLong(), 0) {
-                    if (getCurrentState() == STATE_PLAYING && !isSomePopupMenuVisible()) {
+                    if (getCurrentState() == STATE_PLAYING && !isSomePopupMenuVisible) {
                         hideControls(DEFAULT_CONTROLS_DURATION.toLong(), DEFAULT_CONTROLS_HIDE_TIME.toLong())
                     }
                 }
@@ -644,7 +644,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             buildQueue()
             updatePlaybackButtons()
 
-            controlsRoot.visibility = View.INVISIBLE
+            controlsRoot!!.visibility = View.INVISIBLE
             animateView(queueLayout, SLIDE_AND_ALPHA, /*visible=*/true,
                     DEFAULT_CONTROLS_DURATION.toLong())
 
@@ -710,18 +710,19 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
                     .apply()
         }
 
-        override fun getQualityResolver(): VideoPlaybackResolver.QualityResolver {
-            return object : VideoPlaybackResolver.QualityResolver {
-                override fun getDefaultResolutionIndex(sortedVideos: List<VideoStream>): Int {
-                    return ListHelper.getDefaultResolutionIndex(context, sortedVideos)
-                }
+        override val qualityResolver: VideoPlaybackResolver.QualityResolver
+            get() {
+                return object : VideoPlaybackResolver.QualityResolver {
+                    override fun getDefaultResolutionIndex(sortedVideos: List<VideoStream>): Int {
+                        return ListHelper.getDefaultResolutionIndex(context, sortedVideos)
+                    }
 
-                override fun getOverrideResolutionIndex(sortedVideos: List<VideoStream>,
-                                                        playbackQuality: String): Int {
-                    return ListHelper.getResolutionIndex(context, sortedVideos, playbackQuality)
+                    override fun getOverrideResolutionIndex(sortedVideos: List<VideoStream>,
+                                                            playbackQuality: String): Int {
+                        return ListHelper.getResolutionIndex(context, sortedVideos, playbackQuality)
+                    }
                 }
             }
-        }
 
         ///////////////////////////////////////////////////////////////////////////
         // States
@@ -737,12 +738,12 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             super.onBlocked()
             playPauseButton!!.setImageResource(R.drawable.ic_pause_white)
             animatePlayButtons(false, 100)
-            rootView.keepScreenOn = true
+            rootView!!.keepScreenOn = true
         }
 
         override fun onBuffering() {
             super.onBuffering()
-            rootView.keepScreenOn = true
+            rootView!!.keepScreenOn = true
         }
 
         override fun onPlaying() {
@@ -752,7 +753,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
                 animatePlayButtons(true, 200)
             }
 
-            rootView.keepScreenOn = true
+            rootView!!.keepScreenOn = true
         }
 
         override fun onPaused() {
@@ -763,13 +764,13 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             }
 
             showSystemUi()
-            rootView.keepScreenOn = false
+            rootView!!.keepScreenOn = false
         }
 
         override fun onPausedSeek() {
             super.onPausedSeek()
             animatePlayButtons(false, 100)
-            rootView.keepScreenOn = true
+            rootView!!.keepScreenOn = true
         }
 
 
@@ -779,7 +780,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
                 animatePlayButtons(true, DEFAULT_CONTROLS_DURATION)
             }
 
-            rootView.keepScreenOn = false
+            rootView!!.keepScreenOn = false
             super.onCompleted()
         }
 
@@ -854,12 +855,10 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         override fun onDoubleTap(e: MotionEvent): Boolean {
             if (DEBUG) Log.d(TAG, "onDoubleTap() called with: e = [" + e + "]" + "rawXy = " + e.rawX + ", " + e.rawY + ", xy = " + e.x + ", " + e.y)
 
-            if (e.x > playerImpl!!.rootView.width * 2 / 3) {
-                playerImpl!!.onFastForward()
-            } else if (e.x < playerImpl!!.rootView.width / 3) {
-                playerImpl!!.onFastRewind()
-            } else {
-                playerImpl!!.playPauseButton!!.performClick()
+            when {
+                e.x > playerImpl!!.rootView!!.width * 2 / 3 -> playerImpl!!.onFastForward()
+                e.x < playerImpl!!.rootView!!.width / 3 -> playerImpl!!.onFastRewind()
+                else -> playerImpl!!.playPauseButton!!.performClick()
             }
 
             return true
@@ -902,7 +901,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             isMoving = true
 
             val acceptAnyArea = isVolumeGestureEnabled != isBrightnessGestureEnabled
-            val acceptVolumeArea = acceptAnyArea || initialEvent.x > playerImpl!!.rootView.width / 2
+            val acceptVolumeArea = acceptAnyArea || initialEvent.x > playerImpl!!.rootView!!.width / 2
             val acceptBrightnessArea = acceptAnyArea || !acceptVolumeArea
 
             if (isVolumeGestureEnabled && acceptVolumeArea) {
@@ -941,12 +940,11 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
 
                 if (DEBUG) Log.d(TAG, "onScroll().brightnessControl, currentBrightness = $currentProgressPercent")
 
-                val resId = if (currentProgressPercent < 0.25)
-                    R.drawable.ic_brightness_low_white_72dp
-                else if (currentProgressPercent < 0.75)
-                    R.drawable.ic_brightness_medium_white_72dp
-                else
-                    R.drawable.ic_brightness_high_white_72dp
+                val resId = when {
+                    currentProgressPercent < 0.25 -> R.drawable.ic_brightness_low_white_72dp
+                    currentProgressPercent < 0.75 -> R.drawable.ic_brightness_medium_white_72dp
+                    else -> R.drawable.ic_brightness_high_white_72dp
+                }
 
                 playerImpl!!.brightnessImageView!!.setImageDrawable(
                         AppCompatResources.getDrawable(applicationContext, resId)

@@ -43,6 +43,8 @@ import org.schabi.newpipe.local.subscription.SubscriptionsImportFragment
 import org.schabi.newpipe.player.BackgroundPlayer
 import org.schabi.newpipe.player.BackgroundPlayerActivity
 import org.schabi.newpipe.player.BasePlayer
+import org.schabi.newpipe.player.BasePlayer.PLAYBACK_QUALITY
+import org.schabi.newpipe.player.BasePlayer.PLAY_QUEUE_KEY
 import org.schabi.newpipe.player.MainVideoPlayer
 import org.schabi.newpipe.player.PopupVideoPlayer
 import org.schabi.newpipe.player.PopupVideoPlayerActivity
@@ -69,8 +71,8 @@ object NavigationHelper {
         val intent = Intent(context, targetClazz)
 
         val cacheKey = SerializedCache.getInstance().put(playQueue, PlayQueue::class.java)
-        if (cacheKey != null) intent.putExtra(VideoPlayer.PLAY_QUEUE_KEY, cacheKey)
-        if (quality != null) intent.putExtra(VideoPlayer.PLAYBACK_QUALITY, quality)
+        if (cacheKey != null) intent.putExtra(PLAY_QUEUE_KEY, cacheKey)
+        if (quality != null) intent.putExtra(PLAYBACK_QUALITY, quality)
 
         return intent
     }
