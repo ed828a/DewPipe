@@ -715,7 +715,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
             prepareAndHandleInfo(currentInfo!!, false)
     }
 
-    fun selectAndLoadVideo(serviceId: Int, videoUrl: String, name: String) {
+    fun selectAndLoadVideo(serviceId: Int, videoUrl: String?, name: String) {
         setInitialData(serviceId, videoUrl, name)
         prepareAndLoadInfo()
     }
@@ -1206,7 +1206,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
 
         //////////////////////////////////////////////////////////////////////////
 
-        fun getInstance(serviceId: Int, videoUrl: String, name: String): VideoDetailFragment {
+        fun getInstance(serviceId: Int, videoUrl: String?, name: String): VideoDetailFragment {
             val instance = VideoDetailFragment()
             instance.setInitialData(serviceId, videoUrl, name)
             return instance

@@ -105,6 +105,7 @@ class MainFragment : BaseFragment(), TabLayout.OnTabSelectedListener {
         when (item!!.itemId) {
             R.id.action_search -> {
                 try {
+
                     NavigationHelper.openSearchFragment(
                             fragmentManager,
                             ServiceHelper.getSelectedServiceId(activity),
