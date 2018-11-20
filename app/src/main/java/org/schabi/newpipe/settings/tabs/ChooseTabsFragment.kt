@@ -33,12 +33,12 @@ import org.schabi.newpipe.settings.SelectChannelFragment
 import org.schabi.newpipe.settings.SelectKioskFragment
 import org.schabi.newpipe.settings.tabs.AddTabDialog.ChooseTabListItem
 import org.schabi.newpipe.settings.tabs.ChooseTabsFragment.SelectedTabsAdapter.TabViewHolder
+import org.schabi.newpipe.settings.tabs.Tab.Companion.typeFrom
 import org.schabi.newpipe.util.ThemeHelper
 
 import java.util.ArrayList
 import java.util.Collections
 
-import org.schabi.newpipe.settings.tabs.Tab.typeFrom
 
 class ChooseTabsFragment : Fragment() {
 
@@ -166,7 +166,7 @@ class ChooseTabsFragment : Fragment() {
 
     private fun updateTabList() {
         tabList.clear()
-        tabList.addAll(tabsManager!!.tabs)
+        tabList.addAll(tabsManager!!.getTabs())
     }
 
     private fun updateTitle() {

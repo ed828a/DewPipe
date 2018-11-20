@@ -4,8 +4,8 @@ import android.content.Intent
 import android.view.MenuItem
 
 import org.schabi.newpipe.R
+import org.schabi.newpipe.player.PopupVideoPlayer.Companion.ACTION_CLOSE
 
-import org.schabi.newpipe.player.PopupVideoPlayer.ACTION_CLOSE
 
 class PopupVideoPlayerActivity : ServicePlayerActivity() {
 

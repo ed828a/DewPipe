@@ -1,11 +1,10 @@
-package org.schabi.newpipe.report;
+package org.schabi.newpipe.report
 
-import android.content.Context;
-import android.support.annotation.NonNull;
+import android.content.Context
 
-import org.acra.config.ACRAConfiguration;
-import org.acra.sender.ReportSender;
-import org.acra.sender.ReportSenderFactory;
+import org.acra.config.ACRAConfiguration
+import org.acra.sender.ReportSender
+import org.acra.sender.ReportSenderFactory
 
 /*
  * Created by Christian Schabesberger  on 13.09.16.
@@ -27,9 +26,8 @@ import org.acra.sender.ReportSenderFactory;
  * along with NewPipe.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-public class AcraReportSenderFactory implements ReportSenderFactory {
-    @NonNull
-    public ReportSender create(@NonNull Context context, @NonNull ACRAConfiguration config) {
-        return new AcraReportSender();
+class AcraReportSenderFactory : ReportSenderFactory {
+    override fun create(context: Context, config: ACRAConfiguration): ReportSender {
+        return AcraReportSender()
     }
 }

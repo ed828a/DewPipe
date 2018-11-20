@@ -41,16 +41,18 @@ class MainFragment : BaseFragment(), TabLayout.OnTabSelectedListener {
         setHasOptionsMenu(true)
 
         tabsManager = TabsManager.getManager(activity as Context)
-        tabsManager!!.setSavedTabsListener {
-            if (DEBUG) {
-                Log.d(TAG, "TabsManager.SavedTabsChangeListener: onTabsChanged called, isResumed = $isResumed")
+        tabsManager!!.setSavedTabsListener(object : TabsManager.SavedTabsChangeListener{
+            override fun onTabsChanged() {
+                if (DEBUG) {
+                    Log.d(TAG, "TabsManager.SavedTabsChangeListener: onTabsChanged called, isResumed = $isResumed")
+                }
+                if (isResumed) {
+                    updateTabs()
+                } else {
+                    hasTabsChanged = true
+                }
             }
-            if (isResumed) {
-                updateTabs()
-            } else {
-                hasTabsChanged = true
-            }
-        }
+        })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -126,7 +128,7 @@ class MainFragment : BaseFragment(), TabLayout.OnTabSelectedListener {
 
     fun updateTabs() {
         tabsList.clear()
-        tabsList.addAll(tabsManager!!.tabs)
+        tabsList.addAll(tabsManager!!.getTabs())
         pagerAdapter!!.notifyDataSetChanged()
 
         viewPager!!.offscreenPageLimit = pagerAdapter!!.count
@@ -137,7 +139,7 @@ class MainFragment : BaseFragment(), TabLayout.OnTabSelectedListener {
     private fun updateTabsIcon() {
         for (i in tabsList.indices) {
             val tabToSet = tabLayout!!.getTabAt(i)
-            tabToSet?.setIcon(tabsList[i].getTabIconRes(activity))
+            tabToSet?.setIcon(tabsList[i].getTabIconRes(activity!!))
         }
     }
 

@@ -279,10 +279,10 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
         val isAudio = radioVideoAudioGroup!!.checkedRadioButtonId == R.id.audio_button
         if (isAudio) {
             stream = audioStreamsAdapter!!.getItem(selectedAudioIndex)
-            location = NewPipeSettings.getAudioDownloadPath(context)
+            location = NewPipeSettings.getAudioDownloadPath(context!!)
         } else {
             stream = videoStreamsAdapter!!.getItem(selectedVideoIndex)
-            location = NewPipeSettings.getVideoDownloadPath(context)
+            location = NewPipeSettings.getVideoDownloadPath(context!!)
         }
 
         val url = stream.getUrl()

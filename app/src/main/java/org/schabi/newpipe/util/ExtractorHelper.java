@@ -34,6 +34,7 @@ import org.schabi.newpipe.extractor.NewPipe;
 import org.schabi.newpipe.extractor.channel.ChannelInfo;
 import org.schabi.newpipe.extractor.channel.ChannelInfoItem;
 import org.schabi.newpipe.extractor.exceptions.ContentNotAvailableException;
+import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
 import org.schabi.newpipe.extractor.exceptions.ReCaptchaException;
 import org.schabi.newpipe.extractor.kiosk.KioskInfo;
@@ -105,8 +106,8 @@ public final class ExtractorHelper {
                                                    final String url,
                                                    boolean forceLoad) {
         checkServiceId(serviceId);
-        return checkCache(forceLoad, serviceId, url, Single.fromCallable(() ->
-                StreamInfo.getInfo(NewPipe.getService(serviceId), url)));
+        return checkCache(forceLoad, serviceId, url, Single.fromCallable(() -> StreamInfo.getInfo(NewPipe.getService(serviceId), url)));
+
     }
 
     public static Single<ChannelInfo> getChannelInfo(final int serviceId,
