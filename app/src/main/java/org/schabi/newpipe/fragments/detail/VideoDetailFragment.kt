@@ -653,7 +653,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         spinnerToolbar!!.adapter = streamsAdapter
         spinnerToolbar!!.setSelection(selectedVideoStreamIndex)
         spinnerToolbar!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 selectedVideoStreamIndex = position
             }
 

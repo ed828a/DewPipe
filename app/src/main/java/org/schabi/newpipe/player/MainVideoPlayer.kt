@@ -718,7 +718,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
                     }
 
                     override fun getOverrideResolutionIndex(sortedVideos: List<VideoStream>,
-                                                            playbackQuality: String): Int {
+                                                            playbackQuality: String?): Int {
                         return ListHelper.getResolutionIndex(context, sortedVideos, playbackQuality)
                     }
                 }
