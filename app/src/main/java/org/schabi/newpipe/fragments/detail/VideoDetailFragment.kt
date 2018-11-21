@@ -788,7 +788,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
             return
         }
 
-        val itemQueue = SinglePlayQueue(currentInfo)
+        val itemQueue = SinglePlayQueue(currentInfo!!)
         if (append) {
             NavigationHelper.enqueueOnPopupPlayer(activity, itemQueue)
         } else {
@@ -812,7 +812,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
     }
 
     private fun openNormalBackgroundPlayer(append: Boolean) {
-        val itemQueue = SinglePlayQueue(currentInfo)
+        val itemQueue = SinglePlayQueue(currentInfo!!)
         if (append) {
             NavigationHelper.enqueueOnBackgroundPlayer(activity, itemQueue)
         } else {
@@ -825,7 +825,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         val useOldPlayer = PlayerHelper.isUsingOldPlayer(activity!!) || Build.VERSION.SDK_INT < 16
         if (!useOldPlayer) {
             // ExoPlayer
-            val playQueue = SinglePlayQueue(currentInfo)
+            val playQueue = SinglePlayQueue(currentInfo!!)
             mIntent = NavigationHelper.getPlayerIntent(activity!!,
                     MainVideoPlayer::class.java,
                     playQueue,
