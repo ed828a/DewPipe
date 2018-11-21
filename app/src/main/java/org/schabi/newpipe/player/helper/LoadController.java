@@ -26,9 +26,9 @@ public class LoadController implements LoadControl {
     //////////////////////////////////////////////////////////////////////////*/
 
     public LoadController(final Context context) {
-        this(PlayerHelper.getPlaybackStartBufferMs(context),
-                PlayerHelper.getPlaybackMinimumBufferMs(context),
-                PlayerHelper.getPlaybackOptimalBufferMs(context));
+        this(PlayerHelper.INSTANCE.getPlaybackStartBufferMs(context),
+                PlayerHelper.INSTANCE.getPlaybackMinimumBufferMs(context),
+                PlayerHelper.INSTANCE.getPlaybackOptimalBufferMs(context));
     }
 
     private LoadController(final int initialPlaybackBufferMs,

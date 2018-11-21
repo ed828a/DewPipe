@@ -118,7 +118,7 @@ public class AudioReactor implements AudioManager.OnAudioFocusChangeListener,
         player.setVolume(DUCK_AUDIO_TO);
         animateAudio(DUCK_AUDIO_TO, 1f);
 
-        if (PlayerHelper.isResumeAfterAudioFocusGain(context)) {
+        if (PlayerHelper.INSTANCE.isResumeAfterAudioFocusGain(context)) {
             player.setPlayWhenReady(true);
         }
     }
@@ -165,7 +165,7 @@ public class AudioReactor implements AudioManager.OnAudioFocusChangeListener,
 
     @Override
     public void onAudioSessionId(int i) {
-        if (!PlayerHelper.isUsingDSP(context)) return;
+        if (!PlayerHelper.INSTANCE.isUsingDSP(context)) return;
 
         final Intent intent = new Intent(AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION);
         intent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION, i);

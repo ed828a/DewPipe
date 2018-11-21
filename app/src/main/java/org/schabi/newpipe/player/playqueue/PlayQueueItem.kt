@@ -34,14 +34,14 @@ class PlayQueueItem private constructor(name: String?, url: String?,
                 .subscribeOn(Schedulers.io())
                 .doOnError { throwable -> error = throwable }
 
-    internal constructor(info: StreamInfo) : this(info.name, info.url, info.serviceId, info.duration,
+    constructor(info: StreamInfo) : this(info.name, info.url, info.serviceId, info.duration,
             info.thumbnailUrl, info.uploaderName, info.streamType) {
 
         if (info.startPosition > 0)
             recoveryPosition = info.startPosition * 1000
     }
 
-    internal constructor(item: StreamInfoItem) : this(item.name, item.url, item.serviceId, item.duration,
+    constructor(item: StreamInfoItem) : this(item.name, item.url, item.serviceId, item.duration,
             item.thumbnailUrl, item.uploaderName, item.streamType) {}
 
     init {

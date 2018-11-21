@@ -34,8 +34,8 @@ import java.io.File;
     public CacheFactory(@NonNull final Context context,
                         @NonNull final String userAgent,
                         @NonNull final TransferListener<? super DataSource> transferListener) {
-        this(context, userAgent, transferListener, PlayerHelper.getPreferredCacheSize(context),
-                PlayerHelper.getPreferredFileSize(context));
+        this(context, userAgent, transferListener, PlayerHelper.INSTANCE.getPreferredCacheSize(context),
+                PlayerHelper.INSTANCE.getPreferredFileSize(context));
     }
 
     private CacheFactory(@NonNull final Context context,
