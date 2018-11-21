@@ -1,14 +1,11 @@
-package org.schabi.newpipe.player.playback;
+package org.schabi.newpipe.player.playback
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import com.google.android.exoplayer2.source.MediaSource
 
-import com.google.android.exoplayer2.source.MediaSource;
+import org.schabi.newpipe.extractor.stream.StreamInfo
+import org.schabi.newpipe.player.playqueue.PlayQueueItem
 
-import org.schabi.newpipe.extractor.stream.StreamInfo;
-import org.schabi.newpipe.player.playqueue.PlayQueueItem;
-
-public interface PlaybackListener {
+interface PlaybackListener {
 
     /**
      * Called to check if the currently playing stream is approaching the end of its playback.
@@ -16,8 +13,8 @@ public interface PlaybackListener {
      * timeToEndMillis or less to its playback during.
      *
      * May be called at any time.
-     * */
-    boolean isApproachingPlaybackEdge(final long timeToEndMillis);
+     */
+    fun isApproachingPlaybackEdge(timeToEndMillis: Long): Boolean
 
     /**
      * Called when the stream at the current queue index is not ready yet.
@@ -25,16 +22,16 @@ public interface PlaybackListener {
      * is now invalid.
      *
      * May be called at any time.
-     * */
-    void onPlaybackBlock();
+     */
+    fun onPlaybackBlock()
 
     /**
      * Called when the stream at the current queue index is ready.
      * Signals to the listener to resume the player by preparing a new source.
      *
      * May be called only when the player is blocked.
-     * */
-    void onPlaybackUnblock(final MediaSource mediaSource);
+     */
+    fun onPlaybackUnblock(mediaSource: MediaSource)
 
     /**
      * Called when the queue index is refreshed.
@@ -42,17 +39,16 @@ public interface PlaybackListener {
      * window.
      *
      * May be called anytime at any amount once unblock is called.
-     * */
-    void onPlaybackSynchronize(@NonNull final PlayQueueItem item);
+     */
+    fun onPlaybackSynchronize(item: PlayQueueItem)
 
     /**
      * Requests the listener to resolve a stream info into a media source
      * according to the listener's implementation (background, popup or main video player).
      *
      * May be called at any time.
-     * */
-    @Nullable
-    MediaSource sourceOf(final PlayQueueItem item, final StreamInfo info);
+     */
+    fun sourceOf(item: PlayQueueItem, info: StreamInfo): MediaSource?
 
     /**
      * Called when the play queue can no longer to played or used.
@@ -60,6 +56,6 @@ public interface PlaybackListener {
      * Signals to the listener that it should shutdown.
      *
      * May be called at any time.
-     * */
-    void onPlaybackShutdown();
+     */
+    fun onPlaybackShutdown()
 }
