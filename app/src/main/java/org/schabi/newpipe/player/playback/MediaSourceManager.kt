@@ -27,10 +27,9 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.internal.subscriptions.EmptySubscription
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
-
+import org.schabi.newpipe.BuildConfig.DEBUG
 import org.schabi.newpipe.player.mediasource.FailedMediaSource.MediaSourceResolutionException
 import org.schabi.newpipe.player.mediasource.FailedMediaSource.StreamInfoLoadException
-import org.schabi.newpipe.player.playqueue.PlayQueue.DEBUG
 import org.schabi.newpipe.player.playqueue.events.*
 
 class MediaSourceManager private constructor(private val playbackListener: PlaybackListener,
@@ -109,7 +108,7 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
             val mediaSource = playlist.get(playQueue.index) ?: return false
 
             val playQueueItem = playQueue.item
-            return mediaSource.isStreamEqual(playQueueItem)
+            return mediaSource.isStreamEqual(playQueueItem!!)
         }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -123,8 +122,7 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
     constructor(listener: PlaybackListener,
                 playQueue: PlayQueue) : this(listener, playQueue, /*loadDebounceMillis=*/400L,
             /*playbackNearEndGapMillis=*/TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS),
-            /*progressUpdateIntervalMillis*/TimeUnit.MILLISECONDS.convert(2, TimeUnit.SECONDS)) {
-    }
+            /*progressUpdateIntervalMillis*/TimeUnit.MILLISECONDS.convert(2, TimeUnit.SECONDS)) {}
 
     init {
         if (playQueue.broadcastReceiver == null) {
@@ -374,7 +372,7 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
         val currentSource = playlist.get(currentIndex) ?: return
 
         val currentItem = playQueue.item
-        if (!/*canInterruptOnRenew=*/currentSource.shouldBeReplacedWith(currentItem, true)) {
+        if (!/*canInterruptOnRenew=*/currentSource.shouldBeReplacedWith(currentItem!!, true)) {
             maybeSynchronizePlayer()
             return
         }
@@ -449,12 +447,12 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
             val rightLimit = currentIndex + MediaSourceManager.WINDOW_SIZE + 1
             val rightBound = Math.min(playQueue.size(), rightLimit)
             val neighbors = ArraySet(
-                    playQueue.streams.subList(leftBound, rightBound))
+                    playQueue.streams!!.subList(leftBound, rightBound))
 
             // Do a round robin
             val excess = rightLimit - playQueue.size()
             if (excess >= 0) {
-                neighbors.addAll(playQueue.streams.subList(0, Math.min(playQueue.size(), excess)))
+                neighbors.addAll(playQueue.streams!!.subList(0, Math.min(playQueue.size(), excess)))
             }
             neighbors.remove(currentItem)
 

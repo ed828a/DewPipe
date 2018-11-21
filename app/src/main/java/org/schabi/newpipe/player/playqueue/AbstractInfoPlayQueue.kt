@@ -17,7 +17,7 @@ abstract class AbstractInfoPlayQueue<T : ListInfo<*>, U : InfoItem>(
         streams: List<StreamInfoItem>,
         index: Int) : PlayQueue(index, extractListItems(streams)) {
     var isInitial: Boolean = false
-    private var isComplete: Boolean = false
+    override var isComplete: Boolean = false
 
     @Transient
     var fetchReactor: Disposable? = null
@@ -87,10 +87,6 @@ abstract class AbstractInfoPlayQueue<T : ListInfo<*>, U : InfoItem>(
 
         this.isInitial = streams.isEmpty()
         this.isComplete = !isInitial && (nextUrl == null || nextUrl!!.isEmpty())
-    }
-
-    override fun isComplete(): Boolean {
-        return isComplete
     }
 
     override fun dispose() {

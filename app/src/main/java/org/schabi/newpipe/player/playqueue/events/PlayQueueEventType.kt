@@ -1,6 +1,6 @@
-package org.schabi.newpipe.player.playqueue.events;
+package org.schabi.newpipe.player.playqueue.events
 
-public enum PlayQueueEventType {
+enum class PlayQueueEventType {
     INIT,
 
     // sent when the index is changed

@@ -62,7 +62,7 @@ class PlayQueueAdapter(context: Context, private val playQueue: PlayQueue) : Rec
         }
 
     val items: List<PlayQueueItem>
-        get() = playQueue.streams
+        get() = playQueue.streams!!
 
     inner class HFHolder(var view: View) : RecyclerView.ViewHolder(view)
 
@@ -135,13 +135,13 @@ class PlayQueueAdapter(context: Context, private val playQueue: PlayQueue) : Rec
     }
 
     override fun getItemCount(): Int {
-        var count = playQueue.streams.size
+        var count = playQueue.streams!!.size
         if (footer != null && showFooter) count++
         return count
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (footer != null && position == playQueue.streams.size && showFooter) {
+        return if (footer != null && position == playQueue.streams!!.size && showFooter) {
             FOOTER_VIEW_TYPE_ID
         } else ITEM_VIEW_TYPE_ID
 
@@ -162,13 +162,13 @@ class PlayQueueAdapter(context: Context, private val playQueue: PlayQueue) : Rec
         if (holder is PlayQueueItemHolder) {
 
             // Build the list item
-            playQueueItemBuilder.buildStreamInfoItem(holder, playQueue.streams[position])
+            playQueueItemBuilder.buildStreamInfoItem(holder, playQueue.streams!![position])
 
             // Check if the current item should be selected/highlighted
             val isSelected = playQueue.index == position
             holder.itemSelected.visibility = if (isSelected) View.VISIBLE else View.INVISIBLE
             holder.itemView.isSelected = isSelected
-        } else if (holder is HFHolder && position == playQueue.streams.size && footer != null && showFooter) {
+        } else if (holder is HFHolder && position == playQueue.streams!!.size && footer != null && showFooter) {
             holder.view = footer!!
         }
     }

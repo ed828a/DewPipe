@@ -293,9 +293,9 @@ abstract class BasePlayer(protected val context: Context) : Player.EventListener
         // Resolve append intents
         if (intent.getBooleanExtra(APPEND_ONLY, false) && playQueue != null) {
             val sizeBeforeAppend = playQueue!!.size()
-            playQueue!!.append(queue.streams)
+            playQueue!!.append(queue.streams!!)
 
-            if ((intent.getBooleanExtra(SELECT_ON_APPEND, false) || currentState == STATE_COMPLETED) && queue.streams.size > 0) {
+            if ((intent.getBooleanExtra(SELECT_ON_APPEND, false) || currentState == STATE_COMPLETED) && queue.streams!!.size > 0) {
                 playQueue!!.index = sizeBeforeAppend
             }
 
@@ -1042,8 +1042,8 @@ abstract class BasePlayer(protected val context: Context) : Player.EventListener
             return
         // auto queue when starting playback on the last item when not repeating
         val autoQueue = PlayerHelper.autoQueueOf(currentMetadata.metadata,
-                playQueue!!.streams)
-        if (autoQueue != null) playQueue!!.append(autoQueue.streams)
+                playQueue!!.streams!!)
+        if (autoQueue != null) playQueue!!.append(autoQueue.streams!!)
     }
 
     fun setPlaybackParameters(speed: Float, pitch: Float, skipSilence: Boolean) {

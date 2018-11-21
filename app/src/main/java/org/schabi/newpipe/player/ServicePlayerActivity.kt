@@ -482,7 +482,7 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
 
     private fun appendAllToPlaylist() {
         if (player != null && player!!.playQueue != null) {
-            openPlaylistAppendDialog(player!!.playQueue!!.streams)
+            openPlaylistAppendDialog(player!!.playQueue!!.streams!!)
         }
     }
 

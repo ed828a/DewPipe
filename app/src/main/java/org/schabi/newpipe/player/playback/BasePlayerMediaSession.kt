@@ -19,7 +19,7 @@ class BasePlayerMediaSession(private val player: BasePlayer) : MediaSessionCallb
 
     override fun onSkipToIndex(index: Int) {
         if (player.playQueue == null) return
-        player.onSelected(player.playQueue!!.getItem(index))
+        player.onSelected(player.playQueue!!.getItem(index)!!)
     }
 
     override fun getCurrentPlayingIndex(): Int {

@@ -24,9 +24,7 @@ class SinglePlayQueue : PlayQueue {
         }
     }
 
-    override fun isComplete(): Boolean {
-        return true
-    }
+    override val isComplete: Boolean = true
 
     override fun fetch() {}
 }
