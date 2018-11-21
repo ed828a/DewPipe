@@ -51,7 +51,7 @@ import com.google.android.exoplayer2.ui.SubtitleView
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.stream.VideoStream
 import org.schabi.newpipe.fragments.OnScrollBelowItemsListener
-import org.schabi.newpipe.player.BasePlayer.STATE_PLAYING
+import org.schabi.newpipe.player.BasePlayer.Companion.STATE_PLAYING
 import org.schabi.newpipe.player.VideoPlayer.Companion.DEFAULT_CONTROLS_DURATION
 import org.schabi.newpipe.player.VideoPlayer.Companion.DEFAULT_CONTROLS_HIDE_TIME
 import org.schabi.newpipe.player.helper.PlaybackParameterDialog
@@ -195,7 +195,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         if (playerImpl == null) return
 
         playerImpl!!.setRecovery()
-        playerState = PlayerState(playerImpl!!.getPlayQueue(), playerImpl!!.repeatMode,
+        playerState = PlayerState(playerImpl!!.playQueue!!, playerImpl!!.repeatMode,
                 playerImpl!!.playbackSpeed, playerImpl!!.playbackPitch,
                 playerImpl!!.playbackQuality, playerImpl!!.playbackSkipSilence,
                 playerImpl!!.isPlaying)
@@ -380,8 +380,8 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         private val queueScrollListener: OnScrollBelowItemsListener
             get() = object : OnScrollBelowItemsListener() {
                 override fun onScrolledDown(recyclerView: RecyclerView) {
-                    if (playQueue != null && !playQueue.isComplete) {
-                        playQueue.fetch()
+                    if (playQueue != null && !playQueue!!.isComplete) {
+                        playQueue!!.fetch()
                     } else if (itemsList != null) {
                         itemsList!!.clearOnScrollListeners()
                     }
@@ -391,7 +391,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         private val itemTouchCallback: ItemTouchHelper.SimpleCallback
             get() = object : PlayQueueItemTouchCallback() {
                 override fun onMove(sourceIndex: Int, targetIndex: Int) {
-                    if (playQueue != null) playQueue.move(sourceIndex, targetIndex)
+                    if (playQueue != null) playQueue!!.move(sourceIndex, targetIndex)
                 }
             }
 
@@ -402,8 +402,8 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
                 }
 
                 override fun held(item: PlayQueueItem, view: View) {
-                    val index = playQueue.indexOf(item)
-                    if (index != -1) playQueue.remove(index)
+                    val index = playQueue!!.indexOf(item)
+                    if (index != -1) playQueue!!.remove(index)
                 }
 
                 override fun onStartDrag(viewHolder: PlayQueueItemHolder) {
@@ -545,7 +545,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             super.onFullScreenButtonClicked()
 
             if (VideoPlayer.DEBUG) Log.d(TAG, "onFullScreenButtonClicked() called")
-            if (simpleExoPlayer == null) return
+            if (player == null) return
 
             if (!PermissionHelper.isPopupEnabled(context)) {
                 PermissionHelper.showPopupEnablementToast(context)
@@ -556,7 +556,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             val intent = NavigationHelper.getPlayerIntent(
                     context,
                     PopupVideoPlayer::class.java,
-                    this.getPlayQueue(),
+                    this.playQueue!!,
                     this.repeatMode,
                     this.playbackSpeed,
                     this.playbackPitch,
@@ -578,7 +578,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             val intent = NavigationHelper.getPlayerIntent(
                     context,
                     BackgroundPlayer::class.java,
-                    this.getPlayQueue(),
+                    this.playQueue!!,
                     this.repeatMode,
                     this.playbackSpeed,
                     this.playbackPitch,
@@ -627,10 +627,10 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
 
             }
 
-            if (getCurrentState() != BasePlayer.STATE_COMPLETED) {
+            if (currentState != BasePlayer.STATE_COMPLETED) {
                 controlsVisibilityHandler.removeCallbacksAndMessages(null)
                 animateView(controlsRoot, true, DEFAULT_CONTROLS_DURATION.toLong(), 0) {
-                    if (getCurrentState() == STATE_PLAYING && !isSomePopupMenuVisible) {
+                    if (currentState == STATE_PLAYING && !isSomePopupMenuVisible) {
                         hideControls(DEFAULT_CONTROLS_DURATION.toLong(), DEFAULT_CONTROLS_HIDE_TIME.toLong())
                     }
                 }
@@ -648,7 +648,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             animateView(queueLayout, SLIDE_AND_ALPHA, /*visible=*/true,
                     DEFAULT_CONTROLS_DURATION.toLong())
 
-            itemsList!!.scrollToPosition(playQueue.index)
+            itemsList!!.scrollToPosition(playQueue!!.index)
         }
 
         private fun onQueueClosed() {
@@ -789,8 +789,8 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         ///////////////////////////////////////////////////////////////////////////
 
         private fun setInitialGestureValues() {
-            if (getAudioReactor() != null) {
-                val currentVolumeNormalized = getAudioReactor().volume.toFloat() / getAudioReactor().maxVolume
+            if (audioReactor != null) {
+                val currentVolumeNormalized = audioReactor!!.volume.toFloat() / audioReactor!!.maxVolume
                 volumeProgressBar!!.progress = (volumeProgressBar!!.max * currentVolumeNormalized).toInt()
             }
         }
@@ -820,11 +820,11 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
 
         private fun updatePlaybackButtons() {
             if (repeatButton == null || shuffleButton == null ||
-                    simpleExoPlayer == null || playQueue == null)
+                    player == null || playQueue == null)
                 return
 
             setRepeatModeButton(repeatButton!!, repeatMode)
-            setShuffleButton(shuffleButton!!, playQueue.isShuffled)
+            setShuffleButton(shuffleButton!!, playQueue!!.isShuffled)
         }
 
         private fun buildQueue() {
@@ -838,7 +838,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             itemTouchHelper = ItemTouchHelper(itemTouchCallback)
             itemTouchHelper!!.attachToRecyclerView(itemsList)
 
-            playQueueAdapter.setSelectedListener(onSelectedListener)
+            playQueueAdapter!!.setSelectedListener(onSelectedListener)
 
             itemsListCloseButton!!.setOnClickListener { view -> onQueueClosed() }
         }
@@ -850,7 +850,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         private val isVolumeGestureEnabled = PlayerHelper.isVolumeGestureEnabled(applicationContext)
         private val isBrightnessGestureEnabled = PlayerHelper.isBrightnessGestureEnabled(applicationContext)
 
-        private val maxVolume = playerImpl!!.getAudioReactor().maxVolume
+        private val maxVolume = playerImpl!!.audioReactor!!.maxVolume
 
         override fun onDoubleTap(e: MotionEvent): Boolean {
             if (DEBUG) Log.d(TAG, "onDoubleTap() called with: e = [" + e + "]" + "rawXy = " + e.rawX + ", " + e.rawY + ", xy = " + e.x + ", " + e.y)
@@ -866,7 +866,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
 
         override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
             if (DEBUG) Log.d(TAG, "onSingleTapConfirmed() called with: e = [$e]")
-            if (playerImpl!!.getCurrentState() == BasePlayer.STATE_BLOCKED) return true
+            if (playerImpl!!.currentState == BasePlayer.STATE_BLOCKED) return true
 
             if (playerImpl!!.isControlsVisible) {
                 playerImpl!!.hideControls(150, 0)
@@ -894,7 +894,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
                         ", distanceXy = [" + distanceX + ", " + distanceY + "]")
 
             val insideThreshold = Math.abs(movingEvent.y - initialEvent.y) <= MOVEMENT_THRESHOLD
-            if (!isMoving && (insideThreshold || Math.abs(distanceX) > Math.abs(distanceY)) || playerImpl!!.getCurrentState() == BasePlayer.STATE_COMPLETED) {
+            if (!isMoving && (insideThreshold || Math.abs(distanceX) > Math.abs(distanceY)) || playerImpl!!.currentState == BasePlayer.STATE_COMPLETED) {
                 return false
             }
 
@@ -908,7 +908,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
                 playerImpl!!.volumeProgressBar!!.incrementProgressBy(distanceY.toInt())
                 val currentProgressPercent = playerImpl!!.volumeProgressBar!!.progress.toFloat() / playerImpl!!.maxGestureLength
                 val currentVolume = (maxVolume * currentProgressPercent).toInt()
-                playerImpl!!.getAudioReactor().volume = currentVolume
+                playerImpl!!.audioReactor!!.volume = currentVolume
 
                 if (DEBUG) Log.d(TAG, "onScroll().volumeControl, currentVolume = $currentVolume")
 
@@ -970,7 +970,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
                 animateView(playerImpl!!.brightnessRelativeLayout, SCALE_AND_ALPHA, false, 200, 200)
             }
 
-            if (playerImpl!!.isControlsVisible && playerImpl!!.getCurrentState() == STATE_PLAYING) {
+            if (playerImpl!!.isControlsVisible && playerImpl!!.currentState == STATE_PLAYING) {
                 playerImpl!!.hideControls(DEFAULT_CONTROLS_DURATION.toLong(), DEFAULT_CONTROLS_HIDE_TIME.toLong())
             }
         }

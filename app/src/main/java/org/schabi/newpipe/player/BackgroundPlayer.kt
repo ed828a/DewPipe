@@ -98,7 +98,7 @@ class BackgroundPlayer : Service() {
                     "], flags = [" + flags + "], startId = [" + startId + "]")
         basePlayerImpl!!.handleIntent(intent)
         if (basePlayerImpl!!.mediaSessionManager != null) {
-            basePlayerImpl!!.mediaSessionManager.handleMediaButtonIntent(intent)
+            basePlayerImpl!!.mediaSessionManager!!.handleMediaButtonIntent(intent)
         }
         return Service.START_NOT_STICKY
     }
@@ -190,7 +190,7 @@ class BackgroundPlayer : Service() {
         remoteViews.setOnClickPendingIntent(R.id.notificationContent,
                 PendingIntent.getActivity(this, NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT))
 
-        if (basePlayerImpl!!.playQueue != null && basePlayerImpl!!.playQueue.size() > 1) {
+        if (basePlayerImpl!!.playQueue != null && basePlayerImpl!!.playQueue!!.size() > 1) {
             remoteViews.setInt(R.id.notificationFRewind, SET_IMAGE_RESOURCE_METHOD, R.drawable.exo_controls_previous)
             remoteViews.setInt(R.id.notificationFForward, SET_IMAGE_RESOURCE_METHOD, R.drawable.exo_controls_next)
             remoteViews.setOnClickPendingIntent(R.id.notificationFRewind,
@@ -251,7 +251,7 @@ class BackgroundPlayer : Service() {
             super.initPlayer(playOnReady)
         }
 
-        override fun handleIntent(intent: Intent) {
+        override fun handleIntent(intent: Intent?) {
             super.handleIntent(intent)
 
             resetNotification()
@@ -276,7 +276,7 @@ class BackgroundPlayer : Service() {
             }
         }
 
-        override fun onLoadingComplete(imageUri: String, view: View, loadedImage: Bitmap) {
+        override fun onLoadingComplete(imageUri: String, view: View?, loadedImage: Bitmap?) {
             super.onLoadingComplete(imageUri, view, loadedImage)
             resetNotification()
             updateNotificationThumbnail()
@@ -295,7 +295,7 @@ class BackgroundPlayer : Service() {
 
         override fun onPrepared(playWhenReady: Boolean) {
             super.onPrepared(playWhenReady)
-            simpleExoPlayer.volume = 1f
+            player!!.volume = 1f
         }
 
         override fun onShuffleClicked() {
@@ -399,9 +399,9 @@ class BackgroundPlayer : Service() {
         }
 
         private fun updatePlayback() {
-            if (activityListener != null && simpleExoPlayer != null && playQueue != null) {
+            if (activityListener != null && player != null && playQueue != null) {
                 activityListener!!.onPlaybackUpdate(currentState, repeatMode,
-                        playQueue.isShuffled, playbackParameters)
+                        playQueue!!.isShuffled, playbackParameters)
             }
         }
 

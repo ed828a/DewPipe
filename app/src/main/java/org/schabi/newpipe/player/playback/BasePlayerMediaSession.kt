@@ -19,23 +19,23 @@ class BasePlayerMediaSession(private val player: BasePlayer) : MediaSessionCallb
 
     override fun onSkipToIndex(index: Int) {
         if (player.playQueue == null) return
-        player.onSelected(player.playQueue.getItem(index))
+        player.onSelected(player.playQueue!!.getItem(index))
     }
 
     override fun getCurrentPlayingIndex(): Int {
-        return if (player.playQueue == null) -1 else player.playQueue.index
+        return if (player.playQueue == null) -1 else player.playQueue!!.index
     }
 
     override fun getQueueSize(): Int {
-        return if (player.playQueue == null) -1 else player.playQueue.size()
+        return if (player.playQueue == null) -1 else player.playQueue!!.size()
     }
 
     override fun getQueueMetadata(index: Int): MediaDescriptionCompat? {
-        if (player.playQueue == null || player.playQueue.getItem(index) == null) {
+        if (player.playQueue == null || player.playQueue!!.getItem(index) == null) {
             return null
         }
 
-        val item = player.playQueue.getItem(index)
+        val item = player.playQueue!!.getItem(index)
         val descriptionBuilder = MediaDescriptionCompat.Builder()
                 .setMediaId(index.toString())
                 .setTitle(item!!.title)

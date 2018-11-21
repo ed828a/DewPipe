@@ -10,11 +10,10 @@ import android.view.View
 import android.widget.CheckBox
 import android.widget.SeekBar
 import android.widget.TextView
+import org.schabi.newpipe.BuildConfig.DEBUG
 
 import org.schabi.newpipe.R
 import org.schabi.newpipe.util.SliderStrategy
-
-import org.schabi.newpipe.player.BasePlayer.DEBUG
 
 class PlaybackParameterDialog : DialogFragment() {
 
@@ -366,32 +365,32 @@ class PlaybackParameterDialog : DialogFragment() {
     }
 
     companion object {
-        private val TAG = "PlaybackParameterDialog"
+        private const val TAG = "PlaybackParameterDialog"
 
         // Minimum allowable range in ExoPlayer
-        val MINIMUM_PLAYBACK_VALUE = 0.10
-        val MAXIMUM_PLAYBACK_VALUE = 3.00
+        const val MINIMUM_PLAYBACK_VALUE = 0.10
+        const val MAXIMUM_PLAYBACK_VALUE = 3.00
 
-        val STEP_UP_SIGN = '+'
-        val STEP_DOWN_SIGN = '-'
+        const val STEP_UP_SIGN = '+'
+        const val STEP_DOWN_SIGN = '-'
 
-        val STEP_ONE_PERCENT_VALUE = 0.01
-        val STEP_FIVE_PERCENT_VALUE = 0.05
-        val STEP_TEN_PERCENT_VALUE = 0.10
-        val STEP_TWENTY_FIVE_PERCENT_VALUE = 0.25
-        val STEP_ONE_HUNDRED_PERCENT_VALUE = 1.00
+        const val STEP_ONE_PERCENT_VALUE = 0.01
+        const val STEP_FIVE_PERCENT_VALUE = 0.05
+        const val STEP_TEN_PERCENT_VALUE = 0.10
+        const val STEP_TWENTY_FIVE_PERCENT_VALUE = 0.25
+        const val STEP_ONE_HUNDRED_PERCENT_VALUE = 1.00
 
-        val DEFAULT_TEMPO = 1.00
-        val DEFAULT_PITCH = 1.00
-        val DEFAULT_STEP = STEP_TWENTY_FIVE_PERCENT_VALUE
-        val DEFAULT_SKIP_SILENCE = false
+        const val DEFAULT_TEMPO = 1.00
+        const val DEFAULT_PITCH = 1.00
+        const val DEFAULT_STEP = STEP_TWENTY_FIVE_PERCENT_VALUE
+        const val DEFAULT_SKIP_SILENCE = false
 
-        private val INITIAL_TEMPO_KEY = "initial_tempo_key"
-        private val INITIAL_PITCH_KEY = "initial_pitch_key"
+        private const val INITIAL_TEMPO_KEY = "initial_tempo_key"
+        private const val INITIAL_PITCH_KEY = "initial_pitch_key"
 
-        private val TEMPO_KEY = "tempo_key"
-        private val PITCH_KEY = "pitch_key"
-        private val STEP_SIZE_KEY = "step_size_key"
+        private const val TEMPO_KEY = "tempo_key"
+        private const val PITCH_KEY = "pitch_key"
+        private const val STEP_SIZE_KEY = "step_size_key"
 
         fun newInstance(playbackTempo: Double,
                         playbackPitch: Double,

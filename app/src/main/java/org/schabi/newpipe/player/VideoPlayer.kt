@@ -54,6 +54,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.SubtitleView
 import com.google.android.exoplayer2.video.VideoListener
+import org.jsoup.Connection
 
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.MediaFormat
@@ -249,11 +250,11 @@ abstract class VideoPlayer(
         super.initPlayer(playOnReady)
 
         // Setup video view
-        simpleExoPlayer.setVideoSurfaceView(surfaceView)
-        simpleExoPlayer.addVideoListener(this)
+        player?.setVideoSurfaceView(surfaceView)
+        player?.addVideoListener(this)
 
         // Setup subtitle view
-        simpleExoPlayer.addTextOutput { cues -> subtitleView!!.onCues(cues) }
+        player?.addTextOutput { cues -> subtitleView!!.onCues(cues) }
 
         // Setup audio session with onboard equalizer
         if (Build.VERSION.SDK_INT >= 21) {
@@ -296,6 +297,7 @@ abstract class VideoPlayer(
         if (playbackSpeedPopupMenu == null) return
 
         playbackSpeedPopupMenu!!.menu.removeGroup(playbackSpeedPopupMenuGroupId)
+
         for (i in BasePlayer.PLAYBACK_SPEEDS.indices) {
             playbackSpeedPopupMenu!!.menu.add(playbackSpeedPopupMenuGroupId, i, Menu.NONE, formatSpeed(BasePlayer.PLAYBACK_SPEEDS[i].toDouble()))
         }
@@ -536,8 +538,8 @@ abstract class VideoPlayer(
     override fun onPrepared(playWhenReady: Boolean) {
         if (DEBUG) Log.d(TAG, "onPrepared() called with: playWhenReady = [$playWhenReady]")
 
-        playbackSeekBar!!.max = simpleExoPlayer.duration.toInt()
-        playbackEndTime!!.text = getTimeString(simpleExoPlayer.duration.toInt())
+        playbackSeekBar!!.max = player!!.duration.toInt()
+        playbackEndTime!!.text = getTimeString(player!!.duration.toInt())
         playbackSpeedTextView!!.text = formatSpeed(playbackSpeed.toDouble())
 
         super.onPrepared(playWhenReady)
@@ -559,7 +561,7 @@ abstract class VideoPlayer(
             if (currentState != BasePlayer.STATE_PAUSED_SEEK) playbackSeekBar!!.progress = currentProgress
             playbackCurrentTime!!.text = getTimeString(currentProgress)
         }
-        if (simpleExoPlayer.isLoading || bufferPercent > 90) {
+        if (player!!.isLoading || bufferPercent > 90) {
             playbackSeekBar!!.secondaryProgress = (playbackSeekBar!!.max * (bufferPercent.toFloat() / 100)).toInt()
         }
         if (DEBUG && bufferPercent % 20 == 0) { //Limit log
@@ -661,7 +663,7 @@ abstract class VideoPlayer(
             qualityTextView!!.text = qualityText
         }
 
-        wasPlaying = simpleExoPlayer.playWhenReady
+        wasPlaying = player!!.playWhenReady
     }
 
     open fun onPlaybackSpeedClicked() {
@@ -705,10 +707,10 @@ abstract class VideoPlayer(
 
     override fun onStartTrackingTouch(seekBar: SeekBar) {
         if (DEBUG) Log.d(TAG, "onStartTrackingTouch() called with: seekBar = [$seekBar]")
-        if (getCurrentState() != BasePlayer.STATE_PAUSED_SEEK) changeState(BasePlayer.STATE_PAUSED_SEEK)
+        if (currentState != BasePlayer.STATE_PAUSED_SEEK) changeState(BasePlayer.STATE_PAUSED_SEEK)
 
-        wasPlaying = simpleExoPlayer.playWhenReady
-        if (isPlaying) simpleExoPlayer.playWhenReady = false
+        wasPlaying = player!!.playWhenReady
+        if (isPlaying) player!!.playWhenReady = false
 
         showControls(0)
         animateView(currentDisplaySeek, AnimationUtils.Type.SCALE_AND_ALPHA, true,
@@ -719,12 +721,12 @@ abstract class VideoPlayer(
         if (DEBUG) Log.d(TAG, "onStopTrackingTouch() called with: seekBar = [$seekBar]")
 
         seekTo(seekBar.progress.toLong())
-        if (wasPlaying || simpleExoPlayer.duration == seekBar.progress.toLong()) simpleExoPlayer.playWhenReady = true
+        if (wasPlaying || player!!.duration == seekBar.progress.toLong()) player!!.playWhenReady = true
 
         playbackCurrentTime!!.text = getTimeString(seekBar.progress)
         animateView(currentDisplaySeek, AnimationUtils.Type.SCALE_AND_ALPHA, false, 200)
 
-        if (getCurrentState() == BasePlayer.STATE_PAUSED_SEEK) changeState(BasePlayer.STATE_BUFFERING)
+        if (currentState == BasePlayer.STATE_PAUSED_SEEK) changeState(BasePlayer.STATE_BUFFERING)
         if (!isProgressLoopRunning) startProgressLoop()
     }
 
@@ -733,10 +735,10 @@ abstract class VideoPlayer(
     ///////////////////////////////////////////////////////////////////////////
 
     fun getRendererIndex(trackIndex: Int): Int {
-        if (simpleExoPlayer == null) return RENDERER_UNAVAILABLE
+        if (player == null) return RENDERER_UNAVAILABLE
 
-        for (t in 0 until simpleExoPlayer.rendererCount) {
-            if (simpleExoPlayer.getRendererType(t) == trackIndex) {
+        for (t in 0 until player!!.rendererCount) {
+            if (player!!.getRendererType(t) == trackIndex) {
                 return t
             }
         }

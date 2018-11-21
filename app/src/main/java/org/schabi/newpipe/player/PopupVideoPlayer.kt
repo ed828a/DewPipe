@@ -51,10 +51,9 @@ import com.nostra13.universalimageloader.core.assist.FailReason
 import org.schabi.newpipe.BuildConfig
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.stream.VideoStream
-import org.schabi.newpipe.player.BasePlayer.STATE_PLAYING
+import org.schabi.newpipe.player.BasePlayer.Companion.STATE_PLAYING
 import org.schabi.newpipe.player.VideoPlayer.Companion.DEFAULT_CONTROLS_DURATION
 import org.schabi.newpipe.player.VideoPlayer.Companion.DEFAULT_CONTROLS_HIDE_TIME
-import org.schabi.newpipe.player.VideoPlayer.Companion.RENDERER_UNAVAILABLE
 import org.schabi.newpipe.player.event.PlayerEventListener
 import org.schabi.newpipe.player.helper.LockManager
 import org.schabi.newpipe.player.helper.PlayerHelper
@@ -130,7 +129,7 @@ class PopupVideoPlayer : Service() {
             initPopup()
             initPopupCloseOverlay()
         }
-        if (!playerImpl!!.isPlaying) playerImpl!!.player.playWhenReady = true
+        if (!playerImpl!!.isPlaying) playerImpl!!.player!!.playWhenReady = true
 
         playerImpl!!.handleIntent(intent)
 
@@ -517,7 +516,7 @@ class PopupVideoPlayer : Service() {
                 intent = NavigationHelper.getPlayerIntent(
                         context,
                         MainVideoPlayer::class.java,
-                        this.getPlayQueue(),
+                        this.playQueue!!,
                         this.repeatMode,
                         this.playbackSpeed,
                         this.playbackPitch,
@@ -530,7 +529,7 @@ class PopupVideoPlayer : Service() {
                         .putExtra(PlayVideoActivity.VIDEO_TITLE, videoTitle)
                         .putExtra(PlayVideoActivity.STREAM_URL, selectedVideoStream!!.getUrl())
                         .putExtra(PlayVideoActivity.VIDEO_URL, videoUrl)
-                        .putExtra(PlayVideoActivity.START_POSITION, Math.round(player.currentPosition / 1000f))
+                        .putExtra(PlayVideoActivity.START_POSITION, Math.round(player!!.currentPosition / 1000f))
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             context.startActivity(intent)
@@ -630,9 +629,9 @@ class PopupVideoPlayer : Service() {
         }
 
         private fun updatePlayback() {
-            if (activityListener != null && simpleExoPlayer != null && playQueue != null) {
+            if (activityListener != null && player != null && playQueue != null) {
                 activityListener!!.onPlaybackUpdate(currentState, repeatMode,
-                        playQueue.isShuffled, simpleExoPlayer.playbackParameters)
+                        playQueue!!.isShuffled, player!!.playbackParameters)
             }
         }
 
@@ -923,7 +922,7 @@ class PopupVideoPlayer : Service() {
         private fun onScrollEnd(event: MotionEvent) {
             if (DEBUG) Log.d(TAG, "onScrollEnd() called")
             if (playerImpl == null) return
-            if (playerImpl!!.isControlsVisible && playerImpl!!.getCurrentState() == STATE_PLAYING) {
+            if (playerImpl!!.isControlsVisible && playerImpl!!.currentState == STATE_PLAYING) {
                 playerImpl!!.hideControls(DEFAULT_CONTROLS_DURATION.toLong(), DEFAULT_CONTROLS_HIDE_TIME.toLong())
             }
 
@@ -984,7 +983,7 @@ class PopupVideoPlayer : Service() {
                 if (isResizing) {
                     isResizing = false
                     animateView(playerImpl!!.resizingIndicator, false, 100, 0)
-                    playerImpl!!.changeState(playerImpl!!.getCurrentState())
+                    playerImpl!!.changeState(playerImpl!!.currentState)
                 }
 
                 if (!isPopupClosing) {

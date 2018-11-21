@@ -105,8 +105,8 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
 
     private fun getQueueScrollListener(): OnScrollBelowItemsListener  = object : OnScrollBelowItemsListener() {
             override fun onScrolledDown(recyclerView: RecyclerView) {
-                if (player != null && player!!.getPlayQueue() != null && !player!!.getPlayQueue().isComplete) {
-                    player!!.getPlayQueue().fetch()
+                if (player != null && player!!.playQueue != null && !player!!.playQueue!!.isComplete) {
+                    player!!.playQueue!!.fetch()
                 } else if (itemsList != null) {
                     itemsList!!.clearOnScrollListeners()
                 }
@@ -116,7 +116,7 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
 
     private fun getItemTouchCallback(): ItemTouchHelper.SimpleCallback = object : PlayQueueItemTouchCallback() {
                 override fun onMove(sourceIndex: Int, targetIndex: Int) {
-                    if (player != null) player!!.getPlayQueue().move(sourceIndex, targetIndex)
+                    if (player != null) player!!.playQueue!!.move(sourceIndex, targetIndex)
                 }
             }
 
@@ -128,7 +128,7 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
             override fun held(item: PlayQueueItem, view: View) {
                 if (player == null) return
 
-                val index = player!!.getPlayQueue().indexOf(item)
+                val index = player!!.playQueue!!.indexOf(item)
                 if (index != -1) buildItemPopupMenu(item, view)
             }
 
@@ -210,7 +210,7 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
         return NavigationHelper.getPlayerIntent(
                 applicationContext,
                 clazz,
-                this.player!!.getPlayQueue(),
+                this.player!!.playQueue!!,
                 this.player!!.repeatMode,
                 this.player!!.playbackSpeed,
                 this.player!!.playbackPitch,
@@ -236,8 +236,8 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
             serviceBound = false
             stopPlayerListener()
 
-            if (player != null && player!!.getPlayQueueAdapter() != null) {
-                player!!.getPlayQueueAdapter().unsetSelectedListener()
+            if (player != null && player!!.playQueueAdapter != null) {
+                player!!.playQueueAdapter!!.unsetSelectedListener()
             }
             if (itemsList != null) itemsList!!.adapter = null
             if (itemTouchHelper != null) itemTouchHelper!!.attachToRecyclerView(null)
@@ -261,8 +261,8 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
                     player = service.playerInstance
                 }
 
-                if (player == null || player!!.getPlayQueue() == null ||
-                        player!!.getPlayQueueAdapter() == null || player!!.player == null) {
+                if (player == null || player!!.playQueue == null ||
+                        player!!.playQueueAdapter == null || player!!.player == null) {
                     unbind()
                     finish()
                 } else {
@@ -287,7 +287,7 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
     private fun buildQueue() {
         itemsList = findViewById(R.id.play_queue)
         itemsList!!.layoutManager = LinearLayoutManager(this)
-        itemsList!!.adapter = player!!.getPlayQueueAdapter()
+        itemsList!!.adapter = player!!.playQueueAdapter
         itemsList!!.isClickable = true
         itemsList!!.isLongClickable = true
         itemsList!!.clearOnScrollListeners()
@@ -296,7 +296,7 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
         itemTouchHelper = ItemTouchHelper(getItemTouchCallback())
         itemTouchHelper!!.attachToRecyclerView(itemsList)
 
-        player!!.getPlayQueueAdapter().setSelectedListener(getOnSelectedListener())
+        player!!.playQueueAdapter!!.setSelectedListener(getOnSelectedListener())
     }
 
     private fun buildMetadata() {
@@ -346,8 +346,8 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
         remove.setOnMenuItemClickListener { menuItem ->
             if (player == null) return@setOnMenuItemClickListener false
 
-            val index = player!!.getPlayQueue().indexOf(item)
-            if (index != -1) player!!.getPlayQueue().remove(index)
+            val index = player!!.playQueue!!.indexOf(item)
+            if (index != -1) player!!.playQueue!!.remove(index)
             true
         }
 
@@ -382,7 +382,7 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
     private fun scrollToSelected() {
         if (player == null) return
 
-        val currentPlayingIndex = player!!.getPlayQueue().index
+        val currentPlayingIndex = player!!.playQueue!!.index
         val currentVisibleIndex: Int
         if (itemsList!!.layoutManager is LinearLayoutManager) {
             val layout = itemsList!!.layoutManager as LinearLayoutManager?
@@ -481,8 +481,8 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
     ////////////////////////////////////////////////////////////////////////////
 
     private fun appendAllToPlaylist() {
-        if (player != null && player!!.getPlayQueue() != null) {
-            openPlaylistAppendDialog(player!!.getPlayQueue().streams)
+        if (player != null && player!!.playQueue != null) {
+            openPlaylistAppendDialog(player!!.playQueue!!.streams)
         }
     }
 
@@ -611,7 +611,7 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
 
     private fun onMaybePlaybackAdapterChanged() {
         if (itemsList == null || player == null) return
-        val maybeNewAdapter = player!!.getPlayQueueAdapter()
+        val maybeNewAdapter = player!!.playQueueAdapter
         if (maybeNewAdapter != null && itemsList!!.adapter !== maybeNewAdapter) {
             itemsList!!.adapter = maybeNewAdapter
         }
