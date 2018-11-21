@@ -325,7 +325,6 @@ public abstract class PlayQueue implements Serializable {
      * */
     public synchronized void setRecovery(final int index, final long position) {
         if (index < 0 || index >= streams.size()) return;
-
         streams.get(index).setRecoveryPosition(position);
         broadcast(new RecoveryEvent(index, position));
     }
