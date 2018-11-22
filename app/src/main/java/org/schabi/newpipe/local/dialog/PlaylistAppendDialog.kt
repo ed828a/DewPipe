@@ -48,7 +48,7 @@ class PlaylistAppendDialog : PlaylistDialog() {
 
         val playlistManager = LocalPlaylistManager(NewPipeDatabase.getInstance(context!!))
 
-        playlistAdapter = LocalItemListAdapter(activity)
+        playlistAdapter = LocalItemListAdapter(activity!!)
         playlistAdapter!!.setSelectedListener(object : OnClickGesture<LocalItem>() {
             override fun selected(selectedItem: LocalItem) {
                 if (selectedItem !is PlaylistMetadataEntry || streams == null)

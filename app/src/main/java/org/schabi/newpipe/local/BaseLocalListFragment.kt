@@ -111,9 +111,12 @@ abstract class BaseLocalListFragment<I, N> : BaseStateFragment<I>(), ListViewCon
 
         itemListAdapter!!.setGridItemVariants(useGrid)
         headerRootView = getListHeader()
-        itemListAdapter!!.setHeader(headerRootView)
+        headerRootView?.let {
+            itemListAdapter!!.setHeader(it)
+        }
+
         footerRootView = getListFooter()
-        itemListAdapter!!.setFooter(footerRootView)
+        itemListAdapter!!.setFooter(footerRootView!!)
 
         itemsList!!.adapter = itemListAdapter
     }
