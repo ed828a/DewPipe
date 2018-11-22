@@ -334,7 +334,8 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
             if (DEBUG)
                 Log.d(TAG, "MediaSource - Updating index=[" + itemIndex + "] with " +
                         "title=[" + item.title + "] at url=[" + item.url + "]")
-            playlist.update(itemIndex, mediaSource) { this.maybeSynchronizePlayer() }
+            playlist.update(itemIndex, mediaSource, Runnable{ this.maybeSynchronizePlayer() })
+
         }
     }
 
@@ -380,7 +381,7 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
         if (DEBUG)
             Log.d(TAG, "MediaSource - Reloading currently playing, " +
                     "index=[" + currentIndex + "], item=[" + currentItem.title + "]")
-        playlist.invalidate(currentIndex) { this.loadImmediate() }
+        playlist.invalidate(currentIndex, Runnable { this.loadImmediate() })
     }
 
     private fun maybeClearLoaders() {
