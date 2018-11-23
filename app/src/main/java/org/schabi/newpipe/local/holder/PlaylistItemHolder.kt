@@ -30,14 +30,14 @@ abstract class PlaylistItemHolder(infoItemBuilder: LocalItemBuilder,
     override fun updateFromItem(localItem: LocalItem, dateFormat: DateFormat) {
         itemView.setOnClickListener { view ->
             if (itemBuilder.onItemSelectedListener != null) {
-                itemBuilder.onItemSelectedListener.selected(localItem)
+                itemBuilder.onItemSelectedListener!!.selected(localItem)
             }
         }
 
         itemView.isLongClickable = true
         itemView.setOnLongClickListener { view ->
             if (itemBuilder.onItemSelectedListener != null) {
-                itemBuilder.onItemSelectedListener.held(localItem)
+                itemBuilder.onItemSelectedListener!!.held(localItem)
             }
             true
         }

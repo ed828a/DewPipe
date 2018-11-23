@@ -103,7 +103,10 @@ class StatisticsPlaylistFragment : BaseLocalListFragment<List<StreamStatisticsEn
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        recordManager = HistoryRecordManager(context)
+        context?.let {
+            recordManager = HistoryRecordManager(it)
+        }
+
     }
 
     override fun onCreateView(inflater: LayoutInflater,

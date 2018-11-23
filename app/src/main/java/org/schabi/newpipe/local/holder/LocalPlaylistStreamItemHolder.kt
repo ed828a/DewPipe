@@ -45,7 +45,7 @@ open class LocalPlaylistStreamItemHolder internal constructor(infoItemBuilder: L
 
         if (localItem.duration > 0) {
             itemDurationView.text = Localization.getDurationString(localItem.duration)
-            itemDurationView.setBackgroundColor(ContextCompat.getColor(itemBuilder.context,
+            itemDurationView.setBackgroundColor(ContextCompat.getColor(itemBuilder.context!!,
                     R.color.duration_background_color))
             itemDurationView.visibility = View.VISIBLE
         } else {
@@ -58,14 +58,14 @@ open class LocalPlaylistStreamItemHolder internal constructor(infoItemBuilder: L
 
         itemView.setOnClickListener { view ->
             if (itemBuilder.onItemSelectedListener != null) {
-                itemBuilder.onItemSelectedListener.selected(localItem)
+                itemBuilder.onItemSelectedListener!!.selected(localItem)
             }
         }
 
         itemView.isLongClickable = true
         itemView.setOnLongClickListener { view ->
             if (itemBuilder.onItemSelectedListener != null) {
-                itemBuilder.onItemSelectedListener.held(localItem)
+                itemBuilder.onItemSelectedListener!!.held(localItem)
             }
             true
         }
@@ -79,7 +79,7 @@ open class LocalPlaylistStreamItemHolder internal constructor(infoItemBuilder: L
             view.performClick()
             if (itemBuilder != null && itemBuilder.onItemSelectedListener != null &&
                     motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                itemBuilder.onItemSelectedListener.drag(item,
+                itemBuilder.onItemSelectedListener!!.drag(item,
                         this@LocalPlaylistStreamItemHolder)
             }
             false

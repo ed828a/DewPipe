@@ -125,7 +125,10 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
         val isSearchHistoryEnabled = preferences.getBoolean(getString(R.string.enable_search_history_key), true)
         suggestionListAdapter!!.setShowSuggestionHistory(isSearchHistoryEnabled)
 
-        historyRecordManager = HistoryRecordManager(context)
+        context?.let {
+            historyRecordManager = HistoryRecordManager(it)
+        }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

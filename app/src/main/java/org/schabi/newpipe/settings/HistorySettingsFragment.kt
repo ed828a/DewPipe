@@ -27,7 +27,10 @@ class HistorySettingsFragment : BasePreferenceFragment() {
         cacheWipeKey = getString(R.string.metadata_cache_wipe_key)
         viewsHistroyClearKey = getString(R.string.clear_views_history_key)
         searchHistoryClearKey = getString(R.string.clear_search_history_key)
-        recordManager = HistoryRecordManager(activity)
+        activity?.let {
+            recordManager = HistoryRecordManager(it)
+        }
+
         disposables = CompositeDisposable()
     }
 
