@@ -3,15 +3,8 @@ package org.schabi.newpipe.local.subscription
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
-import android.app.PendingIntent.getActivity
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.DialogInterface
-import android.content.Intent
-import android.content.IntentFilter
-import android.content.SharedPreferences
+import android.content.*
 import android.content.res.Configuration
-import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Bundle
@@ -19,64 +12,46 @@ import android.os.Environment
 import android.os.Parcelable
 import android.preference.PreferenceManager
 import android.support.annotation.DrawableRes
-import android.support.v4.app.FragmentManager
 import android.support.v4.content.LocalBroadcastManager
-import android.support.v7.app.ActionBar
-import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-
 import com.nononsenseapps.filepicker.Utils
-
-import org.schabi.newpipe.R
-import org.schabi.newpipe.database.subscription.SubscriptionEntity
-import org.schabi.newpipe.extractor.InfoItem
-import org.schabi.newpipe.extractor.NewPipe
-import org.schabi.newpipe.extractor.StreamingService
-import org.schabi.newpipe.extractor.channel.ChannelInfoItem
-import org.schabi.newpipe.extractor.exceptions.ExtractionException
-import org.schabi.newpipe.extractor.subscription.SubscriptionExtractor
-import org.schabi.newpipe.fragments.BaseStateFragment
-import org.schabi.newpipe.info_list.InfoListAdapter
-import org.schabi.newpipe.report.UserAction
-import org.schabi.newpipe.local.subscription.services.SubscriptionsExportService
-import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService
-import org.schabi.newpipe.report.ErrorActivity
-import org.schabi.newpipe.util.FilePickerActivityHelper
-import org.schabi.newpipe.util.NavigationHelper
-import org.schabi.newpipe.util.OnClickGesture
-import org.schabi.newpipe.util.ServiceHelper
-import org.schabi.newpipe.util.ThemeHelper
-import org.schabi.newpipe.views.CollapsibleView
-
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.ArrayList
-import java.util.Collections
-import java.util.Date
-import java.util.Locale
-
 import icepick.State
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-
-import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.KEY_MODE
-import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.KEY_VALUE
-import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.PREVIOUS_EXPORT_MODE
+import org.schabi.newpipe.R
+import org.schabi.newpipe.database.subscription.SubscriptionEntity
+import org.schabi.newpipe.extractor.InfoItem
+import org.schabi.newpipe.extractor.NewPipe
+import org.schabi.newpipe.extractor.channel.ChannelInfoItem
+import org.schabi.newpipe.extractor.exceptions.ExtractionException
+import org.schabi.newpipe.fragments.BaseStateFragment
+import org.schabi.newpipe.info_list.InfoListAdapter
+import org.schabi.newpipe.local.subscription.services.SubscriptionsExportService
+import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService
+import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.*
+import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.Companion.KEY_MODE
+import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.Companion.KEY_VALUE
+import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.Companion.PREVIOUS_EXPORT_MODE
+import org.schabi.newpipe.report.UserAction
+import org.schabi.newpipe.util.*
 import org.schabi.newpipe.util.AnimationUtils.animateRotation
 import org.schabi.newpipe.util.AnimationUtils.animateView
+import org.schabi.newpipe.views.CollapsibleView
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.ArrayList
+import java.util.Date
+import java.util.Locale
+import kotlin.Comparator
 
 class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), SharedPreferences.OnSharedPreferenceChangeListener {
 

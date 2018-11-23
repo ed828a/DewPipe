@@ -23,6 +23,10 @@ import org.schabi.newpipe.extractor.subscription.SubscriptionExtractor
 import org.schabi.newpipe.extractor.subscription.SubscriptionExtractor.ContentSource.CHANNEL_URL
 import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService
 import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.*
+import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.Companion.CHANNEL_URL_MODE
+import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.Companion.INPUT_STREAM_MODE
+import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.Companion.KEY_MODE
+import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.Companion.KEY_VALUE
 import org.schabi.newpipe.report.ErrorActivity
 import org.schabi.newpipe.report.UserAction
 import org.schabi.newpipe.util.Constants

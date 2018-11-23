@@ -77,7 +77,8 @@ class SubscriptionsExportService : BaseImportExportService() {
         }
 
         try {
-            outputStream = FileOutputStream(File(path))
+            outFile = File(path)
+            outputStream = FileOutputStream(outFile)
         } catch (e: FileNotFoundException) {
             handleError(e)
             return Service.START_NOT_STICKY
