@@ -347,7 +347,7 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
         val action: Disposable
 
         if (currentInfo != null && playlistEntity == null) {
-            action = remotePlaylistManager!!.onBookmark(currentInfo)
+            action = remotePlaylistManager!!.onBookmark(currentInfo!!)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({/* Do nothing */ ignored -> }, { this.onError(it) })
         } else if (playlistEntity != null) {

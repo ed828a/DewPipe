@@ -38,7 +38,7 @@ class PlaylistCreationDialog : PlaylistDialog() {
                             R.string.playlist_creation_success,
                             Toast.LENGTH_SHORT)
 
-                    playlistManager.createPlaylist(name, streams)
+                    playlistManager.createPlaylist(name, streams!!)
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe { longs -> successToast.show() }
                 }
