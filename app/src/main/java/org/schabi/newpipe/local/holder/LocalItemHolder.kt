@@ -1,13 +1,13 @@
-package org.schabi.newpipe.local.holder;
+package org.schabi.newpipe.local.holder
 
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
+import android.support.v7.widget.RecyclerView
+import android.view.LayoutInflater
+import android.view.ViewGroup
 
-import org.schabi.newpipe.database.LocalItem;
-import org.schabi.newpipe.local.LocalItemBuilder;
+import org.schabi.newpipe.database.LocalItem
+import org.schabi.newpipe.local.LocalItemBuilder
 
-import java.text.DateFormat;
+import java.text.DateFormat
 
 /*
  * Created by Christian Schabesberger on 12.02.17.
@@ -29,14 +29,10 @@ import java.text.DateFormat;
  * along with NewPipe.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-public abstract class LocalItemHolder extends RecyclerView.ViewHolder {
-    protected final LocalItemBuilder itemBuilder;
+abstract class LocalItemHolder(protected val itemBuilder: LocalItemBuilder, layoutId: Int, parent: ViewGroup)
+    : RecyclerView.ViewHolder(
+        LayoutInflater.from(itemBuilder.context).inflate(layoutId, parent, false)
+) {
 
-    public LocalItemHolder(LocalItemBuilder itemBuilder, int layoutId, ViewGroup parent) {
-        super(LayoutInflater.from(itemBuilder.getContext())
-                .inflate(layoutId, parent, false));
-        this.itemBuilder = itemBuilder;
-    }
-
-    public abstract void updateFromItem(final LocalItem item, final DateFormat dateFormat);
+    abstract fun updateFromItem(item: LocalItem, dateFormat: DateFormat)
 }
