@@ -123,7 +123,9 @@ class SubscriptionsExportService : BaseImportExportService() {
 
     private fun exportToFile(): Function<List<SubscriptionItem>, File> {
         return Function{ subscriptionItems ->
-            ImportExportJsonHelper.writeTo(subscriptionItems, outputStream, eventListener)
+            outputStream?.let {
+                ImportExportJsonHelper.writeTo(subscriptionItems, it, eventListener)
+            }
             outFile
         }
     }

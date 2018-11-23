@@ -22,7 +22,7 @@ public class ImportExportJsonHelperTest {
     public void testEmptySource() throws Exception {
         String emptySource = "{\"app_version\":\"0.11.6\",\"app_version_int\": 47,\"subscriptions\":[]}";
 
-        List<SubscriptionItem> items = ImportExportJsonHelper.readFrom(new ByteArrayInputStream(emptySource.getBytes("UTF-8")), null);
+        List<SubscriptionItem> items = ImportExportJsonHelper.INSTANCE.readFrom(new ByteArrayInputStream(emptySource.getBytes("UTF-8")), null);
         assertTrue(items.isEmpty());
     }
 
@@ -38,9 +38,9 @@ public class ImportExportJsonHelperTest {
             try {
                 if (invalidContent != null) {
                     byte[] bytes = invalidContent.getBytes("UTF-8");
-                    ImportExportJsonHelper.readFrom((new ByteArrayInputStream(bytes)), null);
+                    ImportExportJsonHelper.INSTANCE.readFrom((new ByteArrayInputStream(bytes)), null);
                 } else {
-                    ImportExportJsonHelper.readFrom(null, null);
+                    ImportExportJsonHelper.INSTANCE.readFrom(null, null);
                 }
 
                 fail("didn't throw exception");
@@ -83,7 +83,7 @@ public class ImportExportJsonHelperTest {
 
     private List<SubscriptionItem> readFromFile() throws Exception {
         final InputStream inputStream = getClass().getClassLoader().getResourceAsStream("import_export_test.json");
-        final List<SubscriptionItem> itemsFromFile = ImportExportJsonHelper.readFrom(inputStream, null);
+        final List<SubscriptionItem> itemsFromFile = ImportExportJsonHelper.INSTANCE.readFrom(inputStream, null);
 
         if (itemsFromFile == null || itemsFromFile.isEmpty()) {
             fail("ImportExportJsonHelper.readFrom(input) returned a null or empty list");
@@ -94,7 +94,7 @@ public class ImportExportJsonHelperTest {
 
     private String testWriteTo(List<SubscriptionItem> itemsFromFile) throws Exception {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ImportExportJsonHelper.writeTo(itemsFromFile, out, null);
+        ImportExportJsonHelper.INSTANCE.writeTo(itemsFromFile, out, null);
         final String jsonOut = out.toString("UTF-8");
 
         if (jsonOut.isEmpty()) {
@@ -106,7 +106,7 @@ public class ImportExportJsonHelperTest {
 
     private List<SubscriptionItem> readFromWriteTo(String jsonOut) throws Exception {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(jsonOut.getBytes("UTF-8"));
-        final List<SubscriptionItem> secondReadItems = ImportExportJsonHelper.readFrom(inputStream, null);
+        final List<SubscriptionItem> secondReadItems = ImportExportJsonHelper.INSTANCE.readFrom(inputStream, null);
 
         if (secondReadItems == null || secondReadItems.isEmpty()) {
             fail("second call to readFrom returned an empty list");

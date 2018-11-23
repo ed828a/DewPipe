@@ -87,7 +87,7 @@ class SubscriptionsImportService : BaseImportExportService() {
     private fun getNotificationsConsumer(): Consumer<Notification<ChannelInfo>> = Consumer { notification ->
         if (notification.isOnNext) {
             val name = notification.value?.name
-            eventListener.onItemCompleted(if (!TextUtils.isEmpty(name)) name else "")
+            eventListener.onItemCompleted(if (!TextUtils.isEmpty(name)) name!! else "")
         } else if (notification.isOnError) {
             val error = notification.error
             val cause = error?.cause
