@@ -181,7 +181,7 @@ object ExtractorHelper {
     /**
      * Default implementation uses the [InfoCache] to get cached results
      */
-    fun <I : Info> loadFromCache(serviceId: Int, url: String): Maybe<I> {
+    private fun <I : Info> loadFromCache(serviceId: Int, url: String): Maybe<I> {
         checkServiceId(serviceId)
         return Maybe.defer {
             val info = cache.getFromKey(serviceId, url) as I?

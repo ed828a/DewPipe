@@ -158,7 +158,10 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
-        infoListAdapter = InfoListAdapter(activity)
+        activity?.let {
+            infoListAdapter = InfoListAdapter(it)
+        }
+
         subscriptionService = SubscriptionService.getInstance(activity!!)
     }
 
@@ -328,7 +331,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
         super.initViews(rootView, savedInstanceState)
 
         val useGrid = isGridLayout
-        infoListAdapter = InfoListAdapter(getActivity())
+        infoListAdapter = InfoListAdapter(getActivity()!!)
         itemsList = rootView.findViewById(R.id.items_list)
         itemsList!!.layoutManager = if (useGrid) gridLayoutManager else listLayoutManager
 

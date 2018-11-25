@@ -93,7 +93,7 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
-        infoListAdapter = InfoListAdapter(activity)
+        infoListAdapter = InfoListAdapter(activity!!)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
