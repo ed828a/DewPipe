@@ -493,7 +493,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
 
         val commands = arrayOf(context.resources.getString(R.string.enqueue_on_background), context.resources.getString(R.string.enqueue_on_popup), context.resources.getString(R.string.append_playlist), context.resources.getString(R.string.share))
 
-        val actions = { dialogInterface: DialogInterface, i: Int ->
+        val actions = DialogInterface.OnClickListener { dialogInterface: DialogInterface, i: Int ->
             when (i) {
                 0 -> NavigationHelper.enqueueOnBackgroundPlayer(context, SinglePlayQueue(item))
                 1 -> NavigationHelper.enqueueOnPopupPlayer(getActivity(), SinglePlayQueue(item))
