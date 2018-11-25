@@ -126,7 +126,7 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
 
         val commands = arrayOf(context.resources.getString(R.string.enqueue_on_background), context.resources.getString(R.string.enqueue_on_popup), context.resources.getString(R.string.start_here_on_main), context.resources.getString(R.string.start_here_on_background), context.resources.getString(R.string.start_here_on_popup), context.resources.getString(R.string.append_playlist), context.resources.getString(R.string.share))
 
-        val actions = { dialogInterface: DialogInterface, i: Int ->
+        val actions = DialogInterface.OnClickListener{ dialogInterface: DialogInterface, i: Int ->
             val index = Math.max(infoListAdapter!!.itemsList.indexOf(item), 0)
             when (i) {
                 0 -> NavigationHelper.enqueueOnBackgroundPlayer(context, SinglePlayQueue(item))

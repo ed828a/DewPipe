@@ -1,11 +1,11 @@
-package org.schabi.newpipe.info_list.holder;
+package org.schabi.newpipe.info_list.holder
 
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
+import android.support.v7.widget.RecyclerView
+import android.view.LayoutInflater
+import android.view.ViewGroup
 
-import org.schabi.newpipe.extractor.InfoItem;
-import org.schabi.newpipe.info_list.InfoItemBuilder;
+import org.schabi.newpipe.extractor.InfoItem
+import org.schabi.newpipe.info_list.InfoItemBuilder
 
 /*
  * Created by Christian Schabesberger on 12.02.17.
@@ -27,13 +27,10 @@ import org.schabi.newpipe.info_list.InfoItemBuilder;
  * along with NewPipe.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-public abstract class InfoItemHolder extends RecyclerView.ViewHolder {
-    protected final InfoItemBuilder itemBuilder;
+abstract class InfoItemHolder(
+        protected val itemBuilder: InfoItemBuilder,
+        layoutId: Int, parent: ViewGroup
+) : RecyclerView.ViewHolder(LayoutInflater.from(itemBuilder.context).inflate(layoutId, parent, false)) {
 
-    public InfoItemHolder(InfoItemBuilder infoItemBuilder, int layoutId, ViewGroup parent) {
-        super(LayoutInflater.from(infoItemBuilder.getContext()).inflate(layoutId, parent, false));
-        this.itemBuilder = infoItemBuilder;
-    }
-
-    public abstract void updateFromItem(final InfoItem infoItem);
+    abstract fun updateFromItem(infoItem: InfoItem)
 }
