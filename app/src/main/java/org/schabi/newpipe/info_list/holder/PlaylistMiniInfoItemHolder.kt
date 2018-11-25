@@ -39,14 +39,14 @@ open class PlaylistMiniInfoItemHolder(infoItemBuilder: InfoItemBuilder, layoutId
 
         itemView.setOnClickListener { view ->
             if (itemBuilder.onPlaylistSelectedListener != null) {
-                itemBuilder.onPlaylistSelectedListener.selected(infoItem)
+                itemBuilder.onPlaylistSelectedListener!!.selected(infoItem)
             }
         }
 
         itemView.isLongClickable = true
         itemView.setOnLongClickListener { view ->
             if (itemBuilder.onPlaylistSelectedListener != null) {
-                itemBuilder.onPlaylistSelectedListener.held(infoItem)
+                itemBuilder.onPlaylistSelectedListener!!.held(infoItem)
             }
             true
         }

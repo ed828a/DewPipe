@@ -39,13 +39,13 @@ open class ChannelMiniInfoItemHolder internal constructor(infoItemBuilder: InfoI
 
         itemView.setOnClickListener { view ->
             if (itemBuilder.onChannelSelectedListener != null) {
-                itemBuilder.onChannelSelectedListener.selected(infoItem)
+                itemBuilder.onChannelSelectedListener!!.selected(infoItem)
             }
         }
 
         itemView.setOnLongClickListener { view ->
             if (itemBuilder.onChannelSelectedListener != null) {
-                itemBuilder.onChannelSelectedListener.held(infoItem)
+                itemBuilder.onChannelSelectedListener!!.held(infoItem)
             }
             true
         }

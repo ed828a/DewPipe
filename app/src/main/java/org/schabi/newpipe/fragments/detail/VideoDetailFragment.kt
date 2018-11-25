@@ -453,7 +453,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
 
         relatedStreamExpandButton = rootView.findViewById(R.id.detail_related_streams_expand)
 
-        infoItemBuilder = InfoItemBuilder(activity)
+        infoItemBuilder = InfoItemBuilder(activity!!)
         setHeightThumbnail()
     }
 

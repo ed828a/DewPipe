@@ -59,7 +59,7 @@ open class StreamMiniInfoItemHolder internal constructor(infoItemBuilder: InfoIt
 
         itemView.setOnClickListener { view ->
             if (itemBuilder.onStreamSelectedListener != null) {
-                itemBuilder.onStreamSelectedListener.selected(infoItem)
+                itemBuilder.onStreamSelectedListener!!.selected(infoItem)
             }
         }
 
@@ -74,7 +74,7 @@ open class StreamMiniInfoItemHolder internal constructor(infoItemBuilder: InfoIt
         itemView.isLongClickable = true
         itemView.setOnLongClickListener { view ->
             if (itemBuilder.onStreamSelectedListener != null) {
-                itemBuilder.onStreamSelectedListener.held(item)
+                itemBuilder.onStreamSelectedListener!!.held(item)
             }
             true
         }
