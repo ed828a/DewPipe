@@ -120,7 +120,10 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
     override fun onAttach(context: Context?) {
         super.onAttach(context)
 
-        suggestionListAdapter = SuggestionListAdapter(activity)
+        activity?.let {
+            suggestionListAdapter = SuggestionListAdapter(it)
+        }
+
         val preferences = PreferenceManager.getDefaultSharedPreferences(activity)
         val isSearchHistoryEnabled = preferences.getBoolean(getString(R.string.enable_search_history_key), true)
         suggestionListAdapter!!.setShowSuggestionHistory(isSearchHistoryEnabled)
