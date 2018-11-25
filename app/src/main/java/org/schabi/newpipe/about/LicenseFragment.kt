@@ -23,7 +23,7 @@ class LicenseFragment : Fragment() {
         softwareComponents = arguments!!.getParcelableArray(ARG_COMPONENTS) as Array<SoftwareComponent>
 
         // Sort components by name
-        Arrays.sort(softwareComponents) { o1, o2 -> o1.name.compareTo(o2.name) }
+        Arrays.sort(softwareComponents) { o1, o2 -> o1.name!!.compareTo(o2.name!!) }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -41,7 +41,7 @@ class LicenseFragment : Fragment() {
             copyright.text = context!!.getString(R.string.copyright,
                     component.years,
                     component.copyrightOwner,
-                    component.license.abbreviation)
+                    component.license?.abbreviation)
 
             componentView.tag = component
             componentView.setOnClickListener { v ->
@@ -70,7 +70,7 @@ class LicenseFragment : Fragment() {
         val component = mComponentForContextMenu ?: return false
         when (item!!.itemId) {
             R.id.action_website -> {
-                openWebsite(component.link)
+                openWebsite(component.link!!)
                 return true
             }
             R.id.action_show_license -> showLicense(context, component.license)
@@ -109,7 +109,7 @@ class LicenseFragment : Fragment() {
          * @param context the context to use
          * @param license the license to show
          */
-        fun showLicense(context: Context?, license: License) {
+        fun showLicense(context: Context?, license: License?) {
             LicenseFragmentHelper(context as Activity?).execute(license)
         }
     }
