@@ -751,18 +751,21 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         currentInfo = null
         if (currentWorker != null) currentWorker!!.dispose()
 
-        currentWorker = ExtractorHelper.getStreamInfo(serviceId, url, forceLoad)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ result: StreamInfo ->
-                    isLoading.set(false)
-                    currentInfo = result
-                    showContentWithAnimation(120, 0, 0f)
-                    handleResult(result)
-                }, { throwable: Throwable ->
-                    isLoading.set(false)
-                    onError(throwable)
-                })
+        url?.let {
+            currentWorker = ExtractorHelper.getStreamInfo(serviceId, it, forceLoad)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({ result: StreamInfo ->
+                        isLoading.set(false)
+                        currentInfo = result
+                        showContentWithAnimation(120, 0, 0f)
+                        handleResult(result)
+                    }, { throwable: Throwable ->
+                        isLoading.set(false)
+                        onError(throwable)
+                    })
+        }
+
     }
 
     ///////////////////////////////////////////////////////////////////////////

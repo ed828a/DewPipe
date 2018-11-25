@@ -20,11 +20,9 @@ import org.schabi.newpipe.ReCaptchaActivity
 import org.schabi.newpipe.extractor.exceptions.ReCaptchaException
 import org.schabi.newpipe.report.ErrorActivity
 import org.schabi.newpipe.report.UserAction
-import org.schabi.newpipe.util.ExtractorHelper
 import org.schabi.newpipe.util.InfoCache
 
 import java.io.IOException
-import java.util.Collections
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -32,6 +30,7 @@ import icepick.State
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 import org.schabi.newpipe.util.AnimationUtils.animateView
+import org.schabi.newpipe.util.ExtractorHelper
 
 abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
 

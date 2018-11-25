@@ -378,7 +378,7 @@ class ErrorActivity : AppCompatActivity() {
 
         // async call
         fun reportError(handler: Handler, context: Context, e: Throwable?,
-                        returnActivity: Class<*>?, rootView: View, errorInfo: ErrorInfo) {
+                        returnActivity: Class<*>?, rootView: View?, errorInfo: ErrorInfo) {
 
             var el: MutableList<Throwable>? = null
             if (e != null) {
@@ -390,7 +390,7 @@ class ErrorActivity : AppCompatActivity() {
 
         // async call
         fun reportError(handler: Handler, context: Context, el: List<Throwable>?,
-                        returnActivity: Class<*>?, rootView: View, errorInfo: ErrorInfo) {
+                        returnActivity: Class<*>?, rootView: View?, errorInfo: ErrorInfo) {
             handler.post { reportError(context, el, returnActivity, rootView, errorInfo) }
         }
 

@@ -34,7 +34,6 @@ import org.schabi.newpipe.extractor.channel.ChannelInfo
 import org.schabi.newpipe.extractor.subscription.SubscriptionItem
 import org.schabi.newpipe.local.subscription.ImportExportJsonHelper
 import org.schabi.newpipe.util.Constants
-import org.schabi.newpipe.util.ExtractorHelper
 
 import java.io.File
 import java.io.FileInputStream
@@ -51,6 +50,7 @@ import io.reactivex.functions.Function
 import io.reactivex.schedulers.Schedulers
 
 import org.schabi.newpipe.MainActivity.Companion.DEBUG
+import org.schabi.newpipe.util.ExtractorHelper
 
 class SubscriptionsImportService : BaseImportExportService() {
 

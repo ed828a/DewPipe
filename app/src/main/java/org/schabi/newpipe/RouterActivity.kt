@@ -5,7 +5,6 @@ import android.app.IntentService
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -18,7 +17,6 @@ import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
@@ -33,18 +31,12 @@ import org.schabi.newpipe.extractor.channel.ChannelInfo
 import org.schabi.newpipe.extractor.exceptions.ExtractionException
 import org.schabi.newpipe.extractor.playlist.PlaylistInfo
 import org.schabi.newpipe.extractor.stream.StreamInfo
-import org.schabi.newpipe.extractor.stream.VideoStream
 import org.schabi.newpipe.player.helper.PlayerHelper
 import org.schabi.newpipe.player.playqueue.ChannelPlayQueue
 import org.schabi.newpipe.player.playqueue.PlayQueue
 import org.schabi.newpipe.player.playqueue.PlaylistPlayQueue
 import org.schabi.newpipe.player.playqueue.SinglePlayQueue
 import org.schabi.newpipe.report.UserAction
-import org.schabi.newpipe.util.ExtractorHelper
-import org.schabi.newpipe.util.ListHelper
-import org.schabi.newpipe.util.NavigationHelper
-import org.schabi.newpipe.util.PermissionHelper
-import org.schabi.newpipe.util.ThemeHelper
 
 import java.io.Serializable
 import java.util.ArrayList
@@ -63,6 +55,7 @@ import io.reactivex.schedulers.Schedulers
 
 import org.schabi.newpipe.extractor.StreamingService.ServiceInfo.MediaCapability.AUDIO
 import org.schabi.newpipe.extractor.StreamingService.ServiceInfo.MediaCapability.VIDEO
+import org.schabi.newpipe.util.*
 import org.schabi.newpipe.util.ThemeHelper.resolveResourceIdFromAttr
 
 /**
@@ -389,7 +382,7 @@ class RouterActivity : AppCompatActivity() {
 
     @SuppressLint("CheckResult")
     private fun openDownloadDialog() {
-        ExtractorHelper.getStreamInfo(currentServiceId, currentUrl, true)
+        ExtractorHelper.getStreamInfo(currentServiceId, currentUrl!!, true)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ result: StreamInfo ->

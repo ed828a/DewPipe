@@ -9,10 +9,8 @@ import org.schabi.newpipe.database.AppDatabase
 import org.schabi.newpipe.database.subscription.SubscriptionDAO
 import org.schabi.newpipe.database.subscription.SubscriptionEntity
 import org.schabi.newpipe.extractor.channel.ChannelInfo
-import org.schabi.newpipe.util.ExtractorHelper
 
 import java.util.ArrayList
-import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -23,6 +21,7 @@ import io.reactivex.Maybe
 import io.reactivex.Scheduler
 import io.reactivex.functions.Function
 import io.reactivex.schedulers.Schedulers
+import org.schabi.newpipe.util.ExtractorHelper
 
 /**
  * Subscription Service singleton:

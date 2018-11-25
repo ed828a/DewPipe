@@ -3,12 +3,12 @@ package org.schabi.newpipe.player.playqueue
 import org.schabi.newpipe.extractor.stream.StreamInfo
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
 import org.schabi.newpipe.extractor.stream.StreamType
-import org.schabi.newpipe.util.ExtractorHelper
 
 import java.io.Serializable
 
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
+import org.schabi.newpipe.util.ExtractorHelper
 
 class PlayQueueItem private constructor(name: String?, url: String?,
                                         val serviceId: Int, val duration: Long,

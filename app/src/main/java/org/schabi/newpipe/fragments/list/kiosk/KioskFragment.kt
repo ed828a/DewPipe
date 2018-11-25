@@ -1,8 +1,6 @@
 package org.schabi.newpipe.fragments.list.kiosk
 
 import android.os.Bundle
-import android.preference.PreferenceManager
-import android.support.v7.app.ActionBar
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
@@ -13,19 +11,17 @@ import android.view.ViewGroup
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.ListExtractor
 import org.schabi.newpipe.extractor.NewPipe
-import org.schabi.newpipe.extractor.StreamingService
 import org.schabi.newpipe.extractor.exceptions.ExtractionException
 import org.schabi.newpipe.extractor.kiosk.KioskInfo
-import org.schabi.newpipe.extractor.linkhandler.ListLinkHandlerFactory
 import org.schabi.newpipe.fragments.list.BaseListInfoFragment
 import org.schabi.newpipe.report.UserAction
-import org.schabi.newpipe.util.ExtractorHelper
 import org.schabi.newpipe.util.KioskTranslator
 
 import icepick.State
 import io.reactivex.Single
 
 import org.schabi.newpipe.util.AnimationUtils.animateView
+import org.schabi.newpipe.util.ExtractorHelper
 
 /**
  * Created by Christian Schabesberger on 23.09.17.

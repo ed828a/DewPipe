@@ -3,10 +3,10 @@ package org.schabi.newpipe.player.playqueue
 import org.schabi.newpipe.extractor.playlist.PlaylistInfo
 import org.schabi.newpipe.extractor.playlist.PlaylistInfoItem
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
-import org.schabi.newpipe.util.ExtractorHelper
 
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import org.schabi.newpipe.util.ExtractorHelper
 
 class PlaylistPlayQueue : AbstractInfoPlayQueue<PlaylistInfo, PlaylistInfoItem> {
 
