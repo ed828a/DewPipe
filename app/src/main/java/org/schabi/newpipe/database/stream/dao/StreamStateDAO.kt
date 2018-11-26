@@ -1,18 +1,11 @@
 package org.schabi.newpipe.database.stream.dao
 
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Insert
-import android.arch.persistence.room.OnConflictStrategy
-import android.arch.persistence.room.Query
-import android.arch.persistence.room.Transaction
-
+import android.arch.persistence.room.*
+import io.reactivex.Flowable
 import org.schabi.newpipe.database.BasicDAO
 import org.schabi.newpipe.database.stream.model.StreamStateEntity
-
-import io.reactivex.Flowable
-
-import org.schabi.newpipe.database.stream.model.StreamStateEntity.JOIN_STREAM_ID
-import org.schabi.newpipe.database.stream.model.StreamStateEntity.STREAM_STATE_TABLE
+import org.schabi.newpipe.database.stream.model.StreamStateEntity.Companion.JOIN_STREAM_ID
+import org.schabi.newpipe.database.stream.model.StreamStateEntity.Companion.STREAM_STATE_TABLE
 
 @Dao
 abstract class StreamStateDAO : BasicDAO<StreamStateEntity> {
