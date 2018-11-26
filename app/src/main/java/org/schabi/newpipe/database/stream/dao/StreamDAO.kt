@@ -8,7 +8,10 @@ import org.schabi.newpipe.database.history.model.StreamHistoryEntity.Companion.S
 import org.schabi.newpipe.database.playlist.model.PlaylistStreamEntity
 import org.schabi.newpipe.database.playlist.model.PlaylistStreamEntity.PLAYLIST_STREAM_JOIN_TABLE
 import org.schabi.newpipe.database.stream.model.StreamEntity
-import org.schabi.newpipe.database.stream.model.StreamEntity.*
+import org.schabi.newpipe.database.stream.model.StreamEntity.Companion.STREAM_ID
+import org.schabi.newpipe.database.stream.model.StreamEntity.Companion.STREAM_SERVICE_ID
+import org.schabi.newpipe.database.stream.model.StreamEntity.Companion.STREAM_TABLE
+import org.schabi.newpipe.database.stream.model.StreamEntity.Companion.STREAM_URL
 import java.util.*
 
 @Dao
@@ -37,7 +40,7 @@ abstract class StreamDAO : BasicDAO<StreamEntity> {
 
     @Transaction
     open fun upsert(stream: StreamEntity): Long {
-        val streamIdCandidate = getStreamIdInternal(stream.serviceId.toLong(), stream.url)
+        val streamIdCandidate = getStreamIdInternal(stream.serviceId.toLong(), stream.url!!)
 
         if (streamIdCandidate == null) {
             return insert(stream)
@@ -54,7 +57,7 @@ abstract class StreamDAO : BasicDAO<StreamEntity> {
 
         val streamIds = ArrayList<Long>(streams.size)
         for (stream in streams) {
-            val streamId = getStreamIdInternal(stream.serviceId.toLong(), stream.url)
+            val streamId = getStreamIdInternal(stream.serviceId.toLong(), stream.url!!)
                     ?: throw IllegalStateException("StreamID cannot be null just after insertion.")
 
             streamIds.add(streamId)

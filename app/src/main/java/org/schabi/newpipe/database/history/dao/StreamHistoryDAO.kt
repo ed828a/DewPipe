@@ -13,8 +13,8 @@ import org.schabi.newpipe.database.history.model.StreamHistoryEntry
 import org.schabi.newpipe.database.stream.StreamStatisticsEntry
 import org.schabi.newpipe.database.stream.StreamStatisticsEntry.Companion.STREAM_LATEST_DATE
 import org.schabi.newpipe.database.stream.StreamStatisticsEntry.Companion.STREAM_WATCH_COUNT
-import org.schabi.newpipe.database.stream.model.StreamEntity.STREAM_ID
-import org.schabi.newpipe.database.stream.model.StreamEntity.STREAM_TABLE
+import org.schabi.newpipe.database.stream.model.StreamEntity.Companion.STREAM_ID
+import org.schabi.newpipe.database.stream.model.StreamEntity.Companion.STREAM_TABLE
 
 @Dao
 abstract class StreamHistoryDAO : HistoryDAO<StreamHistoryEntity> {

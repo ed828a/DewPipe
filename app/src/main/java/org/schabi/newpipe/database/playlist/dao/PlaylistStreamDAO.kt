@@ -3,18 +3,16 @@ package org.schabi.newpipe.database.playlist.dao
 import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Query
 import android.arch.persistence.room.Transaction
-
+import io.reactivex.Flowable
 import org.schabi.newpipe.database.BasicDAO
 import org.schabi.newpipe.database.playlist.PlaylistMetadataEntry
-import org.schabi.newpipe.database.playlist.PlaylistStreamEntry
-import org.schabi.newpipe.database.playlist.model.PlaylistStreamEntity
-
-import io.reactivex.Flowable
-
 import org.schabi.newpipe.database.playlist.PlaylistMetadataEntry.PLAYLIST_STREAM_COUNT
+import org.schabi.newpipe.database.playlist.PlaylistStreamEntry
 import org.schabi.newpipe.database.playlist.model.PlaylistEntity.*
+import org.schabi.newpipe.database.playlist.model.PlaylistStreamEntity
 import org.schabi.newpipe.database.playlist.model.PlaylistStreamEntity.*
-import org.schabi.newpipe.database.stream.model.StreamEntity.*
+import org.schabi.newpipe.database.stream.model.StreamEntity.Companion.STREAM_ID
+import org.schabi.newpipe.database.stream.model.StreamEntity.Companion.STREAM_TABLE
 
 @Dao
 abstract class PlaylistStreamDAO : BasicDAO<PlaylistStreamEntity> {
