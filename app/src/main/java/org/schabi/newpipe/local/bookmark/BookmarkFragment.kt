@@ -249,7 +249,7 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
         items.addAll(localPlaylists)
         items.addAll(remotePlaylists)
 
-        items.sortWith(Comparator { left, right -> left.orderingName.compareTo(right.orderingName, ignoreCase = true) })
+        items.sortWith(Comparator { left, right -> left.getOrderingName()!!.compareTo(right.getOrderingName()!!, ignoreCase = true) })
 
         return items
     }
