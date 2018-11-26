@@ -2,14 +2,11 @@ package org.schabi.newpipe.database.playlist.dao
 
 import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Query
-
+import io.reactivex.Flowable
 import org.schabi.newpipe.database.BasicDAO
 import org.schabi.newpipe.database.playlist.model.PlaylistEntity
-
-import io.reactivex.Flowable
-
-import org.schabi.newpipe.database.playlist.model.PlaylistEntity.PLAYLIST_ID
-import org.schabi.newpipe.database.playlist.model.PlaylistEntity.PLAYLIST_TABLE
+import org.schabi.newpipe.database.playlist.model.PlaylistEntity.Companion.PLAYLIST_ID
+import org.schabi.newpipe.database.playlist.model.PlaylistEntity.Companion.PLAYLIST_TABLE
 
 @Dao
 abstract class PlaylistDAO : BasicDAO<PlaylistEntity> {
