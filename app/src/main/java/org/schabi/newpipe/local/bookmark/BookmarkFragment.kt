@@ -119,7 +119,7 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
                     NavigationHelper.openPlaylistFragment(
                             fragmentManager,
                             selectedItem.serviceId,
-                            selectedItem.url,
+                            selectedItem.url!!,
                             selectedItem.name)
                 }
             }
@@ -222,7 +222,7 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
     }
 
     private fun showRemoteDeleteDialog(item: PlaylistRemoteEntity) {
-        showDeleteDialog(item.name, remotePlaylistManager!!.deletePlaylist(item.uid))
+        showDeleteDialog(item.name!!, remotePlaylistManager!!.deletePlaylist(item.uid))
     }
 
     private fun showDeleteDialog(name: String, deleteReactor: Single<Int>) {

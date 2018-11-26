@@ -24,7 +24,7 @@ open class RemotePlaylistItemHolder : PlaylistItemHolder {
         itemUploaderView.text = Localization.concatenateStrings(localItem.uploader,
                 NewPipe.getNameOfService(localItem.serviceId))
 
-        itemBuilder.displayImage(localItem.thumbnailUrl, itemThumbnailView,
+        itemBuilder.displayImage(localItem.thumbnailUrl!!, itemThumbnailView,
                 ImageDisplayConstants.DISPLAY_PLAYLIST_OPTIONS)
 
         super.updateFromItem(localItem, dateFormat)

@@ -3,16 +3,13 @@ package org.schabi.newpipe.database.playlist.dao
 import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Query
 import android.arch.persistence.room.Transaction
-
+import io.reactivex.Flowable
 import org.schabi.newpipe.database.BasicDAO
 import org.schabi.newpipe.database.playlist.model.PlaylistRemoteEntity
-
-import io.reactivex.Flowable
-
-import org.schabi.newpipe.database.playlist.model.PlaylistRemoteEntity.REMOTE_PLAYLIST_ID
-import org.schabi.newpipe.database.playlist.model.PlaylistRemoteEntity.REMOTE_PLAYLIST_SERVICE_ID
-import org.schabi.newpipe.database.playlist.model.PlaylistRemoteEntity.REMOTE_PLAYLIST_TABLE
-import org.schabi.newpipe.database.playlist.model.PlaylistRemoteEntity.REMOTE_PLAYLIST_URL
+import org.schabi.newpipe.database.playlist.model.PlaylistRemoteEntity.Companion.REMOTE_PLAYLIST_ID
+import org.schabi.newpipe.database.playlist.model.PlaylistRemoteEntity.Companion.REMOTE_PLAYLIST_SERVICE_ID
+import org.schabi.newpipe.database.playlist.model.PlaylistRemoteEntity.Companion.REMOTE_PLAYLIST_TABLE
+import org.schabi.newpipe.database.playlist.model.PlaylistRemoteEntity.Companion.REMOTE_PLAYLIST_URL
 
 @Dao
 abstract class PlaylistRemoteDAO : BasicDAO<PlaylistRemoteEntity> {
@@ -38,7 +35,7 @@ abstract class PlaylistRemoteDAO : BasicDAO<PlaylistRemoteEntity> {
 
     @Transaction
     open fun upsert(playlist: PlaylistRemoteEntity): Long {
-        val playlistId = getPlaylistIdInternal(playlist.serviceId.toLong(), playlist.url)
+        val playlistId = getPlaylistIdInternal(playlist.serviceId.toLong(), playlist.url!!)
 
         return if (playlistId == null) {
             insert(playlist)
