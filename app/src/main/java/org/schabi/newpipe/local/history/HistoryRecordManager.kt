@@ -90,7 +90,7 @@ class HistoryRecordManager(context: Context) {
         return Maybe.fromCallable {
             database.runInTransaction<Long> {
                 val streamId = streamTable.upsert(StreamEntity(info))
-                val latestEntry = streamHistoryTable.latestEntry
+                val latestEntry = streamHistoryTable.getLatestEntry()
 
                 if (latestEntry != null && latestEntry.streamUid == streamId) {
                     streamHistoryTable.delete(latestEntry)
@@ -144,7 +144,7 @@ class HistoryRecordManager(context: Context) {
 
         return Maybe.fromCallable {
             database.runInTransaction<Long> {
-                val latestEntry = searchHistoryTable.latestEntry
+                val latestEntry = searchHistoryTable.getLatestEntry()
                 if (latestEntry != null && latestEntry.hasEqualValues(newEntry)) {
                     latestEntry.creationDate = currentTime
                     return@runInTransaction searchHistoryTable.update(latestEntry).toLong()
@@ -168,7 +168,7 @@ class HistoryRecordManager(context: Context) {
     fun getRelatedSearches(query: String,
                            similarQueryLimit: Int,
                            uniqueQueryLimit: Int): Flowable<List<SearchHistoryEntry>> {
-        return if (query.length > 0)
+        return if (query.isNotEmpty())
             searchHistoryTable.getSimilarEntries(query, similarQueryLimit)
         else
             searchHistoryTable.getUniqueEntries(uniqueQueryLimit)
