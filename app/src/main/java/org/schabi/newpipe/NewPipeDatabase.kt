@@ -2,10 +2,8 @@ package org.schabi.newpipe
 
 import android.arch.persistence.room.Room
 import android.content.Context
-
 import org.schabi.newpipe.database.AppDatabase
-
-import org.schabi.newpipe.database.AppDatabase.DATABASE_NAME
+import org.schabi.newpipe.database.AppDatabase.Companion.DATABASE_NAME
 import org.schabi.newpipe.database.Migrations.MIGRATION_11_12
 
 object NewPipeDatabase {
