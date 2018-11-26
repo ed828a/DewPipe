@@ -1,19 +1,12 @@
 package org.schabi.newpipe.database.subscription
 
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Insert
-import android.arch.persistence.room.OnConflictStrategy
-import android.arch.persistence.room.Query
-import android.arch.persistence.room.Transaction
-
-import org.schabi.newpipe.database.BasicDAO
-
+import android.arch.persistence.room.*
 import io.reactivex.Flowable
-
-import org.schabi.newpipe.database.subscription.SubscriptionEntity.SUBSCRIPTION_SERVICE_ID
-import org.schabi.newpipe.database.subscription.SubscriptionEntity.SUBSCRIPTION_TABLE
-import org.schabi.newpipe.database.subscription.SubscriptionEntity.SUBSCRIPTION_UID
-import org.schabi.newpipe.database.subscription.SubscriptionEntity.SUBSCRIPTION_URL
+import org.schabi.newpipe.database.BasicDAO
+import org.schabi.newpipe.database.subscription.SubscriptionEntity.Companion.SUBSCRIPTION_SERVICE_ID
+import org.schabi.newpipe.database.subscription.SubscriptionEntity.Companion.SUBSCRIPTION_TABLE
+import org.schabi.newpipe.database.subscription.SubscriptionEntity.Companion.SUBSCRIPTION_UID
+import org.schabi.newpipe.database.subscription.SubscriptionEntity.Companion.SUBSCRIPTION_URL
 
 @Dao
 abstract class SubscriptionDAO : BasicDAO<SubscriptionEntity> {
@@ -49,7 +42,7 @@ abstract class SubscriptionDAO : BasicDAO<SubscriptionEntity> {
                 continue
             }
 
-            uid = getSubscriptionIdInternal(entity.serviceId, entity.url)
+            uid = getSubscriptionIdInternal(entity.serviceId, entity.url!!)
             entity.uid = uid!!
 
             if (uid == -1L) {

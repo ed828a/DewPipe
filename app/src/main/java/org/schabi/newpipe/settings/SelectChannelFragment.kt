@@ -137,7 +137,7 @@ class SelectChannelFragment : DialogFragment() {
     private fun clickedItem(position: Int) {
         if (onSelectedLisener != null) {
             val entry = subscriptions[position]
-            onSelectedLisener!!.onChannelSelected(entry.serviceId, entry.url, entry.name)
+            onSelectedLisener!!.onChannelSelected(entry.serviceId, entry.url!!, entry.name!!)
         }
         dismiss()
     }

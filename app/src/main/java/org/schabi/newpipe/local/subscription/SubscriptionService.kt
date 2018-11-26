@@ -78,7 +78,7 @@ class SubscriptionService private constructor(context: Context) {
         if (DEBUG) Log.d(TAG, "getChannelInfo() called with: subscriptionEntity = [$subscriptionEntity]")
 
         return Maybe.fromSingle(ExtractorHelper
-                .getChannelInfo(subscriptionEntity.serviceId, subscriptionEntity.url, false))
+                .getChannelInfo(subscriptionEntity.serviceId, subscriptionEntity.url!!, false))
                 .subscribeOn(subscriptionScheduler)
     }
 

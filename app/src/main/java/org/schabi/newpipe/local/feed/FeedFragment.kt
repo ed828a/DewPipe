@@ -206,7 +206,7 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
                             .onErrorComplete { throwable: Throwable -> super@FeedFragment.onError(throwable) }
                             .subscribe(
                                     getChannelInfoObserver(subscriptionEntity.serviceId,
-                                            subscriptionEntity.url))
+                                            subscriptionEntity.url!!))
                 } else {
                     requestFeed(1)
                 }
