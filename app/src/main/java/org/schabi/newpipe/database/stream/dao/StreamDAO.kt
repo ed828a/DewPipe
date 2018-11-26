@@ -1,26 +1,15 @@
 package org.schabi.newpipe.database.stream.dao
 
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Insert
-import android.arch.persistence.room.OnConflictStrategy
-import android.arch.persistence.room.Query
-import android.arch.persistence.room.Transaction
-
-import org.schabi.newpipe.database.BasicDAO
-import org.schabi.newpipe.database.playlist.model.PlaylistStreamEntity
-import org.schabi.newpipe.database.stream.model.StreamEntity
-import org.schabi.newpipe.database.history.model.StreamHistoryEntity
-
-import java.util.ArrayList
-
+import android.arch.persistence.room.*
 import io.reactivex.Flowable
-
+import org.schabi.newpipe.database.BasicDAO
+import org.schabi.newpipe.database.history.model.StreamHistoryEntity
+import org.schabi.newpipe.database.history.model.StreamHistoryEntity.Companion.STREAM_HISTORY_TABLE
+import org.schabi.newpipe.database.playlist.model.PlaylistStreamEntity
 import org.schabi.newpipe.database.playlist.model.PlaylistStreamEntity.PLAYLIST_STREAM_JOIN_TABLE
-import org.schabi.newpipe.database.stream.model.StreamEntity.STREAM_ID
-import org.schabi.newpipe.database.stream.model.StreamEntity.STREAM_SERVICE_ID
-import org.schabi.newpipe.database.stream.model.StreamEntity.STREAM_TABLE
-import org.schabi.newpipe.database.stream.model.StreamEntity.STREAM_URL
-import org.schabi.newpipe.database.history.model.StreamHistoryEntity.STREAM_HISTORY_TABLE
+import org.schabi.newpipe.database.stream.model.StreamEntity
+import org.schabi.newpipe.database.stream.model.StreamEntity.*
+import java.util.*
 
 @Dao
 abstract class StreamDAO : BasicDAO<StreamEntity> {

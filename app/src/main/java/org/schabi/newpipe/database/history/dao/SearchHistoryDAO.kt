@@ -2,16 +2,13 @@ package org.schabi.newpipe.database.history.dao
 
 import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Query
-
-import org.schabi.newpipe.database.history.model.SearchHistoryEntry
-
 import io.reactivex.Flowable
-
-import org.schabi.newpipe.database.history.model.SearchHistoryEntry.CREATION_DATE
-import org.schabi.newpipe.database.history.model.SearchHistoryEntry.ID
-import org.schabi.newpipe.database.history.model.SearchHistoryEntry.SEARCH
-import org.schabi.newpipe.database.history.model.SearchHistoryEntry.SERVICE_ID
-import org.schabi.newpipe.database.history.model.SearchHistoryEntry.TABLE_NAME
+import org.schabi.newpipe.database.history.model.SearchHistoryEntry
+import org.schabi.newpipe.database.history.model.SearchHistoryEntry.Companion.CREATION_DATE
+import org.schabi.newpipe.database.history.model.SearchHistoryEntry.Companion.ID
+import org.schabi.newpipe.database.history.model.SearchHistoryEntry.Companion.SEARCH
+import org.schabi.newpipe.database.history.model.SearchHistoryEntry.Companion.SERVICE_ID
+import org.schabi.newpipe.database.history.model.SearchHistoryEntry.Companion.TABLE_NAME
 
 @Dao
 interface SearchHistoryDAO : HistoryDAO<SearchHistoryEntry> {

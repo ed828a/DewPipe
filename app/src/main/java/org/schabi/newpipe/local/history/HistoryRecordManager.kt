@@ -94,7 +94,7 @@ class HistoryRecordManager(context: Context) {
 
                 if (latestEntry != null && latestEntry.streamUid == streamId) {
                     streamHistoryTable.delete(latestEntry)
-                    latestEntry.setAccessDate(currentTime)
+                    latestEntry.accessDate = currentTime
                     latestEntry.repeatCount = latestEntry.repeatCount + 1
                     return@runInTransaction streamHistoryTable.insert(latestEntry)
                 } else {

@@ -3,21 +3,18 @@ package org.schabi.newpipe.database.history.dao
 
 import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Query
-
+import io.reactivex.Flowable
+import org.schabi.newpipe.database.history.model.StreamHistoryEntity
+import org.schabi.newpipe.database.history.model.StreamHistoryEntity.Companion.JOIN_STREAM_ID
+import org.schabi.newpipe.database.history.model.StreamHistoryEntity.Companion.STREAM_ACCESS_DATE
+import org.schabi.newpipe.database.history.model.StreamHistoryEntity.Companion.STREAM_HISTORY_TABLE
+import org.schabi.newpipe.database.history.model.StreamHistoryEntity.Companion.STREAM_REPEAT_COUNT
 import org.schabi.newpipe.database.history.model.StreamHistoryEntry
 import org.schabi.newpipe.database.stream.StreamStatisticsEntry
-import org.schabi.newpipe.database.history.model.StreamHistoryEntity
-
-import io.reactivex.Flowable
-
-import org.schabi.newpipe.database.history.model.StreamHistoryEntity.STREAM_REPEAT_COUNT
 import org.schabi.newpipe.database.stream.StreamStatisticsEntry.STREAM_LATEST_DATE
 import org.schabi.newpipe.database.stream.StreamStatisticsEntry.STREAM_WATCH_COUNT
 import org.schabi.newpipe.database.stream.model.StreamEntity.STREAM_ID
 import org.schabi.newpipe.database.stream.model.StreamEntity.STREAM_TABLE
-import org.schabi.newpipe.database.history.model.StreamHistoryEntity.JOIN_STREAM_ID
-import org.schabi.newpipe.database.history.model.StreamHistoryEntity.STREAM_ACCESS_DATE
-import org.schabi.newpipe.database.history.model.StreamHistoryEntity.STREAM_HISTORY_TABLE
 
 @Dao
 abstract class StreamHistoryDAO : HistoryDAO<StreamHistoryEntity> {

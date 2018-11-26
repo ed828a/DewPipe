@@ -491,27 +491,30 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
                 searchEditText == null || disposables == null)
             return
         val query = item.query
-        AlertDialog.Builder(activity!!)
-                .setTitle(query)
-                .setMessage(R.string.delete_item_search_history)
-                .setCancelable(true)
-                .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.delete) { dialog, which ->
-                    val onDelete = historyRecordManager!!.deleteSearchHistory(query)
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(
-                                    { howManyDeleted ->
-                                        suggestionPublisher
-                                                .onNext(searchEditText!!.text.toString())
-                                    },
-                                    { throwable ->
-                                        showSnackBarError(throwable,
-                                                UserAction.DELETE_FROM_HISTORY, "none",
-                                                "Deleting item failed", R.string.general_error)
-                                    })
-                    disposables.add(onDelete)
-                }
-                .show()
+        query?.let {
+            AlertDialog.Builder(activity!!)
+                    .setTitle(query)
+                    .setMessage(R.string.delete_item_search_history)
+                    .setCancelable(true)
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.delete) { dialog, which ->
+                        val onDelete = historyRecordManager!!.deleteSearchHistory(query)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(
+                                        { howManyDeleted ->
+                                            suggestionPublisher
+                                                    .onNext(searchEditText!!.text.toString())
+                                        },
+                                        { throwable ->
+                                            showSnackBarError(throwable,
+                                                    UserAction.DELETE_FROM_HISTORY, "none",
+                                                    "Deleting item failed", R.string.general_error)
+                                        })
+                        disposables.add(onDelete)
+                    }
+                    .show()
+        }
+
     }
 
     override fun onBackPressed(): Boolean {
