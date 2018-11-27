@@ -4,7 +4,9 @@ package org.schabi.newpipe;
 //import android.test.ApplicationTestCase;
 
 import android.app.Application;
-
+/**
+ * This file is useless. Edward
+ */
 /**
  * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
  */
