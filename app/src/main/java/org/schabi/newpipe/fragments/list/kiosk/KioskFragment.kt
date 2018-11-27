@@ -97,6 +97,7 @@ class KioskFragment : BaseListInfoFragment<KioskInfo>() {
     ///////////////////////////////////////////////////////////////////////////
 
     public override fun loadResult(forceReload: Boolean): Single<KioskInfo> {
+        Log.d(TAG, "loadResult(): serviceId=$serviceId")
         return ExtractorHelper.getKioskInfo(serviceId,
                 url,
                 forceReload)

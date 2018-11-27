@@ -33,14 +33,14 @@ class AudioReactor(private val context: Context,
         this.audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         player.addAudioDebugListener(this)
 
-        if (SHOULD_BUILD_FOCUS_REQUEST) {
-            request = AudioFocusRequest.Builder(FOCUS_GAIN_TYPE)
+        request = if (SHOULD_BUILD_FOCUS_REQUEST) {
+            AudioFocusRequest.Builder(FOCUS_GAIN_TYPE)
                     .setAcceptsDelayedFocusGain(true)
                     .setWillPauseWhenDucked(true)
                     .setOnAudioFocusChangeListener(this)
                     .build()
         } else {
-            request = null
+            null
         }
     }
 
