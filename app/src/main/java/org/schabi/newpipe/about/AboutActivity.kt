@@ -4,20 +4,15 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
-
+import android.view.*
+import kotlinx.android.synthetic.main.activity_about.*
+import kotlinx.android.synthetic.main.fragment_about.*
+import kotlinx.android.synthetic.main.fragment_about.view.*
 import org.schabi.newpipe.BuildConfig
 import org.schabi.newpipe.R
 import org.schabi.newpipe.util.NavigationHelper
@@ -33,32 +28,27 @@ class AboutActivity : AppCompatActivity() {
      * may be best to switch to a
      * [android.support.v4.app.FragmentStatePagerAdapter].
      */
-    private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
+    private lateinit var mSectionsPagerAdapter: SectionsPagerAdapter
 
     /**
-     * The [ViewPager] that will host the section contents.
      */
-    private var mViewPager: ViewPager? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ThemeHelper.setTheme(this)
 
         setContentView(R.layout.activity_about)
 
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
 
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = findViewById(R.id.container)
-        mViewPager!!.adapter = mSectionsPagerAdapter
+        // The viewPager that will host the section contents.
+        // Set up viewPager with the sections adapter.
+        viewPager.adapter = mSectionsPagerAdapter
 
-        val tabLayout = findViewById<TabLayout>(R.id.tabs)
-        tabLayout.setupWithViewPager(mViewPager)
+        tabsLayout.setupWithViewPager(viewPager)
     }
 
 
@@ -70,21 +60,21 @@ class AboutActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        val id = item.itemId
-
-        when (id) {
+        return when (item.itemId) {
             android.R.id.home -> {
                 finish()
-                return true
+                true
             }
+
             R.id.action_settings -> {
                 NavigationHelper.openSettings(this)
-                return true
+                true
             }
-            R.id.action_show_downloads -> return NavigationHelper.openDownloads(this)
-        }
 
-        return super.onOptionsItemSelected(item)
+            R.id.action_show_downloads -> NavigationHelper.openDownloads(this)
+
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     /**
@@ -97,20 +87,15 @@ class AboutActivity : AppCompatActivity() {
             val rootView = inflater.inflate(R.layout.fragment_about, container, false)
             val context = this.context
 
-            val version = rootView.findViewById<TextView>(R.id.app_version)
-            version.text = BuildConfig.VERSION_NAME
+            rootView.appVersion.text = BuildConfig.VERSION_NAME
 
-            val githubLink = rootView.findViewById<View>(R.id.github_link)
-            githubLink.setOnClickListener { nv -> openWebsite(context!!.getString(R.string.github_url), context) }
+            rootView.githubLink.setOnClickListener { nv -> openWebsite(context!!.getString(R.string.github_url), context) }
 
-            val donationLink = rootView.findViewById<View>(R.id.donation_link)
-            donationLink.setOnClickListener { v -> openWebsite(context!!.getString(R.string.donation_url), context) }
+            rootView.donationLink.setOnClickListener { v -> openWebsite(context!!.getString(R.string.donation_url), context) }
 
-            val websiteLink = rootView.findViewById<View>(R.id.website_link)
-            websiteLink.setOnClickListener { nv -> openWebsite(context!!.getString(R.string.website_url), context) }
+            rootView.websiteLink.setOnClickListener { nv -> openWebsite(context!!.getString(R.string.website_url), context) }
 
-            val privacyPolicyLink = rootView.findViewById<View>(R.id.privacy_policy_link)
-            privacyPolicyLink.setOnClickListener { v -> openWebsite(context!!.getString(R.string.privacy_policy_url), context) }
+            rootView.privacyPolicyLink.setOnClickListener { v -> openWebsite(context!!.getString(R.string.privacy_policy_url), context) }
 
             return rootView
         }
@@ -139,11 +124,11 @@ class AboutActivity : AppCompatActivity() {
     inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
 
         override fun getItem(position: Int): Fragment? {
-            when (position) {
-                0 -> return AboutFragment.newInstance()
-                1 -> return LicenseFragment.newInstance(SOFTWARE_COMPONENTS)
+            return when (position) {
+                0 -> AboutFragment.newInstance()
+                1 -> LicenseFragment.newInstance(SOFTWARE_COMPONENTS)
+                else -> null
             }
-            return null
         }
 
         override fun getCount(): Int {

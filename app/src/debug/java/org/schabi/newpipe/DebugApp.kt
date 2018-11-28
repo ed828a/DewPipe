@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import android.support.multidex.MultiDex
+import android.util.Log
 
 import com.facebook.stetho.Stetho
 import com.facebook.stetho.okhttp3.StethoInterceptor
@@ -86,6 +87,7 @@ class DebugApp : App() {
         }
 
         override fun dumpHeap(): File {
+            Log.d(TAG, "dumper.dumpHeap() = ${dumper.dumpHeap()}")
             return if (isDumpingAllowed) dumper.dumpHeap() else HeapDumper.RETRY_LATER
         }
     }
