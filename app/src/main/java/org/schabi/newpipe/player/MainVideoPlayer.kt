@@ -629,11 +629,15 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
 
             if (currentState != BasePlayer.STATE_COMPLETED) {
                 controlsVisibilityHandler.removeCallbacksAndMessages(null)
-                animateView(controlsRoot, true, DEFAULT_CONTROLS_DURATION.toLong(), 0) {
-                    if (currentState == STATE_PLAYING && !isSomePopupMenuVisible) {
-                        hideControls(DEFAULT_CONTROLS_DURATION.toLong(), DEFAULT_CONTROLS_HIDE_TIME.toLong())
-                    }
-                }
+                animateView(controlsRoot!!,
+                        true,
+                        DEFAULT_CONTROLS_DURATION.toLong(),
+                        0,
+                        Runnable {
+                            if (currentState == STATE_PLAYING && !isSomePopupMenuVisible) {
+                                hideControls(DEFAULT_CONTROLS_DURATION.toLong(), DEFAULT_CONTROLS_HIDE_TIME.toLong())
+                            }
+                        })
             }
         }
 
@@ -645,14 +649,14 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             updatePlaybackButtons()
 
             controlsRoot!!.visibility = View.INVISIBLE
-            animateView(queueLayout, SLIDE_AND_ALPHA, /*visible=*/true,
+            animateView(queueLayout!!, SLIDE_AND_ALPHA, /*visible=*/true,
                     DEFAULT_CONTROLS_DURATION.toLong())
 
             itemsList!!.scrollToPosition(playQueue!!.index)
         }
 
         private fun onQueueClosed() {
-            animateView(queueLayout, SLIDE_AND_ALPHA, /*visible=*/false,
+            animateView(queueLayout!!, SLIDE_AND_ALPHA, /*visible=*/false,
                     DEFAULT_CONTROLS_DURATION.toLong())
             queueVisible = false
         }
@@ -662,9 +666,9 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
 
             val isMoreControlsVisible = secondaryControls!!.visibility == View.VISIBLE
 
-            animateRotation(moreOptionsButton, DEFAULT_CONTROLS_DURATION.toLong(),
+            animateRotation(moreOptionsButton!!, DEFAULT_CONTROLS_DURATION.toLong(),
                     if (isMoreControlsVisible) 0 else 180)
-            animateView(secondaryControls, SLIDE_AND_ALPHA, !isMoreControlsVisible,
+            animateView(secondaryControls!!, SLIDE_AND_ALPHA, !isMoreControlsVisible,
                     DEFAULT_CONTROLS_DURATION.toLong())
             showControls(DEFAULT_CONTROLS_DURATION.toLong())
         }
@@ -729,9 +733,9 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         ///////////////////////////////////////////////////////////////////////////
 
         private fun animatePlayButtons(show: Boolean, duration: Int) {
-            animateView(playPauseButton, AnimationUtils.Type.SCALE_AND_ALPHA, show, duration.toLong())
-            animateView(playPreviousButton, AnimationUtils.Type.SCALE_AND_ALPHA, show, duration.toLong())
-            animateView(playNextButton, AnimationUtils.Type.SCALE_AND_ALPHA, show, duration.toLong())
+            animateView(playPauseButton!!, AnimationUtils.Type.SCALE_AND_ALPHA, show, duration.toLong())
+            animateView(playPreviousButton!!, AnimationUtils.Type.SCALE_AND_ALPHA, show, duration.toLong())
+            animateView(playNextButton!!, AnimationUtils.Type.SCALE_AND_ALPHA, show, duration.toLong())
         }
 
         override fun onBlocked() {
@@ -748,20 +752,24 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
 
         override fun onPlaying() {
             super.onPlaying()
-            animateView(playPauseButton, AnimationUtils.Type.SCALE_AND_ALPHA, false, 80, 0) {
-                playPauseButton!!.setImageResource(R.drawable.ic_pause_white)
-                animatePlayButtons(true, 200)
-            }
+            animateView(playPauseButton!!, AnimationUtils.Type.SCALE_AND_ALPHA, false, 80, 0,
+                    Runnable {
+                        playPauseButton!!.setImageResource(R.drawable.ic_pause_white)
+                        animatePlayButtons(true, 200)
+                    }
+            )
 
             rootView!!.keepScreenOn = true
         }
 
         override fun onPaused() {
             super.onPaused()
-            animateView(playPauseButton, AnimationUtils.Type.SCALE_AND_ALPHA, false, 80, 0) {
-                playPauseButton!!.setImageResource(R.drawable.ic_play_arrow_white)
-                animatePlayButtons(true, 200)
-            }
+            animateView(playPauseButton!!, AnimationUtils.Type.SCALE_AND_ALPHA, false, 80, 0,
+                    Runnable {
+                        playPauseButton!!.setImageResource(R.drawable.ic_play_arrow_white)
+                        animatePlayButtons(true, 200)
+                    }
+            )
 
             showSystemUi()
             rootView!!.keepScreenOn = false
@@ -775,10 +783,11 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
 
 
         override fun onCompleted() {
-            animateView(playPauseButton, AnimationUtils.Type.SCALE_AND_ALPHA, false, 0, 0) {
-                playPauseButton!!.setImageResource(R.drawable.ic_replay_white)
-                animatePlayButtons(true, DEFAULT_CONTROLS_DURATION)
-            }
+            animateView(playPauseButton!!, AnimationUtils.Type.SCALE_AND_ALPHA, false, 0, 0,
+                    Runnable {
+                        playPauseButton!!.setImageResource(R.drawable.ic_replay_white)
+                        animatePlayButtons(true, DEFAULT_CONTROLS_DURATION)
+                    })
 
             rootView!!.keepScreenOn = false
             super.onCompleted()
@@ -811,8 +820,9 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             if (VideoPlayer.DEBUG) Log.d(TAG, "hideControls() called with: delay = [$delay]")
             controlsVisibilityHandler.removeCallbacksAndMessages(null)
             controlsVisibilityHandler.postDelayed({
-                animateView(controlsRoot, false, duration, 0
-                ) { this@MainVideoPlayer.hideSystemUi() }
+                animateView(controlsRoot!!, false, duration, 0,
+                        Runnable { this@MainVideoPlayer.hideSystemUi() }
+                )
             },
                     /*delayMillis=*/delay
             )
@@ -926,7 +936,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
                 )
 
                 if (playerImpl!!.volumeRelativeLayout!!.visibility != View.VISIBLE) {
-                    animateView(playerImpl!!.volumeRelativeLayout, SCALE_AND_ALPHA, true, 200)
+                    animateView(playerImpl!!.volumeRelativeLayout!!, SCALE_AND_ALPHA, true, 200)
                 }
                 if (playerImpl!!.brightnessRelativeLayout!!.visibility == View.VISIBLE) {
                     playerImpl!!.brightnessRelativeLayout!!.visibility = View.GONE
@@ -951,7 +961,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
                 )
 
                 if (playerImpl!!.brightnessRelativeLayout!!.visibility != View.VISIBLE) {
-                    animateView(playerImpl!!.brightnessRelativeLayout, SCALE_AND_ALPHA, true, 200)
+                    animateView(playerImpl!!.brightnessRelativeLayout!!, SCALE_AND_ALPHA, true, 200)
                 }
                 if (playerImpl!!.volumeRelativeLayout!!.visibility == View.VISIBLE) {
                     playerImpl!!.volumeRelativeLayout!!.visibility = View.GONE
@@ -964,10 +974,10 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             if (DEBUG) Log.d(TAG, "onScrollEnd() called")
 
             if (playerImpl!!.volumeRelativeLayout!!.visibility == View.VISIBLE) {
-                animateView(playerImpl!!.volumeRelativeLayout, SCALE_AND_ALPHA, false, 200, 200)
+                animateView(playerImpl!!.volumeRelativeLayout!!, SCALE_AND_ALPHA, false, 200, 200)
             }
             if (playerImpl!!.brightnessRelativeLayout!!.visibility == View.VISIBLE) {
-                animateView(playerImpl!!.brightnessRelativeLayout, SCALE_AND_ALPHA, false, 200, 200)
+                animateView(playerImpl!!.brightnessRelativeLayout!!, SCALE_AND_ALPHA, false, 200, 200)
             }
 
             if (playerImpl!!.isControlsVisible && playerImpl!!.currentState == STATE_PLAYING) {

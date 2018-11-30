@@ -107,21 +107,21 @@ abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
     ///////////////////////////////////////////////////////////////////////////
 
     override fun showLoading() {
-        if (emptyStateView != null) animateView(emptyStateView, false, 150)
-        if (loadingProgressBar != null) animateView(loadingProgressBar, true, 400)
+        if (emptyStateView != null) animateView(emptyStateView!!, false, 150)
+        if (loadingProgressBar != null) animateView(loadingProgressBar!!, true, 400)
         animateView(errorPanelRoot, false, 150)
     }
 
     override fun hideLoading() {
-        if (emptyStateView != null) animateView(emptyStateView, false, 150)
-        if (loadingProgressBar != null) animateView(loadingProgressBar, false, 0)
+        if (emptyStateView != null) animateView(emptyStateView!!, false, 150)
+        if (loadingProgressBar != null) animateView(loadingProgressBar!!, false, 0)
         animateView(errorPanelRoot, false, 150)
     }
 
     override fun showEmptyState() {
         isLoading.set(false)
-        if (emptyStateView != null) animateView(emptyStateView, true, 200)
-        if (loadingProgressBar != null) animateView(loadingProgressBar, false, 0)
+        if (emptyStateView != null) animateView(emptyStateView!!, true, 200)
+        if (loadingProgressBar != null) animateView(loadingProgressBar!!, false, 0)
         animateView(errorPanelRoot, false, 150)
     }
 

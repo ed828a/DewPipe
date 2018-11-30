@@ -411,7 +411,7 @@ abstract class VideoPlayer(
         super.onBlocked()
 
         controlsVisibilityHandler.removeCallbacksAndMessages(null)
-        animateView(controlsRoot, false, DEFAULT_CONTROLS_DURATION.toLong())
+        animateView(controlsRoot!!, false, DEFAULT_CONTROLS_DURATION.toLong())
 
         playbackSeekBar!!.isEnabled = false
         // Bug on lower api, disabling and enabling the seekBar resets the thumb color -.-, so sets the color again
@@ -419,8 +419,8 @@ abstract class VideoPlayer(
             playbackSeekBar!!.thumb.setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN)
 
         loadingPanel!!.setBackgroundColor(Color.BLACK)
-        animateView(loadingPanel, true, 0)
-        animateView(surfaceForeground, true, 100)
+        animateView(loadingPanel!!, true, 0)
+        animateView(surfaceForeground!!, true, 100)
     }
 
     override fun onPlaying() {
@@ -437,7 +437,7 @@ abstract class VideoPlayer(
 
         loadingPanel!!.visibility = View.GONE
 
-        animateView(currentDisplaySeek, AnimationUtils.Type.SCALE_AND_ALPHA, false, 200)
+        animateView(currentDisplaySeek!!, AnimationUtils.Type.SCALE_AND_ALPHA, false, 200)
     }
 
     override fun onBuffering() {
@@ -460,11 +460,11 @@ abstract class VideoPlayer(
         super.onCompleted()
 
         showControls(500)
-        animateView(endScreen, true, 800)
-        animateView(currentDisplaySeek, AnimationUtils.Type.SCALE_AND_ALPHA, false, 200)
+        animateView(endScreen!!, true, 800)
+        animateView(currentDisplaySeek!!, AnimationUtils.Type.SCALE_AND_ALPHA, false, 200)
         loadingPanel!!.visibility = View.GONE
 
-        animateView(surfaceForeground, true, 100)
+        animateView(surfaceForeground!!, true, 100)
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -489,7 +489,7 @@ abstract class VideoPlayer(
     }
 
     override fun onRenderedFirstFrame() {
-        animateView(surfaceForeground, false, 100)
+        animateView(surfaceForeground!!, false, 100)
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -713,7 +713,7 @@ abstract class VideoPlayer(
         if (isPlaying) player!!.playWhenReady = false
 
         showControls(0)
-        animateView(currentDisplaySeek, AnimationUtils.Type.SCALE_AND_ALPHA, true,
+        animateView(currentDisplaySeek!!, AnimationUtils.Type.SCALE_AND_ALPHA, true,
                 DEFAULT_CONTROLS_DURATION.toLong())
     }
 
@@ -724,7 +724,7 @@ abstract class VideoPlayer(
         if (wasPlaying || player!!.duration == seekBar.progress.toLong()) player!!.playWhenReady = true
 
         playbackCurrentTime!!.text = getTimeString(seekBar.progress)
-        animateView(currentDisplaySeek, AnimationUtils.Type.SCALE_AND_ALPHA, false, 200)
+        animateView(currentDisplaySeek!!, AnimationUtils.Type.SCALE_AND_ALPHA, false, 200)
 
         if (currentState == BasePlayer.STATE_PAUSED_SEEK) changeState(BasePlayer.STATE_BUFFERING)
         if (!isProgressLoopRunning) startProgressLoop()
@@ -805,21 +805,24 @@ abstract class VideoPlayer(
 
     open fun showControlsThenHide() {
         if (DEBUG) Log.d(TAG, "showControlsThenHide() called")
-        animateView(controlsRoot, true, DEFAULT_CONTROLS_DURATION.toLong(), 0
-        ) { hideControls(DEFAULT_CONTROLS_DURATION.toLong(), DEFAULT_CONTROLS_HIDE_TIME.toLong()) }
+        animateView(controlsRoot!!, true, DEFAULT_CONTROLS_DURATION.toLong(), 0,
+                Runnable {
+                    hideControls(DEFAULT_CONTROLS_DURATION.toLong(), DEFAULT_CONTROLS_HIDE_TIME.toLong())
+                }
+        )
     }
 
     open fun showControls(duration: Long) {
         if (DEBUG) Log.d(TAG, "showControls() called")
         controlsVisibilityHandler.removeCallbacksAndMessages(null)
-        animateView(controlsRoot, true, duration)
+        animateView(controlsRoot!!, true, duration)
     }
 
     open fun hideControls(duration: Long, delay: Long) {
         if (DEBUG) Log.d(TAG, "hideControls() called with: delay = [$delay]")
         controlsVisibilityHandler.removeCallbacksAndMessages(null)
         controlsVisibilityHandler.postDelayed(
-                { animateView(controlsRoot, false, duration) }, delay)
+                { animateView(controlsRoot!!, false, duration) }, delay)
     }
 
     fun hideControlsAndButton(duration: Long, delay: Long, button: View?) {
@@ -830,7 +833,7 @@ abstract class VideoPlayer(
 
     private fun hideControlsAndButtonHandler(duration: Long, videoPlayPause: View?): Runnable = Runnable {
         videoPlayPause?.visibility = View.INVISIBLE
-        animateView(controlsRoot, false, duration)
+        animateView(controlsRoot!!, false, duration)
     }
 
     fun wasPlaying(): Boolean {

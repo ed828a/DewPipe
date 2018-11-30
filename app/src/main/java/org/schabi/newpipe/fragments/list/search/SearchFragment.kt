@@ -455,12 +455,12 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
 
     private fun showSuggestionsPanel() {
         if (DEBUG) Log.d(TAG, "showSuggestionsPanel() called")
-        animateView(suggestionsPanel, AnimationUtils.Type.LIGHT_SLIDE_AND_ALPHA, true, 200)
+        animateView(suggestionsPanel!!, AnimationUtils.Type.LIGHT_SLIDE_AND_ALPHA, true, 200)
     }
 
     private fun hideSuggestionsPanel() {
         if (DEBUG) Log.d(TAG, "hideSuggestionsPanel() called")
-        animateView(suggestionsPanel, AnimationUtils.Type.LIGHT_SLIDE_AND_ALPHA, false, 200)
+        animateView(suggestionsPanel!!, AnimationUtils.Type.LIGHT_SLIDE_AND_ALPHA, false, 200)
     }
 
     private fun showKeyboardSearch() {

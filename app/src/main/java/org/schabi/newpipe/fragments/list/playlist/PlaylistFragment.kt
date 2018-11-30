@@ -225,18 +225,18 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
 
     override fun showLoading() {
         super.showLoading()
-        animateView(headerRootLayout, false, 200)
-        animateView(itemsList, false, 100)
+        animateView(headerRootLayout!!, false, 200)
+        animateView(itemsList!!, false, 100)
 
         BaseFragment.imageLoader.cancelDisplayTask(headerUploaderAvatar!!)
-        animateView(headerUploaderLayout, false, 200)
+        animateView(headerUploaderLayout!!, false, 200)
     }
 
     override fun handleResult(result: PlaylistInfo) {
         super.handleResult(result)
 
-        animateView(headerRootLayout, true, 100)
-        animateView(headerUploaderLayout, true, 300)
+        animateView(headerRootLayout!!, true, 100)
+        animateView(headerUploaderLayout!!, true, 300)
         headerUploaderLayout!!.setOnClickListener(null)
         if (!TextUtils.isEmpty(result.uploaderName)) {
             headerUploaderName!!.text = result.uploaderName

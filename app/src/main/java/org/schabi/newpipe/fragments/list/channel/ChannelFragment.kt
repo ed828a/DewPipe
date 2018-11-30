@@ -38,7 +38,9 @@ import org.schabi.newpipe.player.playqueue.PlayQueue
 import org.schabi.newpipe.player.playqueue.SinglePlayQueue
 import org.schabi.newpipe.report.UserAction
 import org.schabi.newpipe.util.*
-import org.schabi.newpipe.util.AnimationUtils.*
+import org.schabi.newpipe.util.AnimationUtils.animateBackgroundColor
+import org.schabi.newpipe.util.AnimationUtils.animateTextColor
+import org.schabi.newpipe.util.AnimationUtils.animateView
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -185,7 +187,7 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
 
     private fun monitorSubscription(info: ChannelInfo) {
         val onError = Consumer<Throwable>{ throwable: Throwable ->
-            animateView(headerSubscribeButton, false, 100)
+            animateView(headerSubscribeButton!!, false, 100)
             showSnackBarError(throwable, UserAction.SUBSCRIPTION,
                     NewPipe.getNameOfService(currentInfo!!.serviceId),
                     "Get subscription status",
@@ -299,15 +301,15 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
 
         if (!isSubscribed) {
             headerSubscribeButton!!.setText(R.string.subscribe_button_title)
-            animateBackgroundColor(headerSubscribeButton, backgroundDuration.toLong(), subscribedBackground, subscribeBackground)
-            animateTextColor(headerSubscribeButton, textDuration.toLong(), subscribedText, subscribeText)
+            animateBackgroundColor(headerSubscribeButton!!, backgroundDuration.toLong(), subscribedBackground, subscribeBackground)
+            animateTextColor(headerSubscribeButton!!, textDuration.toLong(), subscribedText, subscribeText)
         } else {
             headerSubscribeButton!!.setText(R.string.subscribed_button_title)
-            animateBackgroundColor(headerSubscribeButton, backgroundDuration.toLong(), subscribeBackground, subscribedBackground)
-            animateTextColor(headerSubscribeButton, textDuration.toLong(), subscribeText, subscribedText)
+            animateBackgroundColor(headerSubscribeButton!!, backgroundDuration.toLong(), subscribeBackground, subscribedBackground)
+            animateTextColor(headerSubscribeButton!!, textDuration.toLong(), subscribeText, subscribedText)
         }
 
-        animateView(headerSubscribeButton, AnimationUtils.Type.LIGHT_SCALE_AND_ALPHA, true, 100)
+        animateView(headerSubscribeButton!!, AnimationUtils.Type.LIGHT_SCALE_AND_ALPHA, true, 100)
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -331,7 +333,7 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
 
         BaseFragment.imageLoader.cancelDisplayTask(headerChannelBanner!!)
         BaseFragment.imageLoader.cancelDisplayTask(headerAvatarView!!)
-        animateView(headerSubscribeButton, false, 100)
+        animateView(headerSubscribeButton!!, false, 100)
     }
 
     override fun handleResult(result: ChannelInfo) {

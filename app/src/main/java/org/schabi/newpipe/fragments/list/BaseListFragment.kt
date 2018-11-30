@@ -297,13 +297,13 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
 
     override fun hideLoading() {
         super.hideLoading()
-        animateView(itemsList, true, 300)
+        animateView(itemsList!!, true, 300)
     }
 
     override fun showError(message: String, showRetryButton: Boolean) {
         super.showError(message, showRetryButton)
         showListFooter(false)
-        animateView(itemsList, false, 200)
+        animateView(itemsList!!, false, 200)
     }
 
     override fun showEmptyState() {

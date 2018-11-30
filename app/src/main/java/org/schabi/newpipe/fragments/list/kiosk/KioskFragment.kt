@@ -115,7 +115,7 @@ class KioskFragment : BaseListInfoFragment<KioskInfo>() {
 
     override fun showLoading() {
         super.showLoading()
-        animateView(itemsList, false, 100)
+        animateView(itemsList!!, false, 100)
     }
 
     override fun handleResult(result: KioskInfo) {

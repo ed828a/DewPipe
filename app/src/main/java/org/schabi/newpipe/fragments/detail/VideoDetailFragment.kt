@@ -136,7 +136,10 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
                             .getBoolean(getString(R.string.show_hold_to_append_key), true)) {
 
             } else if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                animateView(appendControlsDetail, true, 250, 0) { animateView(appendControlsDetail, false, 1500, 1000) }
+                animateView(appendControlsDetail!!, true, 250, 0, Runnable {
+                    animateView(appendControlsDetail!!, false, 1500, 1000)
+                }
+                )
             }
 
             false
@@ -385,10 +388,10 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
             relatedStreamsView!!.removeViews(initialCount,
                     relatedStreamsView!!.childCount - initialCount)
 
-                activity?.let {
-                    relatedStreamExpandButton!!.setImageDrawable(ContextCompat.getDrawable(
-                            it as Context, ThemeHelper.resolveResourceIdFromAttr(activity!!, R.attr.expand)))
-                }
+            activity?.let {
+                relatedStreamExpandButton!!.setImageDrawable(ContextCompat.getDrawable(
+                        it as Context, ThemeHelper.resolveResourceIdFromAttr(activity!!, R.attr.expand)))
+            }
 
             return
         }
@@ -736,12 +739,14 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         val greaterThanThreshold = parallaxScrollRootView!!.scrollY > (resources.displayMetrics.heightPixels * .1f).toInt()
 
         if (scrollToTop) parallaxScrollRootView!!.smoothScrollTo(0, 0)
-        animateView(contentRootLayoutHiding,
+        animateView(contentRootLayoutHiding!!,
                 false,
-                (if (greaterThanThreshold) 250 else 0).toLong(), 0) {
-            handleResult(info)
-            showContentWithAnimation(120, 0, .01f)
-        }
+                (if (greaterThanThreshold) 250 else 0).toLong(),
+                0,
+                Runnable {
+                    handleResult(info)
+                    showContentWithAnimation(120, 0, .01f)
+                })
     }
 
     protected fun prepareAndLoadInfo() {
@@ -959,8 +964,14 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         if (thumbnailImageView == null || activity == null) return
 
         thumbnailImageView!!.setImageDrawable(ContextCompat.getDrawable(activity!!, imageResource))
-        animateView(thumbnailImageView, false, 0, 0
-        ) { animateView(thumbnailImageView, true, 500) }
+        animateView(thumbnailImageView!!,
+                false,
+                0,
+                0,
+                Runnable {
+                    animateView(thumbnailImageView!!, true, 500)
+                }
+        )
     }
 
     override fun showError(message: String, showRetryButton: Boolean) {
@@ -979,14 +990,14 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
     override fun showLoading() {
         super.showLoading()
 
-        animateView(contentRootLayoutHiding, false, 200)
-        animateView(spinnerToolbar, false, 200)
-        animateView(thumbnailPlayButton, false, 50)
-        animateView(detailDurationView, false, 100)
+        animateView(contentRootLayoutHiding!!, false, 200)
+        animateView(spinnerToolbar!!, false, 200)
+        animateView(thumbnailPlayButton!!, false, 50)
+        animateView(detailDurationView!!, false, 100)
 
         videoTitleTextView!!.text = if (name != null) name else ""
         videoTitleTextView!!.maxLines = 1
-        animateView(videoTitleTextView, true, 0)
+        animateView(videoTitleTextView!!, true, 0)
 
         videoDescriptionRootLayout!!.visibility = View.GONE
         if (videoTitleToggleArrow != null) {    //phone
@@ -1013,7 +1024,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         setInitialData(info.serviceId, info.originalUrl, info.name)
         pushToStack(serviceId, url!!, name)
 
-        animateView(thumbnailPlayButton, true, 200)
+        animateView(thumbnailPlayButton!!, true, 200)
         videoTitleTextView!!.text = name
 
         if (!TextUtils.isEmpty(info.uploaderName)) {
@@ -1063,11 +1074,11 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         if (info.duration > 0) {
             detailDurationView!!.text = Localization.getDurationString(info.duration)
             detailDurationView!!.setBackgroundColor(ContextCompat.getColor(activity!!, R.color.duration_background_color))
-            animateView(detailDurationView, true, 100)
+            animateView(detailDurationView!!, true, 100)
         } else if (info.streamType == StreamType.LIVE_STREAM) {
             detailDurationView!!.setText(R.string.duration_live)
             detailDurationView!!.setBackgroundColor(ContextCompat.getColor(activity!!, R.color.live_duration_background_color))
-            animateView(detailDurationView, true, 100)
+            animateView(detailDurationView!!, true, 100)
         } else {
             detailDurationView!!.visibility = View.GONE
         }
@@ -1086,7 +1097,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         }
         prepareDescription(info.description)
 
-        animateView(spinnerToolbar, true, 500)
+        animateView(spinnerToolbar!!, true, 500)
         setupActionBar(info)
         initThumbnailViews(info)
         initRelatedVideos(info)

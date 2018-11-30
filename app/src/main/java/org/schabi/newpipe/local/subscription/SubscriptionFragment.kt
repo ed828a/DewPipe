@@ -495,12 +495,12 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
 
     override fun showLoading() {
         super.showLoading()
-        animateView(itemsList, false, 100)
+        animateView(itemsList!!, false, 100)
     }
 
     override fun hideLoading() {
         super.hideLoading()
-        animateView(itemsList, true, 200)
+        animateView(itemsList!!, true, 200)
     }
 
     ///////////////////////////////////////////////////////////////////////////
