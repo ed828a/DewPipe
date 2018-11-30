@@ -118,7 +118,7 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         nameEditText = view.findViewById(R.id.file_name)
-        nameEditText!!.setText(FilenameUtils.createFilename(context, currentInfo.name))
+        nameEditText!!.setText(FilenameUtils.createFilename(context!!, currentInfo.name))
         selectedAudioIndex = ListHelper.getDefaultAudioFormat(context!!, currentInfo.audioStreams)
 
         streamsSpinner = view.findViewById(R.id.quality_spinner)
@@ -274,7 +274,7 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
         val location: String
 
         var fileName = nameEditText!!.text.toString().trim { it <= ' ' }
-        if (fileName.isEmpty()) fileName = FilenameUtils.createFilename(context, currentInfo.name)
+        if (fileName.isEmpty()) fileName = FilenameUtils.createFilename(context!!, currentInfo.name)
 
         val isAudio = radioVideoAudioGroup!!.checkedRadioButtonId == R.id.audio_button
         if (isAudio) {
