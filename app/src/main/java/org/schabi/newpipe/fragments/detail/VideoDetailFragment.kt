@@ -312,7 +312,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
                 PlaylistAppendDialog.fromStreamInfo(currentInfo!!)
                         .show(fragmentManager!!, TAG)
             }
-            R.id.detail_controls_download -> if (PermissionHelper.checkStoragePermissions(activity, PermissionHelper.DOWNLOAD_DIALOG_REQUEST_CODE)) {
+            R.id.detail_controls_download -> if (PermissionHelper.checkStoragePermissions(activity!!, PermissionHelper.DOWNLOAD_DIALOG_REQUEST_CODE)) {
                 this.openDownloadDialog()
             }
             R.id.detail_uploader_root_layout -> if (TextUtils.isEmpty(currentInfo!!.uploaderUrl)) {
@@ -786,8 +786,8 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
     }
 
     private fun openPopupPlayer(append: Boolean) {
-        if (!PermissionHelper.isPopupEnabled(activity)) {
-            PermissionHelper.showPopupEnablementToast(activity)
+        if (!PermissionHelper.isPopupEnabled(activity!!)) {
+            PermissionHelper.showPopupEnablementToast(activity!!)
             return
         }
 

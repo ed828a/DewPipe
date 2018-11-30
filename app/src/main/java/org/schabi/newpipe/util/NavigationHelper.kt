@@ -58,7 +58,7 @@ object NavigationHelper {
                         quality: String? = null): Intent {
         val intent = Intent(context, targetClazz)
 
-        val cacheKey = SerializedCache.getInstance().put(playQueue, PlayQueue::class.java)
+        val cacheKey = SerializedCache.instance.put(playQueue, PlayQueue::class.java)
         if (cacheKey != null) intent.putExtra(PLAY_QUEUE_KEY, cacheKey)
         if (quality != null) intent.putExtra(PLAYBACK_QUALITY, quality)
 
