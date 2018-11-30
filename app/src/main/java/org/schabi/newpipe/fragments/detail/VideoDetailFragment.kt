@@ -349,7 +349,12 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         when (v.id) {
             R.id.detail_controls_background -> openBackgroundPlayer(true)
             R.id.detail_controls_popup -> openPopupPlayer(true)
-            R.id.detail_controls_download -> NavigationHelper.openDownloads(getActivity())
+            R.id.detail_controls_download -> {
+                val activity = getActivity()
+                activity?.let {
+                    NavigationHelper.openDownloads(it)
+                }
+            }
         }
 
         return true

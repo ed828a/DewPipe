@@ -417,12 +417,12 @@ object NavigationHelper {
         context.startActivity(intent)
     }
 
-    fun openDownloads(activity: Activity?): Boolean {
+    fun openDownloads(activity: Activity): Boolean {
         if (!PermissionHelper.checkStoragePermissions(activity, PermissionHelper.DOWNLOADS_REQUEST_CODE)) {
             return false
         }
         val intent = Intent(activity, DownloadActivity::class.java)
-        activity?.startActivity(intent)
+        activity.startActivity(intent)
         return true
     }
 
