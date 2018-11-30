@@ -316,7 +316,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
             val item = menu!!.add(1,
                     itemId++,
                     0,
-                    ServiceHelper.getTranslatedFilterString(filter, c))
+                    ServiceHelper.getTranslatedFilterString(filter, c!!))
             if (isFirstItem) {
                 item.isChecked = true
                 isFirstItem = false

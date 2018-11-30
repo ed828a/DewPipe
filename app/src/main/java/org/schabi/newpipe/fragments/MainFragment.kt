@@ -108,7 +108,7 @@ class MainFragment : BaseFragment(), TabLayout.OnTabSelectedListener {
 
                     NavigationHelper.openSearchFragment(
                             fragmentManager,
-                            ServiceHelper.getSelectedServiceId(activity),
+                            ServiceHelper.getSelectedServiceId(activity!!),
                             "")
                 } catch (e: Exception) {
                     val context = getActivity()

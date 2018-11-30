@@ -49,7 +49,7 @@ import java.io.InterruptedIOException
 
 object ExtractorHelper {
     private val TAG = ExtractorHelper::class.java.simpleName
-    private val cache = InfoCache.getInstance()
+    private val cache = InfoCache.instance
 
     private fun checkServiceId(serviceId: Int) {
         if (serviceId == Constants.NO_SERVICE_ID) {

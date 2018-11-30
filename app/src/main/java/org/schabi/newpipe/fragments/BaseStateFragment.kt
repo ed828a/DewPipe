@@ -128,7 +128,7 @@ abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
     override fun showError(message: String, showRetryButton: Boolean) {
         if (DEBUG) Log.d(TAG, "showError() called with: message = [$message], showRetryButton = [$showRetryButton]")
         isLoading.set(false)
-        InfoCache.getInstance().clearCache()
+        InfoCache.instance.clearCache()
         hideLoading()
 
         errorTextView.text = message

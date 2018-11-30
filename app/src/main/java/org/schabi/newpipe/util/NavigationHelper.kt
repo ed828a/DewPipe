@@ -238,7 +238,7 @@ object NavigationHelper {
     }
 
     fun openMainFragment(fragmentManager: FragmentManager) {
-        InfoCache.getInstance().trimCache()
+        InfoCache.instance.trimCache()
 
         fragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
         defaultTransaction(fragmentManager)

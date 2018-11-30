@@ -40,7 +40,7 @@ class HistorySettingsFragment : BasePreferenceFragment() {
 
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
         if (preference.key == cacheWipeKey) {
-            InfoCache.getInstance().clearCache()
+            InfoCache.instance.clearCache()
             Toast.makeText(preference.context, R.string.metadata_cache_wipe_complete_notice,
                     Toast.LENGTH_SHORT).show()
         }
