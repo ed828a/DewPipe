@@ -44,9 +44,9 @@ class DownloadSettingsFragment : BasePreferenceFragment() {
 
         if (preference.key == downloadPathPreference || preference.key == downloadPathAudioPreference) {
             val i = Intent(activity, FilePickerActivityHelper::class.java)
-                    .putExtra(FilePickerActivityHelper.EXTRA_ALLOW_MULTIPLE, false)
-                    .putExtra(FilePickerActivityHelper.EXTRA_ALLOW_CREATE_DIR, true)
-                    .putExtra(FilePickerActivityHelper.EXTRA_MODE, FilePickerActivityHelper.MODE_DIR)
+                    .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)
+                    .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_ALLOW_CREATE_DIR, true)
+                    .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_MODE, com.nononsenseapps.filepicker.FilePickerActivity.MODE_DIR)
             if (preference.key == downloadPathPreference) {
                 startActivityForResult(i, REQUEST_DOWNLOAD_PATH)
             } else if (preference.key == downloadPathAudioPreference) {

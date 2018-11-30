@@ -98,16 +98,16 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (DEBUG) Log.d(TAG, "onCreate() called with: savedInstanceState = [$savedInstanceState]")
-        if (!PermissionHelper.checkStoragePermissions(activity, PermissionHelper.DOWNLOAD_DIALOG_REQUEST_CODE)) {
+        if (!PermissionHelper.checkStoragePermissions(activity!!, PermissionHelper.DOWNLOAD_DIALOG_REQUEST_CODE)) {
             dialog.dismiss()
             return
         }
 
-        setStyle(DialogFragment.STYLE_NO_TITLE, ThemeHelper.getDialogTheme(context))
+        setStyle(DialogFragment.STYLE_NO_TITLE, ThemeHelper.getDialogTheme(context!!))
         Icepick.restoreInstanceState(this, savedInstanceState)
 
-        this.videoStreamsAdapter = StreamItemAdapter(context, wrappedVideoStreams, true)
-        this.audioStreamsAdapter = StreamItemAdapter(context, wrappedAudioStreams)
+        this.videoStreamsAdapter = StreamItemAdapter(context!!, wrappedVideoStreams, true)
+        this.audioStreamsAdapter = StreamItemAdapter(context!!, wrappedAudioStreams)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -118,8 +118,8 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         nameEditText = view.findViewById(R.id.file_name)
-        nameEditText!!.setText(FilenameUtils.createFilename(context, currentInfo.name))
-        selectedAudioIndex = ListHelper.getDefaultAudioFormat(context, currentInfo.audioStreams)
+        nameEditText!!.setText(FilenameUtils.createFilename(context!!, currentInfo.name))
+        selectedAudioIndex = ListHelper.getDefaultAudioFormat(context!!, currentInfo.audioStreams)
 
         streamsSpinner = view.findViewById(R.id.quality_spinner)
         streamsSpinner!!.onItemSelectedListener = this
@@ -182,7 +182,7 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
     private fun initToolbar(toolbar: Toolbar) {
         if (DEBUG) Log.d(TAG, "initToolbar() called with: toolbar = [$toolbar]")
         toolbar.setTitle(R.string.download_dialog_title)
-        toolbar.setNavigationIcon(if (ThemeHelper.isLightThemeSelected(activity)) R.drawable.ic_arrow_back_black_24dp else R.drawable.ic_arrow_back_white_24dp)
+        toolbar.setNavigationIcon(if (ThemeHelper.isLightThemeSelected(activity!!)) R.drawable.ic_arrow_back_black_24dp else R.drawable.ic_arrow_back_white_24dp)
         toolbar.inflateMenu(R.menu.dialog_url)
         toolbar.setNavigationOnClickListener { v -> dialog.dismiss() }
 
@@ -274,7 +274,7 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
         val location: String
 
         var fileName = nameEditText!!.text.toString().trim { it <= ' ' }
-        if (fileName.isEmpty()) fileName = FilenameUtils.createFilename(context, currentInfo.name)
+        if (fileName.isEmpty()) fileName = FilenameUtils.createFilename(context!!, currentInfo.name)
 
         val isAudio = radioVideoAudioGroup!!.checkedRadioButtonId == R.id.audio_button
         if (isAudio) {

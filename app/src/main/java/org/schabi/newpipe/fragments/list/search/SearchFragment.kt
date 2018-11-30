@@ -239,7 +239,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
         suggestionsPanel = rootView.findViewById(R.id.suggestions_panel)
         suggestionsRecyclerView = rootView.findViewById(R.id.suggestions_list)
         suggestionsRecyclerView!!.adapter = suggestionListAdapter
-        suggestionsRecyclerView!!.layoutManager = LayoutManagerSmoothScroller(activity)
+        suggestionsRecyclerView!!.layoutManager = LayoutManagerSmoothScroller(activity!!)
 
         searchToolbarContainer = activity!!.findViewById(R.id.toolbar_search_container)
         searchEditText = searchToolbarContainer!!.findViewById(R.id.toolbar_search_edit_text)
@@ -316,7 +316,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
             val item = menu!!.add(1,
                     itemId++,
                     0,
-                    ServiceHelper.getTranslatedFilterString(filter, c))
+                    ServiceHelper.getTranslatedFilterString(filter, c!!))
             if (isFirstItem) {
                 item.isChecked = true
                 isFirstItem = false
@@ -455,12 +455,12 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
 
     private fun showSuggestionsPanel() {
         if (DEBUG) Log.d(TAG, "showSuggestionsPanel() called")
-        animateView(suggestionsPanel, AnimationUtils.Type.LIGHT_SLIDE_AND_ALPHA, true, 200)
+        animateView(suggestionsPanel!!, AnimationUtils.Type.LIGHT_SLIDE_AND_ALPHA, true, 200)
     }
 
     private fun hideSuggestionsPanel() {
         if (DEBUG) Log.d(TAG, "hideSuggestionsPanel() called")
-        animateView(suggestionsPanel, AnimationUtils.Type.LIGHT_SLIDE_AND_ALPHA, false, 200)
+        animateView(suggestionsPanel!!, AnimationUtils.Type.LIGHT_SLIDE_AND_ALPHA, false, 200)
     }
 
     private fun showKeyboardSearch() {

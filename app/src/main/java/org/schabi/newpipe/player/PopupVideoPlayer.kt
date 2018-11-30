@@ -576,7 +576,7 @@ class PopupVideoPlayer : Service() {
                     override fun getOverrideResolutionIndex(sortedVideos: List<VideoStream>,
                                                             playbackQuality: String?): Int {
                         return ListHelper.getPopupResolutionIndex(context, sortedVideos,
-                                playbackQuality)
+                                playbackQuality!!)
                     }
                 }
             }
@@ -874,7 +874,7 @@ class PopupVideoPlayer : Service() {
             if (isResizing || playerImpl == null) return super.onScroll(initialEvent, movingEvent, distanceX, distanceY)
 
             if (!isMoving) {
-                animateView(closeOverlayButton, true, 200)
+                animateView(closeOverlayButton!!, true, 200)
             }
 
             isMoving = true
@@ -929,10 +929,10 @@ class PopupVideoPlayer : Service() {
             if (isInsideClosingRadius(event)) {
                 closePopup()
             } else {
-                animateView(playerImpl!!.closingOverlayView, false, 0)
+                animateView(playerImpl!!.closingOverlayView!!, false, 0)
 
                 if (!isPopupClosing) {
-                    animateView(closeOverlayButton, false, 200)
+                    animateView(closeOverlayButton!!, false, 200)
                 }
             }
         }
@@ -962,8 +962,8 @@ class PopupVideoPlayer : Service() {
                 playerImpl!!.loadingPanel!!.visibility = View.GONE
 
                 playerImpl!!.hideControls(0, 0)
-                animateView(playerImpl!!.currentDisplaySeek, false, 0, 0)
-                animateView(playerImpl!!.resizingIndicator, true, 200, 0)
+                animateView(playerImpl!!.currentDisplaySeek!!, false, 0, 0)
+                animateView(playerImpl!!.resizingIndicator!!, true, 200, 0)
                 isResizing = true
             }
 
@@ -982,7 +982,7 @@ class PopupVideoPlayer : Service() {
 
                 if (isResizing) {
                     isResizing = false
-                    animateView(playerImpl!!.resizingIndicator, false, 100, 0)
+                    animateView(playerImpl!!.resizingIndicator!!, false, 100, 0)
                     playerImpl!!.changeState(playerImpl!!.currentState)
                 }
 

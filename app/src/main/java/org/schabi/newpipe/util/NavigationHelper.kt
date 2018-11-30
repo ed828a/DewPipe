@@ -58,7 +58,7 @@ object NavigationHelper {
                         quality: String? = null): Intent {
         val intent = Intent(context, targetClazz)
 
-        val cacheKey = SerializedCache.getInstance().put(playQueue, PlayQueue::class.java)
+        val cacheKey = SerializedCache.instance.put(playQueue, PlayQueue::class.java)
         if (cacheKey != null) intent.putExtra(PLAY_QUEUE_KEY, cacheKey)
         if (quality != null) intent.putExtra(PLAYBACK_QUALITY, quality)
 
@@ -238,7 +238,7 @@ object NavigationHelper {
     }
 
     fun openMainFragment(fragmentManager: FragmentManager) {
-        InfoCache.getInstance().trimCache()
+        InfoCache.instance.trimCache()
 
         fragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
         defaultTransaction(fragmentManager)
@@ -417,12 +417,12 @@ object NavigationHelper {
         context.startActivity(intent)
     }
 
-    fun openDownloads(activity: Activity?): Boolean {
+    fun openDownloads(activity: Activity): Boolean {
         if (!PermissionHelper.checkStoragePermissions(activity, PermissionHelper.DOWNLOADS_REQUEST_CODE)) {
             return false
         }
         val intent = Intent(activity, DownloadActivity::class.java)
-        activity?.startActivity(intent)
+        activity.startActivity(intent)
         return true
     }
 

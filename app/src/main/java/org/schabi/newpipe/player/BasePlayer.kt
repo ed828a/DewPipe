@@ -287,7 +287,7 @@ abstract class BasePlayer(protected val context: Context) : Player.EventListener
         // Resolve play queue
         if (!intent.hasExtra(PLAY_QUEUE_KEY)) return
         val intentCacheKey = intent.getStringExtra(PLAY_QUEUE_KEY)
-        val queue = SerializedCache.getInstance().take(intentCacheKey, PlayQueue::class.java)
+        val queue = SerializedCache.instance.take(intentCacheKey, PlayQueue::class.java)
                 ?: return
 
         // Resolve append intents

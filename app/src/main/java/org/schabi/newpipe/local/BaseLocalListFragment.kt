@@ -161,22 +161,22 @@ abstract class BaseLocalListFragment<I, N> : BaseStateFragment<I>(), ListViewCon
 
     override fun showLoading() {
         super.showLoading()
-        if (itemsList != null) animateView(itemsList, false, 200)
-        if (headerRootView != null) animateView(headerRootView, false, 200)
+        if (itemsList != null) animateView(itemsList!!, false, 200)
+        if (headerRootView != null) animateView(headerRootView!!, false, 200)
     }
 
     override fun hideLoading() {
         super.hideLoading()
-        if (itemsList != null) animateView(itemsList, true, 200)
-        if (headerRootView != null) animateView(headerRootView, true, 200)
+        if (itemsList != null) animateView(itemsList!!, true, 200)
+        if (headerRootView != null) animateView(headerRootView!!, true, 200)
     }
 
     override fun showError(message: String, showRetryButton: Boolean) {
         super.showError(message, showRetryButton)
         showListFooter(false)
 
-        if (itemsList != null) animateView(itemsList, false, 200)
-        if (headerRootView != null) animateView(headerRootView, false, 200)
+        if (itemsList != null) animateView(itemsList!!, false, 200)
+        if (headerRootView != null) animateView(headerRootView!!, false, 200)
     }
 
     override fun showEmptyState() {

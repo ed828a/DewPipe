@@ -18,7 +18,7 @@ class ImportConfirmationDialog : DialogFragment() {
     var resultServiceIntent: Intent? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return AlertDialog.Builder(context, ThemeHelper.getDialogTheme(context))
+        return AlertDialog.Builder(context, ThemeHelper.getDialogTheme(context!!))
                 .setMessage(R.string.import_network_expensive_warning)
                 .setCancelable(true)
                 .setNegativeButton(R.string.cancel, null)

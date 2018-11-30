@@ -120,7 +120,7 @@ class SelectKioskFragment : DialogFragment() {
                 for (kioskId in service.kioskList.availableKiosks) {
                     val name = String.format(getString(R.string.service_kiosk_string),
                             service.serviceInfo.name,
-                            KioskTranslator.getTranslatedKioskName(kioskId, context))
+                            KioskTranslator.getTranslatedKioskName(kioskId, context!!))
                     kioskList.add(Entry(
                             ServiceHelper.getIcon(service.serviceId),
                             service.serviceId,

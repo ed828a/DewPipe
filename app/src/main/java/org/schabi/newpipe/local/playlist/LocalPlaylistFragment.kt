@@ -245,14 +245,14 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
 
     override fun showLoading() {
         super.showLoading()
-        if (headerRootLayout != null) animateView(headerRootLayout, false, 200)
-        if (playlistControl != null) animateView(playlistControl, false, 200)
+        if (headerRootLayout != null) animateView(headerRootLayout!!, false, 200)
+        if (playlistControl != null) animateView(playlistControl!!, false, 200)
     }
 
     override fun hideLoading() {
         super.hideLoading()
-        if (headerRootLayout != null) animateView(headerRootLayout, true, 200)
-        if (playlistControl != null) animateView(playlistControl, true, 200)
+        if (headerRootLayout != null) animateView(headerRootLayout!!, true, 200)
+        if (playlistControl != null) animateView(playlistControl!!, true, 200)
     }
 
     override fun startLoading(forceLoad: Boolean) {
@@ -492,7 +492,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
 
     private fun setVideoCount(count: Long) {
         if (activity != null && headerStreamCount != null) {
-            headerStreamCount!!.text = Localization.localizeStreamCount(activity, count)
+            headerStreamCount!!.text = Localization.localizeStreamCount(activity!!, count)
         }
     }
 
