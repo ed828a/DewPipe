@@ -576,7 +576,7 @@ class PopupVideoPlayer : Service() {
                     override fun getOverrideResolutionIndex(sortedVideos: List<VideoStream>,
                                                             playbackQuality: String?): Int {
                         return ListHelper.getPopupResolutionIndex(context, sortedVideos,
-                                playbackQuality)
+                                playbackQuality!!)
                     }
                 }
             }

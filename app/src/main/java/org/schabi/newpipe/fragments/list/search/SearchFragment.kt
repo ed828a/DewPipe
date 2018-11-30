@@ -239,7 +239,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
         suggestionsPanel = rootView.findViewById(R.id.suggestions_panel)
         suggestionsRecyclerView = rootView.findViewById(R.id.suggestions_list)
         suggestionsRecyclerView!!.adapter = suggestionListAdapter
-        suggestionsRecyclerView!!.layoutManager = LayoutManagerSmoothScroller(activity)
+        suggestionsRecyclerView!!.layoutManager = LayoutManagerSmoothScroller(activity!!)
 
         searchToolbarContainer = activity!!.findViewById(R.id.toolbar_search_container)
         searchEditText = searchToolbarContainer!!.findViewById(R.id.toolbar_search_edit_text)

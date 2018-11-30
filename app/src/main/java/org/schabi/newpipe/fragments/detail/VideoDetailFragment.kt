@@ -651,8 +651,8 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         val isExternalPlayerEnabled = PreferenceManager.getDefaultSharedPreferences(activity)
                 .getBoolean(activity!!.getString(R.string.use_external_video_player_key), false)
 
-        sortedVideoStreams = ListHelper.getSortedStreamVideosList(activity, info.videoStreams, info.videoOnlyStreams, false)
-        selectedVideoStreamIndex = ListHelper.getDefaultResolutionIndex(activity, sortedVideoStreams)
+        sortedVideoStreams = ListHelper.getSortedStreamVideosList(activity!!, info.videoStreams, info.videoOnlyStreams, false)
+        selectedVideoStreamIndex = ListHelper.getDefaultResolutionIndex(activity!!, sortedVideoStreams!!)
 
         val streamsAdapter = StreamItemAdapter(activity!!, StreamSizeWrapper(sortedVideoStreams!!), isExternalPlayerEnabled)
         spinnerToolbar!!.adapter = streamsAdapter
@@ -778,7 +778,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
     ///////////////////////////////////////////////////////////////////////////
 
     private fun openBackgroundPlayer(append: Boolean) {
-        val audioStream = currentInfo!!.audioStreams[ListHelper.getDefaultAudioFormat(activity, currentInfo!!.audioStreams)]
+        val audioStream = currentInfo!!.audioStreams[ListHelper.getDefaultAudioFormat(activity!!, currentInfo!!.audioStreams)]
 
         val useExternalAudioPlayer = PreferenceManager.getDefaultSharedPreferences(activity)
                 .getBoolean(activity!!.getString(R.string.use_external_audio_player_key), false)

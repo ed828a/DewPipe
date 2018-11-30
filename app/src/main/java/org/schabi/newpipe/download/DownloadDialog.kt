@@ -119,7 +119,7 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
         super.onViewCreated(view, savedInstanceState)
         nameEditText = view.findViewById(R.id.file_name)
         nameEditText!!.setText(FilenameUtils.createFilename(context, currentInfo.name))
-        selectedAudioIndex = ListHelper.getDefaultAudioFormat(context, currentInfo.audioStreams)
+        selectedAudioIndex = ListHelper.getDefaultAudioFormat(context!!, currentInfo.audioStreams)
 
         streamsSpinner = view.findViewById(R.id.quality_spinner)
         streamsSpinner!!.onItemSelectedListener = this
