@@ -57,7 +57,7 @@ class KioskFragment : BaseListInfoFragment<KioskInfo>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        kioskTranslatedName = KioskTranslator.getTranslatedKioskName(kioskId, activity)
+        kioskTranslatedName = KioskTranslator.getTranslatedKioskName(kioskId, activity!!)
         name = kioskTranslatedName
         Log.d(TAG, "KioskFragment::onCreate(), kioskTranslatedName = $kioskTranslatedName")
     }
