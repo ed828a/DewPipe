@@ -226,7 +226,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         return "." + UUID.randomUUID().toString() + ".player"
     }
 
-    override fun writeTo(objectsToSave: Queue<Any>?) {
+    override fun writeTo(objectsToSave: Queue<Any>) {
         if (objectsToSave == null) return
         objectsToSave.add(playerState)
     }

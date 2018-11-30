@@ -374,7 +374,7 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
         else
             R.string.unbookmark_playlist
 
-        playlistBookmarkButton!!.setIcon(ThemeHelper.resolveResourceIdFromAttr(activity, iconAttr))
+        playlistBookmarkButton!!.setIcon(ThemeHelper.resolveResourceIdFromAttr(activity!!, iconAttr))
         playlistBookmarkButton!!.setTitle(titleRes)
     }
 

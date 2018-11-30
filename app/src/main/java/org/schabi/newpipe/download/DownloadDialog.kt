@@ -103,7 +103,7 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
             return
         }
 
-        setStyle(DialogFragment.STYLE_NO_TITLE, ThemeHelper.getDialogTheme(context))
+        setStyle(DialogFragment.STYLE_NO_TITLE, ThemeHelper.getDialogTheme(context!!))
         Icepick.restoreInstanceState(this, savedInstanceState)
 
         this.videoStreamsAdapter = StreamItemAdapter(context, wrappedVideoStreams, true)
@@ -182,7 +182,7 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
     private fun initToolbar(toolbar: Toolbar) {
         if (DEBUG) Log.d(TAG, "initToolbar() called with: toolbar = [$toolbar]")
         toolbar.setTitle(R.string.download_dialog_title)
-        toolbar.setNavigationIcon(if (ThemeHelper.isLightThemeSelected(activity)) R.drawable.ic_arrow_back_black_24dp else R.drawable.ic_arrow_back_white_24dp)
+        toolbar.setNavigationIcon(if (ThemeHelper.isLightThemeSelected(activity!!)) R.drawable.ic_arrow_back_black_24dp else R.drawable.ic_arrow_back_white_24dp)
         toolbar.inflateMenu(R.menu.dialog_url)
         toolbar.setNavigationOnClickListener { v -> dialog.dismiss() }
 

@@ -382,7 +382,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
 
                 activity?.let {
                     relatedStreamExpandButton!!.setImageDrawable(ContextCompat.getDrawable(
-                            it as Context, ThemeHelper.resolveResourceIdFromAttr(activity, R.attr.expand)))
+                            it as Context, ThemeHelper.resolveResourceIdFromAttr(activity!!, R.attr.expand)))
                 }
 
             return
@@ -397,7 +397,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         activity?.let {
             relatedStreamExpandButton!!.setImageDrawable(
                     ContextCompat.getDrawable(it as Context,
-                            ThemeHelper.resolveResourceIdFromAttr(activity, R.attr.collapse)))
+                            ThemeHelper.resolveResourceIdFromAttr(activity!!, R.attr.collapse)))
         }
 
     }
@@ -566,7 +566,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
             relatedStreamExpandButton!!.visibility = View.VISIBLE
 
             relatedStreamExpandButton!!.setImageDrawable(ContextCompat.getDrawable(
-                    activity!!, ThemeHelper.resolveResourceIdFromAttr(activity, R.attr.expand)))
+                    activity!!, ThemeHelper.resolveResourceIdFromAttr(activity!!, R.attr.expand)))
         } else {
             if (info.nextVideo == null) setRelatedStreamsVisibility(View.GONE)
             relatedStreamExpandButton!!.visibility = View.GONE

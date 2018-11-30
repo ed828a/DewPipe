@@ -259,7 +259,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
                 ThemeHelper.resolveResourceIdFromAttr(context!!, R.attr.ic_backup), listHolder)
         previousBackupItem.setOnClickListener { item -> onImportPreviousSelected() }
 
-        val iconColor = if (ThemeHelper.isLightThemeSelected(context)) Color.BLACK else Color.WHITE
+        val iconColor = if (ThemeHelper.isLightThemeSelected(context!!)) Color.BLACK else Color.WHITE
         val services = resources.getStringArray(R.array.service_list)
         for (serviceName in services) {
             try {
