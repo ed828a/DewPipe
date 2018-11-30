@@ -1026,7 +1026,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         uploaderThumb!!.setImageDrawable(ContextCompat.getDrawable(activity!!, R.drawable.buddy))
 
         if (info.viewCount >= 0) {
-            videoCountView!!.text = Localization.localizeViewCount(activity, info.viewCount)
+            videoCountView!!.text = Localization.localizeViewCount(activity!!, info.viewCount)
             videoCountView!!.visibility = View.VISIBLE
         } else {
             videoCountView!!.visibility = View.GONE
@@ -1041,7 +1041,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
             thumbsDisabledTextView!!.visibility = View.VISIBLE
         } else {
             if (info.dislikeCount >= 0) {
-                thumbsDownTextView!!.text = Localization.shortCount(activity, info.dislikeCount)
+                thumbsDownTextView!!.text = Localization.shortCount(activity!!, info.dislikeCount)
                 thumbsDownTextView!!.visibility = View.VISIBLE
                 thumbsDownImageView!!.visibility = View.VISIBLE
             } else {
@@ -1050,7 +1050,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
             }
 
             if (info.likeCount >= 0) {
-                thumbsUpTextView!!.text = Localization.shortCount(activity, info.likeCount)
+                thumbsUpTextView!!.text = Localization.shortCount(activity!!, info.likeCount)
                 thumbsUpTextView!!.visibility = View.VISIBLE
                 thumbsUpImageView!!.visibility = View.VISIBLE
             } else {
@@ -1082,7 +1082,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
             videoDescriptionRootLayout!!.visibility = View.VISIBLE
         }
         if (!TextUtils.isEmpty(info.uploadDate)) {
-            videoUploadDateView!!.text = Localization.localizeDate(activity, info.uploadDate)
+            videoUploadDateView!!.text = Localization.localizeDate(activity!!, info.uploadDate)
         }
         prepareDescription(info.description)
 

@@ -102,14 +102,14 @@ class ContentSettingsFragment : BasePreferenceFragment() {
 
         val setPreferredLanguage = findPreference(getString(R.string.content_language_key))
         setPreferredLanguage.setOnPreferenceChangeListener { p: Preference, newLanguage: Any ->
-            val oldLocal = org.schabi.newpipe.util.Localization.getPreferredExtractorLocal(activity)
+            val oldLocal = org.schabi.newpipe.util.Localization.getPreferredExtractorLocal(activity!!)
             NewPipe.setLocalization(Localization(oldLocal.country, newLanguage as String))
             true
         }
 
         val setPreferredCountry = findPreference(getString(R.string.content_country_key))
         setPreferredCountry.setOnPreferenceChangeListener { p: Preference, newCountry: Any ->
-            val oldLocal = org.schabi.newpipe.util.Localization.getPreferredExtractorLocal(activity)
+            val oldLocal = org.schabi.newpipe.util.Localization.getPreferredExtractorLocal(activity!!)
             NewPipe.setLocalization(Localization(newCountry as String, oldLocal.language))
             true
         }

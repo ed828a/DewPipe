@@ -492,7 +492,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
 
     private fun setVideoCount(count: Long) {
         if (activity != null && headerStreamCount != null) {
-            headerStreamCount!!.text = Localization.localizeStreamCount(activity, count)
+            headerStreamCount!!.text = Localization.localizeStreamCount(activity!!, count)
         }
     }
 

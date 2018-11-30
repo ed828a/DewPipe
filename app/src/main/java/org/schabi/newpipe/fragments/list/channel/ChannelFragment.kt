@@ -345,7 +345,7 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
 
         headerSubscribersTextView!!.visibility = View.VISIBLE
         if (result.subscriberCount >= 0) {
-            headerSubscribersTextView!!.text = Localization.localizeSubscribersCount(activity, result.subscriberCount)
+            headerSubscribersTextView!!.text = Localization.localizeSubscribersCount(activity!!, result.subscriberCount)
         } else {
             headerSubscribersTextView!!.setText(R.string.subscribers_count_not_available)
         }

@@ -60,7 +60,7 @@ class LocalItemListAdapter(activity: Activity?) : RecyclerView.Adapter<RecyclerV
         localItemBuilder = LocalItemBuilder(activity)
         itemsList = ArrayList()
         dateFormat = DateFormat.getDateInstance(DateFormat.SHORT,
-                Localization.getPreferredLocale(activity))
+                Localization.getPreferredLocale(activity!!))
     }
 
     fun setSelectedListener(listener: OnClickGesture<LocalItem>) {

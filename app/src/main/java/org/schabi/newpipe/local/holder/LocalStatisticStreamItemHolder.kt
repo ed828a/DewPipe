@@ -57,7 +57,7 @@ open class LocalStatisticStreamItemHolder internal constructor(infoItemBuilder: 
 
     private fun getStreamInfoDetailLine(entry: StreamStatisticsEntry,
                                         dateFormat: DateFormat): String {
-        val watchCount = Localization.shortViewCount(itemBuilder.context,
+        val watchCount = Localization.shortViewCount(itemBuilder.context!!,
                 entry.watchCount)
         val uploadDate = dateFormat.format(entry.latestAccessDate)
         val serviceName = NewPipe.getNameOfService(entry.serviceId)
