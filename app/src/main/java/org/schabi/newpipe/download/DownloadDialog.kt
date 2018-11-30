@@ -106,8 +106,8 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
         setStyle(DialogFragment.STYLE_NO_TITLE, ThemeHelper.getDialogTheme(context!!))
         Icepick.restoreInstanceState(this, savedInstanceState)
 
-        this.videoStreamsAdapter = StreamItemAdapter(context, wrappedVideoStreams, true)
-        this.audioStreamsAdapter = StreamItemAdapter(context, wrappedAudioStreams)
+        this.videoStreamsAdapter = StreamItemAdapter(context!!, wrappedVideoStreams, true)
+        this.audioStreamsAdapter = StreamItemAdapter(context!!, wrappedAudioStreams)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

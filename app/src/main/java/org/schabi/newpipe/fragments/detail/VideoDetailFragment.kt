@@ -649,7 +649,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         sortedVideoStreams = ListHelper.getSortedStreamVideosList(activity, info.videoStreams, info.videoOnlyStreams, false)
         selectedVideoStreamIndex = ListHelper.getDefaultResolutionIndex(activity, sortedVideoStreams)
 
-        val streamsAdapter = StreamItemAdapter(activity, StreamSizeWrapper(sortedVideoStreams!!), isExternalPlayerEnabled)
+        val streamsAdapter = StreamItemAdapter(activity!!, StreamSizeWrapper(sortedVideoStreams!!), isExternalPlayerEnabled)
         spinnerToolbar!!.adapter = streamsAdapter
         spinnerToolbar!!.setSelection(selectedVideoStreamIndex)
         spinnerToolbar!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
