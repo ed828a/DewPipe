@@ -83,9 +83,9 @@ class ContentSettingsFragment : BasePreferenceFragment() {
         val importDataPreference = findPreference(getString(R.string.import_data))
         importDataPreference.setOnPreferenceClickListener { p: Preference ->
             val i = Intent(activity, FilePickerActivityHelper::class.java)
-                    .putExtra(FilePickerActivityHelper.EXTRA_ALLOW_MULTIPLE, false)
-                    .putExtra(FilePickerActivityHelper.EXTRA_ALLOW_CREATE_DIR, false)
-                    .putExtra(FilePickerActivityHelper.EXTRA_MODE, FilePickerActivityHelper.MODE_FILE)
+                    .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)
+                    .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_ALLOW_CREATE_DIR, false)
+                    .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_MODE, com.nononsenseapps.filepicker.FilePickerActivity.MODE_FILE)
             startActivityForResult(i, REQUEST_IMPORT_PATH)
             true
         }
@@ -93,9 +93,9 @@ class ContentSettingsFragment : BasePreferenceFragment() {
         val exportDataPreference = findPreference(getString(R.string.export_data))
         exportDataPreference.setOnPreferenceClickListener { p: Preference ->
             val i = Intent(activity, FilePickerActivityHelper::class.java)
-                    .putExtra(FilePickerActivityHelper.EXTRA_ALLOW_MULTIPLE, false)
-                    .putExtra(FilePickerActivityHelper.EXTRA_ALLOW_CREATE_DIR, true)
-                    .putExtra(FilePickerActivityHelper.EXTRA_MODE, FilePickerActivityHelper.MODE_DIR)
+                    .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)
+                    .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_ALLOW_CREATE_DIR, true)
+                    .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_MODE, com.nononsenseapps.filepicker.FilePickerActivity.MODE_DIR)
             startActivityForResult(i, REQUEST_EXPORT_PATH)
             true
         }
