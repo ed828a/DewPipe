@@ -1,9 +1,9 @@
-package org.schabi.newpipe.report;
+package org.schabi.newpipe.report
 
 /**
  * The user actions that can cause an error.
  */
-public enum UserAction {
+enum class UserAction(val message: String) {
     USER_REPORT("user report"),
     UI_ERROR("ui error"),
     SUBSCRIPTION("subscription"),
@@ -16,16 +16,5 @@ public enum UserAction {
     REQUESTED_PLAYLIST("requested playlist"),
     REQUESTED_KIOSK("requested kiosk"),
     DELETE_FROM_HISTORY("delete from history"),
-    PLAY_STREAM("Play stream");
-
-
-    private final String message;
-
-    UserAction(String message) {
-        this.message = message;
-    }
-
-    public String getMessage() {
-        return message;
-    }
+    PLAY_STREAM("Play stream")
 }

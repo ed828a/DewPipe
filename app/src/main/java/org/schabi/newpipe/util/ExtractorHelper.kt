@@ -288,7 +288,7 @@ object ExtractorHelper {
                 return true
             }
         }
-        val temp = throwable.cause!!
+//        val temp = throwable.cause!!
         throwable.cause?.let {
             cause = throwable.cause!!
             while (getCause !== cause) {
