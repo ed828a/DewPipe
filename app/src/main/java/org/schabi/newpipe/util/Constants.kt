@@ -12,4 +12,7 @@ object Constants {
     const val KEY_MAIN_PAGE_CHANGE = "key_main_page_change"
 
     const val NO_SERVICE_ID = -1
+
+    const val KEY_EDWARD_KIOSK_TRANSLATED_NAME = "key_edward_kiosk_translated_name"
+    const val KEY_EDWARD_KIOSK_ID = "key_edward_kiosk_id"
 }

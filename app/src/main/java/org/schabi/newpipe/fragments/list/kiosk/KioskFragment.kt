@@ -64,14 +64,21 @@ class KioskFragment : BaseListInfoFragment<KioskInfo>() {
         if (savedInstanceState != null) {
             val serviceIdInString = savedInstanceState.getString(Constants.KEY_SERVICE_ID)
             serviceId = serviceIdInString?.toInt() ?: Constants.NO_SERVICE_ID
-            Log.d(TAG, "KioskFragment::onCreate(), serviceId = $serviceId")
+            if (savedInstanceState.containsKey(Constants.KEY_EDWARD_KIOSK_TRANSLATED_NAME)) {
+                kioskTranslatedName = savedInstanceState.getString(Constants.KEY_EDWARD_KIOSK_TRANSLATED_NAME)
+                name = kioskTranslatedName
+                kioskId = savedInstanceState.getString(Constants.KEY_EDWARD_KIOSK_ID)
+            }
+            Log.d(TAG, "KioskFragment::onCreate(), serviceId = $serviceId, , kioskTranslatedName = $kioskTranslatedName")
         }
     }
 
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
         super.onSaveInstanceState(savedInstanceState)
         savedInstanceState.putString(Constants.KEY_SERVICE_ID, serviceId.toString())
-        Log.d(TAG, "KioskFragment::onSaveInstanceState(), serviceId = $serviceId")
+        savedInstanceState.putString(Constants.KEY_EDWARD_KIOSK_TRANSLATED_NAME, kioskTranslatedName)
+        savedInstanceState.putString(Constants.KEY_EDWARD_KIOSK_ID, kioskId)
+        Log.d(TAG, "KioskFragment::onSaveInstanceState(), serviceId = $serviceId, kioskTranslatedName = $kioskTranslatedName")
     }
 
 //    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
