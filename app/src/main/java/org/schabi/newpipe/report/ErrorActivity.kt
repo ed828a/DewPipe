@@ -16,14 +16,14 @@ import android.support.annotation.StringRes
 import android.support.design.widget.Snackbar
 import android.support.v4.app.NavUtils
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
+
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
+import kotlinx.android.synthetic.main.activity_error.*
+import kotlinx.android.synthetic.main.toolbar_layout.*
 
 import org.acra.ReportField
 import org.acra.collector.CrashReportData
@@ -67,7 +67,7 @@ class ErrorActivity : AppCompatActivity() {
     private var errorInfo: ErrorInfo? = null
     private var returnActivity: Class<*>? = null
     private var currentTimeStamp: String? = null
-    private var userCommentBox: EditText? = null
+//    private var errorCommentBox: EditText? = null
 
     private val contentLangString: String?
         get() = PreferenceManager.getDefaultSharedPreferences(this)
@@ -89,7 +89,7 @@ class ErrorActivity : AppCompatActivity() {
 
         val intent = intent
 
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+//        val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
         val actionBar = supportActionBar
@@ -99,11 +99,11 @@ class ErrorActivity : AppCompatActivity() {
             actionBar.setDisplayShowTitleEnabled(true)
         }
 
-        val reportButton = findViewById<Button>(R.id.errorReportButton)
-        userCommentBox = findViewById(R.id.errorCommentBox)
-        val errorView = findViewById<TextView>(R.id.errorView)
-        val infoView = findViewById<TextView>(R.id.errorInfosView)
-        val errorMessageView = findViewById<TextView>(R.id.errorMessageView)
+//        val reportButton = findViewById<Button>(R.id.errorReportButton)
+//        errorCommentBox = findViewById(R.id.errorCommentBox)
+//        val errorView = findViewById<TextView>(R.id.errorView)
+//        val infoView = findViewById<TextView>(R.id.errorInfosView)
+//        val errorMessageView = findViewById<TextView>(R.id.errorMessageView)
 
         val ac = ActivityCommunicator.communicator
         returnActivity = ac.returnActivity
@@ -114,7 +114,7 @@ class ErrorActivity : AppCompatActivity() {
         addGuruMeditaion()
         currentTimeStamp = getCurrentTimeStamp()
 
-        reportButton.setOnClickListener { v: View ->
+        errorReportButton.setOnClickListener { v: View ->
             val context = this
             AlertDialog.Builder(context)
                     .setIcon(android.R.drawable.ic_dialog_alert)
@@ -148,7 +148,8 @@ class ErrorActivity : AppCompatActivity() {
             errorMessageView.setText(errorInfo!!.message)
         } else {
             errorMessageView.visibility = View.GONE
-            findViewById<View>(R.id.messageWhatHappenedView).visibility = View.GONE
+//            findViewById<View>(R.id.messageWhatHappenedView).visibility = View.GONE
+            messageWhatHappenedView.visibility = View.GONE
         }
 
         errorView.text = formErrorText(errorList)
@@ -203,11 +204,11 @@ class ErrorActivity : AppCompatActivity() {
     }
 
     private fun buildInfo(info: ErrorInfo) {
-        val infoLabelView = findViewById<TextView>(R.id.errorInfoLabelsView)
-        val infoView = findViewById<TextView>(R.id.errorInfosView)
+//        val infoLabelView = findViewById<TextView>(R.id.errorInfoLabelsView)
+//        val infoView = findViewById<TextView>(R.id.errorInfosView)
         var text = ""
 
-        infoLabelView.text = getString(R.string.info_labels).replace("\\n", "\n")
+        errorInfoLabelsView.text = getString(R.string.info_labels).replace("\\n", "\n")
 
         text += (getUserActionString(info.userAction)
                 + "\n" + info.request
@@ -218,7 +219,7 @@ class ErrorActivity : AppCompatActivity() {
                 + "\n" + BuildConfig.VERSION_NAME
                 + "\n" + osString)
 
-        infoView.text = text
+        errorInfosView.text = text
     }
 
     private fun buildJson(): String {
@@ -242,7 +243,7 @@ class ErrorActivity : AppCompatActivity() {
             }
 
             errorObject.put("exceptions", exceptionArray)
-            errorObject.put("user_comment", userCommentBox!!.text.toString())
+            errorObject.put("user_comment", errorCommentBox!!.text.toString())
 
             return errorObject.toString(3)
         } catch (e: Throwable) {
@@ -263,10 +264,10 @@ class ErrorActivity : AppCompatActivity() {
 
     private fun addGuruMeditaion() {
         //just an easter egg
-        val sorryView = findViewById<TextView>(R.id.errorSorryView)
-        var text = sorryView.text.toString()
+//        val sorryView = findViewById<TextView>(R.id.errorSorryView)
+        var text = errorSorryView.text.toString()
         text += "\n" + getString(R.string.guru_meditation)
-        sorryView.text = text
+        errorSorryView.text = text
     }
 
     override fun onBackPressed() {

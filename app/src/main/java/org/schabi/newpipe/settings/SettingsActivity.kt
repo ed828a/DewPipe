@@ -10,6 +10,7 @@ import android.support.v7.preference.PreferenceFragmentCompat
 import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
+import kotlinx.android.synthetic.main.toolbar_layout.*
 
 import org.schabi.newpipe.R
 import org.schabi.newpipe.util.ThemeHelper
@@ -43,7 +44,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
         super.onCreate(savedInstanceBundle)
         setContentView(R.layout.settings_layout)
 
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+//        val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
         if (savedInstanceBundle == null) {

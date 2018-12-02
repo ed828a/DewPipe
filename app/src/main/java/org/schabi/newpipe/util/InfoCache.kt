@@ -22,8 +22,6 @@ package org.schabi.newpipe.util
 import android.support.v4.util.LruCache
 import android.util.Log
 import org.schabi.newpipe.BuildConfig.DEBUG
-
-import org.schabi.newpipe.MainActivity
 import org.schabi.newpipe.extractor.Info
 
 
@@ -76,21 +74,18 @@ class InfoCache private constructor()//no instance
     }
 
     private class CacheData (val info: Info, timeoutMillis: Long) {
-        private val expireTimestamp: Long
+        private val expireTimestamp: Long = System.currentTimeMillis() + timeoutMillis
 
         val isExpired: Boolean
             get() = System.currentTimeMillis() > expireTimestamp
 
-        init {
-            this.expireTimestamp = System.currentTimeMillis() + timeoutMillis
-        }
     }
 
     companion object {
 //        private val DEBUG = MainActivity.DEBUG
 
         val instance = InfoCache()
-        private val MAX_ITEMS_ON_CACHE = 60
+        private const val MAX_ITEMS_ON_CACHE = 60
         /**
          * Trim the cache to this size
          */

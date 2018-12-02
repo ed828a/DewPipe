@@ -90,7 +90,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
 
     private var menu: Menu? = null
 
-    private var spinnerToolbar: Spinner? = null
+    private var toolbarSpinner: Spinner? = null
 
     private var parallaxScrollRootView: ParallaxScrollView? = null
     private var contentRootLayoutHiding: LinearLayout? = null
@@ -233,8 +233,8 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
 
     override fun onDestroyView() {
         if (DEBUG) Log.d(TAG, "onDestroyView() called")
-        spinnerToolbar!!.onItemSelectedListener = null
-        spinnerToolbar!!.adapter = null
+        toolbarSpinner!!.onItemSelectedListener = null
+        toolbarSpinner!!.adapter = null
         super.onDestroyView()
     }
 
@@ -416,7 +416,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
 
     override fun initViews(rootView: View, savedInstanceState: Bundle?) {
         super.initViews(rootView, savedInstanceState)
-        spinnerToolbar = activity!!.findViewById<View>(R.id.toolbar).findViewById(R.id.toolbar_spinner)
+        toolbarSpinner = activity!!.findViewById<View>(R.id.toolbar).findViewById(R.id.toolbarSpinner)
 
         parallaxScrollRootView = rootView.findViewById(R.id.detail_main_content)
 
@@ -658,9 +658,9 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         selectedVideoStreamIndex = ListHelper.getDefaultResolutionIndex(activity!!, sortedVideoStreams!!)
 
         val streamsAdapter = StreamItemAdapter(activity!!, StreamSizeWrapper(sortedVideoStreams!!), isExternalPlayerEnabled)
-        spinnerToolbar!!.adapter = streamsAdapter
-        spinnerToolbar!!.setSelection(selectedVideoStreamIndex)
-        spinnerToolbar!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        toolbarSpinner!!.adapter = streamsAdapter
+        toolbarSpinner!!.setSelection(selectedVideoStreamIndex)
+        toolbarSpinner!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 selectedVideoStreamIndex = position
             }
@@ -991,7 +991,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         super.showLoading()
 
         animateView(contentRootLayoutHiding!!, false, 200)
-        animateView(spinnerToolbar!!, false, 200)
+        animateView(toolbarSpinner!!, false, 200)
         animateView(thumbnailPlayButton!!, false, 50)
         animateView(detailDurationView!!, false, 100)
 
@@ -1097,7 +1097,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         }
         prepareDescription(info.description)
 
-        animateView(spinnerToolbar!!, true, 500)
+        animateView(toolbarSpinner!!, true, 500)
         setupActionBar(info)
         initThumbnailViews(info)
         initRelatedVideos(info)
@@ -1120,7 +1120,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         when (info.streamType) {
             StreamType.LIVE_STREAM, StreamType.AUDIO_LIVE_STREAM -> {
                 detailControlsDownload!!.visibility = View.GONE
-                spinnerToolbar!!.visibility = View.GONE
+                toolbarSpinner!!.visibility = View.GONE
             }
             else -> {
                 if (info.audioStreams.isEmpty()) detailControlsBackground!!.visibility = View.GONE
@@ -1129,7 +1129,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
 //                    break
                 if (info.videoStreams.isEmpty() && info.videoOnlyStreams.isEmpty()) {
                     detailControlsPopup!!.visibility = View.GONE
-                    spinnerToolbar!!.visibility = View.GONE
+                    toolbarSpinner!!.visibility = View.GONE
                     thumbnailPlayButton!!.setImageResource(R.drawable.ic_headset_white_24dp)
                 }
             }

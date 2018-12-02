@@ -35,7 +35,7 @@
         android:layout_toLeftOf="@+id/control_pane"
         android:layout_toStartOf="@+id/control_pane"
         android:scrollbars="vertical"
-        app:layoutManager="LinearLayoutManager"
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
         tools:listitem="@layout/play_queue_item"/>
 
     <RelativeLayout

@@ -5,19 +5,19 @@
     tools:context=".player.old.PlayVideoActivity"
     android:gravity="center">
 
-    <VideoView android:id="@+id/video_view"
+    <VideoView android:id="@+id/videoView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:focusable="false"/>
 
-    <Button android:id="@+id/content_button"
+    <Button android:id="@+id/contentButton"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@null"
         android:focusable="false"/>
 
-    <ProgressBar android:id="@+id/play_video_progress_bar"
+    <ProgressBar android:id="@+id/playVideoProgressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:indeterminate="true"
