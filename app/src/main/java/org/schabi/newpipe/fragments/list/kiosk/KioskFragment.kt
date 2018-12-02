@@ -21,6 +21,7 @@ import icepick.State
 import io.reactivex.Single
 
 import org.schabi.newpipe.util.AnimationUtils.animateView
+import org.schabi.newpipe.util.Constants
 import org.schabi.newpipe.util.ExtractorHelper
 
 /**
@@ -60,6 +61,26 @@ class KioskFragment : BaseListInfoFragment<KioskInfo>() {
         kioskTranslatedName = KioskTranslator.getTranslatedKioskName(kioskId, activity!!)
         name = kioskTranslatedName
         Log.d(TAG, "KioskFragment::onCreate(), kioskTranslatedName = $kioskTranslatedName")
+//        if (savedInstanceState != null) {
+//            val serviceIdInString = savedInstanceState.getString(Constants.KEY_SERVICE_ID)
+//            serviceId = serviceIdInString?.toInt() ?: Constants.NO_SERVICE_ID
+//            Log.d(TAG, "KioskFragment::onCreate(), serviceId = $serviceId")
+//        }
+//    }
+//
+//    override fun onSaveInstanceState(savedInstanceState: Bundle) {
+//        super.onSaveInstanceState(savedInstanceState)
+//        savedInstanceState.putString(Constants.KEY_SERVICE_ID, serviceId.toString())
+//        Log.d(TAG, "KioskFragment::onSaveInstanceState(), serviceId = $serviceId")
+//    }
+//
+//    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+//        super.onRestoreInstanceState(savedInstanceState)
+//        if (savedInstanceState != null) {
+//            val serviceIdInString = savedInstanceState.getString(Constants.KEY_SERVICE_ID)
+//            serviceId = serviceIdInString?.toInt() ?: Constants.NO_SERVICE_ID
+//            Log.d(TAG, "KioskFragment::onRestoreInstanceState, serviceId = $serviceId")
+//        }
     }
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
@@ -144,13 +165,15 @@ class KioskFragment : BaseListInfoFragment<KioskInfo>() {
 
     companion object {
 
+        private const val TAG = "KioskFragment"
+
         @Throws(ExtractionException::class)
         @JvmOverloads
         fun getInstance(serviceId: Int,
                         kioskId: String = NewPipe.getService(serviceId)
                                 .kioskList
                                 .defaultKioskId): KioskFragment {
-            Log.d("KioskFragment", "KioskFragment::getInstance() called")
+            Log.d(TAG, "KioskFragment::getInstance(), serviceId = $serviceId")
             val instance = KioskFragment()
             val service = NewPipe.getService(serviceId)
             val kioskLinkHandlerFactory = service.kioskList
