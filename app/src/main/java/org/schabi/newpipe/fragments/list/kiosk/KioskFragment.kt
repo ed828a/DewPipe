@@ -61,19 +61,19 @@ class KioskFragment : BaseListInfoFragment<KioskInfo>() {
         kioskTranslatedName = KioskTranslator.getTranslatedKioskName(kioskId, activity!!)
         name = kioskTranslatedName
         Log.d(TAG, "KioskFragment::onCreate(), kioskTranslatedName = $kioskTranslatedName")
-//        if (savedInstanceState != null) {
-//            val serviceIdInString = savedInstanceState.getString(Constants.KEY_SERVICE_ID)
-//            serviceId = serviceIdInString?.toInt() ?: Constants.NO_SERVICE_ID
-//            Log.d(TAG, "KioskFragment::onCreate(), serviceId = $serviceId")
-//        }
-//    }
-//
-//    override fun onSaveInstanceState(savedInstanceState: Bundle) {
-//        super.onSaveInstanceState(savedInstanceState)
-//        savedInstanceState.putString(Constants.KEY_SERVICE_ID, serviceId.toString())
-//        Log.d(TAG, "KioskFragment::onSaveInstanceState(), serviceId = $serviceId")
-//    }
-//
+        if (savedInstanceState != null) {
+            val serviceIdInString = savedInstanceState.getString(Constants.KEY_SERVICE_ID)
+            serviceId = serviceIdInString?.toInt() ?: Constants.NO_SERVICE_ID
+            Log.d(TAG, "KioskFragment::onCreate(), serviceId = $serviceId")
+        }
+    }
+
+    override fun onSaveInstanceState(savedInstanceState: Bundle) {
+        super.onSaveInstanceState(savedInstanceState)
+        savedInstanceState.putString(Constants.KEY_SERVICE_ID, serviceId.toString())
+        Log.d(TAG, "KioskFragment::onSaveInstanceState(), serviceId = $serviceId")
+    }
+
 //    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
 //        super.onRestoreInstanceState(savedInstanceState)
 //        if (savedInstanceState != null) {
@@ -81,7 +81,7 @@ class KioskFragment : BaseListInfoFragment<KioskInfo>() {
 //            serviceId = serviceIdInString?.toInt() ?: Constants.NO_SERVICE_ID
 //            Log.d(TAG, "KioskFragment::onRestoreInstanceState, serviceId = $serviceId")
 //        }
-    }
+//    }
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
