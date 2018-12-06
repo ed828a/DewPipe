@@ -26,7 +26,8 @@
     <dimen name="software_component_item_padding">8dp</dimen>
     <!-- Miscellaneous -->
     <dimen name="popup_default_width">180dp</dimen>
-    <dimen name="popup_minimum_width">150dp</dimen>
+    <dimen name="popup_minimum_width">240dp</dimen>
+    <dimen name="popup_minimum_height">135dp</dimen>
 
     <dimen name="subscription_import_export_item_height">42dp</dimen>
     <dimen name="subscription_import_export_item_icon_size">24dp</dimen>

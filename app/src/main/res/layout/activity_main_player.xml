@@ -118,7 +118,7 @@
             android:layout_height="match_parent"
             android:layout_below="@id/playQueueControl"
             android:scrollbars="vertical"
-            app:layoutManager="LinearLayoutManager"
+            app:layoutManager="android.support.v7.widget.LinearLayoutManager"
             tools:listitem="@layout/play_queue_item"/>
 
     </RelativeLayout>

@@ -65,9 +65,9 @@ class KioskFragment : BaseListInfoFragment<KioskInfo>() {
             val serviceIdInString = savedInstanceState.getString(Constants.KEY_SERVICE_ID)
             serviceId = serviceIdInString?.toInt() ?: Constants.NO_SERVICE_ID
             if (savedInstanceState.containsKey(Constants.KEY_EDWARD_KIOSK_TRANSLATED_NAME)) {
-                kioskTranslatedName = savedInstanceState.getString(Constants.KEY_EDWARD_KIOSK_TRANSLATED_NAME)
+                kioskTranslatedName = savedInstanceState.getString(Constants.KEY_EDWARD_KIOSK_TRANSLATED_NAME) ?: ""
                 name = kioskTranslatedName
-                kioskId = savedInstanceState.getString(Constants.KEY_EDWARD_KIOSK_ID)
+                kioskId = savedInstanceState.getString(Constants.KEY_EDWARD_KIOSK_ID) ?: ""
             }
             Log.d(TAG, "KioskFragment::onCreate(), serviceId = $serviceId, , kioskTranslatedName = $kioskTranslatedName")
         }

@@ -2,23 +2,6 @@ package org.schabi.newpipe.player.playback
 
 import android.support.v4.util.ArraySet
 import android.util.Log
-
-import com.google.android.exoplayer2.source.MediaSource
-
-import org.reactivestreams.Subscriber
-import org.reactivestreams.Subscription
-import org.schabi.newpipe.player.mediasource.FailedMediaSource
-import org.schabi.newpipe.player.mediasource.LoadedMediaSource
-import org.schabi.newpipe.player.mediasource.ManagedMediaSource
-import org.schabi.newpipe.player.mediasource.ManagedMediaSourcePlaylist
-import org.schabi.newpipe.player.mediasource.PlaceholderMediaSource
-import org.schabi.newpipe.player.playqueue.PlayQueue
-import org.schabi.newpipe.player.playqueue.PlayQueueItem
-import org.schabi.newpipe.util.ServiceHelper
-import java.util.Collections
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
-
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -27,10 +10,19 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.internal.subscriptions.EmptySubscription
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
+import org.reactivestreams.Subscriber
+import org.reactivestreams.Subscription
 import org.schabi.newpipe.BuildConfig.DEBUG
+import org.schabi.newpipe.player.mediasource.*
 import org.schabi.newpipe.player.mediasource.FailedMediaSource.MediaSourceResolutionException
 import org.schabi.newpipe.player.mediasource.FailedMediaSource.StreamInfoLoadException
+import org.schabi.newpipe.player.playqueue.PlayQueue
+import org.schabi.newpipe.player.playqueue.PlayQueueItem
 import org.schabi.newpipe.player.playqueue.events.*
+import org.schabi.newpipe.util.ServiceHelper
+import java.util.*
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 class MediaSourceManager private constructor(private val playbackListener: PlaybackListener,
                                              private val playQueue: PlayQueue,

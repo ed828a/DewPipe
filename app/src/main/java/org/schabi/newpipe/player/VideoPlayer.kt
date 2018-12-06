@@ -78,9 +78,8 @@ import org.schabi.newpipe.util.AnimationUtils.animateView
  *
  * @author mauriciocolli
  */
-abstract class VideoPlayer(
-        val TAG: String,
-        context: Context
+abstract class VideoPlayer(val TAG: String,
+                           context: Context
 ) : BasePlayer(context), VideoListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener, Player.EventListener, PopupMenu.OnMenuItemClickListener, PopupMenu.OnDismissListener {
 
     private var availableStreams: List<VideoStream>? = null

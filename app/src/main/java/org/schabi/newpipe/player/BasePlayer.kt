@@ -199,6 +199,7 @@ abstract class BasePlayer(protected val context: Context) : Player.EventListener
 
     val isPlaying: Boolean
         get() {
+            if (player == null) return false
             val state = player!!.playbackState
             return (state == Player.STATE_READY || state == Player.STATE_BUFFERING) && player!!.playWhenReady
         }
