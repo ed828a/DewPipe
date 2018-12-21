@@ -84,7 +84,7 @@ class DownloadMissionSQLiteHelper internal constructor(context: Context) : SQLit
 
         fun getMissionFromCursor(cursor: Cursor?): DownloadMission {
             if (cursor == null) throw NullPointerException("cursor is null")
-            val pos: Int
+//            val pos: Int
             val name = cursor.getString(cursor.getColumnIndexOrThrow(KEY_NAME))
             val location = cursor.getString(cursor.getColumnIndexOrThrow(KEY_LOCATION))
             val url = cursor.getString(cursor.getColumnIndexOrThrow(KEY_URL))

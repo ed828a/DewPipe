@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.AsyncTask
 import android.os.Build
 import android.support.v4.content.FileProvider
@@ -12,8 +11,6 @@ import android.support.v4.view.ViewCompat
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.MimeTypeMap
@@ -45,16 +42,12 @@ class MissionAdapter(private val mContext: Activity?,
                      private val mDownloadManager: DownloadManager?,
                      private val mDeleteDownloadManager: DeleteDownloadManager?,
                      isLinear: Boolean) : RecyclerView.Adapter<MissionAdapter.ViewHolder>() {
-    private val mInflater: LayoutInflater
-    private val mItemList: MutableList<DownloadMission>
-    private val mLayout: Int
+
+    private val mInflater: LayoutInflater = mContext!!.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private val mItemList: MutableList<DownloadMission> = ArrayList()
+    private val mLayout: Int = if (isLinear) R.layout.mission_item_linear else R.layout.mission_item
 
     init {
-
-        mInflater = mContext!!.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        mLayout = if (isLinear) R.layout.mission_item_linear else R.layout.mission_item
-
-        mItemList = ArrayList()
         updateItemList()
     }
 
@@ -97,21 +90,21 @@ class MissionAdapter(private val mContext: Activity?,
     }
 
     override fun onBindViewHolder(h: MissionAdapter.ViewHolder, pos: Int) {
-        val ms = mItemList[pos]
-        h.mission = ms
+        val downloadMission = mItemList[pos]
+        h.mission = downloadMission
         h.itemPosition = pos
 
-        val type = Utility.getFileType(ms.name)
+        val type = Utility.getFileType(downloadMission.name)
 
         h.icon.setImageResource(Utility.getIconForFileType(type))
-        h.name.text = ms.name
-        h.size.text = Utility.formatBytes(ms.length)
+        h.name.text = downloadMission.name
+        h.size.text = Utility.formatBytes(downloadMission.length)
 
         h.progress = ProgressDrawable(mContext, Utility.getBackgroundForFileType(type), Utility.getForegroundForFileType(type))
         ViewCompat.setBackground(h.bkg, h.progress)
 
         h.observer = MissionObserver(this, h)
-        ms.addListener(h.observer!!)
+        downloadMission.addListener(h.observer!!)
 
         updateProgress(h)
     }

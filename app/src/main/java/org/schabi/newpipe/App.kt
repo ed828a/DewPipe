@@ -1,5 +1,6 @@
 package org.schabi.newpipe
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -56,6 +57,8 @@ import org.schabi.newpipe.util.ExtractorHelper
  * along with NewPipe.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+@SuppressLint("Registered")
 open class App : Application() {
     private var refWatcher: RefWatcher? = null
 
@@ -109,11 +112,10 @@ open class App : Application() {
                     throwable = throwable.cause!!
                 }
 
-                val errors: List<Throwable>
-                if (throwable is CompositeException) {
-                    errors = throwable.exceptions
+                val errors: List<Throwable> = if (throwable is CompositeException) {
+                    throwable.exceptions
                 } else {
-                    errors = listOf(throwable)
+                    listOf(throwable)
                 }
 
                 for (error in errors) {
@@ -184,7 +186,7 @@ open class App : Application() {
 
     }
 
-    fun initNotificationChannel() {
+    private fun initNotificationChannel() {
         if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.O) {
             return
         }

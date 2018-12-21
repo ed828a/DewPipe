@@ -4,23 +4,15 @@ import android.content.Context
 import android.content.Intent
 import android.os.Handler
 import android.util.Log
-
+import org.schabi.newpipe.BuildConfig.DEBUG
 import org.schabi.newpipe.download.ExtSDDownloadFailedActivity
-
+import us.shandian.giga.util.Utility
 import java.io.File
-import java.io.FilenameFilter
 import java.io.IOException
 import java.io.RandomAccessFile
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.ArrayList
-import java.util.Arrays
-import java.util.Collections
-import java.util.Comparator
-
-import us.shandian.giga.util.Utility
-
-import org.schabi.newpipe.BuildConfig.DEBUG
+import java.util.*
 
 class DownloadManagerImpl : DownloadManager {
     private val mDownloadDataSource: DownloadDataSource
