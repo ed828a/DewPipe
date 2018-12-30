@@ -36,7 +36,7 @@ import io.reactivex.schedulers.Schedulers
 import org.schabi.newpipe.BaseFragment
 import org.schabi.newpipe.R
 import org.schabi.newpipe.ReCaptchaActivity
-import org.schabi.newpipe.download.DownloadDialog
+import org.schabi.newpipe.download.ui.DownloadDialog
 import org.schabi.newpipe.extractor.NewPipe
 import org.schabi.newpipe.extractor.exceptions.ContentNotAvailableException
 import org.schabi.newpipe.extractor.exceptions.ParsingException

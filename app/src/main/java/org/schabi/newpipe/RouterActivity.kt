@@ -22,7 +22,7 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
 
-import org.schabi.newpipe.download.DownloadDialog
+import org.schabi.newpipe.download.ui.DownloadDialog
 import org.schabi.newpipe.extractor.Info
 import org.schabi.newpipe.extractor.NewPipe
 import org.schabi.newpipe.extractor.StreamingService

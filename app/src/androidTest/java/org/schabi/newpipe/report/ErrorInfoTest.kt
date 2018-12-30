@@ -1,6 +1,7 @@
 package org.schabi.newpipe.report
 
 import android.os.Parcel
+import android.support.test.InstrumentationRegistry
 import android.support.test.filters.LargeTest
 import android.support.test.runner.AndroidJUnit4
 
@@ -17,6 +18,8 @@ import org.junit.Assert.assertEquals
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class ErrorInfoTest {
+
+    private val context = InstrumentationRegistry.getContext()
 
     @Test
     fun errorInfo_testParcelable() {

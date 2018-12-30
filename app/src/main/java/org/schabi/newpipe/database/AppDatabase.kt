@@ -22,6 +22,8 @@ import org.schabi.newpipe.database.subscription.SubscriptionDAO
 import org.schabi.newpipe.database.subscription.SubscriptionEntity
 
 import org.schabi.newpipe.database.Migrations.DB_VER_12_0
+import org.schabi.newpipe.download.downloadDB.DownloadDAO
+import org.schabi.newpipe.download.downloadDB.MissionEntry
 
 @TypeConverters(Converters::class)
 @Database(entities = [
@@ -33,6 +35,7 @@ import org.schabi.newpipe.database.Migrations.DB_VER_12_0
     PlaylistEntity::class,
     PlaylistStreamEntity::class,
     PlaylistRemoteEntity::class
+//    , MissionEntry::class
 ],
         version = DB_VER_12_0, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
@@ -52,6 +55,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun playlistStreamDAO(): PlaylistStreamDAO
 
     abstract fun playlistRemoteDAO(): PlaylistRemoteDAO
+
+//    abstract fun downloadDAO(): DownloadDAO
 
     companion object {
 

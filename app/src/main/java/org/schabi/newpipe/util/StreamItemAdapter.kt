@@ -16,13 +16,11 @@ import org.schabi.newpipe.extractor.stream.Stream
 import org.schabi.newpipe.extractor.stream.VideoStream
 
 import java.io.Serializable
-import java.util.Collections
-import java.util.concurrent.Callable
 
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import us.shandian.giga.util.Utility
+import org.schabi.newpipe.download.util.Utility
 
 /**
  * A list adapter for a list of [streams][Stream], currently supporting [VideoStream] and [AudioStream].
@@ -47,7 +45,7 @@ class StreamItemAdapter<T : Stream> @JvmOverloads constructor(
         return position.toLong()
     }
 
-    override fun getDropDownView(position: Int, convertView: View, parent: ViewGroup): View {
+    override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
         return getCustomView(position, convertView, parent, true)
     }
 

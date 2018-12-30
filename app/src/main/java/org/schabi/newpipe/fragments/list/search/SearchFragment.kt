@@ -311,17 +311,20 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
         var itemId = 0
         var isFirstItem = true
         val c = context
-        for (filter in service!!.searchQHFactory.availableContentFilter) {
-            menuItemToFilterName!![itemId] = filter
-            val item = menu!!.add(1,
-                    itemId++,
-                    0,
-                    ServiceHelper.getTranslatedFilterString(filter, c!!))
-            if (isFirstItem) {
-                item.isChecked = true
-                isFirstItem = false
+        if (service != null){ // added by Ed for fixing NPE
+            for (filter in service!!.searchQHFactory.availableContentFilter) {
+                menuItemToFilterName!![itemId] = filter
+                val item = menu!!.add(1,
+                        itemId++,
+                        0,
+                        ServiceHelper.getTranslatedFilterString(filter, c!!))
+                if (isFirstItem) {
+                    item.isChecked = true
+                    isFirstItem = false
+                }
             }
         }
+
         menu!!.setGroupCheckable(1, true, true)
 
         restoreFilterChecked(menu, filterItemCheckedId)

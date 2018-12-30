@@ -17,7 +17,7 @@ import com.nostra13.universalimageloader.core.ImageLoader
 import org.schabi.newpipe.MainActivity
 import org.schabi.newpipe.R
 import org.schabi.newpipe.about.AboutActivity
-import org.schabi.newpipe.download.DownloadActivity
+import org.schabi.newpipe.download.ui.DownloadActivity
 import org.schabi.newpipe.extractor.NewPipe
 import org.schabi.newpipe.extractor.StreamingService
 import org.schabi.newpipe.extractor.exceptions.ExtractionException

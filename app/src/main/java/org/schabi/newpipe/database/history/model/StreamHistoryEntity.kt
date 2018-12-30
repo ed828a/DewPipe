@@ -13,10 +13,10 @@ import java.util.*
         indices = [Index(value = arrayOf(JOIN_STREAM_ID))],
         foreignKeys = [ForeignKey(entity = StreamEntity::class, parentColumns = arrayOf(StreamEntity.STREAM_ID),
                 childColumns = arrayOf(JOIN_STREAM_ID), onDelete = CASCADE, onUpdate = CASCADE)])
-class StreamHistoryEntity(@field:ColumnInfo(name = JOIN_STREAM_ID)
-                          var streamUid: Long, @field:ColumnInfo(name = STREAM_ACCESS_DATE)
-                          var accessDate: Date, @field:ColumnInfo(name = STREAM_REPEAT_COUNT)
-                          var repeatCount: Long) {
+class StreamHistoryEntity(@field:ColumnInfo(name = JOIN_STREAM_ID) var streamUid: Long,
+                          @field:ColumnInfo(name = STREAM_ACCESS_DATE) var accessDate: Date,
+                          @field:ColumnInfo(name = STREAM_REPEAT_COUNT) var repeatCount: Long
+) {
 
     @Ignore
     constructor(streamUid: Long, accessDate: Date) : this(streamUid, accessDate, 1) {}
