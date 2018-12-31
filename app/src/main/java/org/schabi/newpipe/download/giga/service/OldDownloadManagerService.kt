@@ -9,25 +9,26 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.*
-import android.support.v4.app.NotificationCompat
+import android.support.v4.app.NotificationCompat.Builder
 import android.support.v4.content.PermissionChecker
 import android.util.Log
 import android.widget.Toast
-import org.schabi.newpipe.BuildConfig
+import org.schabi.newpipe.BuildConfig.DEBUG
 import org.schabi.newpipe.R
-import org.schabi.newpipe.download.background.DownloadMissionManager
-import org.schabi.newpipe.download.background.DownloadMissionManagerImpl
-import org.schabi.newpipe.download.background.MissionControl
-import org.schabi.newpipe.download.background.MissionControlListener
 import org.schabi.newpipe.download.giga.get.DownloadDataSource
+import org.schabi.newpipe.download.giga.get.DownloadManager
+import org.schabi.newpipe.download.giga.get.DownloadManagerImpl
+import org.schabi.newpipe.download.giga.get.DownloadMission
 import org.schabi.newpipe.download.giga.get.sqlite.SQLiteDownloadDataSource
 import org.schabi.newpipe.download.ui.DownloadActivity
 import org.schabi.newpipe.settings.NewPipeSettings
 import java.util.*
 
-class DownloadManagerService : Service() {
+class OldDownloadManagerService : Service() {
+
+
     private var mBinder: DMBinder? = null
-    private var mMissionManager: DownloadMissionManager? = null
+    private var mManager: DownloadManager? = null
     private var mNotification: Notification? = null
     private var mHandler: Handler? = null
     private var mLastTimeStamp = System.currentTimeMillis()
@@ -37,8 +38,8 @@ class DownloadManagerService : Service() {
     private val missionListener = MissionListener()
 
 
-    private fun notifyMediaScanner(missionControl: MissionControl) {
-        val uri = Uri.parse("file://${missionControl.mission.location}/${missionControl.mission.name}")
+    private fun notifyMediaScanner(mission: DownloadMission) {
+        val uri = Uri.parse("file://" + mission.location + "/" + mission.name)
         // notify media scanner on downloaded media file ...
         sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri))
     }
@@ -46,7 +47,7 @@ class DownloadManagerService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        if (BuildConfig.DEBUG) {
+        if (DEBUG) {
             Log.d(TAG, "onCreate")
         }
 
@@ -54,14 +55,14 @@ class DownloadManagerService : Service() {
         if (mDataSource == null) {
             mDataSource = SQLiteDownloadDataSource(this)
         }
-        if (mMissionManager == null) {
+        if (mManager == null) {
             val paths = ArrayList<String>(2)
             paths.add(NewPipeSettings.getVideoDownloadPath(this))
             paths.add(NewPipeSettings.getAudioDownloadPath(this))
-            mMissionManager = DownloadMissionManagerImpl(paths, this)
+            mManager = DownloadManagerImpl(paths, mDataSource!!, this)
 
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "mMissionManager was == null, curretn mMissionManager = $mMissionManager")
+            if (DEBUG) {
+                Log.d(TAG, "mManager == null")
                 Log.d(TAG, "Download directory: $paths")
             }
         }
@@ -75,7 +76,7 @@ class DownloadManagerService : Service() {
 
         val iconBitmap = BitmapFactory.decodeResource(this.resources, R.mipmap.ic_launcher)
 
-        val builder = NotificationCompat.Builder(this, getString(R.string.notification_channel_id))
+        val builder = Builder(this, getString(R.string.notification_channel_id))
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(android.R.drawable.stat_sys_download)
                 .setLargeIcon(iconBitmap)
@@ -93,8 +94,8 @@ class DownloadManagerService : Service() {
                     UPDATE_MESSAGE -> {
                         var runningCount = 0
 
-                        for (i in 0 until mMissionManager!!.count) {
-                            if (mMissionManager!!.getMission(i).running) {
+                        for (i in 0 until mManager!!.count) {
+                            if (mManager!!.getMission(i).running) {
                                 runningCount++
                             }
                         }
@@ -109,13 +110,13 @@ class DownloadManagerService : Service() {
     private fun startMissionAsync(url: String?, location: String, name: String,
                                   isAudio: Boolean, threads: Int) {
         mHandler!!.post {
-            val missionId = mMissionManager!!.startMission(url!!, location, name, isAudio, threads)
-            mBinder!!.onMissionAdded(mMissionManager!!.getMission(missionId))
+            val missionId = mManager!!.startMission(url!!, location, name, isAudio, threads)
+            mBinder!!.onMissionAdded(mManager!!.getMission(missionId))
         }
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        if (BuildConfig.DEBUG) {
+        if (DEBUG) {
             Log.d(TAG, "Starting")
         }
         Log.i(TAG, "Got intent: $intent")
@@ -134,12 +135,12 @@ class DownloadManagerService : Service() {
     override fun onDestroy() {
         super.onDestroy()
 
-        if (BuildConfig.DEBUG) {
+        if (DEBUG) {
             Log.d(TAG, "Destroying")
         }
 
-        for (i in 0 until mMissionManager!!.count) {
-            mMissionManager!!.pauseMission(i)
+        for (i in 0 until mManager!!.count) {
+            mManager!!.pauseMission(i)
         }
 
         stopForeground(true)
@@ -175,8 +176,8 @@ class DownloadManagerService : Service() {
     }
 
 
-    private inner class MissionListener : MissionControlListener {
-        override fun onProgressUpdate(missionControl: MissionControl, done: Long, total: Long) {
+    private inner class MissionListener : DownloadMission.MissionListener {
+        override fun onProgressUpdate(downloadMission: DownloadMission, done: Long, total: Long) {
             val now = System.currentTimeMillis()
             val delta = now - mLastTimeStamp
             if (delta > 2000) {
@@ -185,29 +186,29 @@ class DownloadManagerService : Service() {
             }
         }
 
-        override fun onFinish(missionControl: MissionControl) {
+        override fun onFinish(downloadMission: DownloadMission) {
             postUpdateMessage()
-            notifyMediaScanner(missionControl)
+            notifyMediaScanner(downloadMission)
         }
 
-        override fun onError(missionControl: MissionControl, errCode: Int) {
+        override fun onError(downloadMission: DownloadMission, errCode: Int) {
             postUpdateMessage()
         }
     }
 
 
-    // Wrapper of DownloadMissionManager
+    // Wrapper of DownloadManager
     inner class DMBinder : Binder() {
-        val downloadManager: DownloadMissionManager?
-            get() = mMissionManager
+        val downloadManager: DownloadManager?
+            get() = mManager
 
-        fun onMissionAdded(missionControl: MissionControl) {
-            missionControl.addListener(missionListener)
+        fun onMissionAdded(mission: DownloadMission) {
+            mission.addListener(missionListener)
             postUpdateMessage()
         }
 
-        fun onMissionRemoved(missionControl: MissionControl) {
-            missionControl.removeListener(missionListener)
+        fun onMissionRemoved(mission: DownloadMission) {
+            mission.removeListener(missionListener)
             postUpdateMessage()
         }
     }
@@ -237,5 +238,4 @@ class DownloadManagerService : Service() {
             context?.startService(intent)
         }
     }
-
 }

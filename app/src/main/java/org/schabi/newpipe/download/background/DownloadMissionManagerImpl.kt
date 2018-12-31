@@ -1,5 +1,6 @@
 package org.schabi.newpipe.download.background
 
+
 import android.content.Context
 import android.content.Intent
 import android.os.Handler
@@ -8,13 +9,10 @@ import org.schabi.newpipe.BuildConfig
 import org.schabi.newpipe.NewPipeDatabase
 import org.schabi.newpipe.database.AppDatabase
 import org.schabi.newpipe.download.downloadDB.DownloadDAO
-import org.schabi.newpipe.download.downloadDB.DownloadDatabase
 import org.schabi.newpipe.download.downloadDB.MissionEntry
 import org.schabi.newpipe.download.giga.get.DownloadMission
-
-
-import org.schabi.newpipe.download.util.Utility
 import org.schabi.newpipe.download.ui.ExtSDDownloadFailedActivity
+import org.schabi.newpipe.download.util.Utility
 import java.io.File
 import java.io.IOException
 import java.io.RandomAccessFile
@@ -31,11 +29,11 @@ import java.util.*
  */
 
 class DownloadMissionManagerImpl(searchLocations: Collection<String>,
-//                                 private val downloadDataSource: DownloadDAO,
-                                 val context: Context
+                                 val context: Context,
+                                 val db: AppDatabase = NewPipeDatabase.getInstance(context)
 ) : DownloadMissionManager {
     //    val db: DownloadDatabase = DownloadDatabase.getDatabase(context)
-    val db: AppDatabase = NewPipeDatabase.getInstance(context)
+    //    val db: AppDatabase = NewPipeDatabase.getInstance(context)
     private val downloadDataSource: DownloadDAO = db.downloadDAO()
     private val mMissionControls = ArrayList<MissionControl>()
 
@@ -117,6 +115,8 @@ class DownloadMissionManagerImpl(searchLocations: Collection<String>,
     }
 
     private fun loadFinishedMissions() {
+        val missionList = downloadDataSource.loadMissions()
+        Log.d(TAG, "missionList: $missionList")
         val finishedMissions: MutableList<MissionControl> =
                 buildMissionControls(downloadDataSource.loadMissions())
 
@@ -173,6 +173,7 @@ class DownloadMissionManagerImpl(searchLocations: Collection<String>,
     }
 
     override fun getMission(missionId: Int): MissionControl {
+        Log.d(TAG, "mMissionControls: $mMissionControls")
         return mMissionControls[missionId]
     }
 

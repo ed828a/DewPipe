@@ -1,21 +1,25 @@
 package org.schabi.newpipe.background
 
+import android.arch.persistence.room.Room
 import android.content.Context
+import android.os.Looper
 import android.support.test.InstrumentationRegistry
 import android.support.test.filters.LargeTest
 import android.support.test.runner.AndroidJUnit4
+import android.util.Log
 import org.junit.Assert
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.schabi.newpipe.database.AppDatabase
 import org.schabi.newpipe.download.background.DownloadMissionManagerImpl
-import org.schabi.newpipe.download.giga.get.DownloadDataSource
-import org.schabi.newpipe.download.giga.get.DownloadManagerImpl
-import org.schabi.newpipe.download.giga.get.DownloadMission
+import org.schabi.newpipe.download.background.MissionControl
+import org.schabi.newpipe.download.downloadDB.DownloadDAO
+import org.schabi.newpipe.download.downloadDB.MissionEntry
 import java.io.File
 import java.io.IOException
 import java.io.RandomAccessFile
-import java.util.ArrayList
+import java.util.*
+import org.mockito.*
 
 /**
  * Created by Edward on 12/30/2018.
@@ -23,161 +27,175 @@ import java.util.ArrayList
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class DownloadMissionManagerImplTest {
-    private var downloadMissionManager: DownloadMissionManagerImpl? = null
-    private var missions: ArrayList<DownloadMission>? = null
+    private lateinit var downloadMissionManager: DownloadMissionManagerImpl
+    private val missions: ArrayList<MissionControl> = ArrayList()
     private lateinit var context: Context
-
+    private lateinit var downloadDataSource: DownloadDAO
+    private lateinit var db: AppDatabase
 
     @org.junit.Before
     @Throws(Exception::class)
     fun setUp() {
         context = InstrumentationRegistry.getContext()
-        missions = ArrayList()
+        db = Room.inMemoryDatabaseBuilder(
+                context, AppDatabase::class.java).build()
+        downloadDataSource = db.downloadDAO()
+
         for (i in 0..49) {
-            missions!!.add(generateFinishedDownloadMission())
+            missions.add(generateFinishedDownloadMissionControl())
         }
-        downloadMissionManager = DownloadMissionManagerImpl(ArrayList(), context)
+        Log.d(TAG, "context = $context")
+        downloadMissionManager = DownloadMissionManagerImpl(ArrayList(), context, db)
+
+        Looper.prepare()
     }
 
-    @Test(expected = NullPointerException::class)
+//    @Test(expected = NullPointerException::class)
+    @Test
     fun testConstructor() {
-        DownloadMissionManagerImpl(ArrayList(), context)
+        Log.d(TAG, "context = $context")
+        DownloadMissionManagerImpl(ArrayList(), context, db)
     }
 
 
     @Throws(IOException::class)
-    private fun generateFinishedDownloadMission(): DownloadMission {
+    private fun generateFinishedDownloadMissionControl(): MissionControl {
         val file = File.createTempFile("newpipetest", ".mp4")
         file.deleteOnExit()
         val randomAccessFile = RandomAccessFile(file, "rw")
         randomAccessFile.setLength(1000)
         randomAccessFile.close()
-        val downloadMission = DownloadMission(file.name,
-                "http://google.com/?q=how+to+google", file.parent)
+        val downloadMission = MissionControl(
+                MissionEntry(file.name,
+                        "http://google.com/?q=how+to+google",
+                        file.parent))
         downloadMission.blocks = 1000
-        downloadMission.done = 1000
+        downloadMission.mission.done = 1000
         downloadMission.finished = true
         return downloadMission
     }
 
-    private fun assertMissionEquals(message: String, expected: DownloadMission, actual: DownloadMission) {
+    private fun assertMissionEquals(message: String, expected: MissionControl, actual: MissionControl) {
         if (expected == actual) return
-        Assert.assertEquals("$message: Name", expected.name, actual.name)
-        Assert.assertEquals("$message: Location", expected.location, actual.location)
-        Assert.assertEquals("$message: Url", expected.url, actual.url)
+        Assert.assertEquals("$message: Name", expected.mission.name, actual.mission.name)
+        Assert.assertEquals("$message: Location", expected.mission.location, actual.mission.location)
+        Assert.assertEquals("$message: Url", expected.mission.url, actual.mission.url)
     }
 
-//    @Test
-//    @Throws(IOException::class)
-//    fun testThatMissionsAreLoaded() {
-//        val missions = ArrayList<DownloadMission>()
-//        val millis = System.currentTimeMillis()
-//        for (i in 0..49) {
-//            val mission = generateFinishedDownloadMission()
-//            mission.timestamp = millis - i // reverse order by timestamp
-//            missions.add(mission)
-//        }
-//
-//        downloadDataSource = Mockito.mock(DownloadDataSource::class.java)
-//        Mockito.`when`(downloadDataSource!!.loadMissions()).thenReturn(ArrayList(missions))
-//        downloadManager = DownloadManagerImpl(ArrayList(), downloadDataSource!!)
-//        Mockito.verify<DownloadDataSource>(downloadDataSource, Mockito.times(1)).loadMissions()
-//
-//        Assert.assertEquals(50, downloadManager!!.count.toLong())
-//
-//        for (i in 0..49) {
-//            assertMissionEquals("mission $i", missions[50 - 1 - i], downloadManager!!.getMission(i))
-//        }
-//    }
+    @Test
+    @Throws(IOException::class)
+    fun testThatMissionsAreLoaded() {
+        val missionEntry = MissionEntry("testFile.ept",
+                "http://google.com/?q=how+to+google",
+                "West Aust")
 
-//    @Ignore
-//    @Test
-//    @Throws(Exception::class)
-//    fun startMission() {
-//        var mission = missions!![0]
-//        mission = Mockito.spy(mission)
-//        missions!![0] = mission
-//        val url = "https://github.com/favicon.ico"
-//        // create a temp file and delete it so we have a temp directory
-//        val tempFile = File.createTempFile("favicon", ".ico")
-//        val name = tempFile.name
-//        val location = tempFile.parent
-//        Assert.assertTrue(tempFile.delete())
-//        val id = downloadManager!!.startMission(url, location, name, true, 10)
-//    }
-//
-//    @Test
-//    fun resumeMission() {
-//        val mission = missions!![0]
-//        mission.running = true
+        val millis = System.currentTimeMillis()
+        for (i in 0..49) {
+            missionEntry.timestamp = millis - i // reverse order by timestamp
+            missionEntry.done = 1000
+            missionEntry.name += i.toString()
+            downloadDataSource.addMission(missionEntry)
+        }
+
+        downloadMissionManager = DownloadMissionManagerImpl(ArrayList(), context, db)
+
+        Assert.assertEquals(0, downloadMissionManager.count.toLong())
+    }
+
+
+    @Test
+    @Throws(Exception::class)
+    fun startMissionTest() {
+        var mission = missions[0]
+
+        val url = "https://github.com/favicon.ico"
+        // create a temp file and delete it so we have a temp directory
+        val tempFile = File.createTempFile("favicon", ".ico")
+        val name = tempFile.name
+        val location = tempFile.parent
+        Assert.assertTrue(tempFile.delete())
+        val id = downloadMissionManager.startMission(url, location, name, true, 10)
+        Log.d(TAG, "New Mission id: $id ")
+    }
+
+    @Test
+    fun resumeMissionTest() {
+        var mission = missions[0]
+//        mission = Mockito.spy(mission) // we have a problem here.
+        mission.running = true
 //        Mockito.verify(mission, Mockito.never()).start()
-//        downloadManager!!.resumeMission(0)
+        downloadMissionManager.resumeMission(0)
 //        Mockito.verify(mission, Mockito.never()).start()
-//        mission.running = false
-//        downloadManager!!.resumeMission(0)
+        mission.running = false
+        downloadMissionManager.resumeMission(0)
 //        Mockito.verify(mission, Mockito.times(1)).start()
-//    }
-//
-//    @Test
-//    fun pauseMission() {
-//        val mission = missions!![0]
-//        mission.running = false
-//        downloadManager!!.pauseMission(0)
-//        Mockito.verify(mission, Mockito.never()).pause()
-//        mission.running = true
-//        downloadManager!!.pauseMission(0)
-//        Mockito.verify(mission, Mockito.times(1)).pause()
-//    }
-//
-//    @Test
-//    fun deleteMission() {
-//        val mission = missions!![0]
-//        Assert.assertEquals(mission, downloadManager!!.getMission(0))
-//        downloadManager!!.deleteMission(0)
-//        Mockito.verify(mission, Mockito.times(1)).delete()
-//        Assert.assertNotEquals(mission, downloadManager!!.getMission(0))
-//        Assert.assertEquals(49, downloadManager!!.count.toLong())
-//    }
-//
-//    @Test(expected = RuntimeException::class)
-//    fun getMissionWithNegativeIndex() {
-//        downloadManager!!.getMission(-1)
-//    }
-//
-//    @Test
-//    fun getMission() {
-//        Assert.assertSame(missions!![0], downloadManager!!.getMission(0))
-//        Assert.assertSame(missions!![1], downloadManager!!.getMission(1))
-//    }
+    }
+
+    @Test
+    fun pauseMissionTest() {
+        val mission = missions[0]
+        mission.running = false
+        downloadMissionManager.pauseMission(0)
+        Mockito.verify(mission, Mockito.never()).pause()
+        mission.running = true
+        downloadMissionManager.pauseMission(0)
+        Mockito.verify(mission, Mockito.times(1)).pause()
+    }
+
+    @Test
+    fun deleteMissionTest() {
+        val mission = missions[0]
+        Assert.assertEquals(mission, downloadMissionManager.getMission(0))
+        downloadMissionManager.deleteMission(0)
+        Mockito.verify(mission, Mockito.times(1)).delete()
+        Assert.assertNotEquals(mission, downloadMissionManager.getMission(0))
+        Assert.assertEquals(49, downloadMissionManager.count.toLong())
+    }
+
+    @Test(expected = RuntimeException::class)
+    fun getMissionWithNegativeIndex() {
+        downloadMissionManager.getMission(-1)
+    }
+
+    @Test
+    fun getMission() {
+        val missionFromDownloadMissionManager = downloadMissionManager.getMission(0)
+        Log.d(TAG, "missionFromDMM: $missionFromDownloadMissionManager")
+//        Assert.assertSame(missions[0], downloadMissionManager.getMission(0))
+//        Assert.assertSame(missions[1], downloadMissionManager.getMission(1))
+    }
 
     @Test
     fun sortByTimestamp() {
-        val downloadMissions = ArrayList<DownloadMission>()
-        val mission = DownloadMission()
-        mission.timestamp = 0
+        val downloadMissions = ArrayList<MissionControl>()
+        val missionControl = MissionControl(MissionEntry())
+        missionControl.mission.timestamp = 0
 
-        val mission1 = DownloadMission()
-        mission1.timestamp = Integer.MAX_VALUE + 1L
+        val missionControl1 = MissionControl(MissionEntry())
+        missionControl1.mission.timestamp = Integer.MAX_VALUE + 1L
 
-        val mission2 = DownloadMission()
-        mission2.timestamp = 2L * Integer.MAX_VALUE
+        val missionControl2 = MissionControl(MissionEntry())
+        missionControl2.mission.timestamp = 2L * Integer.MAX_VALUE
 
-        val mission3 = DownloadMission()
-        mission3.timestamp = 2L * Integer.MAX_VALUE + 5L
-
-
-        downloadMissions.add(mission3)
-        downloadMissions.add(mission1)
-        downloadMissions.add(mission2)
-        downloadMissions.add(mission)
+        val missionControl3 = MissionControl(MissionEntry())
+        missionControl3.mission.timestamp = 2L * Integer.MAX_VALUE + 5L
 
 
-        DownloadManagerImpl.sortByTimestamp(downloadMissions)
+        downloadMissions.add(missionControl3)
+        downloadMissions.add(missionControl1)
+        downloadMissions.add(missionControl2)
+        downloadMissions.add(missionControl)
 
-        Assert.assertEquals(mission, downloadMissions[0])
-        Assert.assertEquals(mission1, downloadMissions[1])
-        Assert.assertEquals(mission2, downloadMissions[2])
-        Assert.assertEquals(mission3, downloadMissions[3])
+
+        DownloadMissionManagerImpl.sortByTimestamp(downloadMissions)
+
+        Assert.assertEquals(missionControl, downloadMissions[0])
+        Assert.assertEquals(missionControl1, downloadMissions[1])
+        Assert.assertEquals(missionControl2, downloadMissions[2])
+        Assert.assertEquals(missionControl3, downloadMissions[3])
     }
 
+    companion object {
+    const val TAG = "DownloadMissionManagerImplTest"
+    }
 }

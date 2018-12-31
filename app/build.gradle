@@ -57,6 +57,15 @@ dependencies {
     androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.2', {
         exclude module: 'support-annotations'
     })
+    androidTestImplementation 'org.mockito:mockito-android:2.8.47'
+//    androidTestImplementation 'org.mockito:mockito-inline:2.23.0'
+//    androidTestImplementation 'org.mockito:mockito-core:2.23.0'
+    androidTestImplementation ('com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0') {
+        exclude group: 'org.jetbrains.kotlin'
+        exclude group: 'org.mockito'
+    }
+
+
     implementation 'com.github.TeamNewPipe:NewPipeExtractor:24cb684e2353'
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:2.23.0'

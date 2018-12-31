@@ -41,20 +41,6 @@ class DownloadDatabaseTest {
         db.close()
     }
 
-    @Throws(IOException::class)
-    private fun generateFinishedDownloadMission(): DownloadMission {
-        val file = File.createTempFile("newpipetest", ".mp4")
-        file.deleteOnExit()
-        val randomAccessFile = RandomAccessFile(file, "rw")
-        randomAccessFile.setLength(1000)
-        randomAccessFile.close()
-        val downloadMission = DownloadMission(file.name,
-                "http://google.com/?q=how+to+google", file.parent)
-        downloadMission.blocks = 1000
-        downloadMission.done = 1000
-        downloadMission.finished = true
-        return downloadMission
-    }
 
     @Test
     @Throws(Exception::class)
@@ -63,6 +49,8 @@ class DownloadDatabaseTest {
                 "http://google.com/?q=how+to+google",
                 "West Aust")
         for (i in 0 .. 49) {
+            missionEntry.timestamp = System.currentTimeMillis() - i
+            missionEntry.name += i.toString()
             downloadDataSource.addMission(missionEntry)
         }
 
@@ -136,6 +124,6 @@ class DownloadDatabaseTest {
     }
 
     companion object {
-        const val TAG = "DownloadDatabseTest"
+        const val TAG = "DownloadDatabaseTest"
     }
 }
