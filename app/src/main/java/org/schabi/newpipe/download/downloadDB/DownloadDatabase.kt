@@ -7,6 +7,8 @@ import android.content.Context
 
 /**
  * Created by Edward on 12/22/2018.
+ *
+ * This db is for temporary use, MissionEntry table stays in AppDatabase Finally.
  */
 
 @Database(entities = [MissionEntry::class], version = 1, exportSchema = false)

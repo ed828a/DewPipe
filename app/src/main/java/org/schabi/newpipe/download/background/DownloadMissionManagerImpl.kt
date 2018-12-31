@@ -5,6 +5,8 @@ import android.content.Intent
 import android.os.Handler
 import android.util.Log
 import org.schabi.newpipe.BuildConfig
+import org.schabi.newpipe.NewPipeDatabase
+import org.schabi.newpipe.database.AppDatabase
 import org.schabi.newpipe.download.downloadDB.DownloadDAO
 import org.schabi.newpipe.download.downloadDB.DownloadDatabase
 import org.schabi.newpipe.download.downloadDB.MissionEntry
@@ -32,9 +34,11 @@ class DownloadMissionManagerImpl(searchLocations: Collection<String>,
 //                                 private val downloadDataSource: DownloadDAO,
                                  val context: Context
 ) : DownloadMissionManager {
-    val db: DownloadDatabase = DownloadDatabase.getDatabase(context)
-    private val downloadDataSource: DownloadDAO = db.downloadDao()
+    //    val db: DownloadDatabase = DownloadDatabase.getDatabase(context)
+    val db: AppDatabase = NewPipeDatabase.getInstance(context)
+    private val downloadDataSource: DownloadDAO = db.downloadDAO()
     private val mMissionControls = ArrayList<MissionControl>()
+
     init {
         // to initialize mMissionControls with searchLocations
         loadMissionControls(searchLocations)
@@ -104,13 +108,14 @@ class DownloadMissionManagerImpl(searchLocations: Collection<String>,
     /**
      * Loads finished missions from the data source
      */
-    private fun buildMissionControls(missions: List<MissionEntry>): MutableList<MissionControl>{
+    private fun buildMissionControls(missions: List<MissionEntry>): MutableList<MissionControl> {
         val missionControlList = ArrayList<MissionControl>(missions.size)
         missions.forEach {
             missionControlList.add(MissionControl(it))
         }
         return missionControlList
     }
+
     private fun loadFinishedMissions() {
         val finishedMissions: MutableList<MissionControl> =
                 buildMissionControls(downloadDataSource.loadMissions())

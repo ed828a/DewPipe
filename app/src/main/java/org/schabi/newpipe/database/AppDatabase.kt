@@ -34,8 +34,8 @@ import org.schabi.newpipe.download.downloadDB.MissionEntry
     StreamStateEntity::class,
     PlaylistEntity::class,
     PlaylistStreamEntity::class,
-    PlaylistRemoteEntity::class
-//    , MissionEntry::class
+    PlaylistRemoteEntity::class,
+    MissionEntry::class
 ],
         version = DB_VER_12_0, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
@@ -56,7 +56,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun playlistRemoteDAO(): PlaylistRemoteDAO
 
-//    abstract fun downloadDAO(): DownloadDAO
+    abstract fun downloadDAO(): DownloadDAO
 
     companion object {
 

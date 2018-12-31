@@ -15,11 +15,17 @@ interface DownloadDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addMission(missionEntry: MissionEntry)
 
-
-    @Update()
-    fun updateMission(missionEntry: MissionEntry)
+    @Query("UPDATE ${MissionEntry.TABLE_NAME} SET ${MissionEntry.URL} = :url, ${MissionEntry.DONE} = :done, ${MissionEntry.TIMESTAMP} = :timestamp WHERE ${MissionEntry.FILE_NAME} = :name AND ${MissionEntry.LOCATION} = :location")
+    fun updateMission(name: String, location: String, url: String, done: kotlin.Long, timestamp: kotlin.Long)
 
     @Delete
     fun deleteMission(missionEntry: MissionEntry)
 
+    companion object {
+        fun updateMission(missionEntry: MissionEntry, downloadDataSource: DownloadDAO){
+            with(missionEntry){
+                downloadDataSource.updateMission(name, location, url, done, timestamp)
+            }
+        }
+    }
 }
