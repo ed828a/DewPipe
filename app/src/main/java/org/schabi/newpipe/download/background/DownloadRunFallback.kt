@@ -1,5 +1,6 @@
 package org.schabi.newpipe.download.background
 
+import android.util.Log
 import java.io.BufferedInputStream
 import java.io.RandomAccessFile
 import java.net.HttpURLConnection
@@ -14,6 +15,7 @@ import java.net.URL
 class DownloadRunFallback(private val missionControl: MissionControl) : Runnable {
 
     override fun run() {
+        Log.d(TAG, "run() called, file located: ${missionControl.mission.location}/${missionControl.mission.name}")
         try {
             val url = URL(missionControl.mission.url)
             val conn = url.openConnection() as HttpURLConnection
@@ -65,5 +67,9 @@ class DownloadRunFallback(private val missionControl: MissionControl) : Runnable
         synchronized(missionControl) {
             missionControl.notifyFinished()
         }
+    }
+
+    companion object {
+        const val TAG = "DownloadRunFallback"
     }
 }

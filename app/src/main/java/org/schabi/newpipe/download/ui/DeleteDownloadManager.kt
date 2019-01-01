@@ -5,53 +5,43 @@ import android.os.Bundle
 import android.support.design.widget.BaseTransientBottomBar
 import android.support.design.widget.Snackbar
 import android.view.View
-
-import org.schabi.newpipe.R
-
-import java.util.ArrayList
-import java.util.HashSet
-import java.util.concurrent.TimeUnit
-
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
-import org.schabi.newpipe.download.giga.get.DownloadManager
-import org.schabi.newpipe.download.giga.get.DownloadMission
+import org.schabi.newpipe.R
+import org.schabi.newpipe.download.background.DownloadMissionManager
+import org.schabi.newpipe.download.background.MissionControl
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 class DeleteDownloadManager internal constructor(activity: Activity) {
 
-    private val mView: View
-    private val mPendingMap: HashSet<String>
-    private val mDisposableList: MutableList<Disposable>
-    private var mDownloadManager: DownloadManager? = null
-    private val publishSubject = PublishSubject.create<DownloadMission>()
+    private val mView: View = activity.findViewById(android.R.id.content)
+    private val mPendingMap: HashSet<String> = HashSet()
+    private val mDisposableList: MutableList<Disposable> = ArrayList()
+    private var mDownloadMissionManager: DownloadMissionManager? = null
+    private val publishSubject = PublishSubject.create<MissionControl>()
 
-    val undoObservable: Observable<DownloadMission>
+    val undoObservable: Observable<MissionControl>
         get() = publishSubject
 
-    init {
-        mPendingMap = HashSet()
-        mDisposableList = ArrayList()
-        mView = activity.findViewById(android.R.id.content)
+    operator fun contains(missionControl: MissionControl): Boolean {
+        return mPendingMap.contains(missionControl.mission.url)
     }
 
-    operator fun contains(mission: DownloadMission): Boolean {
-        return mPendingMap.contains(mission.url)
-    }
-
-    fun add(mission: DownloadMission) {
-        mPendingMap.add(mission.url)
+    fun add(missionControl: MissionControl) {
+        mPendingMap.add(missionControl.mission.url)
 
         if (mPendingMap.size == 1) {
-            showUndoDeleteSnackbar(mission)
+            showUndoDeleteSnackbar(missionControl)
         }
     }
 
-    fun setDownloadManager(downloadManager: DownloadManager) {
-        mDownloadManager = downloadManager
+    fun setDownloadManager(downloadManager: DownloadMissionManager) {
+        mDownloadMissionManager = downloadManager
 
         if (mPendingMap.size < 1) return
 
@@ -82,17 +72,17 @@ class DeleteDownloadManager internal constructor(activity: Activity) {
 
         val url = mPendingMap.iterator().next()
 
-        for (i in 0 until mDownloadManager!!.count) {
-            val mission = mDownloadManager!!.getMission(i)
-            if (url == mission.url) {
-                showUndoDeleteSnackbar(mission)
+        for (i in 0 until mDownloadMissionManager!!.count) {
+            val missionControl = mDownloadMissionManager!!.getMission(i)
+            if (url == missionControl.mission.url) {
+                showUndoDeleteSnackbar(missionControl)
                 break
             }
         }
     }
 
-    private fun showUndoDeleteSnackbar(mission: DownloadMission) {
-        val snackbar = Snackbar.make(mView, mission.name, Snackbar.LENGTH_INDEFINITE)
+    private fun showUndoDeleteSnackbar(missionControl: MissionControl) {
+        val snackbar = Snackbar.make(mView, missionControl.mission.name, Snackbar.LENGTH_INDEFINITE)
         val disposable = Observable.timer(3, TimeUnit.SECONDS)
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .subscribe { l -> snackbar.dismiss() }
@@ -100,8 +90,8 @@ class DeleteDownloadManager internal constructor(activity: Activity) {
         mDisposableList.add(disposable)
 
         snackbar.setAction(R.string.undo) { v ->
-            mPendingMap.remove(mission.url)
-            publishSubject.onNext(mission)
+            mPendingMap.remove(missionControl.mission.url)
+            publishSubject.onNext(missionControl)
             disposable.dispose()
             snackbar.dismiss()
         }
@@ -109,11 +99,11 @@ class DeleteDownloadManager internal constructor(activity: Activity) {
         snackbar.addCallback(object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
             override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
                 if (!disposable.isDisposed) {
-                    Completable.fromAction { deletePending(mission) }
+                    Completable.fromAction { deletePending(missionControl) }
                             .subscribeOn(Schedulers.io())
                             .subscribe()
                 }
-                mPendingMap.remove(mission.url)
+                mPendingMap.remove(missionControl.mission.url)
                 snackbar.removeCallback(this)
                 mDisposableList.remove(disposable)
                 showUndoDeleteSnackbar()
@@ -127,23 +117,23 @@ class DeleteDownloadManager internal constructor(activity: Activity) {
         if (mPendingMap.size < 1) return
 
         val idSet = HashSet<Int>()
-        for (i in 0 until mDownloadManager!!.count) {
-            if (contains(mDownloadManager!!.getMission(i))) {
+        for (i in 0 until mDownloadMissionManager!!.count) {
+            if (contains(mDownloadMissionManager!!.getMission(i))) {
                 idSet.add(i)
             }
         }
 
         for (id in idSet) {
-            mDownloadManager!!.deleteMission(id)
+            mDownloadMissionManager!!.deleteMission(id)
         }
 
         mPendingMap.clear()
     }
 
-    private fun deletePending(mission: DownloadMission) {
-        for (i in 0 until mDownloadManager!!.count) {
-            if (mission.url == mDownloadManager!!.getMission(i).url) {
-                mDownloadManager!!.deleteMission(i)
+    private fun deletePending(missionControl: MissionControl) {
+        for (i in 0 until mDownloadMissionManager!!.count) {
+            if (missionControl.mission.url == mDownloadMissionManager!!.getMission(i).mission.url) {
+                mDownloadMissionManager!!.deleteMission(i)
                 break
             }
         }
@@ -151,6 +141,6 @@ class DeleteDownloadManager internal constructor(activity: Activity) {
 
     companion object {
 
-        private val KEY_STATE = "delete_manager_state"
+        private const val KEY_STATE = "delete_manager_state"
     }
 }

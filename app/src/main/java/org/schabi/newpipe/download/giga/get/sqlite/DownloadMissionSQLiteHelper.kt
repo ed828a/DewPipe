@@ -36,15 +36,15 @@ class DownloadMissionSQLiteHelper internal constructor(context: Context) : SQLit
         internal const val MISSIONS_TABLE_NAME = "download_missions"
 
         /**
-         * The key to the directory location of the mission
+         * The key to the directory location of the missionControl
          */
         internal const val KEY_LOCATION = "location"
         /**
-         * The key to the url of a mission
+         * The key to the url of a missionControl
          */
         internal const val KEY_URL = "url"
         /**
-         * The key to the name of a mission
+         * The key to the name of a missionControl
          */
         internal const val KEY_NAME = "name"
 
@@ -67,9 +67,9 @@ class DownloadMissionSQLiteHelper internal constructor(context: Context) : SQLit
                 " UNIQUE(" + KEY_LOCATION + ", " + KEY_NAME + "));"
 
         /**
-         * Returns all values of the download mission as ContentValues.
+         * Returns all values of the download missionControl as ContentValues.
          *
-         * @param downloadMission the download mission
+         * @param downloadMission the download missionControl
          * @return the content values
          */
         fun getValuesOfMission(downloadMission: DownloadMission): ContentValues {

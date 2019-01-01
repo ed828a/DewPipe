@@ -9,7 +9,7 @@ import java.net.URL
 // private int mId;
 class DownloadRunnableFallback(private val mMission: DownloadMission?) : Runnable {
     init {
-        if (mMission == null) throw NullPointerException("mission is null")
+        if (mMission == null) throw NullPointerException("missionControl is null")
     }
 
     override fun run() {

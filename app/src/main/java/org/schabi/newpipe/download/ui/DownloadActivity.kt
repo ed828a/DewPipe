@@ -22,9 +22,9 @@ class DownloadActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Service
-        val i = Intent()
-        i.setClass(this, DownloadManagerService::class.java)
-        startService(i)
+        val intent = Intent()
+        intent.setClass(this, DownloadManagerService::class.java)
+        startService(intent)
 
         ThemeHelper.setTheme(this)
         super.onCreate(savedInstanceState)

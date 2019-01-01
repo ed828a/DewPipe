@@ -35,6 +35,6 @@ object FilenameUtils {
      * @return the filename
      */
     private fun createFilename(title: String, invalidCharacters: Pattern, replacementChar: String): String {
-        return title.replace(invalidCharacters.pattern().toRegex(), replacementChar)
+        return title.replace(invalidCharacters.pattern(), replacementChar)
     }
 }

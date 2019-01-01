@@ -17,7 +17,9 @@ class DownloadRun(private val missionControl: MissionControl, private val mId: I
         var retry = missionControl.recovered
         var position = missionControl.getPosition(mId)
 
-        Log.d(TAG, "${mId.toString()}:default pos $position, -- recovered: ${missionControl.recovered}")
+        Log.d(TAG, "run() called, file located: ${missionControl.mission.location}/${missionControl.mission.name}")
+
+        Log.d(TAG, "$mId:default pos $position, -- recovered: ${missionControl.recovered}")
 
         while (missionControl.errCode == -1 && missionControl.running && position < missionControl.blocks) {
 
@@ -74,7 +76,7 @@ class DownloadRun(private val missionControl: MissionControl, private val mId: I
                     missionControl.errCode = MissionControl.ERROR_SERVER_UNSUPPORTED
                     notifyError()
 
-                    Log.e(TAG, mId.toString() + ":Unsupported " + urlConnection.responseCode)
+                    Log.e(TAG, "${mId.toString()}:Unsupported ${urlConnection.responseCode}")
 
                     break
                 }
@@ -109,20 +111,20 @@ class DownloadRun(private val missionControl: MissionControl, private val mId: I
 
                 notifyProgress((-total).toLong())
 
-                Log.d(TAG, mId.toString() + ":position " + position + " retrying", e)
+                Log.d(TAG, "$mId:position $position retrying", e)
             }
         }
 
         Log.d(TAG, "thread $mId exited main loop")
 
+        if (!missionControl.running) {
+            Log.d(TAG, "The missionControl has been paused. Passing.")
+        }
+
         if (missionControl.errCode == -1 && missionControl.running) {
             Log.d(TAG, "no error has happened, notifying")
 
             notifyFinished()
-        }
-
-        if (!missionControl.running) {
-            Log.d(TAG, "The mission has been paused. Passing.")
         }
     }
 

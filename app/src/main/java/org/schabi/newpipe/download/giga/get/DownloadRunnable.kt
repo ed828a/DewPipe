@@ -15,7 +15,7 @@ import org.schabi.newpipe.BuildConfig.DEBUG
 class DownloadRunnable(private val mMission: DownloadMission?, private val mId: Int) : Runnable {
 
     init {
-        if (mMission == null) throw NullPointerException("mission is null")
+        if (mMission == null) throw NullPointerException("missionControl is null")
     }
 
     override fun run() {
@@ -145,7 +145,7 @@ class DownloadRunnable(private val mMission: DownloadMission?, private val mId: 
         }
 
         if (DEBUG && !mMission.running) {
-            Log.d(TAG, "The mission has been paused. Passing.")
+            Log.d(TAG, "The missionControl has been paused. Passing.")
         }
     }
 

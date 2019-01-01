@@ -141,6 +141,7 @@ class MissionControl (val mission: MissionEntry): Serializable{
 
         finishCount++
 
+        Log.d(TAG, "finishCount: $finishCount -- threadCount: $threadCount")
         if (finishCount == threadCount) {
             onFinish()
         }
@@ -163,11 +164,12 @@ class MissionControl (val mission: MissionEntry): Serializable{
 
         for (ref in mListeners) {
             val listener = ref.get()
-            if (listener != null) {
-                MissionControlListener.handlerStore[listener]!!.post {
-                    listener.onFinish(this@MissionControl)
-                }
-            }
+//            if (listener != null) {
+//                MissionControlListener.handlerStore[listener]!!.post {
+//                    listener.onFinish(this@MissionControl)
+//                }
+//            }
+            listener?.onFinish(this@MissionControl)
         }
     }
 

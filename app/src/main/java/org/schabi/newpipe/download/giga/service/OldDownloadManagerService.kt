@@ -52,9 +52,11 @@ class OldDownloadManagerService : Service() {
         }
 
         mBinder = DMBinder()
+
         if (mDataSource == null) {
             mDataSource = SQLiteDownloadDataSource(this)
         }
+
         if (mManager == null) {
             val paths = ArrayList<String>(2)
             paths.add(NewPipeSettings.getVideoDownloadPath(this))

@@ -12,13 +12,13 @@ import android.support.v7.widget.RecyclerView
 import android.view.*
 import io.reactivex.disposables.Disposable
 import org.schabi.newpipe.R
-import org.schabi.newpipe.download.ui.DeleteDownloadManager
-import org.schabi.newpipe.download.giga.get.DownloadManager
-import org.schabi.newpipe.download.giga.service.DownloadManagerService
+import org.schabi.newpipe.download.background.DownloadMissionManager
 import org.schabi.newpipe.download.giga.gigaui.adapter.MissionAdapter
+import org.schabi.newpipe.download.giga.service.DownloadManagerService
+import org.schabi.newpipe.download.ui.DeleteDownloadManager
 
 abstract class MissionsFragment : Fragment() {
-    private var mDownloadManager: DownloadManager? = null
+    private var mDownloadManager: DownloadMissionManager? = null
     private var mBinder: DownloadManagerService.DMBinder? = null
 
     private var mPrefs: SharedPreferences? = null
@@ -163,5 +163,5 @@ abstract class MissionsFragment : Fragment() {
         mPrefs!!.edit().putBoolean("linear", mLinear).apply()
     }
 
-    protected abstract fun setupDownloadManager(binder: DownloadManagerService.DMBinder): DownloadManager
+    protected abstract fun setupDownloadManager(binder: DownloadManagerService.DMBinder): DownloadMissionManager
 }

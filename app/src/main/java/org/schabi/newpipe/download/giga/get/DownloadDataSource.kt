@@ -13,26 +13,26 @@ interface DownloadDataSource {
     fun loadMissions(): List<DownloadMission>
 
     /**
-     * Add a download mission to the storage
+     * Add a download missionControl to the storage
      *
-     * @param downloadMission the download mission to add
-     * @return the identifier of the mission
+     * @param downloadMission the download missionControl to add
+     * @return the identifier of the missionControl
      */
     fun addMission(downloadMission: DownloadMission?)
 
     /**
-     * Update a download mission which exists in the storage
+     * Update a download missionControl which exists in the storage
      *
-     * @param downloadMission the download mission to update
-     * @throws IllegalArgumentException if the mission was not added to storage
+     * @param downloadMission the download missionControl to update
+     * @throws IllegalArgumentException if the missionControl was not added to storage
      */
     fun updateMission(downloadMission: DownloadMission?)
 
 
     /**
-     * Delete a download mission
+     * Delete a download missionControl
      *
-     * @param downloadMission the mission to delete
+     * @param downloadMission the missionControl to delete
      */
     fun deleteMission(downloadMission: DownloadMission?)
 }

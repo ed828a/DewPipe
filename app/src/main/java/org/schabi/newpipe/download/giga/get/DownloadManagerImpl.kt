@@ -44,7 +44,7 @@ class DownloadManagerImpl : DownloadManager {
         if (existingMission != null) {
             // Already downloaded or downloading
             if (existingMission.finished) {
-                // Overwrite mission
+                // Overwrite missionControl
                 deleteMission(mMissions.indexOf(existingMission))
             } else {
                 // Rename file (?)
@@ -187,11 +187,11 @@ class DownloadManagerImpl : DownloadManager {
     }
 
     /**
-     * Get a mission by its location and name
+     * Get a missionControl by its location and name
      *
      * @param location the location
      * @param name     the name
-     * @return the mission or null if no such mission exists
+     * @return the missionControl or null if no such missionControl exists
      */
     private fun getMissionByLocation(location: String, name: String): DownloadMission? {
         for (mission in mMissions) {
@@ -217,7 +217,7 @@ class DownloadManagerImpl : DownloadManager {
 
                 if (mission.length <= 0) {
                     mission.errCode = DownloadMission.ERROR_SERVER_UNSUPPORTED
-                    //mission.notifyError(DownloadMission.ERROR_SERVER_UNSUPPORTED);
+                    //missionControl.notifyError(DownloadMission.ERROR_SERVER_UNSUPPORTED);
                     return
                 }
 
@@ -276,13 +276,13 @@ class DownloadManagerImpl : DownloadManager {
     }
 
     /**
-     * Waits for mission to finish to add it to the [.mDownloadDataSource]
+     * Waits for missionControl to finish to add it to the [.mDownloadDataSource]
      */
     private inner class MissionListener(private val mMission: DownloadMission?) : DownloadMission.MissionListener {
 
         init {
-            if (mMission == null) throw NullPointerException("mission is null")
-        }// Could the mission be passed in onFinish()?
+            if (mMission == null) throw NullPointerException("missionControl is null")
+        }// Could the missionControl be passed in onFinish()?
 
         override fun onProgressUpdate(downloadMission: DownloadMission, done: Long, total: Long) {}
 
@@ -297,7 +297,7 @@ class DownloadManagerImpl : DownloadManager {
         private val TAG = DownloadManagerImpl::class.java.simpleName
 
         /**
-         * Sort a list of mission by its timestamp. Oldest first
+         * Sort a list of missionControl by its timestamp. Oldest first
          * @param missions the missions to sort
          */
         internal fun sortByTimestamp(missions: List<DownloadMission>) {

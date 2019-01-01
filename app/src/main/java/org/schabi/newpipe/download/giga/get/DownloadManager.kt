@@ -12,42 +12,42 @@ interface DownloadManager {
     val count: Int
 
     /**
-     * Start a new download mission
+     * Start a new download missionControl
      *
      * @param url      the url to download
      * @param location the location
      * @param name     the name of the file to create
      * @param isAudio  true if the download is an audio file
-     * @param threads  the number of threads maximal used to download chunks of the file.    @return the identifier of the mission.
+     * @param threads  the number of threads maximal used to download chunks of the file.    @return the identifier of the missionControl.
      */
     fun startMission(url: String, location: String, name: String, isAudio: Boolean, threads: Int): Int
 
     /**
-     * Resume the execution of a download mission.
+     * Resume the execution of a download missionControl.
      *
-     * @param id the identifier of the mission to resume.
+     * @param id the identifier of the missionControl to resume.
      */
     fun resumeMission(id: Int)
 
     /**
-     * Pause the execution of a download mission.
+     * Pause the execution of a download missionControl.
      *
-     * @param id the identifier of the mission to pause.
+     * @param id the identifier of the missionControl to pause.
      */
     fun pauseMission(id: Int)
 
     /**
-     * Deletes the mission from the downloaded list but keeps the downloaded file.
+     * Deletes the missionControl from the downloaded list but keeps the downloaded file.
      *
-     * @param id The mission identifier
+     * @param id The missionControl identifier
      */
     fun deleteMission(id: Int)
 
     /**
-     * Get the download mission by its identifier
+     * Get the download missionControl by its identifier
      *
-     * @param id the identifier of the download mission
-     * @return the download mission or null if the mission doesn't exist
+     * @param id the identifier of the download missionControl
+     * @return the download missionControl or null if the missionControl doesn't exist
      */
     fun getMission(id: Int): DownloadMission
 

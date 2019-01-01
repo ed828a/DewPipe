@@ -19,8 +19,6 @@ import org.schabi.newpipe.download.background.DownloadMissionManager
 import org.schabi.newpipe.download.background.DownloadMissionManagerImpl
 import org.schabi.newpipe.download.background.MissionControl
 import org.schabi.newpipe.download.background.MissionControlListener
-import org.schabi.newpipe.download.giga.get.DownloadDataSource
-import org.schabi.newpipe.download.giga.get.sqlite.SQLiteDownloadDataSource
 import org.schabi.newpipe.download.ui.DownloadActivity
 import org.schabi.newpipe.settings.NewPipeSettings
 import java.util.*
@@ -31,8 +29,6 @@ class DownloadManagerService : Service() {
     private var mNotification: Notification? = null
     private var mHandler: Handler? = null
     private var mLastTimeStamp = System.currentTimeMillis()
-    private var mDataSource: DownloadDataSource? = null
-
 
     private val missionListener = MissionListener()
 
@@ -51,9 +47,7 @@ class DownloadManagerService : Service() {
         }
 
         mBinder = DMBinder()
-        if (mDataSource == null) {
-            mDataSource = SQLiteDownloadDataSource(this)
-        }
+
         if (mMissionManager == null) {
             val paths = ArrayList<String>(2)
             paths.add(NewPipeSettings.getVideoDownloadPath(this))
@@ -142,7 +136,10 @@ class DownloadManagerService : Service() {
             mMissionManager!!.pauseMission(i)
         }
 
+        (mMissionManager as DownloadMissionManagerImpl).dispose()
+
         stopForeground(true)
+
     }
 
     override fun onBind(intent: Intent): IBinder? {

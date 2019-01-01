@@ -10,6 +10,7 @@ import android.util.Log
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito
 import org.schabi.newpipe.database.AppDatabase
 import org.schabi.newpipe.download.background.DownloadMissionManagerImpl
 import org.schabi.newpipe.download.background.MissionControl
@@ -19,7 +20,6 @@ import java.io.File
 import java.io.IOException
 import java.io.RandomAccessFile
 import java.util.*
-import org.mockito.*
 
 /**
  * Created by Edward on 12/30/2018.
@@ -45,7 +45,7 @@ class DownloadMissionManagerImplTest {
             missions.add(generateFinishedDownloadMissionControl())
         }
         Log.d(TAG, "context = $context")
-        downloadMissionManager = DownloadMissionManagerImpl(ArrayList(), context, db)
+        downloadMissionManager = DownloadMissionManagerImpl(ArrayList(), context)
 
         Looper.prepare()
     }
@@ -54,7 +54,7 @@ class DownloadMissionManagerImplTest {
     @Test
     fun testConstructor() {
         Log.d(TAG, "context = $context")
-        DownloadMissionManagerImpl(ArrayList(), context, db)
+        DownloadMissionManagerImpl(ArrayList(), context)
     }
 
 
@@ -97,7 +97,7 @@ class DownloadMissionManagerImplTest {
             downloadDataSource.addMission(missionEntry)
         }
 
-        downloadMissionManager = DownloadMissionManagerImpl(ArrayList(), context, db)
+        downloadMissionManager = DownloadMissionManagerImpl(ArrayList(), context)
 
         Assert.assertEquals(0, downloadMissionManager.count.toLong())
     }
@@ -121,14 +121,14 @@ class DownloadMissionManagerImplTest {
     @Test
     fun resumeMissionTest() {
         var mission = missions[0]
-//        mission = Mockito.spy(mission) // we have a problem here.
+//        missionControl = Mockito.spy(missionControl) // we have a problem here.
         mission.running = true
-//        Mockito.verify(mission, Mockito.never()).start()
+//        Mockito.verify(missionControl, Mockito.never()).start()
         downloadMissionManager.resumeMission(0)
-//        Mockito.verify(mission, Mockito.never()).start()
+//        Mockito.verify(missionControl, Mockito.never()).start()
         mission.running = false
         downloadMissionManager.resumeMission(0)
-//        Mockito.verify(mission, Mockito.times(1)).start()
+//        Mockito.verify(missionControl, Mockito.times(1)).start()
     }
 
     @Test
@@ -161,8 +161,8 @@ class DownloadMissionManagerImplTest {
     fun getMission() {
         val missionFromDownloadMissionManager = downloadMissionManager.getMission(0)
         Log.d(TAG, "missionFromDMM: $missionFromDownloadMissionManager")
-//        Assert.assertSame(missions[0], downloadMissionManager.getMission(0))
-//        Assert.assertSame(missions[1], downloadMissionManager.getMission(1))
+//        Assert.assertSame(missions[0], downloadMissionManager.getMissionControl(0))
+//        Assert.assertSame(missions[1], downloadMissionManager.getMissionControl(1))
     }
 
     @Test

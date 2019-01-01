@@ -89,7 +89,7 @@ class DownloadManagerImplTest {
         assertEquals(50, downloadManager!!.count.toLong())
 
         for (i in 0..49) {
-            assertMissionEquals("mission $i", missions[50 - 1 - i], downloadManager!!.getMission(i))
+            assertMissionEquals("missionControl $i", missions[50 - 1 - i], downloadManager!!.getMission(i))
         }
     }
 

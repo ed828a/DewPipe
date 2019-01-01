@@ -227,8 +227,8 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
     // Streams Spinner Listener
     ///////////////////////////////////////////////////////////////////////////
 
-    override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-        if (DEBUG) Log.d(TAG, "onItemSelected() called with: parent = [$parent], view = [$view], position = [$position], id = [$id]")
+    override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+        Log.d(TAG, "onItemSelected() called with: parent = [$parent], view = [$view], position = [$position], id = [$id]")
         when (radioVideoAudioGroup!!.checkedRadioButtonId) {
             R.id.audio_button -> selectedAudioIndex = position
             R.id.video_button -> selectedVideoIndex = position
@@ -276,6 +276,8 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
         var fileName = nameEditText!!.text.toString().trim { it <= ' ' }
         if (fileName.isEmpty()) fileName = FilenameUtils.createFilename(context!!, currentInfo.name)
 
+        Log.d(TAG, "fileName= $fileName, currentInfo.name= ${currentInfo.name}")
+
         val isAudio = radioVideoAudioGroup!!.checkedRadioButtonId == R.id.audio_button
         if (isAudio) {
             stream = audioStreamsAdapter!!.getItem(selectedAudioIndex)
@@ -286,7 +288,7 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
         }
 
         val url = stream.getUrl()
-        fileName += "" + stream.getFormat().getSuffix()
+        fileName += "." + stream.getFormat().getSuffix()
 
         DownloadManagerService.startMission(context, url, location, fileName, isAudio, threadsSeekBar!!.progress + 1)
         dialog.dismiss()

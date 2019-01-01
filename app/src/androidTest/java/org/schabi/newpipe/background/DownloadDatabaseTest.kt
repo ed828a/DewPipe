@@ -12,10 +12,7 @@ import org.junit.runner.RunWith
 import org.schabi.newpipe.database.AppDatabase
 import org.schabi.newpipe.download.downloadDB.DownloadDAO
 import org.schabi.newpipe.download.downloadDB.MissionEntry
-import org.schabi.newpipe.download.giga.get.DownloadMission
-import java.io.File
 import java.io.IOException
-import java.io.RandomAccessFile
 
 /**
  * Created by Edward on 12/30/2018.
@@ -50,7 +47,7 @@ class DownloadDatabaseTest {
                 "West Aust")
         for (i in 0 .. 49) {
             missionEntry.timestamp = System.currentTimeMillis() - i
-            missionEntry.name += i.toString()
+
             downloadDataSource.addMission(missionEntry)
         }
 
