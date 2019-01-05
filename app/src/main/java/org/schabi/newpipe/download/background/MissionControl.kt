@@ -164,11 +164,6 @@ class MissionControl (val mission: MissionEntry): Serializable{
 
         for (ref in mListeners) {
             val listener = ref.get()
-//            if (listener != null) {
-//                MissionControlListener.handlerStore[listener]!!.post {
-//                    listener.onFinish(this@MissionControl)
-//                }
-//            }
             listener?.onFinish(this@MissionControl)
         }
     }
@@ -254,12 +249,16 @@ class MissionControl (val mission: MissionEntry): Serializable{
     fun writeThisToFile() {
         if (!mWritingToFile) {
             mWritingToFile = true
-            object : Thread() {
-                override fun run() {
-                    doWriteThisToFile()
-                    mWritingToFile = false
-                }
-            }.start()
+//            object : Thread() {
+//                override fun run() {
+//                    doWriteThisToFile()
+//                    mWritingToFile = false
+//                }
+//            }.start()
+            Thread(Runnable {
+                doWriteThisToFile()
+                mWritingToFile = false
+            }).start()
         }
     }
 

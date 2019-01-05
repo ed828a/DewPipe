@@ -12,7 +12,7 @@ import org.schabi.newpipe.download.background.MissionControl
 /**
  * Created by Edward on 1/1/2019.
  */
-class DownloadMissionDataSourceImpl (val context: Context): DownloadMissionDataSource{
+class DownloadMissionDataSourceImpl(val context: Context) : DownloadMissionDataSource {
 
     private val downloadDb: AppDatabase = NewPipeDatabase.getInstance(context)
 
@@ -25,9 +25,11 @@ class DownloadMissionDataSourceImpl (val context: Context): DownloadMissionDataS
 
     override fun loadMissions(): Flowable<List<MissionControl>> {
         return Flowable.defer {
-            Flowable.just(downloadDb.downloadDAO().loadMissions().map {
-                MissionControl(it)
-            }).subscribeOn(Schedulers.io())
+            Flowable.just(
+                    downloadDb.downloadDAO().loadMissions()
+                            .map {
+                                MissionControl(it)
+                            }).subscribeOn(Schedulers.io())
         }
     }
 

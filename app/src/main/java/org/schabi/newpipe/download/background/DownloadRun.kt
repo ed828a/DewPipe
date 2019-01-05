@@ -18,7 +18,6 @@ class DownloadRun(private val missionControl: MissionControl, private val mId: I
         var position = missionControl.getPosition(mId)
 
         Log.d(TAG, "run() called, file located: ${missionControl.mission.location}/${missionControl.mission.name}")
-
         Log.d(TAG, "$mId:default pos $position, -- recovered: ${missionControl.recovered}")
 
         while (missionControl.errCode == -1 && missionControl.running && position < missionControl.blocks) {
@@ -29,12 +28,12 @@ class DownloadRun(private val missionControl: MissionControl, private val mId: I
             }
 
             if (retry) {
-                Log.d(TAG, mId.toString() + ":retry is true. Resuming at " + position)
+                Log.d(TAG, "$mId:retry is true. Resuming at $position")
             }
 
             // Wait for an unblocked position
             while (!retry && position < missionControl.blocks && missionControl.isBlockPreserved(position)) {
-                Log.d(TAG, mId.toString() + ":position " + position + " preserved, passing")
+                Log.d(TAG, "$mId:position $position preserved, passing")
 
                 position++
             }
@@ -45,7 +44,7 @@ class DownloadRun(private val missionControl: MissionControl, private val mId: I
                 break
             }
 
-            Log.d(TAG, "${mId.toString()}:preserving position $position")
+            Log.d(TAG, "$mId:preserving position $position")
 
             missionControl.preserveBlock(position)
             missionControl.setPosition(mId, position)

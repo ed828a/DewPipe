@@ -125,7 +125,9 @@ class DownloadMissionManagerImpl(searchLocations: Collection<String>,
                 .subscribe {
                     finishedMissions.addAll(it)
                 }
-        compositeDisposable.add(disposable)
+
+//        compositeDisposable.add(disposable)
+        disposable.dispose()
 
         // Ensure its sorted
         sortByTimestamp(finishedMissions)
@@ -142,7 +144,8 @@ class DownloadMissionManagerImpl(searchLocations: Collection<String>,
                             Log.d(TAG, "removed one missionEntry from Database")
                         }
 
-                compositeDisposable.add(disposable)
+//                compositeDisposable.add(disposable)
+                disposable.dispose()
             } else {
                 missionControl.length = downloadedFile.length()
                 missionControl.finished = true
@@ -157,10 +160,10 @@ class DownloadMissionManagerImpl(searchLocations: Collection<String>,
         val file = File(location)
 
         if (file.exists() && file.isDirectory) {
-            val subs = file.listFiles()
+            val subs = file.listFiles()  // get the list of files under the Directory
 
             if (subs == null) {
-                Log.e(TAG, "listFiles() returned null")
+                Log.e(TAG, "listFiles() returned null, no files under the directory")
                 return
             }
 
@@ -197,6 +200,7 @@ class DownloadMissionManagerImpl(searchLocations: Collection<String>,
 
         var mc: MissionControl
 
+        // looking for the right index
         if (mMissionControls.size > 0) {
             do {
                 mc = mMissionControls[++index]
@@ -271,6 +275,8 @@ class DownloadMissionManagerImpl(searchLocations: Collection<String>,
 
                 File(missionControl.mission.location).mkdirs()
                 File("${missionControl.mission.location}/${missionControl.mission.name}").createNewFile()
+                Log.d(TAG, "${missionControl.mission.name} file has been created.")
+
                 val af = RandomAccessFile("${missionControl.mission.location}/${missionControl.mission.name}", "rw")
                 af.setLength(missionControl.length)
                 af.close()
