@@ -76,6 +76,8 @@ class DownloadManagerService : Service() {
                 .setContentTitle(getString(R.string.msg_running))
                 .setContentText(getString(R.string.msg_running_detail))
 
+        builder.setProgress(100, 0, false)
+
         mNotification = builder.build()
 
         val thread = HandlerThread("ServiceMessenger")
@@ -92,6 +94,10 @@ class DownloadManagerService : Service() {
                                 runningCount++
                             }
                         }
+                        val progress = msg.arg1
+                        Log.d(TAG, "progress = ${msg.arg1}")
+                        builder.setProgress(100, progress, false)
+                        mNotification = builder.build()
                         updateState(runningCount)
                     }
                 }
@@ -159,8 +165,12 @@ class DownloadManagerService : Service() {
         return mBinder
     }
 
-    private fun postUpdateMessage() {
-        mHandler!!.sendEmptyMessage(UPDATE_MESSAGE)
+    private fun postUpdateMessage(progress: Int) {
+        val message = Message()
+        message.what = UPDATE_MESSAGE
+        message.arg1 = progress
+        mHandler?.sendMessage(message)
+//        mHandler!!.sendEmptyMessage(UPDATE_MESSAGE)
     }
 
     private fun updateState(runningCount: Int) {
@@ -177,18 +187,21 @@ class DownloadManagerService : Service() {
             val now = System.currentTimeMillis()
             val delta = now - mLastTimeStamp
             if (delta > 2000) {
-                postUpdateMessage()
+                Log.d(TAG, "done = $done, total = $total")
+                val progress = (done * 100 / total).toInt()
+                Log.d(TAG, "progress = $progress")
+                postUpdateMessage(progress)
                 mLastTimeStamp = now
             }
         }
 
         override fun onFinish(missionControl: MissionControl) {
-            postUpdateMessage()
+            postUpdateMessage(101)
             notifyMediaScanner(missionControl)
         }
 
         override fun onError(missionControl: MissionControl, errCode: Int) {
-            postUpdateMessage()
+            postUpdateMessage(0)
         }
     }
 
@@ -199,13 +212,14 @@ class DownloadManagerService : Service() {
             get() = mMissionManager
 
         fun onMissionAdded(missionControl: MissionControl) {
+            Log.d(TAG, "missionControl.mission.done = ${missionControl.mission.done} /  missionControl.length = ${ missionControl.length}")
             missionControl.addListener(missionListener)
-            postUpdateMessage()
+            postUpdateMessage(0)
         }
 
         fun onMissionRemoved(missionControl: MissionControl) {
             missionControl.removeListener(missionListener)
-            postUpdateMessage()
+            postUpdateMessage(0)
         }
     }
 

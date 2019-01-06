@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Handler
 import android.util.Log
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Action
 import io.reactivex.observers.DisposableCompletableObserver
@@ -298,12 +299,11 @@ class DownloadMissionManagerImpl(searchLocations: Collection<String>,
     /**
      * Waits for missionControl to finish to add it to the [.mDownloadDataSource]
      */
-    private inner class MissionControlListener(
-            private val mMissionControl: MissionControl
-    ) : org.schabi.newpipe.download.background.MissionControlListener {
+    private inner class MissionControlListener( private val mMissionControl: MissionControl) : org.schabi.newpipe.download.background.MissionControlListener {
 
         override fun onFinish(missionControl: MissionControl) {
             val disposable = mDownloadDataSource.addMission(mMissionControl)
+                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribeWith(object: DisposableCompletableObserver(){
                         override fun onComplete() {
                             Log.d(TAG, "one mission has been added into Database")

@@ -5,6 +5,7 @@ import android.os.Looper
 import android.util.Log
 import org.schabi.newpipe.BuildConfig
 import org.schabi.newpipe.download.downloadDB.MissionEntry
+import org.schabi.newpipe.download.giga.get.DownloadMission
 import org.schabi.newpipe.download.util.Utility
 import java.io.File
 import java.io.ObjectInputStream
@@ -20,7 +21,7 @@ import java.util.HashMap
 class MissionControl (val mission: MissionEntry): Serializable{
 
     /**
-     * Number of blocks the size of [DownloadManager.BLOCK_SIZE]
+     * Number of blocks with the size of [DownloadMissionManager.BLOCK_SIZE]
      */
     var blocks: Long = 0
 
@@ -29,9 +30,12 @@ class MissionControl (val mission: MissionEntry): Serializable{
      */
     var length: Long = 0
 
-    var threadCount = 3
+    var threadCount = THREAD_COUNT
     var finishCount: Int = 0
+    // store the state of block: reserved or not
     private val blockState: MutableMap<Long, Boolean> = HashMap()
+    // store the download position of a thread
+    private val threadPositions = ArrayList<Long>()
     var running: Boolean = false
     var finished: Boolean = false
     var fallback: Boolean = false
@@ -44,7 +48,7 @@ class MissionControl (val mission: MissionEntry): Serializable{
     @Transient
     private var mWritingToFile: Boolean = false
 
-    private val threadPositions = ArrayList<Long>()
+
 
     /**
      * Get the path of the meta file
@@ -77,6 +81,10 @@ class MissionControl (val mission: MissionEntry): Serializable{
             false
     }
 
+    /**
+     * set blockState[block] to true
+     * @param block the block id
+     */
     fun preserveBlock(block: Long) {
         checkBlock(block)
         synchronized(blockState) {
@@ -126,6 +134,7 @@ class MissionControl (val mission: MissionEntry): Serializable{
             val listener = ref.get()
             if (listener != null) {
                 MissionControlListener.handlerStore[listener]!!.post {
+                    Log.d(TAG, "mission.done = ${mission.done}, length = $length ")
                     listener.onProgressUpdate(this@MissionControl, mission.done, length)
                 }
             }
@@ -165,6 +174,9 @@ class MissionControl (val mission: MissionEntry): Serializable{
         for (ref in mListeners) {
             val listener = ref.get()
             listener?.onFinish(this@MissionControl)
+            if (listener != null) {
+                MissionControlListener.handlerStore[listener]!!.post { listener.onFinish(this@MissionControl) }
+            }
         }
     }
 
@@ -286,9 +298,9 @@ class MissionControl (val mission: MissionEntry): Serializable{
 
         private val TAG = MissionControl::class.java.simpleName
 
-        val ERROR_SERVER_UNSUPPORTED = 206
-        val ERROR_UNKNOWN = 233
-
+        const val ERROR_SERVER_UNSUPPORTED = 206
+        const val ERROR_UNKNOWN = 233
+        private const val THREAD_COUNT = 3
         private val NO_IDENTIFIER = -1
     }
 

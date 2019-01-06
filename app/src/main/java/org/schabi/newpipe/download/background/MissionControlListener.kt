@@ -8,7 +8,10 @@ import java.util.*
  */
 
 interface MissionControlListener {
-
+    /**
+     * @param done: the progress
+     * @param total: the file length
+     */
     fun onProgressUpdate(missionControl: MissionControl, done: Long, total: Long)
 
     fun onFinish(missionControl: MissionControl)

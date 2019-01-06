@@ -13,7 +13,7 @@ import org.schabi.newpipe.download.downloadDB.MissionEntry.Companion.TABLE_NAME
 data class MissionEntry(
         @field:ColumnInfo(name = FILE_NAME) var name: String = "",    // The filename
         @field:ColumnInfo(name = URL) var url: String = "",           // The url of the file to download
-        @field:ColumnInfo(name = LOCATION) var location: String = "", // The directory to store the download
+        @field:ColumnInfo(name = LOCATION) var location: String = "", // The directory to store the downloaded
         @field: ColumnInfo(name = DONE) var done: Long = 0,           // Number of bytes downloaded
         @field:ColumnInfo(name = TIMESTAMP) var timestamp: Long = 0
 ){

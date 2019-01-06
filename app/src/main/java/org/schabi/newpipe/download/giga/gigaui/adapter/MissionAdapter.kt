@@ -133,6 +133,9 @@ class MissionAdapter(private val mContext: Activity?,
                 holder.status.setText(R.string.msg_error)
             } else {
                 val progress = holder.missionControl!!.mission.done.toFloat() / holder.missionControl!!.length
+
+                Log.d(TAG, "Thread.currentThread().name = ${Thread.currentThread().name}, progress = $progress")
+
                 holder.status.text = String.format(Locale.US, "%.2f%%", progress * 100)
                 holder.progress!!.setProgress(progress)
             }
