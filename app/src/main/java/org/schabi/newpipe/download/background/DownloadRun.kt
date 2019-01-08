@@ -1,6 +1,7 @@
 package org.schabi.newpipe.download.background
 
 import android.util.Log
+import org.schabi.newpipe.download.background.MissionControl.Companion.NO_ERROR
 import java.io.RandomAccessFile
 import java.net.HttpURLConnection
 import java.net.URL
@@ -10,6 +11,8 @@ import java.net.URL
  *
  * Runnable to download blocks of a file until the file is completely downloaded,
  * an error occurs or the process is stopped.
+ *
+ * @param mId: the thread place among the threads, i.e: 0 - the first thread, 1 - the second thread, 2 - the third thread.
  */
 class DownloadRun(private val missionControl: MissionControl, private val mId: Int) : Runnable {
 
@@ -17,10 +20,10 @@ class DownloadRun(private val missionControl: MissionControl, private val mId: I
         var retry = missionControl.recovered
         var position = missionControl.getPosition(mId)
 
-        Log.d(TAG, "run() called, file located: ${missionControl.mission.location}/${missionControl.mission.name}")
-        Log.d(TAG, "$mId:default pos $position, -- recovered: ${missionControl.recovered}")
+        Log.d(TAG, "DownloadRun run() called, file located: ${missionControl.mission.location}/${missionControl.mission.name}")
+        Log.d(TAG, "Thread$mId: default position $position, -- recovered: ${missionControl.recovered}")
 
-        while (missionControl.errCode == -1 && missionControl.running && position < missionControl.blocks) {
+        while (missionControl.errCode == NO_ERROR && missionControl.running && position < missionControl.blocks) {
 
             if (Thread.currentThread().isInterrupted) {
                 missionControl.pause()
@@ -28,10 +31,12 @@ class DownloadRun(private val missionControl: MissionControl, private val mId: I
             }
 
             if (retry) {
-                Log.d(TAG, "$mId:retry is true. Resuming at $position")
+                Log.d(TAG, "Thread No.$mId is retrying. Resuming at $position")
             }
 
             // Wait for an unblocked position
+            // double check the status of the block at $position, if preserved, it means the block has been downloaded.
+            // otherwise, download this block
             while (!retry && position < missionControl.blocks && missionControl.isBlockPreserved(position)) {
                 Log.d(TAG, "$mId:position $position preserved, passing")
 
@@ -44,11 +49,12 @@ class DownloadRun(private val missionControl: MissionControl, private val mId: I
                 break
             }
 
-            Log.d(TAG, "$mId:preserving position $position")
+            Log.d(TAG, "Thread $mId : preserving block No.$position")
 
             missionControl.preserveBlock(position)
             missionControl.setPosition(mId, position)
 
+            // from start to end is just a BLOCK_SIZE  data
             var start = position * DownloadMissionManager.BLOCK_SIZE
             var end = start + DownloadMissionManager.BLOCK_SIZE - 1
 
@@ -63,20 +69,19 @@ class DownloadRun(private val missionControl: MissionControl, private val mId: I
                 urlConnection = url.openConnection() as HttpURLConnection
                 urlConnection.setRequestProperty("Range", "bytes=$start-$end")
 
-                Log.d(TAG, "${mId.toString()}:${urlConnection.getRequestProperty("Range")}, -- Content-Length = ${urlConnection.contentLength} Code:${urlConnection.responseCode}")
+                Log.d(TAG, "Thread$mId is downloading:${urlConnection.getRequestProperty("Range")}, -- Content-Length = ${urlConnection.contentLength} Code:${urlConnection.responseCode}")
 
                 /**
                  * 2×× SUCCESS
                  * 206 PARTIAL CONTENT: The server is successfully fulfilling a range request for the target resource
-                 * by transferring one or more parts of the selected representation that correspond
-                 * to the satisfiable ranges found in the request's Range header field
+                 * by transferring one or more parts of the selected representation that correspond to the satisfiable ranges found in the request's Range header field
+                 *
                  */
                 if (urlConnection.responseCode != 206) {
                     missionControl.errCode = MissionControl.ERROR_SERVER_UNSUPPORTED
                     notifyError()
 
-                    Log.e(TAG, "${mId.toString()}:Unsupported ${urlConnection.responseCode}")
-
+                    Log.e(TAG, "Thread$mId: Unsupported ${urlConnection.responseCode}")
                     break
                 }
 
@@ -91,14 +96,14 @@ class DownloadRun(private val missionControl: MissionControl, private val mId: I
                     if (len == -1) {
                         break
                     } else {
-                        start += len.toLong()
-                        total += len
                         file.write(buf, 0, len)
                         notifyProgress(len.toLong())
+                        start += len.toLong()
+                        total += len
                     }
                 }
 
-                Log.d(TAG, "${mId.toString()}:position $position finished, total length $total")
+                Log.d(TAG, "Thread$mId: completed downloading Block No$position, total length is $total")
 
                 file.close()
                 inputStream.close()
@@ -120,7 +125,7 @@ class DownloadRun(private val missionControl: MissionControl, private val mId: I
             Log.d(TAG, "The missionControl has been paused. Passing.")
         }
 
-        if (missionControl.errCode == -1 && missionControl.running) {
+        if (missionControl.errCode == NO_ERROR && missionControl.running) {
             Log.d(TAG, "no error has happened, notifying")
 
             notifyFinished()

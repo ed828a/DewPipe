@@ -3,22 +3,19 @@ package org.schabi.newpipe.download.background
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import org.schabi.newpipe.BuildConfig
 import org.schabi.newpipe.download.downloadDB.MissionEntry
-import org.schabi.newpipe.download.giga.get.DownloadMission
 import org.schabi.newpipe.download.util.Utility
 import java.io.File
 import java.io.ObjectInputStream
 import java.io.Serializable
 import java.lang.ref.WeakReference
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 
 /**
  * Created by Edward on 12/21/2018.
  */
 
-class MissionControl (val mission: MissionEntry): Serializable{
+class MissionControl(val mission: MissionEntry) : Serializable {
 
     /**
      * Number of blocks with the size of [DownloadMissionManager.BLOCK_SIZE]
@@ -34,12 +31,12 @@ class MissionControl (val mission: MissionEntry): Serializable{
     var finishCount: Int = 0
     // store the state of block: reserved or not
     private val blockState: MutableMap<Long, Boolean> = HashMap()
-    // store the download position of a thread
+    // store the block position of a being downloaded file of a thread
     private val threadPositions = ArrayList<Long>()
     var running: Boolean = false
     var finished: Boolean = false
     var fallback: Boolean = false
-    var errCode = -1
+    var errCode = NO_ERROR
 
     @Transient
     var recovered: Boolean = false
@@ -47,7 +44,6 @@ class MissionControl (val mission: MissionEntry): Serializable{
     private var mListeners = ArrayList<WeakReference<MissionControlListener>>()
     @Transient
     private var mWritingToFile: Boolean = false
-
 
 
     /**
@@ -88,7 +84,8 @@ class MissionControl (val mission: MissionEntry): Serializable{
     fun preserveBlock(block: Long) {
         checkBlock(block)
         synchronized(blockState) {
-            blockState.put(block, true)
+            blockState[block] = true
+            Log.d(TAG, "blockState: $blockState")
         }
     }
 
@@ -96,10 +93,11 @@ class MissionControl (val mission: MissionEntry): Serializable{
      * Set the download position of the file
      *
      * @param threadId the identifier of the thread
-     * @param position the download position of the thread
+     * @param position the download position of the thread (i.e : 0 - the first thread, 1 - the second thread, 2 - the third thread. ...)
      */
     fun setPosition(threadId: Int, position: Long) {
         threadPositions[threadId] = position
+        Log.d(TAG, "threadPositions = $threadPositions")
     }
 
     /**
@@ -126,7 +124,7 @@ class MissionControl (val mission: MissionEntry): Serializable{
             mission.done = length
         }
 
-        if (mission.done != length) {
+        if (mission.done != length) { // means downloading isn't finished yet
             writeThisToFile()
         }
 
@@ -162,9 +160,7 @@ class MissionControl (val mission: MissionEntry): Serializable{
     private fun onFinish() {
         if (errCode > 0) return
 
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "onFinish")
-        }
+        Log.d(TAG, "onFinish(): Downloading just finished.")
 
         running = false
         finished = true
@@ -173,7 +169,6 @@ class MissionControl (val mission: MissionEntry): Serializable{
 
         for (ref in mListeners) {
             val listener = ref.get()
-            listener?.onFinish(this@MissionControl)
             if (listener != null) {
                 MissionControlListener.handlerStore[listener]!!.post { listener.onFinish(this@MissionControl) }
             }
@@ -188,9 +183,7 @@ class MissionControl (val mission: MissionEntry): Serializable{
 
         for (ref in mListeners) {
             val listener = ref.get()
-            MissionControlListener.handlerStore[listener]!!.post {
-                listener!!.onError(this@MissionControl, errCode)
-            }
+            MissionControlListener.handlerStore[listener]!!.post { listener!!.onError(this@MissionControl, errCode) }
         }
     }
 
@@ -222,12 +215,14 @@ class MissionControl (val mission: MissionEntry): Serializable{
             if (!fallback) {
                 for (i in 0 until threadCount) {
                     if (threadPositions.size <= i && !recovered) {
+                        // initialize threadPositions ArrayList because DownloadRun need it with values
                         threadPositions.add(i.toLong())
                     }
                     Thread(DownloadRun(this, i)).start()
                 }
             } else {
                 // In fallback mode, resuming is not supported.
+                // restart the downloading on a single thread
                 threadCount = 1
                 mission.done = 0
                 blocks = 0
@@ -255,38 +250,19 @@ class MissionControl (val mission: MissionEntry): Serializable{
     }
 
     /**
-     * Write this [DownloadMission] to the meta file asynchronously
+     * Write this [MissionControl] to the meta file asynchronously
      * if no thread is already running.
      */
-    fun writeThisToFile() {
+    private fun writeThisToFile() {
         if (!mWritingToFile) {
             mWritingToFile = true
-//            object : Thread() {
-//                override fun run() {
-//                    doWriteThisToFile()
-//                    mWritingToFile = false
-//                }
-//            }.start()
             Thread(Runnable {
-                doWriteThisToFile()
+                synchronized(blockState) {
+                    Utility.writeToFile(metaFilename, this)
+                }
                 mWritingToFile = false
             }).start()
         }
-    }
-
-    /**
-     * Write this [DownloadMission] to the meta file.
-     */
-    private fun doWriteThisToFile() {
-        synchronized(blockState) {
-            Utility.writeToFile(metaFilename, this)
-        }
-    }
-
-    @Throws(java.io.IOException::class, ClassNotFoundException::class)
-    private fun readObject(inputStream: ObjectInputStream) {
-        inputStream.defaultReadObject()
-        mListeners = ArrayList()
     }
 
     private fun deleteThisFromFile() {
@@ -300,8 +276,8 @@ class MissionControl (val mission: MissionEntry): Serializable{
 
         const val ERROR_SERVER_UNSUPPORTED = 206
         const val ERROR_UNKNOWN = 233
+        const val NO_ERROR = -1
         private const val THREAD_COUNT = 3
-        private val NO_IDENTIFIER = -1
     }
 
 }

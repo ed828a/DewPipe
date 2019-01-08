@@ -151,7 +151,7 @@ abstract class MissionsFragment : Fragment() {
         if (mLinear) {
             mList!!.layoutManager = mLinearManager
         } else {
-            mList!!.layoutManager = mGridManager
+            mList!!.layoutManager = mGridManager as RecyclerView.LayoutManager?
         }
 
         mList!!.adapter = mAdapter

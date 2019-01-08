@@ -166,11 +166,10 @@ class DownloadManagerService : Service() {
     }
 
     private fun postUpdateMessage(progress: Int) {
-        val message = Message()
+        val message = Message.obtain()
         message.what = UPDATE_MESSAGE
         message.arg1 = progress
         mHandler?.sendMessage(message)
-//        mHandler!!.sendEmptyMessage(UPDATE_MESSAGE)
     }
 
     private fun updateState(runningCount: Int) {

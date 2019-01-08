@@ -15,7 +15,7 @@ import java.net.URL
 class DownloadRunFallback(private val missionControl: MissionControl) : Runnable {
 
     override fun run() {
-        Log.d(TAG, "run() called, file located: ${missionControl.mission.location}/${missionControl.mission.name}")
+        Log.d(TAG, "DownloadFallback run() called, file located: ${missionControl.mission.location}/${missionControl.mission.name}, Thread name: ${Thread.currentThread().name}")
         try {
             val url = URL(missionControl.mission.url)
             val conn = url.openConnection() as HttpURLConnection
@@ -23,15 +23,15 @@ class DownloadRunFallback(private val missionControl: MissionControl) : Runnable
             if (conn.responseCode != 200 && conn.responseCode != 206) {
                 notifyError(MissionControl.ERROR_SERVER_UNSUPPORTED)
             } else {
-
                 val file = RandomAccessFile("${missionControl.mission.location}/${missionControl.mission.name}", "rw")
                 file.seek(0)
                 val bufferedInputStream = BufferedInputStream(conn.inputStream)
                 val buf = ByteArray(512)
-                val len = bufferedInputStream.read(buf, 0, 512)
+                var len = bufferedInputStream.read(buf, 0, 512)
                 while (len != -1 && missionControl.running) {
                     file.write(buf, 0, len)
                     notifyProgress(len.toLong())
+                    len = bufferedInputStream.read(buf, 0, 512)
 
                     if (Thread.interrupted()) {
                         break

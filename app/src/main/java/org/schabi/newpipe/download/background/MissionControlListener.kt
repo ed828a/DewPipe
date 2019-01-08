@@ -19,6 +19,7 @@ interface MissionControlListener {
     fun onError(missionControl: MissionControl, errCode: Int)
 
     companion object {
+        // to store Handler associated with UI thread
         val handlerStore = HashMap<MissionControlListener, Handler>()
     }
 }
