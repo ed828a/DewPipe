@@ -13,7 +13,6 @@ import android.support.v4.app.NotificationCompat
 import android.support.v4.content.PermissionChecker
 import android.util.Log
 import android.widget.Toast
-import org.schabi.newpipe.BuildConfig
 import org.schabi.newpipe.R
 import org.schabi.newpipe.download.background.DownloadMissionManager
 import org.schabi.newpipe.download.background.DownloadMissionManagerImpl
@@ -25,9 +24,9 @@ import java.util.*
 
 class DownloadManagerService : Service() {
     private var mBinder: DMBinder? = null
-    private var mMissionManager: DownloadMissionManager? = null
+    private lateinit var mDownloadManager: DownloadMissionManager
     private var mNotification: Notification? = null
-    private var mHandler: Handler? = null
+    private lateinit var mHandler: Handler
     private var mLastTimeStamp = System.currentTimeMillis()
 
     private val missionListener = MissionListener()
@@ -42,23 +41,16 @@ class DownloadManagerService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "onCreate")
-        }
+        Log.d(TAG, "DownloadManagerService onCreate() called.")
 
         mBinder = DMBinder()
 
-        if (mMissionManager == null) {
-            val paths = ArrayList<String>(2)
-            paths.add(NewPipeSettings.getVideoDownloadPath(this))
-            paths.add(NewPipeSettings.getAudioDownloadPath(this))
-            mMissionManager = DownloadMissionManagerImpl(paths, this)
+        val paths = ArrayList<String>(2)
+        paths.add(NewPipeSettings.getVideoDownloadPath(this))
+        paths.add(NewPipeSettings.getAudioDownloadPath(this))
+        mDownloadManager = DownloadMissionManagerImpl(paths, this)
 
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "mMissionManager was == null, curretn mMissionManager = $mMissionManager")
-                Log.d(TAG, "Download directory: $paths")
-            }
-        }
+        Log.d(TAG, "Download directory: $paths")
 
         val openDownloadListIntent = Intent(this, DownloadActivity::class.java)
                 .setAction(Intent.ACTION_MAIN)
@@ -83,41 +75,40 @@ class DownloadManagerService : Service() {
         val thread = HandlerThread("ServiceMessenger")
         thread.start()
 
-        mHandler = object : Handler(thread.looper) {
-            override fun handleMessage(msg: Message) {
-                when (msg.what) {
-                    UPDATE_MESSAGE -> {
-                        var runningCount = 0
+        mHandler = Handler(thread.looper) {
+            when (it.what) {
+                UPDATE_MESSAGE -> {
+                    var runningCount = 0
 
-                        for (i in 0 until mMissionManager!!.count) {
-                            if (mMissionManager!!.getMission(i).running) {
-                                runningCount++
-                            }
+                    for (i in 0 until mDownloadManager.count) {
+                        if (mDownloadManager.getMission(i).running) {
+                            runningCount++
                         }
-                        val progress = msg.arg1
-                        Log.d(TAG, "progress = ${msg.arg1}")
-                        builder.setProgress(100, progress, false)
-                        mNotification = builder.build()
-                        updateState(runningCount)
                     }
+                    val progress = it.arg1
+                    Log.d(TAG, "progress = ${it.arg1}, Thread name: ${Thread.currentThread().name}")
+                    builder.setProgress(100, progress, false)
+                    mNotification = builder.build()
+                    updateState(runningCount)
+                    true
                 }
+                else -> false
             }
         }
-
     }
 
-    private fun startMissionAsync(url: String?, location: String, name: String,
+    private fun startMissionAsync(url: String, location: String, name: String,
                                   isAudio: Boolean, threads: Int) {
-        mHandler!!.post {
-            val missionId = mMissionManager!!.startMission(url!!, location, name, isAudio, threads)
-            mBinder!!.onMissionAdded(mMissionManager!!.getMission(missionId))
+        mHandler.post {
+            val missionId = mDownloadManager.startMission(url, location, name, isAudio, threads)
+            mBinder!!.onMissionAdded(mDownloadManager.getMission(missionId))
         }
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "Starting")
-        }
+
+        Log.d(TAG, "DownloadManagerService onStartCommand, service startId: $startId")
+
         Log.i(TAG, "Got intent: $intent")
         val action = intent.action
         if (action != null && action == Intent.ACTION_RUN) {
@@ -126,26 +117,26 @@ class DownloadManagerService : Service() {
             val threads = intent.getIntExtra(EXTRA_THREADS, 1)
             val isAudio = intent.getBooleanExtra(EXTRA_IS_AUDIO, false)
             val url = intent.dataString
-            startMissionAsync(url, location, name, isAudio, threads)
+            if (url == null) {
+                Toast.makeText(this, "the provided url isn't available.", Toast.LENGTH_SHORT).show()
+            } else {
+                startMissionAsync(url, location, name, isAudio, threads)
+            }
         }
+
         return Service.START_NOT_STICKY
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        Log.d(TAG, "DownloadManagerService: onDestroy() called, thread name: ${Thread.currentThread().name}")
 
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "Destroying")
+        for (i in 0 until mDownloadManager.count) {
+            mDownloadManager.pauseMission(i)
         }
-
-        for (i in 0 until mMissionManager!!.count) {
-            mMissionManager!!.pauseMission(i)
-        }
-
-        (mMissionManager as DownloadMissionManagerImpl).dispose()
 
         stopForeground(true)
 
+        super.onDestroy()
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -165,18 +156,23 @@ class DownloadManagerService : Service() {
         return mBinder
     }
 
+
+    /**
+     * this function will run on main thread, but notification update is done on ServiceMessenger thread
+     */
     private fun postUpdateMessage(progress: Int) {
         val message = Message.obtain()
         message.what = UPDATE_MESSAGE
         message.arg1 = progress
-        mHandler?.sendMessage(message)
+        Log.d(TAG, "postUpdateMessage() progress = $progress on Thread name: ${Thread.currentThread().name}")
+        mHandler.sendMessage(message)
     }
 
     private fun updateState(runningCount: Int) {
         if (runningCount == 0) {
             stopForeground(true)
         } else {
-            startForeground(NOTIFICATION_ID, mNotification)
+            startForeground(NOTIFICATION_ID, mNotification) // multiple calls of startForeground only update the notification
         }
     }
 
@@ -195,7 +191,8 @@ class DownloadManagerService : Service() {
         }
 
         override fun onFinish(missionControl: MissionControl) {
-            postUpdateMessage(101)
+            Log.d(TAG, "DownloadManagerService: onFinish() called")
+            postUpdateMessage(100)
             notifyMediaScanner(missionControl)
         }
 
@@ -207,18 +204,20 @@ class DownloadManagerService : Service() {
 
     // Wrapper of DownloadMissionManager
     inner class DMBinder : Binder() {
-        val downloadManager: DownloadMissionManager?
-            get() = mMissionManager
+        val downloadManager: DownloadMissionManager
+            get() = mDownloadManager
 
         fun onMissionAdded(missionControl: MissionControl) {
-            Log.d(TAG, "missionControl.mission.done = ${missionControl.mission.done} /  missionControl.length = ${ missionControl.length}")
+            Log.d(TAG, "DMBinder onMissionAdded() missionControl.mission.done = ${missionControl.mission.done} /  missionControl.length = ${missionControl.length}")
             missionControl.addListener(missionListener)
-            postUpdateMessage(0)
+            // add or remove missionListener doesn't affect the download progressbar
+//            postUpdateMessage(0)  // don't need this line
         }
 
         fun onMissionRemoved(missionControl: MissionControl) {
             missionControl.removeListener(missionListener)
-            postUpdateMessage(0)
+            // add or remove missionListener doesn't affect the download progressbar
+//            postUpdateMessage(0) // don't need this line
         }
     }
 
@@ -236,6 +235,7 @@ class DownloadManagerService : Service() {
         private const val EXTRA_IS_AUDIO = "DownloadManagerService.extra.is_audio"
         private const val EXTRA_THREADS = "DownloadManagerService.extra.threads"
 
+        // utility function for outsiders to call this service.
         fun startMission(context: Context?, url: String, location: String, name: String, isAudio: Boolean, threads: Int) {
             val intent = Intent(context, DownloadManagerService::class.java)
             intent.action = Intent.ACTION_RUN

@@ -4,11 +4,12 @@ import android.app.Activity
 import android.os.Bundle
 import android.support.design.widget.BaseTransientBottomBar
 import android.support.design.widget.Snackbar
+import android.util.Log
 import android.view.View
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import org.schabi.newpipe.R
@@ -17,11 +18,11 @@ import org.schabi.newpipe.download.background.MissionControl
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class DeleteDownloadManager internal constructor(activity: Activity) {
+class DeleteDownloadManager(activity: Activity) {
 
     private val mView: View = activity.findViewById(android.R.id.content)
-    private val mPendingMap: HashSet<String> = HashSet()
-    private val mDisposableList: MutableList<Disposable> = ArrayList()
+    private val mPendingMap: HashSet<String> = HashSet()  // store url
+    private val mDisposableList = CompositeDisposable()
     private var mDownloadMissionManager: DownloadMissionManager? = null
     private val publishSubject = PublishSubject.create<MissionControl>()
 
@@ -60,9 +61,7 @@ class DeleteDownloadManager internal constructor(activity: Activity) {
     fun saveState(outState: Bundle?) {
         if (outState == null) return
 
-        for (disposable in mDisposableList) {
-            disposable.dispose()
-        }
+        mDisposableList.clear()
 
         outState.putStringArrayList(KEY_STATE, ArrayList(mPendingMap))
     }
@@ -82,6 +81,7 @@ class DeleteDownloadManager internal constructor(activity: Activity) {
     }
 
     private fun showUndoDeleteSnackbar(missionControl: MissionControl) {
+        Log.d(TAG, "showUndoDeleteSnackbar(MissionControl) on thread: ${Thread.currentThread().name}")
         val snackbar = Snackbar.make(mView, missionControl.mission.name, Snackbar.LENGTH_INDEFINITE)
         val disposable = Observable.timer(3, TimeUnit.SECONDS)
                 .subscribeOn(AndroidSchedulers.mainThread())
@@ -99,13 +99,14 @@ class DeleteDownloadManager internal constructor(activity: Activity) {
         snackbar.addCallback(object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
             override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
                 if (!disposable.isDisposed) {
-                    Completable.fromAction { deletePending(missionControl) }
+                    val d = Completable.fromAction { deletePending(missionControl) }
                             .subscribeOn(Schedulers.io())
                             .subscribe()
+                    mDisposableList.add(d)
                 }
                 mPendingMap.remove(missionControl.mission.url)
                 snackbar.removeCallback(this)
-                mDisposableList.remove(disposable)
+                mDisposableList.delete(disposable)
                 showUndoDeleteSnackbar()
             }
         })
@@ -140,7 +141,7 @@ class DeleteDownloadManager internal constructor(activity: Activity) {
     }
 
     companion object {
-
+        private const val TAG = "DeleteDownloadManager"
         private const val KEY_STATE = "delete_manager_state"
     }
 }

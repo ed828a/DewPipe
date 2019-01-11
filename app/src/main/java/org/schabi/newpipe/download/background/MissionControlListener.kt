@@ -5,6 +5,9 @@ import java.util.*
 
 /**
  * Created by Edward on 12/21/2018.
+ *
+ * DownloadMissionManagerImpl, DownloadManagerService, AllMissionsFragment use this listener.
+ * all code concreting this listener will run on main thread.
  */
 
 interface MissionControlListener {

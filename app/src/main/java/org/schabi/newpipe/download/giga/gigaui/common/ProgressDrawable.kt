@@ -9,10 +9,11 @@ import android.graphics.drawable.Drawable
 import android.support.annotation.ColorRes
 import android.support.v4.content.ContextCompat
 
-class ProgressDrawable(private val mBackgroundColor: Int, private val mForegroundColor: Int) : Drawable() {
+class ProgressDrawable(context: Context, @ColorRes background: Int, @ColorRes foreground: Int) : Drawable() {
+    private val mBackgroundColor: Int = ContextCompat.getColor(context, background)
+    private val mForegroundColor: Int = ContextCompat.getColor(context, foreground)
     private var mProgress: Float = 0.toFloat()
 
-    constructor(context: Context?, @ColorRes background: Int, @ColorRes foreground: Int) : this(ContextCompat.getColor(context!!, background), ContextCompat.getColor(context!!, foreground)) {}
 
     fun setProgress(progress: Float) {
         mProgress = progress
@@ -20,8 +21,10 @@ class ProgressDrawable(private val mBackgroundColor: Int, private val mForegroun
     }
 
     override fun draw(canvas: Canvas) {
-        val width = canvas.width
-        val height = canvas.height
+//        val width = canvas.width
+//        val height = canvas.height
+        val width = bounds.width()
+        val height = bounds.height()
 
         val paint = Paint()
 
@@ -29,7 +32,9 @@ class ProgressDrawable(private val mBackgroundColor: Int, private val mForegroun
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
 
         paint.color = mForegroundColor
-        canvas.drawRect(0f, 0f, (mProgress * width).toInt().toFloat(), height.toFloat(), paint)
+        val tem = mProgress * width
+        canvas.drawRect(0f, 0f, mProgress * width, height.toFloat(), paint)
+//        canvas.drawRect(0f, 0f, (mProgress * width).toInt().toFloat(), height.toFloat(), paint)
     }
 
     override fun setAlpha(alpha: Int) {
@@ -40,8 +45,6 @@ class ProgressDrawable(private val mBackgroundColor: Int, private val mForegroun
         // Unsupported
     }
 
-    override fun getOpacity(): Int {
-        return PixelFormat.OPAQUE
-    }
+    override fun getOpacity(): Int = PixelFormat.OPAQUE
 
 }

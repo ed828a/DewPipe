@@ -1,7 +1,7 @@
 package org.schabi.newpipe.download.giga.gigaui.adapter
 
 import android.app.Activity
-import android.app.ProgressDialog
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
@@ -23,6 +23,7 @@ import android.widget.Toast
 import org.schabi.newpipe.R
 import org.schabi.newpipe.download.background.DownloadMissionManager
 import org.schabi.newpipe.download.background.MissionControl
+import org.schabi.newpipe.download.background.MissionControl.Companion.NO_ERROR
 import org.schabi.newpipe.download.background.MissionControlListener
 import org.schabi.newpipe.download.giga.gigaui.common.ProgressDrawable
 import org.schabi.newpipe.download.giga.service.DownloadManagerService
@@ -36,9 +37,8 @@ class MissionAdapter(private val mContext: Activity?,
                      private val mBinder: DownloadManagerService.DMBinder?,
                      private val mDownloadMissionManager: DownloadMissionManager?,
                      private val mDeleteDownloadManager: DeleteDownloadManager?,
-                     isLinear: Boolean) : RecyclerView.Adapter<MissionAdapter.ViewHolder>() {
+                     isLinear: Boolean) : RecyclerView.Adapter<MissionAdapter.MissionViewHolder>() {
 
-    private val mInflater: LayoutInflater = mContext!!.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     private val mItemList: MutableList<MissionControl> = ArrayList()
     private val mLayout: Int = if (isLinear) R.layout.mission_item_linear else R.layout.mission_item
 
@@ -57,22 +57,16 @@ class MissionAdapter(private val mContext: Activity?,
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MissionAdapter.ViewHolder {
-        val h = ViewHolder(mInflater.inflate(mLayout, parent, false))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MissionAdapter.MissionViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(mLayout, parent, false)
+        val holder = MissionViewHolder(view)
 
-        h.menu.setOnClickListener { buildPopup(h) }
+        holder.menu.setOnClickListener { buildPopup(holder) }
 
-        /*h.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-			public void onClick(View v) {
-				showDetail(h);
-			}
-		});*/
-
-        return h
+        return holder
     }
 
-    override fun onViewRecycled(viewHolder: MissionAdapter.ViewHolder) {
+    override fun onViewRecycled(viewHolder: MissionAdapter.MissionViewHolder) {
         super.onViewRecycled(viewHolder)
         viewHolder.missionControl!!.removeListener(viewHolder.observer)
         viewHolder.missionControl = null
@@ -84,24 +78,25 @@ class MissionAdapter(private val mContext: Activity?,
         viewHolder.colorId = 0
     }
 
-    override fun onBindViewHolder(h: MissionAdapter.ViewHolder, pos: Int) {
+    override fun onBindViewHolder(viewHolder: MissionAdapter.MissionViewHolder, pos: Int) {
         val missionControl = mItemList[pos]
-        h.missionControl = missionControl
-        h.itemPosition = pos
+        viewHolder.missionControl = missionControl
+        viewHolder.itemPosition = pos
 
+        // FileType.MUSIC, VIDEO or UNKNOWN
         val type = Utility.getFileType(missionControl.mission.name)
 
-        h.icon.setImageResource(Utility.getIconForFileType(type))
-        h.name.text = missionControl.mission.name
-        h.size.text = Utility.formatBytes(missionControl.length)
+        viewHolder.icon.setImageResource(Utility.getIconForFileType(type))
+        viewHolder.name.text = missionControl.mission.name
+        viewHolder.size.text = Utility.formatBytes(missionControl.length)
 
-        h.progress = ProgressDrawable(mContext, Utility.getBackgroundForFileType(type), Utility.getForegroundForFileType(type))
-        ViewCompat.setBackground(h.bkg, h.progress)
+        viewHolder.progress = ProgressDrawable(mContext!!, Utility.getBackgroundForFileType(type), Utility.getForegroundForFileType(type))
+        ViewCompat.setBackground(viewHolder.bkg, viewHolder.progress)
 
-        h.observer = MissionObserver(this, h)
-        missionControl.addListener(h.observer!!)
+        viewHolder.observer = MissionObserver(this, viewHolder)
+        missionControl.addListener(viewHolder.observer!!)
 
-        updateProgress(h)
+        updateProgress(viewHolder)
     }
 
     override fun getItemCount(): Int {
@@ -112,7 +107,7 @@ class MissionAdapter(private val mContext: Activity?,
         return position.toLong()
     }
 
-    private fun updateProgress(holder: ViewHolder, finished: Boolean = false) {
+    private fun updateProgress(holder: MissionViewHolder, finished: Boolean = false) {
         if (holder.missionControl == null) return
 
         val now = System.currentTimeMillis()
@@ -145,8 +140,8 @@ class MissionAdapter(private val mContext: Activity?,
             val speed = deltaDone.toFloat() / deltaTime
             val speedStr = Utility.formatSpeed(speed * 1000)
             val sizeStr = Utility.formatBytes(holder.missionControl!!.length)
-
-            holder.size.text = "$sizeStr $speedStr"
+            val textString = "$sizeStr $speedStr"
+            holder.size.text = textString
 
             holder.lastTimeStamp = now
             holder.lastDone = holder.missionControl!!.mission.done
@@ -154,7 +149,7 @@ class MissionAdapter(private val mContext: Activity?,
     }
 
 
-    private fun buildPopup(viewHolder: ViewHolder) {
+    private fun buildPopup(viewHolder: MissionViewHolder) {
         val popup = PopupMenu(mContext, viewHolder.menu)
         popup.inflate(R.menu.mission)
 
@@ -165,7 +160,7 @@ class MissionAdapter(private val mContext: Activity?,
         val delete = menu.findItem(R.id.delete)
         val checksum = menu.findItem(R.id.checksum)
 
-        // Set to false first
+        // Set to false to hide them first
         start.isVisible = false
         pause.isVisible = false
         view.isVisible = false
@@ -174,7 +169,7 @@ class MissionAdapter(private val mContext: Activity?,
 
         if (!viewHolder.missionControl!!.finished) {
             if (!viewHolder.missionControl!!.running) {
-                if (viewHolder.missionControl!!.errCode == -1) {
+                if (viewHolder.missionControl!!.errCode == NO_ERROR) {
                     start.isVisible = true
                 }
 
@@ -188,7 +183,7 @@ class MissionAdapter(private val mContext: Activity?,
             checksum.isVisible = true
         }
 
-        popup.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener { item ->
+        popup.setOnMenuItemClickListener { item ->
             val id = item.itemId
             when (id) {
                 R.id.start -> {
@@ -207,15 +202,15 @@ class MissionAdapter(private val mContext: Activity?,
                     val file = File(viewHolder.missionControl!!.mission.location, viewHolder.missionControl!!.mission.name)
                     val ext = Utility.getFileExt(viewHolder.missionControl!!.mission.name)
 
-                    Log.d(TAG, "Viewing file: " + file.absolutePath + " ext: " + ext)
+                    Log.d(TAG, "Viewing file: ${file.absolutePath} ext: $ext")
 
                     if (ext == null) {
-                        Log.w(TAG, "Can't view file because it has no extension: " + viewHolder.missionControl!!.mission.name)
-                        return@OnMenuItemClickListener false
+                        Log.w(TAG, "Can't view file because it has no extension: ${viewHolder.missionControl!!.mission.name}")
+                        return@setOnMenuItemClickListener false
                     }
 
                     val mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext.substring(1))
-                    Log.v(TAG, "Mime: " + mime + " package: " + mContext!!.applicationContext.packageName + ".provider")
+                    Log.v(TAG, "Mime: $mime package: ${mContext!!.applicationContext.packageName}.provider")
                     if (file.exists()) {
                         viewFileWithFileProvider(file, mime)
                     } else {
@@ -237,8 +232,7 @@ class MissionAdapter(private val mContext: Activity?,
                 }
                 else -> false
             }
-        })
-
+        }
         popup.show()
     }
 
@@ -257,18 +251,18 @@ class MissionAdapter(private val mContext: Activity?,
         if (intent.resolveActivity(mContext.packageManager) != null) {
             mContext.startActivity(intent)
         } else {
-            val noPlayerToast = Toast.makeText(mContext, R.string.toast_no_player, Toast.LENGTH_LONG)
-            noPlayerToast.show()
+            Toast.makeText(mContext, R.string.toast_no_player, Toast.LENGTH_LONG).show()
         }
     }
 
-    class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
-        val status: TextView = v.findViewById(R.id.item_status)
-        val icon: ImageView = v.findViewById(R.id.item_icon)
-        val name: TextView = v.findViewById(R.id.item_name)
-        val size: TextView = v.findViewById(R.id.item_size)
-        val bkg: View = v.findViewById(R.id.item_bkg)
-        val menu: ImageView = v.findViewById(R.id.item_more)
+    class MissionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        // because there are 2 type of itemViews, dynamically locating views in itemView is a better choice.
+        val status: TextView = view.findViewById(R.id.item_status)
+        val icon: ImageView = view.findViewById(R.id.item_icon)
+        val name: TextView = view.findViewById(R.id.item_name)
+        val size: TextView = view.findViewById(R.id.item_size)
+        val bkg: View = view.findViewById(R.id.item_bkg)
+        val menu: ImageView = view.findViewById(R.id.item_more)
 
         var missionControl: MissionControl? = null
         var itemPosition: Int = 0
@@ -282,19 +276,17 @@ class MissionAdapter(private val mContext: Activity?,
 
     }
 
-    class MissionObserver(private val mAdapter: MissionAdapter, private val mHolder: ViewHolder) : MissionControlListener {
+    class MissionObserver(private val mAdapter: MissionAdapter, private val mHolder: MissionViewHolder) : MissionControlListener {
         override fun onProgressUpdate(missionControl: MissionControl, done: Long, total: Long) {
             mAdapter.updateProgress(mHolder)
         }
 
         override fun onFinish(missionControl: MissionControl) {
-            //mAdapter.mManager.deleteMission(mHolder.position);
-            // TODO Notification
-            //mAdapter.notifyDataSetChanged();
             if (mHolder.missionControl != null) {
                 mHolder.size.text = Utility.formatBytes(mHolder.missionControl!!.length)
                 mAdapter.updateProgress(mHolder, true)
             }
+            Log.d(TAG, "missionControl.length: ${missionControl.length}-- mHolder.missionControl!!.length: $mHolder.missionControl!!.length")
         }
 
         override fun onError(missionControl: MissionControl, errCode: Int) {
@@ -303,31 +295,35 @@ class MissionAdapter(private val mContext: Activity?,
 
     }
 
-    private class ChecksumTask internal constructor(activity: Activity) : AsyncTask<String, Void, String>() {
-        internal var prog: ProgressDialog? = null
-        internal val weakReference: WeakReference<Activity> = WeakReference(activity)
+    private class ChecksumTask(activity: Activity) : AsyncTask<String, Void, String>() {
+        var progressDialog: AlertDialog? = null
 
-        private val activity: Activity?
-            get() {
-                val activity = weakReference.get()
+        val weakReference: WeakReference<Activity> = WeakReference(activity)
 
-                return if (activity != null && activity.isFinishing) {
-                    null
-                } else {
-                    activity
-                }
+        private fun getActivity(): Activity? {
+            val activity = weakReference.get()
+
+            return if (activity != null && activity.isFinishing) {
+                null
+            } else {
+                activity
             }
+        }
 
         override fun onPreExecute() {
             super.onPreExecute()
 
-            val activity = activity
+            val activity = getActivity()
             if (activity != null) {
-                // Create dialog
-                prog = ProgressDialog(activity)
-                prog!!.setCancelable(false)
-                prog!!.setMessage(activity.getString(R.string.msg_wait))
-                prog!!.show()
+                progressDialog = AlertDialog.Builder(activity)
+                        .setTitle("Check")
+                        .setMessage(activity.getString(R.string.msg_wait))
+                        .setPositiveButton("OK"){dialog, which ->
+                            Toast.makeText(activity, "Thanks!", Toast.LENGTH_SHORT).show()
+                        }
+                        .create()
+                progressDialog?.show()
+
             }
         }
 
@@ -338,22 +334,18 @@ class MissionAdapter(private val mContext: Activity?,
         override fun onPostExecute(result: String) {
             super.onPostExecute(result)
 
-            if (prog != null) {
-                Utility.copyToClipboard(prog!!.context, result)
-                if (activity != null) {
-                    prog!!.dismiss()
+            progressDialog?.let {
+                Utility.copyToClipboard(it.context, result)
+                if (getActivity() != null) {
+                    it.dismiss()
                 }
             }
         }
     }
 
     companion object {
-        private val ALGORITHMS = HashMap<Int, String>()
         private const val TAG = "MissionAdapter"
 
-        init {
-            ALGORITHMS[R.id.md5] = "MD5"
-            ALGORITHMS[R.id.sha1] = "SHA1"
-        }
+        private val ALGORITHMS = hashMapOf(R.id.md5 to "MD5", R.id.sha1 to "SHA1")
     }
 }

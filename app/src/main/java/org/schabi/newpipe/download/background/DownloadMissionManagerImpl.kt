@@ -6,16 +6,11 @@ import android.content.Intent
 import android.os.Handler
 import android.util.Log
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.Action
 import io.reactivex.observers.DisposableCompletableObserver
-import io.reactivex.observers.DisposableSingleObserver
-import io.reactivex.schedulers.Schedulers
-import org.schabi.newpipe.BuildConfig
+import org.schabi.newpipe.download.background.MissionControl.Companion.NO_ERROR
 import org.schabi.newpipe.download.downloadDB.DownloadMissionDataSource
 import org.schabi.newpipe.download.downloadDB.DownloadMissionDataSourceImpl
 import org.schabi.newpipe.download.downloadDB.MissionEntry
-import org.schabi.newpipe.download.giga.get.DownloadManagerImpl.Companion.sortByTimestamp
 import org.schabi.newpipe.download.ui.ExtSDDownloadFailedActivity
 import org.schabi.newpipe.download.util.Utility
 import java.io.File
@@ -24,33 +19,26 @@ import java.io.RandomAccessFile
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
-import java.util.function.Consumer
 
 /**
  * Created by Edward on 12/22/2018.
  *
- * @param downloadDataSource: should be like:
- *                  val db: DownloadDatabase = DownloadDatabase.getDatabase(context)
- *                  private val mDownloadDataSource = db.downloadDao()
+ *  @param directories: locations of downloaded video and audio files
+ *
  */
 
-class DownloadMissionManagerImpl(searchLocations: Collection<String>,
+class DownloadMissionManagerImpl(directories: Collection<String>,
                                  val context: Context
 ) : DownloadMissionManager {
 
     private val mDownloadDataSource: DownloadMissionDataSource = DownloadMissionDataSourceImpl(context)
     private val mMissionControls = ArrayList<MissionControl>()
-    val compositeDisposable = CompositeDisposable()
 
     init {
-        // to initialize mMissionControls with searchLocations
-        loadMissionControls(searchLocations)
+        loadMissionControls(directories)
     }
 
-    fun dispose(){
-        compositeDisposable.clear()
-    }
-
+    // return: the index of this missionControl in the Array<MissionControl>
     override fun startMission(url: String, location: String, name: String, isAudio: Boolean, threads: Int): Int {
         var fileName = name
         val existingMission = getMissionByLocation(location, fileName)
@@ -82,7 +70,7 @@ class DownloadMissionManagerImpl(searchLocations: Collection<String>,
 
     override fun resumeMission(missionId: Int) {
         val missionControl = getMission(missionId)
-        if (!missionControl.running && missionControl.errCode == -1) {
+        if (!missionControl.running && missionControl.errCode == NO_ERROR) {
             missionControl.start()
         }
     }
@@ -98,7 +86,7 @@ class DownloadMissionManagerImpl(searchLocations: Collection<String>,
         val missionControl = getMission(missionId)
         if (missionControl.finished) {
             val disposable = mDownloadDataSource.deleteMission(missionControl).subscribe()
-            compositeDisposable.add(disposable)
+            disposable.dispose()
         }
         missionControl.delete()
         mMissionControls.removeAt(missionId)
@@ -127,26 +115,21 @@ class DownloadMissionManagerImpl(searchLocations: Collection<String>,
                     finishedMissions.addAll(it)
                 }
 
-//        compositeDisposable.add(disposable)
         disposable.dispose()
 
-        // Ensure its sorted
         sortByTimestamp(finishedMissions)
 
         mMissionControls.ensureCapacity(mMissionControls.size + finishedMissions.size)
         for (missionControl in finishedMissions) {
             val downloadedFile = missionControl.downloadedFile
             if (!downloadedFile.isFile) {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "downloaded file removed: " + downloadedFile.absolutePath)
-                }
-                val disposable1 = mDownloadDataSource.deleteMission(missionControl)
+                Log.d(TAG, "file ${downloadedFile.absolutePath} removed from Database." )
+                mDownloadDataSource.deleteMission(missionControl)
                         .subscribe {
                             Log.d(TAG, "removed one missionEntry from Database")
                         }
+                        .dispose()
 
-//                compositeDisposable.add(disposable)
-                disposable.dispose()
             } else {
                 missionControl.length = downloadedFile.length()
                 missionControl.finished = true
@@ -174,7 +157,7 @@ class DownloadMissionManagerImpl(searchLocations: Collection<String>,
                     if (missionControl != null) {
                         if (missionControl.finished) {
                             if (!sub.delete()) {
-                                Log.w(TAG, "Unable to delete .giga file: " + sub.path)
+                                Log.w(TAG, "Unable to delete .giga file: ${sub.path}")
                             }
                             continue
                         }
@@ -219,7 +202,7 @@ class DownloadMissionManagerImpl(searchLocations: Collection<String>,
      * Get a missionControl by its location and name
      *
      * @param location the location
-     * @param name     the name
+     * @param name     the file name
      * @return the missionControl or null if no such missionControl exists
      */
     private fun getMissionByLocation(location: String, name: String): MissionControl? {
@@ -257,7 +240,7 @@ class DownloadMissionManagerImpl(searchLocations: Collection<String>,
                     Log.d(TAG, "falling back")
                 }
 
-                Log.d(TAG, "response = " + conn.responseCode)
+                Log.d(TAG, "response = ${conn.responseCode}")
 
                 missionControl.blocks = missionControl.length / DownloadMissionManager.BLOCK_SIZE
 
@@ -270,7 +253,7 @@ class DownloadMissionManagerImpl(searchLocations: Collection<String>,
                 }
 
                 if (missionControl.blocks * DownloadMissionManager.BLOCK_SIZE < missionControl.length) {
-                    missionControl.blocks = missionControl.blocks + 1
+                    missionControl.blocks += 1
                 }
 
 
@@ -299,27 +282,30 @@ class DownloadMissionManagerImpl(searchLocations: Collection<String>,
     /**
      * Waits for missionControl to finish to add it to the [.mDownloadDataSource]
      */
-    private inner class MissionControlListener( private val mMissionControl: MissionControl) : org.schabi.newpipe.download.background.MissionControlListener {
+    private inner class MissionControlListener(private val mMissionControl: MissionControl) : org.schabi.newpipe.download.background.MissionControlListener {
 
         override fun onFinish(missionControl: MissionControl) {
-            val disposable = mDownloadDataSource.addMission(mMissionControl)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeWith(object: DisposableCompletableObserver(){
-                        override fun onComplete() {
-                            Log.d(TAG, "one mission has been added into Database")
-                        }
+            Thread {
+                val disposable = mDownloadDataSource.addMission(mMissionControl)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(object : DisposableCompletableObserver() {
+                            override fun onComplete() {
+                                Log.d(TAG, "one mission has been added into Database")
+                            }
 
-                        override fun onError(e: Throwable) {
-                            Log.d(TAG, "addMission Error: ${e.message}")
-                        }
-                    })
+                            override fun onError(e: Throwable) {
+                                Log.d(TAG, "addMission Error: ${e.message}")
+                            }
+                        })
 
-            compositeDisposable.add(disposable)
-
+                disposable.dispose()
+                Log.d(TAG, "DownloadMissionManagerImpl: onFinish() called.")
+            }
         }
 
         override fun onProgressUpdate(missionControl: MissionControl, done: Long, total: Long) {
             // todo: need to show the progress on notification bar
+            // no need because DownloadManagerService.onProgressUpdate will do it.
         }
 
 
@@ -335,7 +321,7 @@ class DownloadMissionManagerImpl(searchLocations: Collection<String>,
          * Sort a list of missionControl by its timestamp. Oldest first
          * @param missions the missions to sort
          */
-        internal fun sortByTimestamp(missions: MutableList<MissionControl>) {
+        fun sortByTimestamp(missions: MutableList<MissionControl>) {
             missions.sortWith(Comparator { o1, o2 ->
                 java.lang.Long.compare(o1.mission.timestamp, o2.mission.timestamp)
             })

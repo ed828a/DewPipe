@@ -290,6 +290,7 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
         val url = stream.getUrl()
         fileName += "." + stream.getFormat().getSuffix()
 
+        // start Downloading Service
         DownloadManagerService.startMission(context, url, location, fileName, isAudio, threadsSeekBar!!.progress + 1)
         dialog.dismiss()
     }

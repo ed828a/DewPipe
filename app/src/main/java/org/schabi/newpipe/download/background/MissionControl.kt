@@ -28,7 +28,7 @@ class MissionControl(val mission: MissionEntry) : Serializable {
     var length: Long = 0
 
     var threadCount = THREAD_COUNT
-    var finishCount: Int = 0
+    private var finishCount: Int = 0
     // store the state of block: reserved or not
     private val blockState: MutableMap<Long, Boolean> = HashMap()
     // store the block position of a being downloaded file of a thread
@@ -131,8 +131,8 @@ class MissionControl(val mission: MissionEntry) : Serializable {
         for (ref in mListeners) {
             val listener = ref.get()
             if (listener != null) {
+                Log.d(TAG, "mission.done = ${mission.done}, length = $length on Thread name: ${Thread.currentThread().name}")
                 MissionControlListener.handlerStore[listener]!!.post {
-                    Log.d(TAG, "mission.done = ${mission.done}, length = $length ")
                     listener.onProgressUpdate(this@MissionControl, mission.done, length)
                 }
             }

@@ -17,7 +17,7 @@ import org.schabi.newpipe.download.giga.gigaui.adapter.MissionAdapter
 import org.schabi.newpipe.download.giga.service.DownloadManagerService
 import org.schabi.newpipe.download.ui.DeleteDownloadManager
 
-abstract class MissionsFragment : Fragment() {
+class DownloadMissionsFragment : Fragment() {
     private var mDownloadManager: DownloadMissionManager? = null
     private var mBinder: DownloadManagerService.DMBinder? = null
 
@@ -76,7 +76,7 @@ abstract class MissionsFragment : Fragment() {
         // Init
         mGridManager = GridLayoutManager(activity, 2)
         mLinearManager = LinearLayoutManager(activity)
-        mList!!.layoutManager = mGridManager
+        mList!!.layoutManager = mGridManager as RecyclerView.LayoutManager?
 
         setHasOptionsMenu(true)
 
@@ -130,16 +130,16 @@ abstract class MissionsFragment : Fragment() {
         super.onPrepareOptionsMenu(menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.switch_mode -> {
-                mLinear = !mLinear
-                updateList()
-                return true
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
+                R.id.switch_mode -> {
+                    mLinear = !mLinear
+                    updateList()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
             }
-            else -> return super.onOptionsItemSelected(item)
-        }
-    }
+
 
     fun notifyChange() {
         mAdapter!!.notifyDataSetChanged()
@@ -163,5 +163,6 @@ abstract class MissionsFragment : Fragment() {
         mPrefs!!.edit().putBoolean("linear", mLinear).apply()
     }
 
-    protected abstract fun setupDownloadManager(binder: DownloadManagerService.DMBinder): DownloadMissionManager
+    fun setupDownloadManager(binder: DownloadManagerService.DMBinder): DownloadMissionManager =
+            binder.downloadManager
 }

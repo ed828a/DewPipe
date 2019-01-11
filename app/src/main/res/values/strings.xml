@@ -525,4 +525,7 @@
     <string name="grid">Grid</string>
 	  <string name="auto">Auto</string>
     <string name="switch_view">Switch View</string>
+    <string name="todo">TODO</string>
+    <string name="size_100_00mb">100.00MB</string>
+    <string name="xxx_xx">XXX.xx</string>
 </resources>

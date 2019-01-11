@@ -5,23 +5,16 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.support.annotation.ColorRes
 import android.support.annotation.DrawableRes
+import android.util.Log
 import android.widget.Toast
-
 import org.schabi.newpipe.R
-
-import java.io.BufferedOutputStream
-import java.io.FileInputStream
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
-import java.io.Serializable
+import java.io.*
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import kotlin.experimental.and
 
 object Utility {
+    const val TAG = "Utility"
 
     enum class FileType {
         VIDEO,
@@ -102,7 +95,7 @@ object Utility {
         } else {
             var ext = url.substring(index)
             index = ext.indexOf("%")
-            if ( index > -1) {
+            if (index > -1) {
                 ext = ext.substring(0, index)
             }
             index = ext.indexOf("/")
@@ -158,35 +151,32 @@ object Utility {
     }
 
     fun checksum(path: String, algorithm: String): String {
-        var md: MessageDigest? = null
+        val md: MessageDigest =
+                try {
+                    MessageDigest.getInstance(algorithm)
+                } catch (e: NoSuchAlgorithmException) {
+                    throw RuntimeException(e)
+                }
 
-        try {
-            md = MessageDigest.getInstance(algorithm)
-        } catch (e: NoSuchAlgorithmException) {
-            throw RuntimeException(e)
-        }
-
-        var i: FileInputStream? = null
-
-        try {
-            i = FileInputStream(path)
-        } catch (e: FileNotFoundException) {
-            throw RuntimeException(e)
-        }
+        val i: FileInputStream =
+                try {
+                    FileInputStream(path)
+                } catch (e: FileNotFoundException) {
+                    throw RuntimeException(e)
+                }
 
         val buf = ByteArray(1024)
-        var len = 0
-
         try {
-            len = i.read(buf)
+            var len = i.read(buf)
             while (len != -1) {
-                md!!.update(buf, 0, len)
+                md.update(buf, 0, len)
+                len = i.read(buf)
             }
         } catch (ignored: IOException) {
-
+            Log.d(TAG, "checksum get error: ${ignored.message}")
         }
 
-        val digest = md!!.digest()
+        val digest = md.digest()
 
         // HEX
         val sb = StringBuilder()
@@ -195,6 +185,6 @@ object Utility {
         }
 
         return sb.toString()
-
     }
+
 }

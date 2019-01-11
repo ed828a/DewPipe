@@ -11,17 +11,16 @@ import android.view.ViewTreeObserver
 import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
 import org.schabi.newpipe.R
+import org.schabi.newpipe.download.giga.gigaui.fragment.DownloadMissionsFragment
+import org.schabi.newpipe.download.giga.service.DownloadManagerService
 import org.schabi.newpipe.settings.SettingsActivity
 import org.schabi.newpipe.util.ThemeHelper
-import org.schabi.newpipe.download.giga.service.DownloadManagerService
-import org.schabi.newpipe.download.giga.gigaui.fragment.AllMissionsFragment
-import org.schabi.newpipe.download.giga.gigaui.fragment.MissionsFragment
 
 class DownloadActivity : AppCompatActivity() {
     private var mDeleteDownloadManager: DeleteDownloadManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Service
+        // Service may not need to start
         val intent = Intent()
         intent.setClass(this, DownloadManagerService::class.java)
         startService(intent)
@@ -43,7 +42,7 @@ class DownloadActivity : AppCompatActivity() {
         mDeleteDownloadManager = DeleteDownloadManager(this)
         mDeleteDownloadManager!!.restoreState(savedInstanceState)
 
-        val fragment = fragmentManager.findFragmentByTag(MISSIONS_FRAGMENT_TAG) as MissionsFragment?
+        val fragment = fragmentManager.findFragmentByTag(MISSIONS_FRAGMENT_TAG) as DownloadMissionsFragment?
         if (fragment != null) {
             fragment.setDeleteManager(mDeleteDownloadManager!!)
         } else {
@@ -62,7 +61,7 @@ class DownloadActivity : AppCompatActivity() {
     }
 
     private fun updateFragments() {
-        val fragment = AllMissionsFragment()
+        val fragment = DownloadMissionsFragment()
         fragment.setDeleteManager(mDeleteDownloadManager!!)
 
         fragmentManager.beginTransaction()
