@@ -6,13 +6,11 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
-
-import org.schabi.newpipe.NewPipeDatabase
+import io.reactivex.android.schedulers.AndroidSchedulers
 import org.schabi.newpipe.R
+import org.schabi.newpipe.database.AppDatabase
 import org.schabi.newpipe.database.stream.model.StreamEntity
 import org.schabi.newpipe.local.playlist.LocalPlaylistManager
-
-import io.reactivex.android.schedulers.AndroidSchedulers
 
 class PlaylistCreationDialog : PlaylistDialog() {
 
@@ -33,7 +31,8 @@ class PlaylistCreationDialog : PlaylistDialog() {
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.create) { dialogInterface, i ->
                     val name = nameInput.text.toString()
-                    val playlistManager = LocalPlaylistManager(NewPipeDatabase.getInstance(context!!))
+//                    val playlistManager = LocalPlaylistManager(NewPipeDatabase.getInstance(context!!))
+                    val playlistManager = LocalPlaylistManager(AppDatabase.getDatabase(context!!))
                     val successToast = Toast.makeText(activity,
                             R.string.playlist_creation_success,
                             Toast.LENGTH_SHORT)

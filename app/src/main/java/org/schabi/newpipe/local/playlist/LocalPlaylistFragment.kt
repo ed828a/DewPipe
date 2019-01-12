@@ -22,8 +22,8 @@ import io.reactivex.disposables.Disposables
 import io.reactivex.subjects.PublishSubject
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
-import org.schabi.newpipe.NewPipeDatabase
 import org.schabi.newpipe.R
+import org.schabi.newpipe.database.AppDatabase
 import org.schabi.newpipe.database.LocalItem
 import org.schabi.newpipe.database.playlist.PlaylistStreamEntry
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
@@ -162,7 +162,8 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        playlistManager = LocalPlaylistManager(NewPipeDatabase.getInstance(context!!))
+//        playlistManager = LocalPlaylistManager(NewPipeDatabase.getInstance(context!!))
+        playlistManager = LocalPlaylistManager(AppDatabase.getDatabase(context!!))
         debouncedSaveSignal = PublishSubject.create()
 
         disposables = CompositeDisposable()

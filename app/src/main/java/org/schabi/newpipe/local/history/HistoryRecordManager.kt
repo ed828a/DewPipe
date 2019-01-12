@@ -21,8 +21,10 @@ package org.schabi.newpipe.local.history
 import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
-
-import org.schabi.newpipe.NewPipeDatabase
+import io.reactivex.Flowable
+import io.reactivex.Maybe
+import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 import org.schabi.newpipe.R
 import org.schabi.newpipe.database.AppDatabase
 import org.schabi.newpipe.database.history.dao.SearchHistoryDAO
@@ -36,14 +38,7 @@ import org.schabi.newpipe.database.stream.dao.StreamStateDAO
 import org.schabi.newpipe.database.stream.model.StreamEntity
 import org.schabi.newpipe.database.stream.model.StreamStateEntity
 import org.schabi.newpipe.extractor.stream.StreamInfo
-
-import java.util.ArrayList
-import java.util.Date
-
-import io.reactivex.Flowable
-import io.reactivex.Maybe
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import java.util.*
 
 class HistoryRecordManager(context: Context) {
 
@@ -69,7 +64,8 @@ class HistoryRecordManager(context: Context) {
         get() = sharedPreferences.getBoolean(searchHistoryKey, false)
 
     init {
-        database = NewPipeDatabase.getInstance(context)
+//        database = NewPipeDatabase.getInstance(context)
+        database = AppDatabase.getDatabase(context)
         streamTable = database.streamDAO()
         streamHistoryTable = database.streamHistoryDAO()
         searchHistoryTable = database.searchHistoryDAO()

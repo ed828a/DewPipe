@@ -17,8 +17,8 @@ import io.reactivex.disposables.Disposables
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import org.schabi.newpipe.BaseFragment
-import org.schabi.newpipe.NewPipeDatabase
 import org.schabi.newpipe.R
+import org.schabi.newpipe.database.AppDatabase
 import org.schabi.newpipe.database.playlist.model.PlaylistRemoteEntity
 import org.schabi.newpipe.extractor.ListExtractor
 import org.schabi.newpipe.extractor.NewPipe
@@ -104,8 +104,8 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
         super.onCreate(savedInstanceState)
         disposables = CompositeDisposable()
         isBookmarkButtonReady = AtomicBoolean(false)
-        remotePlaylistManager = RemotePlaylistManager(NewPipeDatabase.getInstance(
-                requireContext()))
+//        remotePlaylistManager = RemotePlaylistManager(NewPipeDatabase.getInstance(requireContext()))
+        remotePlaylistManager = RemotePlaylistManager(AppDatabase.getDatabase(requireContext()))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,

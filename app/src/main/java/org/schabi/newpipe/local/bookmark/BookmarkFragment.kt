@@ -15,8 +15,8 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
-import org.schabi.newpipe.NewPipeDatabase
 import org.schabi.newpipe.R
+import org.schabi.newpipe.database.AppDatabase
 import org.schabi.newpipe.database.LocalItem
 import org.schabi.newpipe.database.playlist.PlaylistLocalItem
 import org.schabi.newpipe.database.playlist.PlaylistMetadataEntry
@@ -35,7 +35,7 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
     var itemsListState: Parcelable? = null
 
     private var databaseSubscription: Subscription? = null
-    private var disposables: CompositeDisposable? = CompositeDisposable()
+    private var disposables: CompositeDisposable = CompositeDisposable()
     private var localPlaylistManager: LocalPlaylistManager? = null
     private var remotePlaylistManager: RemotePlaylistManager? = null
 
@@ -70,11 +70,14 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (activity == null) return
-        val database = NewPipeDatabase.getInstance(activity!!)
-        localPlaylistManager = LocalPlaylistManager(database)
-        remotePlaylistManager = RemotePlaylistManager(database)
-        disposables = CompositeDisposable()
+//        if (activity == null) return
+//        val database = NewPipeDatabase.getInstance(activity!!)
+        context?.let {
+            val database = AppDatabase.getDatabase(context!!)
+            localPlaylistManager = LocalPlaylistManager(database)
+            remotePlaylistManager = RemotePlaylistManager(database)
+        }
+
     }
 
     override fun onCreateView(inflater: LayoutInflater,
@@ -163,7 +166,7 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
     override fun onDestroyView() {
         super.onDestroyView()
 
-        if (disposables != null) disposables!!.clear()
+        disposables.clear()
         if (databaseSubscription != null) databaseSubscription!!.cancel()
 
         databaseSubscription = null
@@ -171,9 +174,9 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
 
     override fun onDestroy() {
         super.onDestroy()
-        if (disposables != null) disposables!!.dispose()
+        if (!disposables.isDisposed)
+            disposables.dispose()
 
-        disposables = null
         localPlaylistManager = null
         remotePlaylistManager = null
         itemsListState = null

@@ -8,9 +8,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-
-import org.schabi.newpipe.NewPipeDatabase
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import org.schabi.newpipe.R
+import org.schabi.newpipe.database.AppDatabase
 import org.schabi.newpipe.database.LocalItem
 import org.schabi.newpipe.database.playlist.PlaylistMetadataEntry
 import org.schabi.newpipe.database.stream.model.StreamEntity
@@ -20,12 +21,7 @@ import org.schabi.newpipe.local.LocalItemListAdapter
 import org.schabi.newpipe.local.playlist.LocalPlaylistManager
 import org.schabi.newpipe.player.playqueue.PlayQueueItem
 import org.schabi.newpipe.util.OnClickGesture
-
-import java.util.ArrayList
-import java.util.Collections
-
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
+import java.util.*
 
 class PlaylistAppendDialog : PlaylistDialog() {
 
@@ -46,8 +42,8 @@ class PlaylistAppendDialog : PlaylistDialog() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val playlistManager = LocalPlaylistManager(NewPipeDatabase.getInstance(context!!))
-
+//        val playlistManager = LocalPlaylistManager(NewPipeDatabase.getInstance(context!!))
+        val playlistManager = LocalPlaylistManager(AppDatabase.getDatabase(context!!))
         playlistAdapter = LocalItemListAdapter(activity!!)
         playlistAdapter!!.setSelectedListener(object : OnClickGesture<LocalItem>() {
             override fun selected(selectedItem: LocalItem) {

@@ -5,7 +5,6 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
-import org.schabi.newpipe.NewPipeDatabase
 import org.schabi.newpipe.database.AppDatabase
 import org.schabi.newpipe.download.background.MissionControl
 
@@ -14,8 +13,8 @@ import org.schabi.newpipe.download.background.MissionControl
  */
 class DownloadMissionDataSourceImpl(val context: Context) : DownloadMissionDataSource {
 
-    private val downloadDb: AppDatabase = NewPipeDatabase.getInstance(context)
-
+//    private val downloadDb: AppDatabase = NewPipeDatabase.getInstance(context)
+    private val downloadDb: AppDatabase = AppDatabase.getDatabase(context)
     /**
      * Retrieve an instance from the database, used for tests.
      */

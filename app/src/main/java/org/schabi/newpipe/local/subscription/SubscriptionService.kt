@@ -2,26 +2,18 @@ package org.schabi.newpipe.local.subscription
 
 import android.content.Context
 import android.util.Log
-
+import io.reactivex.*
+import io.reactivex.functions.Function
+import io.reactivex.schedulers.Schedulers
 import org.schabi.newpipe.MainActivity
-import org.schabi.newpipe.NewPipeDatabase
 import org.schabi.newpipe.database.AppDatabase
 import org.schabi.newpipe.database.subscription.SubscriptionDAO
 import org.schabi.newpipe.database.subscription.SubscriptionEntity
 import org.schabi.newpipe.extractor.channel.ChannelInfo
-
-import java.util.ArrayList
+import org.schabi.newpipe.util.ExtractorHelper
+import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-
-import io.reactivex.Completable
-import io.reactivex.CompletableSource
-import io.reactivex.Flowable
-import io.reactivex.Maybe
-import io.reactivex.Scheduler
-import io.reactivex.functions.Function
-import io.reactivex.schedulers.Schedulers
-import org.schabi.newpipe.util.ExtractorHelper
 
 /**
  * Subscription Service singleton:
@@ -67,7 +59,8 @@ class SubscriptionService private constructor(context: Context) {
                 .autoConnect()
 
     init {
-        db = NewPipeDatabase.getInstance(context.applicationContext)
+//        db = NewPipeDatabase.getInstance(context.applicationContext)
+        db = AppDatabase.getDatabase(context.applicationContext)
         subscription = subscriptionInfos
 
         val subscriptionExecutor = Executors.newFixedThreadPool(SUBSCRIPTION_THREAD_POOL_SIZE)
