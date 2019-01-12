@@ -1,4 +1,4 @@
-package org.schabi.newpipe.download.giga.gigaui.common
+package org.schabi.newpipe.download.util
 
 import android.content.Context
 import android.graphics.Canvas

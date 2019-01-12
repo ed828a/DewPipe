@@ -528,4 +528,5 @@
     <string name="todo">TODO</string>
     <string name="size_100_00mb">100.00MB</string>
     <string name="xxx_xx">XXX.xx</string>
+    <string name="download_service_disconnected">Download Service disconnected</string>
 </resources>

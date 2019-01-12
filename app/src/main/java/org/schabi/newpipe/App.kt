@@ -6,6 +6,8 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.support.multidex.MultiDexApplication
+import android.support.v4.content.ContextCompat.getSystemService
 import android.util.Log
 
 import com.nostra13.universalimageloader.cache.memory.impl.LRULimitedMemoryCache
@@ -59,7 +61,7 @@ import org.schabi.newpipe.util.ExtractorHelper
 
 
 @SuppressLint("Registered")
-open class App : Application() {
+open class App : MultiDexApplication() {
     private var refWatcher: RefWatcher? = null
 
     protected open val downloader: Downloader

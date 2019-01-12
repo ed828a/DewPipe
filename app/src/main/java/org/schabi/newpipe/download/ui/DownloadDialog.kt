@@ -37,7 +37,7 @@ import java.util.ArrayList
 import icepick.Icepick
 import icepick.State
 import io.reactivex.disposables.CompositeDisposable
-import org.schabi.newpipe.download.giga.service.DownloadManagerService
+import org.schabi.newpipe.download.service.DownloadManagerService
 
 class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, AdapterView.OnItemSelectedListener {
 

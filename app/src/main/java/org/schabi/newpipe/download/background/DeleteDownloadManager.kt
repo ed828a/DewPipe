@@ -1,4 +1,4 @@
-package org.schabi.newpipe.download.ui
+package org.schabi.newpipe.download.background
 
 import android.app.Activity
 import android.os.Bundle
@@ -13,17 +13,15 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import org.schabi.newpipe.R
-import org.schabi.newpipe.download.background.DownloadMissionManager
-import org.schabi.newpipe.download.background.MissionControl
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 class DeleteDownloadManager(activity: Activity) {
-
+    // gripe the view of the activity
     private val mView: View = activity.findViewById(android.R.id.content)
     private val mPendingMap: HashSet<String> = HashSet()  // store url
     private val mDisposableList = CompositeDisposable()
-    private var mDownloadMissionManager: DownloadMissionManager? = null
+    private lateinit var mDownloadMissionManager: DownloadMissionManager
     private val publishSubject = PublishSubject.create<MissionControl>()
 
     val undoObservable: Observable<MissionControl>
@@ -71,8 +69,8 @@ class DeleteDownloadManager(activity: Activity) {
 
         val url = mPendingMap.iterator().next()
 
-        for (i in 0 until mDownloadMissionManager!!.count) {
-            val missionControl = mDownloadMissionManager!!.getMission(i)
+        for (i in 0 until mDownloadMissionManager.count) {
+            val missionControl = mDownloadMissionManager.getMission(i)
             if (url == missionControl.mission.url) {
                 showUndoDeleteSnackbar(missionControl)
                 break
@@ -118,23 +116,23 @@ class DeleteDownloadManager(activity: Activity) {
         if (mPendingMap.size < 1) return
 
         val idSet = HashSet<Int>()
-        for (i in 0 until mDownloadMissionManager!!.count) {
-            if (contains(mDownloadMissionManager!!.getMission(i))) {
+        for (i in 0 until mDownloadMissionManager.count) {
+            if (contains(mDownloadMissionManager.getMission(i))) {
                 idSet.add(i)
             }
         }
 
         for (id in idSet) {
-            mDownloadMissionManager!!.deleteMission(id)
+            mDownloadMissionManager.deleteMission(id)
         }
 
         mPendingMap.clear()
     }
 
     private fun deletePending(missionControl: MissionControl) {
-        for (i in 0 until mDownloadMissionManager!!.count) {
-            if (missionControl.mission.url == mDownloadMissionManager!!.getMission(i).mission.url) {
-                mDownloadMissionManager!!.deleteMission(i)
+        for (i in 0 until mDownloadMissionManager.count) {
+            if (missionControl.mission.url == mDownloadMissionManager.getMission(i).mission.url) {
+                mDownloadMissionManager.deleteMission(i)
                 break
             }
         }

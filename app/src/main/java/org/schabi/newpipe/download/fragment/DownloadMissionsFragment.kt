@@ -1,21 +1,22 @@
-package org.schabi.newpipe.download.giga.gigaui.fragment
+package org.schabi.newpipe.download.fragment
 
 import android.app.Activity
-import android.app.Fragment
 import android.content.*
 import android.os.Bundle
 import android.os.IBinder
 import android.preference.PreferenceManager
+import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.*
+import android.widget.Toast
 import io.reactivex.disposables.Disposable
 import org.schabi.newpipe.R
 import org.schabi.newpipe.download.background.DownloadMissionManager
-import org.schabi.newpipe.download.giga.gigaui.adapter.MissionAdapter
-import org.schabi.newpipe.download.giga.service.DownloadManagerService
-import org.schabi.newpipe.download.ui.DeleteDownloadManager
+import org.schabi.newpipe.download.adapter.MissionAdapter
+import org.schabi.newpipe.download.service.DownloadManagerService
+import org.schabi.newpipe.download.background.DeleteDownloadManager
 
 class DownloadMissionsFragment : Fragment() {
     private var mDownloadManager: DownloadMissionManager? = null
@@ -46,6 +47,11 @@ class DownloadMissionsFragment : Fragment() {
 
         override fun onServiceDisconnected(name: ComponentName) {
             // What to do?
+            mBinder = null
+            mDownloadManager = null
+            Toast.makeText(this@DownloadMissionsFragment.context,
+                    resources.getString(R.string.download_service_disconnected),
+                    Toast.LENGTH_SHORT).show()
         }
 
 
@@ -60,27 +66,31 @@ class DownloadMissionsFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val v = inflater.inflate(R.layout.missions, container, false)
+        val view = inflater.inflate(R.layout.missions, container, false)
 
         mPrefs = PreferenceManager.getDefaultSharedPreferences(activity)
         mLinear = mPrefs!!.getBoolean("linear", false)
 
         // Bind the service
-        val i = Intent()
-        i.setClass(activity, DownloadManagerService::class.java)
-        activity.bindService(i, mConnection, Context.BIND_AUTO_CREATE)
+        val intent = Intent()
+        val act = activity
+        act?.let { activity ->
+            intent.setClass(activity, DownloadManagerService::class.java)
+            activity.bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
+        }
+
 
         // Views
-        mList = v.findViewById(R.id.mission_recycler)
+        mList = view.findViewById(R.id.mission_recycler)
 
         // Init
         mGridManager = GridLayoutManager(activity, 2)
         mLinearManager = LinearLayoutManager(activity)
-        mList!!.layoutManager = mGridManager as RecyclerView.LayoutManager?
+        mList?.layoutManager = mGridManager as RecyclerView.LayoutManager?
 
         setHasOptionsMenu(true)
 
-        return v
+        return view
     }
 
     /**
@@ -109,20 +119,26 @@ class DownloadMissionsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         if (mDeleteDownloadManager != null) {
             mDeleteDisposable = mDeleteDownloadManager!!.undoObservable.subscribe { mission ->
-                if (mAdapter != null) {
-                    mAdapter!!.updateItemList()
-                    mAdapter!!.notifyDataSetChanged()
+                mAdapter?.let {
+                    it.updateItemList()
+                    it.notifyDataSetChanged()
                 }
+//
+//                if (mAdapter != null) {
+//                    mAdapter!!.updateItemList()
+//                    mAdapter!!.notifyDataSetChanged()
+//                }
             }
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        activity.unbindService(mConnection)
-        if (mDeleteDisposable != null) {
-            mDeleteDisposable!!.dispose()
-        }
+        activity?.unbindService(mConnection)
+        mDeleteDisposable?.dispose()
+//        if (mDeleteDisposable != null) {
+//            mDeleteDisposable!!.dispose()
+//        }
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
@@ -142,19 +158,19 @@ class DownloadMissionsFragment : Fragment() {
 
 
     fun notifyChange() {
-        mAdapter!!.notifyDataSetChanged()
+        mAdapter?.notifyDataSetChanged()
     }
 
     private fun updateList() {
         mAdapter = MissionAdapter(mActivity as Activity?, mBinder, mDownloadManager, mDeleteDownloadManager, mLinear)
 
-        if (mLinear) {
-            mList!!.layoutManager = mLinearManager
+        mList?.layoutManager = if (mLinear) {
+            mLinearManager
         } else {
-            mList!!.layoutManager = mGridManager as RecyclerView.LayoutManager?
+            mGridManager as RecyclerView.LayoutManager?
         }
 
-        mList!!.adapter = mAdapter
+        mList?.adapter = mAdapter
 
         if (mSwitch != null) {
             mSwitch!!.setIcon(if (mLinear) R.drawable.grid else R.drawable.list)

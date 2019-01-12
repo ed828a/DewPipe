@@ -1,26 +1,31 @@
 package org.schabi.newpipe.download.ui
 
-import android.app.FragmentTransaction
+
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
 import android.view.ViewTreeObserver
 import io.reactivex.Completable
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import org.schabi.newpipe.R
-import org.schabi.newpipe.download.giga.gigaui.fragment.DownloadMissionsFragment
-import org.schabi.newpipe.download.giga.service.DownloadManagerService
+import org.schabi.newpipe.download.background.DeleteDownloadManager
+import org.schabi.newpipe.download.fragment.DownloadMissionsFragment
+import org.schabi.newpipe.download.service.DownloadManagerService
 import org.schabi.newpipe.settings.SettingsActivity
 import org.schabi.newpipe.util.ThemeHelper
 
 class DownloadActivity : AppCompatActivity() {
-    private var mDeleteDownloadManager: DeleteDownloadManager? = null
+    private lateinit var mDeleteDownloadManager: DeleteDownloadManager
+    private val compositeDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Service may not need to start
+        // just initialize DownloadManagerService so that DownloadFragment can bind to the service.
+        // no actual downloading to start yet.
         val intent = Intent()
         intent.setClass(this, DownloadManagerService::class.java)
         startService(intent)
@@ -40,41 +45,39 @@ class DownloadActivity : AppCompatActivity() {
         }
 
         mDeleteDownloadManager = DeleteDownloadManager(this)
-        mDeleteDownloadManager!!.restoreState(savedInstanceState)
+        mDeleteDownloadManager.restoreState(savedInstanceState)
 
-        val fragment = fragmentManager.findFragmentByTag(MISSIONS_FRAGMENT_TAG) as DownloadMissionsFragment?
+        val fragment = supportFragmentManager.findFragmentByTag(DOWNLOAD_MISSIONS_FRAGMENT_TAG) as DownloadMissionsFragment?
         if (fragment != null) {
-            fragment.setDeleteManager(mDeleteDownloadManager!!)
+            fragment.setDeleteManager(mDeleteDownloadManager)
         } else {
             window.decorView.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
                 override fun onGlobalLayout() {
                     updateFragments()
-                    window.decorView.viewTreeObserver.removeGlobalOnLayoutListener(this)
+                    window.decorView.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 }
             })
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        mDeleteDownloadManager!!.saveState(outState)
+        mDeleteDownloadManager.saveState(outState)
         super.onSaveInstanceState(outState)
     }
 
     private fun updateFragments() {
         val fragment = DownloadMissionsFragment()
-        fragment.setDeleteManager(mDeleteDownloadManager!!)
+        fragment.setDeleteManager(mDeleteDownloadManager)
 
-        fragmentManager.beginTransaction()
-                .replace(R.id.frame, fragment, MISSIONS_FRAGMENT_TAG)
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.downloader_frame, fragment, DOWNLOAD_MISSIONS_FRAGMENT_TAG)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .commit()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
-        val inflater = menuInflater
-
-        inflater.inflate(R.menu.download_menu, menu)
+        menuInflater.inflate(R.menu.download_menu, menu)
 
         return true
     }
@@ -88,7 +91,7 @@ class DownloadActivity : AppCompatActivity() {
             R.id.action_settings -> {
                 val intent = Intent(this, SettingsActivity::class.java)
                 startActivity(intent)
-                deletePending()
+                compositeDisposable.add(deletePending())
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -97,21 +100,21 @@ class DownloadActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         super.onBackPressed()
-        deletePending()
+        compositeDisposable.add(deletePending())
     }
 
-    private fun deletePending() {
-        Completable.fromAction { mDeleteDownloadManager!!.deletePending() }
+    private fun deletePending() =
+        Completable.fromAction { mDeleteDownloadManager.deletePending() }
                 .subscribeOn(Schedulers.io())
                 .subscribe()
 
-//        Completable.fromAction(Action { mDeleteDownloadManager!!.deletePending() })
-//                .subscribeOn(Schedulers.io())
-//                .subscribe()
+    override fun onStop() {
+        super.onStop()
+        compositeDisposable.clear()
     }
 
     companion object {
 
-        private const val MISSIONS_FRAGMENT_TAG = "fragment_tag"
+        private const val DOWNLOAD_MISSIONS_FRAGMENT_TAG = "download_missions_fragment_tag"
     }
 }

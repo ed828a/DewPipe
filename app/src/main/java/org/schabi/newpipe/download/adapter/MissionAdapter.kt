@@ -1,8 +1,7 @@
-package org.schabi.newpipe.download.giga.gigaui.adapter
+package org.schabi.newpipe.download.adapter
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
 import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
@@ -25,9 +24,9 @@ import org.schabi.newpipe.download.background.DownloadMissionManager
 import org.schabi.newpipe.download.background.MissionControl
 import org.schabi.newpipe.download.background.MissionControl.Companion.NO_ERROR
 import org.schabi.newpipe.download.background.MissionControlListener
-import org.schabi.newpipe.download.giga.gigaui.common.ProgressDrawable
-import org.schabi.newpipe.download.giga.service.DownloadManagerService
-import org.schabi.newpipe.download.ui.DeleteDownloadManager
+import org.schabi.newpipe.download.util.ProgressDrawable
+import org.schabi.newpipe.download.service.DownloadManagerService
+import org.schabi.newpipe.download.background.DeleteDownloadManager
 import org.schabi.newpipe.download.util.Utility
 import java.io.File
 import java.lang.ref.WeakReference

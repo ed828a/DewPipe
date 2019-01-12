@@ -1,4 +1,4 @@
-package org.schabi.newpipe.download.giga.service
+package org.schabi.newpipe.download.service
 
 import android.Manifest
 import android.app.Notification

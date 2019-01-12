@@ -100,7 +100,7 @@
             android:label="@string/app_name"
             android:launchMode="singleTask" />
 
-        <service android:name=".download.giga.service.DownloadManagerService" />
+        <service android:name="org.schabi.newpipe.download.service.DownloadManagerService" />
 
         <activity
             android:name=".util.FilePickerActivityHelper"
