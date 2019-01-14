@@ -1,16 +1,16 @@
 package org.schabi.newpipe.download.downloadDB
 
 import android.arch.persistence.room.*
-import org.schabi.newpipe.download.downloadDB.MissionEntry.Companion.FILE_NAME
-import org.schabi.newpipe.download.downloadDB.MissionEntry.Companion.LOCATION
-import org.schabi.newpipe.download.downloadDB.MissionEntry.Companion.TABLE_NAME
+import org.schabi.newpipe.download.downloadDB.MissionEntity.Companion.FILE_NAME
+import org.schabi.newpipe.download.downloadDB.MissionEntity.Companion.LOCATION
+import org.schabi.newpipe.download.downloadDB.MissionEntity.Companion.TABLE_NAME
 
 /**
  * Created by Edward on 12/21/2018.
  */
 
 @Entity(tableName = TABLE_NAME, indices = [Index(value = [LOCATION, FILE_NAME], unique = true)])
-data class MissionEntry(
+data class MissionEntity(
         @field:ColumnInfo(name = FILE_NAME) var name: String = "",    // The filename
         @field:ColumnInfo(name = URL) var url: String = "",           // The url of the file to download
         @field:ColumnInfo(name = LOCATION) var location: String = "", // The directory to store the downloaded
@@ -23,7 +23,7 @@ data class MissionEntry(
     var id: Long = 0
 
     @Ignore
-    fun hasEqualValues(otherEntry: MissionEntry): Boolean {
+    fun hasEqualValues(otherEntry: MissionEntity): Boolean {
         return name == otherEntry.name
     }
 

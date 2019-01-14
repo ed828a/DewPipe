@@ -43,6 +43,7 @@ import org.schabi.newpipe.extractor.search.SearchInfo
 import org.schabi.newpipe.extractor.services.youtube.extractors.YoutubeStreamExtractor
 import org.schabi.newpipe.extractor.stream.StreamInfo
 import org.schabi.newpipe.report.ErrorActivity
+import org.schabi.newpipe.report.ErrorInfo
 import org.schabi.newpipe.report.UserAction
 import java.io.IOException
 import java.io.InterruptedIOException
@@ -227,7 +228,7 @@ object ExtractorHelper {
                             exception,
                             MainActivity::class.java,
                             null,
-                            ErrorActivity.ErrorInfo.make(userAction,
+                            ErrorInfo.make(userAction,
                                     if (serviceId == -1) "none" else NewPipe.getNameOfService(serviceId), url + (optionalErrorMessage
                                     ?: ""), errorId))
                 }

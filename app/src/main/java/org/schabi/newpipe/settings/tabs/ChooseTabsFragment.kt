@@ -28,6 +28,7 @@ import android.widget.TextView
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.NewPipe
 import org.schabi.newpipe.report.ErrorActivity
+import org.schabi.newpipe.report.ErrorInfo
 import org.schabi.newpipe.report.UserAction
 import org.schabi.newpipe.settings.SelectChannelFragment
 import org.schabi.newpipe.settings.SelectKioskFragment
@@ -223,7 +224,7 @@ class ChooseTabsFragment : Fragment() {
 
         if (type == null) {
             ErrorActivity.reportError(requireContext(), IllegalStateException("Tab id not found: $tabId"), null, null,
-                    ErrorActivity.ErrorInfo.make(UserAction.SOMETHING_ELSE, "none", "Choosing tabs on settings", 0))
+                    ErrorInfo.make(UserAction.SOMETHING_ELSE, "none", "Choosing tabs on settings", 0))
             return
         }
 

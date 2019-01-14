@@ -28,6 +28,7 @@ import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService
 import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.Companion.KEY_MODE
 import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.Companion.KEY_VALUE
 import org.schabi.newpipe.report.ErrorActivity
+import org.schabi.newpipe.report.ErrorInfo
 import org.schabi.newpipe.report.UserAction
 import org.schabi.newpipe.util.Constants
 import org.schabi.newpipe.util.FilePickerActivityHelper
@@ -66,7 +67,7 @@ class SubscriptionsImportFragment : BaseFragment() {
 
         setupServiceVariables()
         if (supportedSources!!.isEmpty() && currentServiceId != Constants.NO_SERVICE_ID) {
-            ErrorActivity.reportError(activity!!, emptyList(), null, null, ErrorActivity.ErrorInfo.make(UserAction.SOMETHING_ELSE,
+            ErrorActivity.reportError(activity!!, emptyList(), null, null, ErrorInfo.make(UserAction.SOMETHING_ELSE,
                     NewPipe.getNameOfService(currentServiceId), "Service don't support importing", R.string.general_error))
             activity!!.finish()
         }

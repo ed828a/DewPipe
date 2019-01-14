@@ -9,21 +9,21 @@ import android.arch.persistence.room.*
 @Dao
 interface DownloadDAO {
 
-    @Query("SELECT * FROM ${MissionEntry.TABLE_NAME} ORDER BY ${MissionEntry.TIMESTAMP}")
-    fun loadMissions(): List<MissionEntry>
+    @Query("SELECT * FROM ${MissionEntity.TABLE_NAME} ORDER BY ${MissionEntity.TIMESTAMP}")
+    fun loadMissions(): List<MissionEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun addMission(missionEntry: MissionEntry)
+    fun addMission(missionEntity: MissionEntity)
 
-    @Query("UPDATE ${MissionEntry.TABLE_NAME} SET ${MissionEntry.URL} = :url, ${MissionEntry.DONE} = :done, ${MissionEntry.TIMESTAMP} = :timestamp WHERE ${MissionEntry.FILE_NAME} = :name AND ${MissionEntry.LOCATION} = :location")
+    @Query("UPDATE ${MissionEntity.TABLE_NAME} SET ${MissionEntity.URL} = :url, ${MissionEntity.DONE} = :done, ${MissionEntity.TIMESTAMP} = :timestamp WHERE ${MissionEntity.FILE_NAME} = :name AND ${MissionEntity.LOCATION} = :location")
     fun updateMission(name: String, location: String, url: String, done: kotlin.Long, timestamp: kotlin.Long)
 
     @Delete
-    fun deleteMission(missionEntry: MissionEntry)
+    fun deleteMission(missionEntity: MissionEntity)
 
     companion object {
-        fun updateMission(missionEntry: MissionEntry, downloadDataSource: DownloadDAO){
-            with(missionEntry){
+        fun updateMission(missionEntity: MissionEntity, downloadDataSource: DownloadDAO){
+            with(missionEntity){
                 downloadDataSource.updateMission(name, location, url, done, timestamp)
             }
         }

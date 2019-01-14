@@ -26,7 +26,7 @@ abstract class StreamStateDAO : BasicDAO<StreamStateEntity> {
     abstract fun deleteState(streamId: Long): Int
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    internal abstract fun silentInsertInternal(streamState: StreamStateEntity)
+    abstract fun silentInsertInternal(streamState: StreamStateEntity)
 
     @Transaction
     open fun upsert(stream: StreamStateEntity): Long {

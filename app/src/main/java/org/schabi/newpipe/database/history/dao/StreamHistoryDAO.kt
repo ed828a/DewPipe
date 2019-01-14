@@ -22,10 +22,7 @@ abstract class StreamHistoryDAO : HistoryDAO<StreamHistoryEntity> {
     @get:Query("SELECT * FROM $STREAM_HISTORY_TABLE")
     abstract override val all: Flowable<List<StreamHistoryEntity>>
 
-    @get:Query("SELECT * FROM " + STREAM_TABLE +
-            " INNER JOIN " + STREAM_HISTORY_TABLE +
-            " ON " + STREAM_ID + " = " + JOIN_STREAM_ID +
-            " ORDER BY " + STREAM_ACCESS_DATE + " DESC")
+    @get:Query("SELECT * FROM $STREAM_TABLE INNER JOIN $STREAM_HISTORY_TABLE ON $STREAM_ID = $JOIN_STREAM_ID ORDER BY $STREAM_ACCESS_DATE DESC")
     abstract val history: Flowable<List<StreamHistoryEntry>>
 
     @get:Query("SELECT * FROM " + STREAM_TABLE +
@@ -40,9 +37,7 @@ abstract class StreamHistoryDAO : HistoryDAO<StreamHistoryEntity> {
             " ON " + STREAM_ID + " = " + JOIN_STREAM_ID)
     abstract val statistics: Flowable<List<StreamStatisticsEntry>>
 
-    @Query("SELECT * FROM " + STREAM_HISTORY_TABLE +
-            " WHERE " + STREAM_ACCESS_DATE + " = " +
-            "(SELECT MAX(" + STREAM_ACCESS_DATE + ") FROM " + STREAM_HISTORY_TABLE + ")")
+    @Query("SELECT * FROM $STREAM_HISTORY_TABLE WHERE $STREAM_ACCESS_DATE = (SELECT MAX($STREAM_ACCESS_DATE) FROM $STREAM_HISTORY_TABLE)")
     abstract override fun getLatestEntry(): StreamHistoryEntity?
 
     @Query("DELETE FROM $STREAM_HISTORY_TABLE")

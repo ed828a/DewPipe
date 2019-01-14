@@ -8,7 +8,7 @@ enum class UserAction(val message: String) {
     UI_ERROR("ui error"),
     SUBSCRIPTION("subscription"),
     LOAD_IMAGE("load image"),
-    SOMETHING_ELSE("something"),
+    SOMETHING_ELSE("something else"),
     SEARCHED("searched"),
     GET_SUGGESTIONS("get suggestions"),
     REQUESTED_STREAM("requested stream"),

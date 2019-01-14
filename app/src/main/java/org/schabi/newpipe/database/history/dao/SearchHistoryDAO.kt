@@ -16,8 +16,7 @@ interface SearchHistoryDAO : HistoryDAO<SearchHistoryEntry> {
     @get:Query("SELECT * FROM $TABLE_NAME$ORDER_BY_CREATION_DATE")
     override val all: Flowable<List<SearchHistoryEntry>>
 
-    @Query("SELECT * FROM " + TABLE_NAME +
-            " WHERE " + ID + " = (SELECT MAX(" + ID + ") FROM " + TABLE_NAME + ")")
+    @Query("SELECT * FROM $TABLE_NAME WHERE $ID = (SELECT MAX($ID) FROM $TABLE_NAME)")
     override fun getLatestEntry(): SearchHistoryEntry?
 
     @Query("DELETE FROM $TABLE_NAME")
@@ -36,7 +35,6 @@ interface SearchHistoryDAO : HistoryDAO<SearchHistoryEntry> {
     fun getSimilarEntries(query: String, limit: Int): Flowable<List<SearchHistoryEntry>>
 
     companion object {
-
         const val ORDER_BY_CREATION_DATE = " ORDER BY $CREATION_DATE DESC"
     }
 }

@@ -19,19 +19,14 @@ abstract class PlaylistRemoteDAO : BasicDAO<PlaylistRemoteEntity> {
     @Query("DELETE FROM $REMOTE_PLAYLIST_TABLE")
     abstract override fun deleteAll(): Int
 
-    @Query("SELECT * FROM " + REMOTE_PLAYLIST_TABLE +
-            " WHERE " + REMOTE_PLAYLIST_SERVICE_ID + " = :serviceId")
+    @Query("SELECT * FROM $REMOTE_PLAYLIST_TABLE WHERE $REMOTE_PLAYLIST_SERVICE_ID = :serviceId")
     abstract override fun listByService(serviceId: Int): Flowable<List<PlaylistRemoteEntity>>
 
-    @Query("SELECT * FROM " + REMOTE_PLAYLIST_TABLE + " WHERE " +
-            REMOTE_PLAYLIST_URL + " = :url AND " +
-            REMOTE_PLAYLIST_SERVICE_ID + " = :serviceId")
+    @Query("SELECT * FROM $REMOTE_PLAYLIST_TABLE WHERE $REMOTE_PLAYLIST_URL = :url AND $REMOTE_PLAYLIST_SERVICE_ID = :serviceId")
     abstract fun getPlaylist(serviceId: Long, url: String): Flowable<List<PlaylistRemoteEntity>>
 
-    @Query("SELECT " + REMOTE_PLAYLIST_ID + " FROM " + REMOTE_PLAYLIST_TABLE +
-            " WHERE " +
-            REMOTE_PLAYLIST_URL + " = :url AND " + REMOTE_PLAYLIST_SERVICE_ID + " = :serviceId")
-    internal abstract fun getPlaylistIdInternal(serviceId: Long, url: String): Long?
+    @Query("SELECT $REMOTE_PLAYLIST_ID FROM $REMOTE_PLAYLIST_TABLE WHERE $REMOTE_PLAYLIST_URL = :url AND $REMOTE_PLAYLIST_SERVICE_ID = :serviceId")
+    abstract fun getPlaylistIdInternal(serviceId: Long, url: String): Long?
 
     @Transaction
     open fun upsert(playlist: PlaylistRemoteEntity): Long {
@@ -46,7 +41,6 @@ abstract class PlaylistRemoteDAO : BasicDAO<PlaylistRemoteEntity> {
         }
     }
 
-    @Query("DELETE FROM " + REMOTE_PLAYLIST_TABLE +
-            " WHERE " + REMOTE_PLAYLIST_ID + " = :playlistId")
+    @Query("DELETE FROM $REMOTE_PLAYLIST_TABLE WHERE $REMOTE_PLAYLIST_ID = :playlistId")
     abstract fun deletePlaylist(playlistId: Long): Int
 }

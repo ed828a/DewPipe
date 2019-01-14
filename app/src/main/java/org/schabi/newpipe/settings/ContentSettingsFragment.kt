@@ -18,6 +18,7 @@ import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.NewPipe
 import org.schabi.newpipe.extractor.utils.Localization
 import org.schabi.newpipe.report.ErrorActivity
+import org.schabi.newpipe.report.ErrorInfo
 import org.schabi.newpipe.report.UserAction
 import org.schabi.newpipe.util.FilePickerActivityHelper
 import org.schabi.newpipe.util.ZipHelper
@@ -293,7 +294,7 @@ class ContentSettingsFragment : BasePreferenceFragment() {
         val activity = activity
         ErrorActivity.reportError(activity!!, e,
                 activity.javaClass, null,
-                ErrorActivity.ErrorInfo.make(UserAction.UI_ERROR,
+                ErrorInfo.make(UserAction.UI_ERROR,
                         "none", "", R.string.app_ui_crash))
     }
 

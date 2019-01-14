@@ -19,6 +19,7 @@ import org.schabi.newpipe.extractor.NewPipe
 import org.schabi.newpipe.extractor.ServiceList
 import org.schabi.newpipe.extractor.StreamingService
 import org.schabi.newpipe.report.ErrorActivity
+import org.schabi.newpipe.report.ErrorInfo
 import org.schabi.newpipe.report.UserAction
 import org.schabi.newpipe.util.KioskTranslator
 import org.schabi.newpipe.util.ServiceHelper
@@ -166,7 +167,7 @@ class SelectKioskFragment : DialogFragment() {
         val activity = activity
         ErrorActivity.reportError(activity!!, e,
                 activity!!.javaClass, null,
-                ErrorActivity.ErrorInfo.make(UserAction.UI_ERROR,
+                ErrorInfo.make(UserAction.UI_ERROR,
                         "none", "", R.string.app_ui_crash))
     }
 

@@ -27,6 +27,7 @@ import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import org.schabi.newpipe.report.ErrorInfo
 
 
 /**
@@ -195,7 +196,7 @@ class SelectChannelFragment : DialogFragment() {
         val activity = activity
         ErrorActivity.reportError(activity!!, e,
                 activity!!.javaClass, null,
-                ErrorActivity.ErrorInfo.make(UserAction.UI_ERROR,
+                ErrorInfo.make(UserAction.UI_ERROR,
                         "none", "", R.string.app_ui_crash))
     }
 

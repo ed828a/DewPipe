@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 import icepick.State
 import io.reactivex.android.schedulers.AndroidSchedulers
+import org.schabi.newpipe.report.ErrorInfo
 
 import org.schabi.newpipe.util.AnimationUtils.animateView
 import org.schabi.newpipe.util.ExtractorHelper
@@ -199,7 +200,7 @@ abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
         if (serviceName == null) serviceName = "none"
         if (request == null) request = "none"
 
-        ErrorActivity.reportError(context!!, exception, MainActivity::class.java, null, ErrorActivity.ErrorInfo.make(userAction, serviceName, request, errorId))
+        ErrorActivity.reportError(context!!, exception, MainActivity::class.java, null, ErrorInfo.make(userAction, serviceName, request, errorId))
     }
 
     fun showSnackBarError(exception: Throwable, userAction: UserAction, serviceName: String, request: String, @StringRes errorId: Int) {
@@ -218,7 +219,7 @@ abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
         if (rootView == null) return
 
         ErrorActivity.reportError(context!!, exception, MainActivity::class.java, rootView,
-                ErrorActivity.ErrorInfo.make(userAction, serviceName, request, errorId))
+                ErrorInfo.make(userAction, serviceName, request, errorId))
     }
 
     ///////////////////////////////////////////////////////////////////////////

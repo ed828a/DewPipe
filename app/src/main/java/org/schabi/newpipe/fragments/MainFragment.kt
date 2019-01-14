@@ -15,6 +15,7 @@ import org.schabi.newpipe.BaseFragment
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.exceptions.ExtractionException
 import org.schabi.newpipe.report.ErrorActivity
+import org.schabi.newpipe.report.ErrorInfo
 import org.schabi.newpipe.report.UserAction
 import org.schabi.newpipe.settings.tabs.Tab
 import org.schabi.newpipe.settings.tabs.TabsManager
@@ -177,7 +178,7 @@ class MainFragment : BaseFragment(), TabLayout.OnTabSelectedListener {
                 val context = activity
                 context?.let {
                     ErrorActivity.reportError(it as Context, throwable, it.javaClass, null,
-                            ErrorActivity.ErrorInfo.make(UserAction.UI_ERROR, "none", "", R.string.app_ui_crash))
+                            ErrorInfo.make(UserAction.UI_ERROR, "none", "", R.string.app_ui_crash))
                 }
 
                 return BlankFragment()

@@ -48,6 +48,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Function
 import io.reactivex.processors.PublishProcessor
+import org.schabi.newpipe.report.ErrorInfo
 
 abstract class BaseImportExportService : Service() {
     protected val TAG = this.javaClass.simpleName
@@ -142,7 +143,7 @@ abstract class BaseImportExportService : Service() {
     protected fun stopAndReportError(error: Throwable?, request: String) {
         stopService()
 
-        val errorInfo = ErrorActivity.ErrorInfo.make(UserAction.SUBSCRIPTION, "unknown",
+        val errorInfo = ErrorInfo.make(UserAction.SUBSCRIPTION, "unknown",
                 request, R.string.general_error)
         ErrorActivity.reportError(this, if (error != null) listOf(error) else emptyList(), null, null, errorInfo)
     }

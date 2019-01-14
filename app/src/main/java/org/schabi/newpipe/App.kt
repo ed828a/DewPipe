@@ -39,6 +39,7 @@ import io.reactivex.exceptions.OnErrorNotImplementedException
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.functions.Consumer
 import io.reactivex.plugins.RxJavaPlugins
+import org.schabi.newpipe.report.ErrorInfo
 import org.schabi.newpipe.util.ExtractorHelper
 
 /*
@@ -182,7 +183,7 @@ open class App : MultiDexApplication() {
                     ace,
                     null,
                     null,
-                    ErrorActivity.ErrorInfo.make(UserAction.SOMETHING_ELSE, "none",
+                    ErrorInfo.make(UserAction.SOMETHING_ELSE, "none",
                             "Could not initialize ACRA crash report", R.string.app_ui_crash))
         }
 

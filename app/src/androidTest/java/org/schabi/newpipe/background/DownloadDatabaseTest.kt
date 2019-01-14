@@ -11,7 +11,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.schabi.newpipe.database.AppDatabase
 import org.schabi.newpipe.download.downloadDB.DownloadDAO
-import org.schabi.newpipe.download.downloadDB.MissionEntry
+import org.schabi.newpipe.download.downloadDB.MissionEntity
 import java.io.IOException
 
 /**
@@ -42,23 +42,23 @@ class DownloadDatabaseTest {
     @Test
     @Throws(Exception::class)
     fun addMissionTest() {
-        val missionEntry = MissionEntry("testFile.ept",
+        val missionEntity = MissionEntity("testFile.ept",
                 "http://google.com/?q=how+to+google",
                 "West Aust")
         for (i in 0 .. 49) {
-            missionEntry.timestamp = System.currentTimeMillis() - i
+            missionEntity.timestamp = System.currentTimeMillis() - i
 
-            downloadDataSource.addMission(missionEntry)
+            downloadDataSource.addMission(missionEntity)
         }
 
         val obtainFromDb = downloadDataSource.loadMissions()
         obtainFromDb.forEach {
-            assertMissionEntryEquals(missionEntry, it)
+            assertMissionEntityEquals(missionEntity, it)
         }
-        Log.d(TAG, "size of List<MissionEntry> : ${obtainFromDb.size}")
+        Log.d(TAG, "size of List<MissionEntity> : ${obtainFromDb.size}")
     }
 
-    private fun assertMissionEntryEquals(first: MissionEntry, second: MissionEntry){
+    private fun assertMissionEntityEquals(first: MissionEntity, second: MissionEntity){
         assertEquals(first.name, second.name)
         assertEquals(first.url, second.url)
         assertEquals(first.location, second.location)
@@ -67,35 +67,35 @@ class DownloadDatabaseTest {
     @Test
     @Throws(Exception::class)
     fun updateMissionsTest() {
-        val missionEntry = MissionEntry("testFile.ept",
+        val missionEntity = MissionEntity("testFile.ept",
                 "http://google.com/?q=how+to+google",
                 "West Aust")
-        downloadDataSource.addMission(missionEntry)
-        missionEntry.url = "noUrl"
-        missionEntry.done = 100L
-        missionEntry.timestamp = 19398749L
-        DownloadDAO.updateMission(missionEntry, downloadDataSource)
+        downloadDataSource.addMission(missionEntity)
+        missionEntity.url = "noUrl"
+        missionEntity.done = 100L
+        missionEntity.timestamp = 19398749L
+        DownloadDAO.updateMission(missionEntity, downloadDataSource)
 
         val obtainFromDb = downloadDataSource.loadMissions()
-        Log.d(TAG, "size of List<MissionEntry> : ${obtainFromDb.size}")
+        Log.d(TAG, "size of List<MissionEntity> : ${obtainFromDb.size}")
         obtainFromDb.forEach {
             Log.d(TAG, "obtainFromDb: $it")
-            assertMissionEntryEquals(missionEntry, it)
+            assertMissionEntityEquals(missionEntity, it)
         }
     }
 
     @Test
     @Throws(Exception::class)
     fun loadMissionsTest() {
-        val missionEntry = MissionEntry("testFile.ept",
+        val missionEntity = MissionEntity("testFile.ept",
                 "http://google.com/?q=how+to+google",
                 "West Aust")
-        downloadDataSource.addMission(missionEntry)
+        downloadDataSource.addMission(missionEntity)
         val obtainFromDb = downloadDataSource.loadMissions()
-        Log.d(TAG, "size of List<MissionEntry : ${obtainFromDb.size}")
+        Log.d(TAG, "size of List<MissionEntity : ${obtainFromDb.size}")
 
         obtainFromDb.forEach {
-            assertMissionEntryEquals(missionEntry, it)
+            assertMissionEntityEquals(missionEntity, it)
             Log.d(TAG, "obtainFromDb: $it")
         }
     }
@@ -104,18 +104,18 @@ class DownloadDatabaseTest {
     @Test
     @Throws(Exception::class)
     fun deleteMissionsTest() {
-        val missionEntry = MissionEntry("testFile.ept",
+        val missionEntity = MissionEntity("testFile.ept",
                 "http://google.com/?q=how+to+google",
                 "West Aust")
-        downloadDataSource.addMission(missionEntry)
+        downloadDataSource.addMission(missionEntity)
         var obtainFromDb = downloadDataSource.loadMissions()
-        Log.d(TAG, "size of List<MissionEntry : ${obtainFromDb.size}")
+        Log.d(TAG, "size of List<MissionEntity : ${obtainFromDb.size}")
 
-        downloadDataSource.deleteMission(missionEntry)
+        downloadDataSource.deleteMission(missionEntity)
         obtainFromDb = downloadDataSource.loadMissions()
 
         obtainFromDb.forEach {
-            assertMissionEntryEquals(missionEntry, it)
+            assertMissionEntityEquals(missionEntity, it)
             Log.d(TAG, "obtainFromDb: $it")
         }
     }

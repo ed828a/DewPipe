@@ -39,6 +39,7 @@ import org.schabi.newpipe.fragments.BackPressable
 import org.schabi.newpipe.fragments.list.BaseListFragment
 import org.schabi.newpipe.local.history.HistoryRecordManager
 import org.schabi.newpipe.report.ErrorActivity
+import org.schabi.newpipe.report.ErrorInfo
 import org.schabi.newpipe.report.UserAction
 import org.schabi.newpipe.util.*
 import org.schabi.newpipe.util.AnimationUtils.animateView
@@ -174,7 +175,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
             context?.let{
                 ErrorActivity.reportError(it, e, it.javaClass,
                         getActivity()!!.findViewById(android.R.id.content),
-                        ErrorActivity.ErrorInfo.make(UserAction.UI_ERROR,
+                        ErrorInfo.make(UserAction.UI_ERROR,
                                 "",
                                 "", R.string.general_error))
             }

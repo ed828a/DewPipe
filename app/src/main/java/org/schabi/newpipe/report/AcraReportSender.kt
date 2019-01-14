@@ -30,7 +30,7 @@ class AcraReportSender : ReportSender {
 
     override fun send(context: Context, report: CrashReportData) {
         ErrorActivity.reportError(context, report,
-                ErrorActivity.ErrorInfo.make(UserAction.UI_ERROR, "none",
+                ErrorInfo.make(UserAction.UI_ERROR, "none",
                         "App crash, UI failure", R.string.app_ui_crash))
     }
 }

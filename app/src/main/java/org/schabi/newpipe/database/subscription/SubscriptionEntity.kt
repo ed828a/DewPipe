@@ -8,29 +8,23 @@ import org.schabi.newpipe.extractor.channel.ChannelInfo
 import org.schabi.newpipe.extractor.channel.ChannelInfoItem
 import org.schabi.newpipe.util.Constants
 
-@Entity(tableName = SUBSCRIPTION_TABLE, indices = arrayOf(Index(value = *arrayOf(SUBSCRIPTION_SERVICE_ID, SUBSCRIPTION_URL), unique = true)))
-class SubscriptionEntity {
+@Entity(tableName = SUBSCRIPTION_TABLE, indices = [Index(value = arrayOf(SUBSCRIPTION_SERVICE_ID, SUBSCRIPTION_URL), unique = true)])
+class SubscriptionEntity(
+        @ColumnInfo(name = SUBSCRIPTION_SERVICE_ID) var serviceId: Int = Constants.NO_SERVICE_ID,
+
+        @ColumnInfo(name = SUBSCRIPTION_URL) var url: String? = null,
+
+        @ColumnInfo(name = SUBSCRIPTION_NAME) var name: String? = null,
+
+        @ColumnInfo(name = SUBSCRIPTION_AVATAR_URL) var avatarUrl: String? = null,
+
+        @ColumnInfo(name = SUBSCRIPTION_SUBSCRIBER_COUNT) var subscriberCount: Long? = null,
+
+        @ColumnInfo(name = SUBSCRIPTION_DESCRIPTION) var description: String? = null
+) {
 
     @PrimaryKey(autoGenerate = true)
     var uid: Long = 0
-
-    @ColumnInfo(name = SUBSCRIPTION_SERVICE_ID)
-    var serviceId = Constants.NO_SERVICE_ID
-
-    @ColumnInfo(name = SUBSCRIPTION_URL)
-    var url: String? = null
-
-    @ColumnInfo(name = SUBSCRIPTION_NAME)
-    var name: String? = null
-
-    @ColumnInfo(name = SUBSCRIPTION_AVATAR_URL)
-    var avatarUrl: String? = null
-
-    @ColumnInfo(name = SUBSCRIPTION_SUBSCRIBER_COUNT)
-    var subscriberCount: Long? = null
-
-    @ColumnInfo(name = SUBSCRIPTION_DESCRIPTION)
-    var description: String? = null
 
     @Ignore
     fun setData(name: String,
@@ -64,12 +58,16 @@ class SubscriptionEntity {
         internal const val SUBSCRIPTION_DESCRIPTION = "description"
 
         @Ignore
-        fun from(info: ChannelInfo): SubscriptionEntity {
-            val result = SubscriptionEntity()
-            result.serviceId = info.serviceId
-            result.url = info.url
-            result.setData(info.name, info.avatarUrl, info.description, info.subscriberCount)
-            return result
-        }
+        fun from(info: ChannelInfo): SubscriptionEntity =
+                with(info) {
+                    SubscriptionEntity(
+                            serviceId,
+                            url,
+                            name,
+                            avatarUrl,
+                            subscriberCount,
+                            description
+                    )
+                }
     }
 }

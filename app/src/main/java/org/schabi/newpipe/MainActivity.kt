@@ -79,7 +79,7 @@ class MainActivity : AppCompatActivity() {
     ///////////////////////////////////////////////////////////////////////////
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (DEBUG) Log.d(TAG, "onCreate() called with: savedInstanceState = [$savedInstanceState]")
+        Log.d(TAG, "onCreate() called with: savedInstanceState = [$savedInstanceState]")
 
         ThemeHelper.setTheme(this, ServiceHelper.getSelectedServiceId(this))
 

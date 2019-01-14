@@ -25,36 +25,35 @@ abstract class StreamDAO : BasicDAO<StreamEntity> {
     @Query("SELECT * FROM $STREAM_TABLE WHERE $STREAM_SERVICE_ID = :serviceId")
     abstract override fun listByService(serviceId: Int): Flowable<List<StreamEntity>>
 
-    @Query("SELECT * FROM " + STREAM_TABLE + " WHERE " +
-            STREAM_URL + " = :url AND " +
-            STREAM_SERVICE_ID + " = :serviceId")
+    @Query("SELECT * FROM $STREAM_TABLE WHERE $STREAM_URL = :url AND $STREAM_SERVICE_ID = :serviceId")
     abstract fun getStream(serviceId: Long, url: String): Flowable<List<StreamEntity>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    internal abstract fun silentInsertAllInternal(streams: List<StreamEntity>)
+    abstract fun silentInsertAllInternal(streams: List<StreamEntity>)
 
-    @Query("SELECT " + STREAM_ID + " FROM " + STREAM_TABLE + " WHERE " +
-            STREAM_URL + " = :url AND " +
-            STREAM_SERVICE_ID + " = :serviceId")
-    internal abstract fun getStreamIdInternal(serviceId: Long, url: String): Long?
+    @Query("SELECT $STREAM_ID FROM $STREAM_TABLE WHERE $STREAM_URL = :url AND $STREAM_SERVICE_ID = :serviceId")
+    abstract fun getStreamIdInternal(serviceId: Long, url: String): Long?
 
+    /**
+     * @return : row_id as stream_id
+     */
     @Transaction
     open fun upsert(stream: StreamEntity): Long {
         val streamIdCandidate = getStreamIdInternal(stream.serviceId.toLong(), stream.url!!)
 
-        if (streamIdCandidate == null) {
-            return insert(stream)
+        return if (streamIdCandidate == null) {
+            insert(stream)
         } else {
             stream.uid = streamIdCandidate
             update(stream)
-            return streamIdCandidate
+            streamIdCandidate
         }
     }
 
     @Transaction
     open fun upsertAll(streams: List<StreamEntity>): List<Long> {
         silentInsertAllInternal(streams)
-
+        // if Insert was done by RxJava2, the list of streamIds will get from the return of Insert Operation
         val streamIds = ArrayList<Long>(streams.size)
         for (stream in streams) {
             val streamId = getStreamIdInternal(stream.serviceId.toLong(), stream.url!!)
@@ -68,6 +67,11 @@ abstract class StreamDAO : BasicDAO<StreamEntity> {
         return streamIds
     }
 
+    /**
+     * if an item doesn't have a record in STREAM_HISTORY_TABLE or PLAYLIST_STREAM_JOIN_TABLE,
+     * this item is an orphans, which should be removed.
+     * @return: the number of affected rows
+     */
     @Query("DELETE FROM " + STREAM_TABLE + " WHERE " + STREAM_ID +
             " NOT IN " +
             "(SELECT DISTINCT " + STREAM_ID + " FROM " + STREAM_TABLE +

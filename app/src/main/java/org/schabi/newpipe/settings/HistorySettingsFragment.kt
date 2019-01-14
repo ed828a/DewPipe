@@ -14,6 +14,7 @@ import org.schabi.newpipe.util.InfoCache
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
+import org.schabi.newpipe.report.ErrorInfo
 
 class HistorySettingsFragment : BasePreferenceFragment() {
     private var cacheWipeKey: String? = null
@@ -62,7 +63,7 @@ class HistorySettingsFragment : BasePreferenceFragment() {
                                             ErrorActivity.reportError(context!!,
                                                     throwable,
                                                     SettingsActivity::class.java, null,
-                                                    ErrorActivity.ErrorInfo.make(
+                                                    ErrorInfo.make(
                                                             UserAction.DELETE_FROM_HISTORY,
                                                             "none",
                                                             "Delete view history",
@@ -77,7 +78,7 @@ class HistorySettingsFragment : BasePreferenceFragment() {
                                             ErrorActivity.reportError(context!!,
                                                     throwable,
                                                     SettingsActivity::class.java, null,
-                                                    ErrorActivity.ErrorInfo.make(
+                                                    ErrorInfo.make(
                                                             UserAction.DELETE_FROM_HISTORY,
                                                             "none",
                                                             "Delete search history",
@@ -107,7 +108,7 @@ class HistorySettingsFragment : BasePreferenceFragment() {
                                             ErrorActivity.reportError(context!!,
                                                     throwable,
                                                     SettingsActivity::class.java, null,
-                                                    ErrorActivity.ErrorInfo.make(
+                                                    ErrorInfo.make(
                                                             UserAction.DELETE_FROM_HISTORY,
                                                             "none",
                                                             "Delete search history",

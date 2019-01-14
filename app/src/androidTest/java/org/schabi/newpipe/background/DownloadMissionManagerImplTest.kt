@@ -15,7 +15,7 @@ import org.schabi.newpipe.database.AppDatabase
 import org.schabi.newpipe.download.background.DownloadMissionManagerImpl
 import org.schabi.newpipe.download.background.MissionControl
 import org.schabi.newpipe.download.downloadDB.DownloadDAO
-import org.schabi.newpipe.download.downloadDB.MissionEntry
+import org.schabi.newpipe.download.downloadDB.MissionEntity
 import java.io.File
 import java.io.IOException
 import java.io.RandomAccessFile
@@ -66,7 +66,7 @@ class DownloadMissionManagerImplTest {
         randomAccessFile.setLength(1000)
         randomAccessFile.close()
         val downloadMission = MissionControl(
-                MissionEntry(file.name,
+                MissionEntity(file.name,
                         "http://google.com/?q=how+to+google",
                         file.parent))
         downloadMission.blocks = 1000
@@ -85,16 +85,16 @@ class DownloadMissionManagerImplTest {
     @Test
     @Throws(IOException::class)
     fun testThatMissionsAreLoaded() {
-        val missionEntry = MissionEntry("testFile.ept",
+        val missionEntity = MissionEntity("testFile.ept",
                 "http://google.com/?q=how+to+google",
                 "West Aust")
 
         val millis = System.currentTimeMillis()
         for (i in 0..49) {
-            missionEntry.timestamp = millis - i // reverse order by timestamp
-            missionEntry.done = 1000
-            missionEntry.name += i.toString()
-            downloadDataSource.addMission(missionEntry)
+            missionEntity.timestamp = millis - i // reverse order by timestamp
+            missionEntity.done = 1000
+            missionEntity.name += i.toString()
+            downloadDataSource.addMission(missionEntity)
         }
 
         downloadMissionManager = DownloadMissionManagerImpl(ArrayList(), context)
@@ -168,16 +168,16 @@ class DownloadMissionManagerImplTest {
     @Test
     fun sortByTimestamp() {
         val downloadMissions = ArrayList<MissionControl>()
-        val missionControl = MissionControl(MissionEntry())
+        val missionControl = MissionControl(MissionEntity())
         missionControl.mission.timestamp = 0
 
-        val missionControl1 = MissionControl(MissionEntry())
+        val missionControl1 = MissionControl(MissionEntity())
         missionControl1.mission.timestamp = Integer.MAX_VALUE + 1L
 
-        val missionControl2 = MissionControl(MissionEntry())
+        val missionControl2 = MissionControl(MissionEntity())
         missionControl2.mission.timestamp = 2L * Integer.MAX_VALUE
 
-        val missionControl3 = MissionControl(MissionEntry())
+        val missionControl3 = MissionControl(MissionEntity())
         missionControl3.mission.timestamp = 2L * Integer.MAX_VALUE + 5L
 
 

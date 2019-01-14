@@ -271,13 +271,7 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
 
             if (subscriptionEntities.isEmpty()) {
                 if (DEBUG) Log.d(TAG, "No subscription to this channel!")
-                val channel = SubscriptionEntity()
-                channel.serviceId = info.serviceId
-                channel.url = info.url
-                channel.setData(info.name,
-                        info.avatarUrl,
-                        info.description,
-                        info.subscriberCount)
+                val channel = SubscriptionEntity.from(info)
                 subscribeButtonMonitor = monitorSubscribeButton(headerSubscribeButton, mapOnSubscribe(channel))
             } else {
                 if (DEBUG) Log.d(TAG, "Found subscription to this channel!")

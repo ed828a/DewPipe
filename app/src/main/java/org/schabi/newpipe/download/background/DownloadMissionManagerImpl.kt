@@ -10,7 +10,7 @@ import io.reactivex.observers.DisposableCompletableObserver
 import org.schabi.newpipe.download.background.MissionControl.Companion.NO_ERROR
 import org.schabi.newpipe.download.downloadDB.DownloadMissionDataSource
 import org.schabi.newpipe.download.downloadDB.DownloadMissionDataSourceImpl
-import org.schabi.newpipe.download.downloadDB.MissionEntry
+import org.schabi.newpipe.download.downloadDB.MissionEntity
 import org.schabi.newpipe.download.ui.ExtSDDownloadFailedActivity
 import org.schabi.newpipe.download.util.Utility
 import java.io.File
@@ -59,8 +59,8 @@ class DownloadMissionManagerImpl(directories: Collection<String>,
             }
         }
 
-        val missionEntry = MissionEntry(fileName, url, location)
-        val missionControl = MissionControl(missionEntry)
+        val missionEntity = MissionEntity(fileName, url, location)
+        val missionControl = MissionControl(missionEntity)
         missionControl.mission.timestamp = System.currentTimeMillis()
         missionControl.threadCount = threads
         missionControl.addListener(MissionControlListener(missionControl))
