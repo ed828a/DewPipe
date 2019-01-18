@@ -8,21 +8,27 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TextView
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+
 import org.schabi.newpipe.Downloader
 import org.schabi.newpipe.R
-import org.schabi.newpipe.download.util.Utility
 import org.schabi.newpipe.extractor.stream.AudioStream
 import org.schabi.newpipe.extractor.stream.Stream
 import org.schabi.newpipe.extractor.stream.VideoStream
+
 import java.io.Serializable
+
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import org.schabi.newpipe.download.util.Utility
 
 /**
  * A list adapter for a list of [streams][Stream], currently supporting [VideoStream] and [AudioStream].
  */
-class StreamItemAdapter<T : Stream> @JvmOverloads constructor(private val context: Context, private val streamsWrapper: StreamSizeWrapper<T>, private val showIconNoAudio: Boolean = false) : BaseAdapter() {
+class StreamItemAdapter<T : Stream> @JvmOverloads constructor(
+        private val context: Context,
+        private val streamsWrapper: StreamSizeWrapper<T>,
+        private val showIconNoAudio: Boolean = false) : BaseAdapter() {
 
     val all: List<T>
         get() = streamsWrapper.streamsList
@@ -39,7 +45,7 @@ class StreamItemAdapter<T : Stream> @JvmOverloads constructor(private val contex
         return position.toLong()
     }
 
-    override fun getDropDownView(position: Int, convertView: View, parent: ViewGroup): View {
+    override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
         return getCustomView(position, convertView, parent, true)
     }
 
@@ -146,7 +152,7 @@ class StreamItemAdapter<T : Stream> @JvmOverloads constructor(private val contex
                             continue
                         }
 
-                        val contentLength = Downloader.instance?.getContentLength(stream.getUrl()) ?: 0L
+                        val contentLength = Downloader.instance.getContentLength(stream.getUrl())
                         streamsWrapper.setSize(stream, contentLength)
                         hasChanged = true
                     }

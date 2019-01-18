@@ -3,6 +3,7 @@ package org.schabi.newpipe
 import android.text.TextUtils
 
 import org.schabi.newpipe.extractor.exceptions.ReCaptchaException
+import org.schabi.newpipe.extractor.utils.Localization
 
 import java.io.IOException
 import java.io.InputStream
@@ -15,26 +16,6 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody
 
-
-/*
- * Created by Christian Schabesberger on 28.01.16.
- *
- * Copyright (C) Christian Schabesberger 2016 <chris.schabesberger@mailbox.org>
- * Downloader.java is part of NewPipe.
- *
- * NewPipe is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * NewPipe is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with NewPipe.  If not, see <http://www.gnu.org/licenses/>.
- */
 
 class Downloader private constructor(builder: OkHttpClient.Builder) : org.schabi.newpipe.extractor.Downloader {
     var cookies: String? = null
@@ -76,13 +57,13 @@ class Downloader private constructor(builder: OkHttpClient.Builder) : org.schabi
      * but set the HTTP header field "Accept-Language" to the supplied string.
      *
      * @param siteUrl  the URL of the text file to return the contents of
-     * @param language the language (usually a 2-character code) to set as the preferred language
+     * @param localisation the language and country (usually a 2-character code) to set
      * @return the contents of the specified text file
      */
     @Throws(IOException::class, ReCaptchaException::class)
-    override fun download(siteUrl: String, language: String): String {
+    override fun download(siteUrl: String, localisation: Localization): String {
         val requestProperties = HashMap<String, String>()
-        requestProperties["Accept-Language"] = language
+        requestProperties["Accept-Language"] = localisation.language
         return download(siteUrl, requestProperties)
     }
 
@@ -153,10 +134,9 @@ class Downloader private constructor(builder: OkHttpClient.Builder) : org.schabi
     }
 
     companion object {
-        val USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+        const val USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
 
-        var instance: Downloader? = null
-            private set
+        lateinit var instance: Downloader
 
         /**
          * It's recommended to call exactly once in the entire lifetime of the application.
@@ -165,7 +145,9 @@ class Downloader private constructor(builder: OkHttpClient.Builder) : org.schabi
          */
         fun init(builder: OkHttpClient.Builder?): Downloader {
             instance = Downloader(builder ?: OkHttpClient.Builder())
-            return instance!!
+
+            return  instance
+
         }
     }
 }

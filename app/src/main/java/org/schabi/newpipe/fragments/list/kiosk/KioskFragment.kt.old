@@ -1,8 +1,6 @@
 package org.schabi.newpipe.fragments.list.kiosk
 
 import android.os.Bundle
-import android.preference.PreferenceManager
-import android.support.v7.app.ActionBar
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
@@ -13,21 +11,18 @@ import android.view.ViewGroup
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.ListExtractor
 import org.schabi.newpipe.extractor.NewPipe
-import org.schabi.newpipe.extractor.StreamingService
 import org.schabi.newpipe.extractor.exceptions.ExtractionException
 import org.schabi.newpipe.extractor.kiosk.KioskInfo
-import org.schabi.newpipe.extractor.linkhandler.ListLinkHandlerFactory
-import org.schabi.newpipe.extractor.linkhandler.ListLinkHandler
-import org.schabi.newpipe.extractor.linkhandler.LinkHandlerFactory
 import org.schabi.newpipe.fragments.list.BaseListInfoFragment
 import org.schabi.newpipe.report.UserAction
-import org.schabi.newpipe.util.ExtractorHelper
 import org.schabi.newpipe.util.KioskTranslator
 
 import icepick.State
 import io.reactivex.Single
 
 import org.schabi.newpipe.util.AnimationUtils.animateView
+import org.schabi.newpipe.util.Constants
+import org.schabi.newpipe.util.ExtractorHelper
 
 /**
  * Created by Christian Schabesberger on 23.09.17.
@@ -52,8 +47,9 @@ import org.schabi.newpipe.util.AnimationUtils.animateView
 class KioskFragment : BaseListInfoFragment<KioskInfo>() {
 
     @State
-    protected var kioskId = ""
-    protected lateinit var kioskTranslatedName: String
+    var kioskId = ""
+
+    lateinit var kioskTranslatedName: String
 
     ///////////////////////////////////////////////////////////////////////////
     // LifeCycle
@@ -64,7 +60,35 @@ class KioskFragment : BaseListInfoFragment<KioskInfo>() {
 
         kioskTranslatedName = KioskTranslator.getTranslatedKioskName(kioskId, activity!!)
         name = kioskTranslatedName
+        Log.d(TAG, "KioskFragment::onCreate(), kioskTranslatedName = $kioskTranslatedName")
+        if (savedInstanceState != null) {
+            val serviceIdInString = savedInstanceState.getString(Constants.KEY_SERVICE_ID)
+            serviceId = serviceIdInString?.toInt() ?: Constants.NO_SERVICE_ID
+            if (savedInstanceState.containsKey(Constants.KEY_EDWARD_KIOSK_TRANSLATED_NAME)) {
+                kioskTranslatedName = savedInstanceState.getString(Constants.KEY_EDWARD_KIOSK_TRANSLATED_NAME) ?: ""
+                name = kioskTranslatedName
+                kioskId = savedInstanceState.getString(Constants.KEY_EDWARD_KIOSK_ID) ?: ""
+            }
+            Log.d(TAG, "KioskFragment::onCreate(), serviceId = $serviceId, , kioskTranslatedName = $kioskTranslatedName")
+        }
     }
+
+    override fun onSaveInstanceState(savedInstanceState: Bundle) {
+        super.onSaveInstanceState(savedInstanceState)
+        savedInstanceState.putString(Constants.KEY_SERVICE_ID, serviceId.toString())
+        savedInstanceState.putString(Constants.KEY_EDWARD_KIOSK_TRANSLATED_NAME, kioskTranslatedName)
+        savedInstanceState.putString(Constants.KEY_EDWARD_KIOSK_ID, kioskId)
+        Log.d(TAG, "KioskFragment::onSaveInstanceState(), serviceId = $serviceId, kioskTranslatedName = $kioskTranslatedName")
+    }
+
+//    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+//        super.onRestoreInstanceState(savedInstanceState)
+//        if (savedInstanceState != null) {
+//            val serviceIdInString = savedInstanceState.getString(Constants.KEY_SERVICE_ID)
+//            serviceId = serviceIdInString?.toInt() ?: Constants.NO_SERVICE_ID
+//            Log.d(TAG, "KioskFragment::onRestoreInstanceState, serviceId = $serviceId")
+//        }
+//    }
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
@@ -101,25 +125,16 @@ class KioskFragment : BaseListInfoFragment<KioskInfo>() {
     ///////////////////////////////////////////////////////////////////////////
 
     public override fun loadResult(forceReload: Boolean): Single<KioskInfo> {
-        val contentCountry = PreferenceManager
-                .getDefaultSharedPreferences(activity)
-                .getString(getString(R.string.content_country_key),
-                        getString(R.string.default_country_value))
+        Log.d(TAG, "loadResult(): serviceId=$serviceId")
         return ExtractorHelper.getKioskInfo(serviceId,
                 url,
-                contentCountry!!,
                 forceReload)
     }
 
     public override fun loadMoreItemsLogic(): Single<ListExtractor.InfoItemsPage<*>> {
-        val contentCountry = PreferenceManager
-                .getDefaultSharedPreferences(activity)
-                .getString(getString(R.string.content_country_key),
-                        getString(R.string.default_country_value))
         return ExtractorHelper.getMoreKioskItems(serviceId,
                 url,
-                currentNextPageUrl,
-                contentCountry!!)
+                currentNextPageUrl)
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -157,21 +172,26 @@ class KioskFragment : BaseListInfoFragment<KioskInfo>() {
 
     companion object {
 
+        private const val TAG = "KioskFragment"
+
         @Throws(ExtractionException::class)
         @JvmOverloads
-        fun getInstance(serviceId: Int, kioskId: String = NewPipe.getService(serviceId)
-                .kioskList
-                .defaultKioskId): KioskFragment {
+        fun getInstance(serviceId: Int,
+                        kioskId: String = NewPipe.getService(serviceId)
+                                .kioskList
+                                .defaultKioskId): KioskFragment {
+            Log.d(TAG, "KioskFragment::getInstance(), serviceId = $serviceId")
             val instance = KioskFragment()
             val service = NewPipe.getService(serviceId)
             val kioskLinkHandlerFactory = service.kioskList
                     .getListLinkHandlerFactoryByType(kioskId)
+
             instance.setInitialData(serviceId,
                     kioskLinkHandlerFactory.fromId(kioskId).url, kioskId)
+
             instance.kioskId = kioskId
+
             return instance
         }
     }
-}///////////////////////////////////////////////////////////////////////////
-// Views
-///////////////////////////////////////////////////////////////////////////
+}

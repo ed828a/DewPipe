@@ -40,10 +40,10 @@ import java.util.Locale
 
 object Localization {
 
-    val DOT_SEPARATOR = " • "
+    private const val DOT_SEPARATOR = " • "
 
     fun concatenateStrings(vararg strings: String): String {
-        return concatenateStrings(Arrays.asList(*strings))
+        return  concatenateStrings(Arrays.asList(*strings))
     }
 
     fun concatenateStrings(strings: List<String>): String {
@@ -62,10 +62,23 @@ object Localization {
         return stringBuilder.toString()
     }
 
+    fun getPreferredExtractorLocal(context: Context): org.schabi.newpipe.extractor.utils.Localization {
+        val sp = PreferenceManager.getDefaultSharedPreferences(context)
+
+        val languageCode = sp.getString(context.getString(R.string.content_language_key),
+                context.getString(R.string.default_language_value))
+
+        val countryCode = sp.getString(context.getString(R.string.content_country_key),
+                context.getString(R.string.default_country_value))
+
+        return org.schabi.newpipe.extractor.utils.Localization(countryCode, languageCode)
+    }
+
     fun getPreferredLocale(context: Context): Locale {
         val sp = PreferenceManager.getDefaultSharedPreferences(context)
 
-        val languageCode = sp.getString(context.getString(R.string.search_language_key), context.getString(R.string.default_language_value))
+        val languageCode = sp.getString(context.getString(R.string.content_language_key),
+                context.getString(R.string.default_language_value))
 
         try {
             if (languageCode!!.length == 2) {
