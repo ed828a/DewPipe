@@ -1,4 +1,4 @@
-package org.schabi.newpipe.download.downloadDB
+package org.schabi.newpipe.database.downloadDB
 
 import android.arch.persistence.room.*
 

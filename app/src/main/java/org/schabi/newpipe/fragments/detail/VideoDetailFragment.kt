@@ -876,8 +876,9 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
                 ))
     }
 
-    private fun prepareDescription(descriptionHtml: String) {
+    private fun prepareDescription(descriptionHtml: String?) {
         if (TextUtils.isEmpty(descriptionHtml)) {
+            Log.d(TAG, "descriptionHtml = $descriptionHtml")
             return
         }
 

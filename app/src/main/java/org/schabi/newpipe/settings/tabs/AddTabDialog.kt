@@ -10,13 +10,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
+import kotlinx.android.synthetic.main.list_choose_tabs_dialog.view.*
 
 import org.schabi.newpipe.R
 import org.schabi.newpipe.util.ThemeHelper
 
-class AddTabDialog internal constructor(context: Context,
-                                        items: Array<ChooseTabListItem>,
-                                        actions: DialogInterface.OnClickListener) {
+class AddTabDialog(context: Context,
+                   items: Array<ChooseTabListItem>,
+                   actions: DialogInterface.OnClickListener) {
     private val dialog: AlertDialog
 
     init {
@@ -31,43 +32,34 @@ class AddTabDialog internal constructor(context: Context,
         dialog.show()
     }
 
-    class ChooseTabListItem internal constructor(internal val tabId: Int, internal val itemName: String, @param:DrawableRes @field:DrawableRes internal val itemIcon: Int) {
+    class ChooseTabListItem(internal val tabId: Int,
+                            internal val itemName: String,
+                            @param:DrawableRes
+                            @field:DrawableRes
+                            val itemIcon: Int) {
 
         internal constructor(context: Context, tab: Tab) : this(tab.tabId, tab.getTabName(context), tab.getTabIconRes(context)) {}
     }
 
-    private class DialogListAdapter (context: Context, private val items: Array<ChooseTabListItem>) : BaseAdapter() {
-        private val inflater: LayoutInflater = LayoutInflater.from(context)
-
+    private class DialogListAdapter(context: Context, private val items: Array<ChooseTabListItem>) : BaseAdapter() {
         @DrawableRes
         private val fallbackIcon: Int = ThemeHelper.resolveResourceIdFromAttr(context, R.attr.ic_hot)
 
-        override fun getCount(): Int {
-            return items.size
-        }
+        override fun getCount(): Int = items.size
 
-        override fun getItem(position: Int): ChooseTabListItem {
-            return items[position]
-        }
+        override fun getItem(position: Int): ChooseTabListItem = items[position]
 
-        override fun getItemId(position: Int): Long {
-            return getItem(position).tabId.toLong()
-        }
+        override fun getItemId(position: Int): Long = getItem(position).tabId.toLong()
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-            var convertView = convertView
-            if (convertView == null) {
-                convertView = inflater.inflate(R.layout.list_choose_tabs_dialog, parent, false)
-            }
+            val view = convertView ?: LayoutInflater.from(parent.context).inflate(R.layout.list_choose_tabs_dialog, parent, false)
 
             val item = getItem(position)
-            val tabIconView = convertView!!.findViewById<AppCompatImageView>(R.id.tabIcon)
-            val tabNameView = convertView.findViewById<TextView>(R.id.tabName)
 
-            tabIconView.setImageResource(if (item.itemIcon > 0) item.itemIcon else fallbackIcon)
-            tabNameView.text = item.itemName
+            view.tabIcon.setImageResource(if (item.itemIcon > 0) item.itemIcon else fallbackIcon)
+            view.tabName.text = item.itemName
 
-            return convertView
+            return view
         }
     }
 }

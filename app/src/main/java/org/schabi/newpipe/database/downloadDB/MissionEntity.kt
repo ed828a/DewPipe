@@ -1,9 +1,9 @@
-package org.schabi.newpipe.download.downloadDB
+package org.schabi.newpipe.database.downloadDB
 
 import android.arch.persistence.room.*
-import org.schabi.newpipe.download.downloadDB.MissionEntity.Companion.FILE_NAME
-import org.schabi.newpipe.download.downloadDB.MissionEntity.Companion.LOCATION
-import org.schabi.newpipe.download.downloadDB.MissionEntity.Companion.TABLE_NAME
+import org.schabi.newpipe.database.downloadDB.MissionEntity.Companion.FILE_NAME
+import org.schabi.newpipe.database.downloadDB.MissionEntity.Companion.LOCATION
+import org.schabi.newpipe.database.downloadDB.MissionEntity.Companion.TABLE_NAME
 
 /**
  * Created by Edward on 12/21/2018.

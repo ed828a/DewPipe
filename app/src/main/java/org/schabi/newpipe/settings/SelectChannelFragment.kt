@@ -1,6 +1,5 @@
 package org.schabi.newpipe.settings
 
-import android.app.Activity
 import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
@@ -11,49 +10,28 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
-
 import com.nostra13.universalimageloader.core.DisplayImageOptions
 import com.nostra13.universalimageloader.core.ImageLoader
-
-import org.schabi.newpipe.R
-import org.schabi.newpipe.database.subscription.SubscriptionEntity
-import org.schabi.newpipe.report.ErrorActivity
-import org.schabi.newpipe.report.UserAction
-import org.schabi.newpipe.local.subscription.SubscriptionService
-import java.util.Vector
-
 import de.hdodenhof.circleimageview.CircleImageView
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import org.schabi.newpipe.R
+import org.schabi.newpipe.database.subscription.SubscriptionEntity
+import org.schabi.newpipe.local.subscription.SubscriptionService
+import org.schabi.newpipe.report.ErrorActivity
 import org.schabi.newpipe.report.ErrorInfo
+import org.schabi.newpipe.report.UserAction
+import java.util.*
 
-
-/**
- * Created by Christian Schabesberger on 26.09.17.
- * SelectChannelFragment.java is part of NewPipe.
- *
- * NewPipe is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * NewPipe is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with NewPipe.  If not, see <http:></http:>//www.gnu.org/licenses/>.
- */
 
 class SelectChannelFragment : DialogFragment() {
-    private val imageLoader = ImageLoader.getInstance()
+    private val imageLoader: ImageLoader = ImageLoader.getInstance()
 
-    private var progressBar: ProgressBar? = null
-    private var emptyView: TextView? = null
-    private var recyclerView: RecyclerView? = null
+    private lateinit var progressBar: ProgressBar
+    private lateinit var emptyView: TextView
+    private lateinit var recyclerView: RecyclerView
 
     private var subscriptions: List<SubscriptionEntity> = Vector()
     internal var onSelectedLisener: OnSelectedLisener? = null
@@ -61,7 +39,9 @@ class SelectChannelFragment : DialogFragment() {
 
     private val subscriptionObserver: Observer<List<SubscriptionEntity>>
         get() = object : Observer<List<SubscriptionEntity>> {
-            override fun onSubscribe(d: Disposable) {}
+            override fun onSubscribe(d: Disposable) {
+
+            }
 
             override fun onNext(subscriptions: List<SubscriptionEntity>) {
                 displayChannels(subscriptions)
@@ -100,17 +80,17 @@ class SelectChannelFragment : DialogFragment() {
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val v = inflater.inflate(R.layout.select_channel_fragment, container, false)
-        recyclerView = v.findViewById(R.id.items_list)
-        recyclerView!!.layoutManager = LinearLayoutManager(context)
+        val view = inflater.inflate(R.layout.select_channel_fragment, container, false)
+        recyclerView = view.findViewById(R.id.items_list)
+        recyclerView.layoutManager = LinearLayoutManager(context)
         val channelAdapter = SelectChannelAdapter()
-        recyclerView!!.adapter = channelAdapter
+        recyclerView.adapter = channelAdapter
 
-        progressBar = v.findViewById(R.id.progressBar)
-        emptyView = v.findViewById(R.id.empty_state_view)
-        progressBar!!.visibility = View.VISIBLE
-        recyclerView!!.visibility = View.GONE
-        emptyView!!.visibility = View.GONE
+        progressBar = view.findViewById(R.id.progressBar)
+        emptyView = view.findViewById(R.id.empty_state_view)
+        progressBar.visibility = View.VISIBLE
+        recyclerView.visibility = View.GONE
+        emptyView.visibility = View.GONE
 
 
         val subscriptionService = SubscriptionService.getInstance(context!!)
@@ -119,7 +99,7 @@ class SelectChannelFragment : DialogFragment() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(subscriptionObserver)
 
-        return v
+        return view
     }
 
 
@@ -129,16 +109,17 @@ class SelectChannelFragment : DialogFragment() {
 
     override fun onCancel(dialogInterface: DialogInterface?) {
         super.onCancel(dialogInterface)
-        if (onCancelListener !=
-                null) {
-            onCancelListener!!.onCancel()
+        if (onCancelListener != null) {
+            onCancelListener?.onCancel()
         }
     }
 
     private fun clickedItem(position: Int) {
         if (onSelectedLisener != null) {
             val entry = subscriptions[position]
-            onSelectedLisener!!.onChannelSelected(entry.serviceId, entry.url!!, entry.name!!)
+            if (entry.url != null && entry.name != null) {
+                onSelectedLisener?.onChannelSelected(entry.serviceId, entry.url!!, entry.name!!)
+            }
         }
         dismiss()
     }
@@ -149,42 +130,36 @@ class SelectChannelFragment : DialogFragment() {
 
     private fun displayChannels(subscriptions: List<SubscriptionEntity>) {
         this.subscriptions = subscriptions
-        progressBar!!.visibility = View.GONE
+        progressBar.visibility = View.GONE
         if (subscriptions.isEmpty()) {
-            emptyView!!.visibility = View.VISIBLE
-            return
+            emptyView.visibility = View.VISIBLE
+        } else {
+            recyclerView.visibility = View.VISIBLE
         }
-        recyclerView!!.visibility = View.VISIBLE
 
     }
 
-    private inner class SelectChannelAdapter : RecyclerView.Adapter<SelectChannelAdapter.SelectChannelItemHolder>() {
+    private inner class SelectChannelAdapter : RecyclerView.Adapter<SelectChannelAdapter.SelectChannelViewHolder>() {
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SelectChannelItemHolder {
-            val item = LayoutInflater.from(parent.context)
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SelectChannelViewHolder {
+            val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.select_channel_item, parent, false)
-            return SelectChannelItemHolder(item)
+
+            return SelectChannelViewHolder(view)
         }
 
-        override fun onBindViewHolder(holder: SelectChannelItemHolder, position: Int) {
+        override fun onBindViewHolder(holder: SelectChannelViewHolder, position: Int) {
             val entry = subscriptions[position]
             holder.titleView.text = entry.name
             holder.view.setOnClickListener { clickedItem(position) }
             imageLoader.displayImage(entry.avatarUrl, holder.thumbnailView, DISPLAY_IMAGE_OPTIONS)
         }
 
-        override fun getItemCount(): Int {
-            return subscriptions.size
-        }
+        override fun getItemCount(): Int = subscriptions.size
 
-        inner class SelectChannelItemHolder(val view: View) : RecyclerView.ViewHolder(view) {
-            val thumbnailView: CircleImageView
-            val titleView: TextView
-
-            init {
-                thumbnailView = view.findViewById(R.id.itemThumbnailView)
-                titleView = view.findViewById(R.id.itemTitleView)
-            }
+        inner class SelectChannelViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
+            val thumbnailView: CircleImageView = view.findViewById(R.id.itemThumbnailView)
+            val titleView: TextView = view.findViewById(R.id.itemTitleView)
         }
     }
 
@@ -192,26 +167,27 @@ class SelectChannelFragment : DialogFragment() {
     // Error
     ///////////////////////////////////////////////////////////////////////////
 
-    protected fun onError(e: Throwable) {
+    private fun onError(e: Throwable) {
         val activity = activity
-        ErrorActivity.reportError(activity!!, e,
-                activity!!.javaClass, null,
-                ErrorInfo.make(UserAction.UI_ERROR,
-                        "none", "", R.string.app_ui_crash))
+        activity?.let { fragmentActivity ->
+            ErrorActivity.reportError(activity!!, e,
+                    fragmentActivity.javaClass, null,
+                    ErrorInfo.make(UserAction.UI_ERROR,
+                            "none", "", R.string.app_ui_crash))
+        }
+
     }
 
     companion object {
-
-
+        private const val TAG = "SelectChannelFragment"
         ///////////////////////////////////////////////////////////////////////////
         // ImageLoaderOptions
         ///////////////////////////////////////////////////////////////////////////
-
         /**
          * Base display options
          */
-        val DISPLAY_IMAGE_OPTIONS = DisplayImageOptions.Builder()
+        val DISPLAY_IMAGE_OPTIONS: DisplayImageOptions = DisplayImageOptions.Builder()
                 .cacheInMemory(true)
-                .build()!!
+                .build()
     }
 }

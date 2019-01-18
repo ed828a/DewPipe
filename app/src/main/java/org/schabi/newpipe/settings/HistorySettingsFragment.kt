@@ -13,26 +13,24 @@ import org.schabi.newpipe.util.InfoCache
 
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import org.schabi.newpipe.report.ErrorInfo
 
 class HistorySettingsFragment : BasePreferenceFragment() {
-    private var cacheWipeKey: String? = null
-    private var viewsHistroyClearKey: String? = null
-    private var searchHistoryClearKey: String? = null
+    private lateinit var cacheWipeKey: String
+    private lateinit var viewsHistoryClearKey: String
+    private lateinit var searchHistoryClearKey: String
     private var recordManager: HistoryRecordManager? = null
-    private var disposables: CompositeDisposable? = null
+    private var disposables: CompositeDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         cacheWipeKey = getString(R.string.metadata_cache_wipe_key)
-        viewsHistroyClearKey = getString(R.string.clear_views_history_key)
+        viewsHistoryClearKey = getString(R.string.clear_views_history_key)
         searchHistoryClearKey = getString(R.string.clear_search_history_key)
         activity?.let {
             recordManager = HistoryRecordManager(it)
         }
-
-        disposables = CompositeDisposable()
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -40,86 +38,107 @@ class HistorySettingsFragment : BasePreferenceFragment() {
     }
 
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
-        if (preference.key == cacheWipeKey) {
-            InfoCache.instance.clearCache()
-            Toast.makeText(preference.context, R.string.metadata_cache_wipe_complete_notice,
-                    Toast.LENGTH_SHORT).show()
-        }
 
-        if (preference.key == viewsHistroyClearKey) {
-            AlertDialog.Builder(activity!!)
-                    .setTitle(R.string.delete_view_history_alert)
-                    .setNegativeButton(R.string.cancel) { dialog, which -> dialog.dismiss() }
-                    .setPositiveButton(R.string.delete) { dialog, which ->
-                        val onDelete = recordManager!!.deleteWholeStreamHistory()
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(
-                                        { howManyDeleted ->
-                                            Toast.makeText(activity,
-                                                    R.string.view_history_deleted,
-                                                    Toast.LENGTH_SHORT).show()
-                                        },
-                                        { throwable ->
-                                            ErrorActivity.reportError(context!!,
-                                                    throwable,
-                                                    SettingsActivity::class.java, null,
-                                                    ErrorInfo.make(
-                                                            UserAction.DELETE_FROM_HISTORY,
-                                                            "none",
-                                                            "Delete view history",
-                                                            R.string.general_error))
-                                        })
+        when(preference.key){
+            cacheWipeKey -> {
+                InfoCache.instance.clearCache()
+                Toast.makeText(preference.context, R.string.metadata_cache_wipe_complete_notice,
+                        Toast.LENGTH_SHORT).show()
+            }
 
-                        val onClearOrphans = recordManager!!.removeOrphanedRecords()
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(
-                                        { howManyDeleted -> },
-                                        { throwable ->
-                                            ErrorActivity.reportError(context!!,
-                                                    throwable,
-                                                    SettingsActivity::class.java, null,
-                                                    ErrorInfo.make(
-                                                            UserAction.DELETE_FROM_HISTORY,
-                                                            "none",
-                                                            "Delete search history",
-                                                            R.string.general_error))
-                                        })
-                        disposables!!.add(onClearOrphans)
-                        disposables!!.add(onDelete)
-                    }
-                    .create()
-                    .show()
-        }
+            viewsHistoryClearKey -> {
+                activity?.let { fragmentActivity ->
+                    AlertDialog.Builder(fragmentActivity)
+                            .setTitle(R.string.delete_view_history_alert)
+                            .setNegativeButton(R.string.cancel) { dialog, which -> dialog.dismiss() }
+                            .setPositiveButton(R.string.delete) { dialog, which ->
+                                recordManager?.let {historyRecordManager ->
+                                    val onDelete = historyRecordManager.deleteWholeStreamHistory()
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribe(
+                                                    { howManyDeleted ->
+                                                        Toast.makeText(activity,
+                                                                "${resources.getString(R.string.view_history_deleted)} deleted: $howManyDeleted",
+                                                                Toast.LENGTH_SHORT).show()
+                                                    },
+                                                    { throwable ->
+                                                        ErrorActivity.reportError(context!!,
+                                                                throwable,
+                                                                SettingsActivity::class.java,
+                                                                null,
+                                                                ErrorInfo.make(
+                                                                        UserAction.DELETE_FROM_HISTORY,
+                                                                        "none",
+                                                                        "Delete view history",
+                                                                        R.string.general_error))
+                                                    })
 
-        if (preference.key == searchHistoryClearKey) {
-            AlertDialog.Builder(activity!!)
-                    .setTitle(R.string.delete_search_history_alert)
-                    .setNegativeButton(R.string.cancel) { dialog, which -> dialog.dismiss() }
-                    .setPositiveButton(R.string.delete) { dialog, which ->
-                        val onDelete = recordManager!!.deleteWholeSearchHistory()
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(
-                                        { howManyDeleted ->
-                                            Toast.makeText(activity,
-                                                    R.string.search_history_deleted,
-                                                    Toast.LENGTH_SHORT).show()
-                                        },
-                                        { throwable ->
-                                            ErrorActivity.reportError(context!!,
-                                                    throwable,
-                                                    SettingsActivity::class.java, null,
-                                                    ErrorInfo.make(
-                                                            UserAction.DELETE_FROM_HISTORY,
-                                                            "none",
-                                                            "Delete search history",
-                                                            R.string.general_error))
-                                        })
-                        disposables!!.add(onDelete)
-                    }
-                    .create()
-                    .show()
+                                    val onClearOrphans = historyRecordManager.removeOrphanedRecords()
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribe(
+                                                    { howManyDeleted ->
+                                                        Toast.makeText(activity, "Deleted $howManyDeleted Orphan records", Toast.LENGTH_SHORT).show()
+                                                    },
+                                                    { throwable ->
+                                                        ErrorActivity.reportError(context!!,
+                                                                throwable,
+                                                                SettingsActivity::class.java,
+                                                                null,
+                                                                ErrorInfo.make(
+                                                                        UserAction.DELETE_FROM_HISTORY,
+                                                                        "none",
+                                                                        "Delete search history",
+                                                                        R.string.general_error))
+                                                    })
+
+                                    disposables.addAll(onClearOrphans, onDelete)
+                                }
+                            }
+                            .create()
+                            .show()
+                }
+            }
+
+            searchHistoryClearKey -> {
+                activity?.let { fragmentActivity ->
+                    AlertDialog.Builder(fragmentActivity)
+                            .setTitle(R.string.delete_search_history_alert)
+                            .setNegativeButton(R.string.cancel) { dialog, which -> dialog.dismiss() }
+                            .setPositiveButton(R.string.delete) { dialog, which ->
+                                recordManager?.let {historyRecordManager ->
+                                    val onDelete = historyRecordManager.deleteWholeSearchHistory()
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribe(
+                                                    { howManyDeleted ->
+                                                        Toast.makeText(activity,
+                                                                R.string.search_history_deleted,
+                                                                Toast.LENGTH_SHORT).show()
+                                                    },
+                                                    { throwable ->
+                                                        ErrorActivity.reportError(context!!,
+                                                                throwable,
+                                                                SettingsActivity::class.java,
+                                                                null,
+                                                                ErrorInfo.make(
+                                                                        UserAction.DELETE_FROM_HISTORY,
+                                                                        "none",
+                                                                        "Delete search history",
+                                                                        R.string.general_error))
+                                                    })
+                                    disposables.add(onDelete)
+                                }
+                            }
+                            .create()
+                            .show()
+                }
+            }
         }
 
         return super.onPreferenceTreeClick(preference)
+    }
+
+    override fun onDestroy() {
+        disposables.dispose()
+        super.onDestroy()
     }
 }

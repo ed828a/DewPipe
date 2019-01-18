@@ -1,13 +1,11 @@
 package org.schabi.newpipe.settings.tabs
 
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.Fragment
-import android.support.v7.app.ActionBar
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.content.res.AppCompatResources
@@ -15,16 +13,10 @@ import android.support.v7.widget.AppCompatImageView
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
-
+import android.widget.Toast
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.NewPipe
 import org.schabi.newpipe.report.ErrorActivity
@@ -36,69 +28,14 @@ import org.schabi.newpipe.settings.tabs.AddTabDialog.ChooseTabListItem
 import org.schabi.newpipe.settings.tabs.ChooseTabsFragment.SelectedTabsAdapter.TabViewHolder
 import org.schabi.newpipe.settings.tabs.Tab.Companion.typeFrom
 import org.schabi.newpipe.util.ThemeHelper
-
-import java.util.ArrayList
-import java.util.Collections
+import java.util.*
 
 
 class ChooseTabsFragment : Fragment() {
 
-    private var tabsManager: TabsManager? = null
+    private lateinit var tabsManager: TabsManager
     private val tabList = ArrayList<Tab>()
-    var selectedTabsAdapter: ChooseTabsFragment.SelectedTabsAdapter? = null
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Menu
-    ///////////////////////////////////////////////////////////////////////////
-    companion object {
-        private const val MENU_ITEM_RESTORE_ID = 123456
-    }
-
-
-    private val itemTouchCallback: ItemTouchHelper.SimpleCallback
-        get() = object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN,
-                ItemTouchHelper.START or ItemTouchHelper.END) {
-            override fun interpolateOutOfBoundsScroll(recyclerView: RecyclerView, viewSize: Int,
-                                                      viewSizeOutOfBounds: Int, totalSize: Int,
-                                                      msSinceStartScroll: Long): Int {
-                val standardSpeed = super.interpolateOutOfBoundsScroll(recyclerView, viewSize,
-                        viewSizeOutOfBounds, totalSize, msSinceStartScroll)
-                val minimumAbsVelocity = Math.max(12,
-                        Math.abs(standardSpeed))
-                return minimumAbsVelocity * Math.signum(viewSizeOutOfBounds.toFloat()).toInt()
-            }
-
-            override fun onMove(recyclerView: RecyclerView, source: RecyclerView.ViewHolder,
-                                target: RecyclerView.ViewHolder): Boolean {
-                if (source.itemViewType != target.itemViewType || selectedTabsAdapter == null) {
-                    return false
-                }
-
-                val sourceIndex = source.adapterPosition
-                val targetIndex = target.adapterPosition
-                selectedTabsAdapter!!.swapItems(sourceIndex, targetIndex)
-                return true
-            }
-
-            override fun isLongPressDragEnabled(): Boolean {
-                return false
-            }
-
-            override fun isItemViewSwipeEnabled(): Boolean {
-                return true
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
-                val position = viewHolder.adapterPosition
-                tabList.removeAt(position)
-                selectedTabsAdapter!!.notifyItemRemoved(position)
-
-                if (tabList.isEmpty()) {
-                    tabList.add(Tab.Type.BLANK.tab)
-                    selectedTabsAdapter!!.notifyItemInserted(0)
-                }
-            }
-        }
+    lateinit var selectedTabsAdapter: ChooseTabsFragment.SelectedTabsAdapter
 
     ///////////////////////////////////////////////////////////////////////////
     // Lifecycle
@@ -107,7 +44,7 @@ class ChooseTabsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        tabsManager = TabsManager.getManager(requireContext())
+        tabsManager = TabsManager.getManager(requireContext())  // requireContext() is better than getContext()
         updateTabList()
 
         setHasOptionsMenu(true)
@@ -125,10 +62,10 @@ class ChooseTabsFragment : Fragment() {
         val listSelectedTabs = rootView.findViewById<RecyclerView>(R.id.selectedTabs)
         listSelectedTabs.layoutManager = LinearLayoutManager(requireContext())
 
-        val itemTouchHelper = ItemTouchHelper(itemTouchCallback)
+        val itemTouchHelper = ItemTouchHelper(getItemTouchCallback())
         itemTouchHelper.attachToRecyclerView(listSelectedTabs)
 
-        selectedTabsAdapter = SelectedTabsAdapter(requireContext(), itemTouchHelper)
+        selectedTabsAdapter = SelectedTabsAdapter(tabList, itemTouchHelper)
         listSelectedTabs.adapter = selectedTabsAdapter
     }
 
@@ -140,6 +77,14 @@ class ChooseTabsFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         saveChanges()
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Menu
+    ///////////////////////////////////////////////////////////////////////////
+    companion object {
+        private const val MENU_ITEM_RESTORE_ID = 123456
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
@@ -167,7 +112,7 @@ class ChooseTabsFragment : Fragment() {
 
     private fun updateTabList() {
         tabList.clear()
-        tabList.addAll(tabsManager!!.getTabs())
+        tabList.addAll(tabsManager.getTabs())
     }
 
     private fun updateTitle() {
@@ -178,7 +123,7 @@ class ChooseTabsFragment : Fragment() {
     }
 
     private fun saveChanges() {
-        tabsManager!!.saveTabs(tabList)
+        tabsManager.saveTabs(tabList) // save tabList to SharedPreference
     }
 
     private fun restoreDefaults() {
@@ -187,9 +132,9 @@ class ChooseTabsFragment : Fragment() {
                 .setMessage(R.string.restore_defaults_confirmation)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.yes) { dialog, which ->
-                    tabsManager!!.resetTabs()
-                    updateTabList()
-                    selectedTabsAdapter!!.notifyDataSetChanged()
+                    tabsManager.resetTabs()  // just remove the saved List<Tab> in SharedPreference
+                    updateTabList()  // in this case, updateTabList will get the default list.
+                    selectedTabsAdapter.notifyDataSetChanged()
                 }
                 .show()
     }
@@ -200,7 +145,7 @@ class ChooseTabsFragment : Fragment() {
             val availableTabs = getAvailableTabs(requireContext())
 
             if (availableTabs.isEmpty()) {
-                //Toast.makeText(requireContext(), "No available tabs", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "No available tabs", Toast.LENGTH_SHORT).show();
                 return@setOnClickListener
             }
 
@@ -216,7 +161,7 @@ class ChooseTabsFragment : Fragment() {
 
     private fun addTab(tab: Tab) {
         tabList.add(tab)
-        selectedTabsAdapter!!.notifyDataSetChanged()
+        selectedTabsAdapter.notifyDataSetChanged()
     }
 
     private fun addTab(tabId: Int) {
@@ -231,18 +176,18 @@ class ChooseTabsFragment : Fragment() {
         when (type) {
             Tab.Type.KIOSK -> {
                 val selectFragment = SelectKioskFragment()
-                selectFragment.setOnSelectedLisener(object: SelectKioskFragment.OnSelectedLisener{
+                selectFragment.setOnSelectedLisener(object : SelectKioskFragment.OnSelectedLisener {
                     override fun onKioskSelected(serviceId: Int, kioskId: String, kioskName: String) {
                         addTab(Tab.KioskTab(serviceId, kioskId))
                     }
-                } )
+                })
 
                 selectFragment.show(requireFragmentManager(), "select_kiosk")
                 return
             }
             Tab.Type.CHANNEL -> {
                 val selectFragment = SelectChannelFragment()
-                selectFragment.setOnSelectedLisener(object: SelectChannelFragment.OnSelectedLisener{
+                selectFragment.setOnSelectedLisener(object : SelectChannelFragment.OnSelectedLisener {
                     override fun onChannelSelected(serviceId: Int, url: String, name: String) {
                         addTab(Tab.ChannelTab(serviceId, url, name))
                     }
@@ -255,7 +200,7 @@ class ChooseTabsFragment : Fragment() {
         }
     }
 
-    fun getAvailableTabs(context: Context): Array<ChooseTabListItem> {
+    private fun getAvailableTabs(context: Context): Array<ChooseTabListItem> {
         val returnList = ArrayList<ChooseTabListItem>()
 
         for (type in Tab.Type.values()) {
@@ -265,10 +210,13 @@ class ChooseTabsFragment : Fragment() {
                     returnList.add(ChooseTabListItem(tab.tabId, getString(R.string.blank_page_summary),
                             tab.getTabIconRes(context)))
                 }
+
                 Tab.Type.KIOSK -> returnList.add(ChooseTabListItem(tab.tabId, getString(R.string.kiosk_page_summary),
                         ThemeHelper.resolveResourceIdFromAttr(context, R.attr.ic_hot)))
+
                 Tab.Type.CHANNEL -> returnList.add(ChooseTabListItem(tab.tabId, getString(R.string.channel_page_summary),
                         tab.getTabIconRes(context)))
+
                 else -> if (!tabList.contains(tab)) {
                     returnList.add(ChooseTabListItem(context, tab))
                 }
@@ -278,12 +226,12 @@ class ChooseTabsFragment : Fragment() {
         return returnList.toTypedArray()
     }
 
+
     ///////////////////////////////////////////////////////////////////////////
     // List Handling
     ///////////////////////////////////////////////////////////////////////////
 
-    inner class SelectedTabsAdapter internal constructor(context: Context, private val itemTouchHelper: ItemTouchHelper?) : RecyclerView.Adapter<TabViewHolder>() {
-        private val inflater: LayoutInflater = LayoutInflater.from(context)
+    inner class SelectedTabsAdapter(val tabList: List<Tab>,  private val itemTouchHelper: ItemTouchHelper?) : RecyclerView.Adapter<TabViewHolder>() {
 
         fun swapItems(fromPosition: Int, toPosition: Int) {
             Collections.swap(tabList, fromPosition, toPosition)
@@ -291,7 +239,7 @@ class ChooseTabsFragment : Fragment() {
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TabViewHolder {
-            val view = inflater.inflate(R.layout.list_choose_tabs, parent, false)
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.list_choose_tabs, parent, false)
             return TabViewHolder(view)
         }
 
@@ -299,21 +247,12 @@ class ChooseTabsFragment : Fragment() {
             holder.bind(position, holder)
         }
 
-        override fun getItemCount(): Int {
-            return tabList.size
-        }
+        override fun getItemCount(): Int = tabList.size
 
         inner class TabViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            private val tabIconView: AppCompatImageView
-            private val tabNameView: TextView
-            private val handle: ImageView
-
-            init {
-
-                tabNameView = itemView.findViewById(R.id.tabName)
-                tabIconView = itemView.findViewById(R.id.tabIcon)
-                handle = itemView.findViewById(R.id.handle)
-            }
+            private val tabIconView: AppCompatImageView = itemView.findViewById(R.id.tabIcon)
+            private val tabNameView: TextView = itemView.findViewById(R.id.tabName)
+            private val handle: ImageView = itemView.findViewById(R.id.handle)
 
             @SuppressLint("ClickableViewAccessibility")
             fun bind(position: Int, holder: TabViewHolder) {
@@ -321,14 +260,13 @@ class ChooseTabsFragment : Fragment() {
 
                 val tab = tabList[position]
                 val type = Tab.typeFrom(tab.tabId) ?: return
-
-                var tabName = tab.getTabName(requireContext())
+//                var tabName = tab.getTabName(requireContext())
+                var tabName = tab.getTabName(itemView.context)
                 when (type) {
                     Tab.Type.BLANK -> tabName = requireContext().getString(R.string.blank_page_summary)
-                    Tab.Type.KIOSK -> tabName = NewPipe.getNameOfService((tab as Tab.KioskTab).kioskServiceId) + "/" + tabName
-                    Tab.Type.CHANNEL -> tabName = NewPipe.getNameOfService((tab as Tab.ChannelTab).channelServiceId) + "/" + tabName
+                    Tab.Type.KIOSK -> tabName = "${NewPipe.getNameOfService((tab as Tab.KioskTab).kioskServiceId)}/$tabName"
+                    Tab.Type.CHANNEL -> tabName = "${NewPipe.getNameOfService((tab as Tab.ChannelTab).channelServiceId)}/$tabName"
                 }
-
 
                 tabNameView.text = tabName
                 tabIconView.setImageResource(tab.getTabIconRes(requireContext()))
@@ -336,8 +274,8 @@ class ChooseTabsFragment : Fragment() {
 
             @SuppressLint("ClickableViewAccessibility")
             private fun getOnTouchListener(item: RecyclerView.ViewHolder): View.OnTouchListener {
-                return View.OnTouchListener{ view, motionEvent ->
-                    if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                return View.OnTouchListener { view, motionEvent ->
+                    if (motionEvent.actionMasked == MotionEvent.ACTION_DOWN) {
                         if (itemTouchHelper != null && itemCount > 1) {
                             itemTouchHelper.startDrag(item)
                             true
@@ -351,4 +289,56 @@ class ChooseTabsFragment : Fragment() {
             }
         }
     }
+
+
+    private fun getItemTouchCallback(): ItemTouchHelper.SimpleCallback =
+            object : ItemTouchHelper.SimpleCallback(
+                    ItemTouchHelper.UP or ItemTouchHelper.DOWN,
+                    ItemTouchHelper.START or ItemTouchHelper.END) {
+
+                // Called by the ItemTouchHelper when user is dragging a view out of bounds.
+                override fun interpolateOutOfBoundsScroll(
+                        recyclerView: RecyclerView,
+                        viewSize: Int,
+                        viewSizeOutOfBounds: Int,
+                        totalSize: Int,
+                        msSinceStartScroll: Long): Int {
+
+                    val standardSpeed = super.interpolateOutOfBoundsScroll(recyclerView, viewSize,
+                            viewSizeOutOfBounds, totalSize, msSinceStartScroll)
+                    val minimumAbsVelocity = Math.max(12,
+                            Math.abs(standardSpeed))
+                    return minimumAbsVelocity * Math.signum(viewSizeOutOfBounds.toFloat()).toInt()
+                }
+
+                // Called when ItemTouchHelper wants to move the dragged item from its old position to the new position.
+                override fun onMove(recyclerView: RecyclerView, source: RecyclerView.ViewHolder,
+                                    target: RecyclerView.ViewHolder): Boolean {
+                    if (source.itemViewType != target.itemViewType) {
+                        return false  // not moved
+                    }
+
+                    val sourceIndex = source.adapterPosition
+                    val targetIndex = target.adapterPosition
+                    selectedTabsAdapter.swapItems(sourceIndex, targetIndex)
+                    return true  // moved
+                }
+
+                override fun isLongPressDragEnabled(): Boolean = true
+
+                override fun isItemViewSwipeEnabled(): Boolean = true
+
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
+                    val position = viewHolder.adapterPosition
+                    tabList.removeAt(position)
+                    selectedTabsAdapter.notifyItemRemoved(position)
+
+                    if (tabList.isEmpty()) {
+                        tabList.add(Tab.Type.BLANK.tab)
+                        selectedTabsAdapter.notifyItemInserted(0)
+                    }
+                }
+            }
+
+
 }

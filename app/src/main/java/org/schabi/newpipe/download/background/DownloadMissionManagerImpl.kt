@@ -8,9 +8,9 @@ import android.util.Log
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.observers.DisposableCompletableObserver
 import org.schabi.newpipe.download.background.MissionControl.Companion.NO_ERROR
-import org.schabi.newpipe.download.downloadDB.DownloadMissionDataSource
-import org.schabi.newpipe.download.downloadDB.DownloadMissionDataSourceImpl
-import org.schabi.newpipe.download.downloadDB.MissionEntity
+import org.schabi.newpipe.database.downloadDB.DownloadMissionDataSource
+import org.schabi.newpipe.database.downloadDB.DownloadMissionDataSourceImpl
+import org.schabi.newpipe.database.downloadDB.MissionEntity
 import org.schabi.newpipe.download.ui.ExtSDDownloadFailedActivity
 import org.schabi.newpipe.download.util.Utility
 import java.io.File

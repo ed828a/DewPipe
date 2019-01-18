@@ -14,8 +14,8 @@ import org.mockito.Mockito
 import org.schabi.newpipe.database.AppDatabase
 import org.schabi.newpipe.download.background.DownloadMissionManagerImpl
 import org.schabi.newpipe.download.background.MissionControl
-import org.schabi.newpipe.download.downloadDB.DownloadDAO
-import org.schabi.newpipe.download.downloadDB.MissionEntity
+import org.schabi.newpipe.database.downloadDB.DownloadDAO
+import org.schabi.newpipe.database.downloadDB.MissionEntity
 import java.io.File
 import java.io.IOException
 import java.io.RandomAccessFile

@@ -22,13 +22,13 @@ class TabsManager private constructor(private val context: Context) {
 
         }
 
-    fun getDefaultTabs(): List<Tab> = TabsJsonHelper.FALLBACK_INITIAL_TABS_LIST
+    private fun getDefaultTabs(): List<Tab> = TabsJsonHelper.FALLBACK_INITIAL_TABS_LIST
 
     private var savedTabsChangeListener: SavedTabsChangeListener? = null
     private var preferenceChangeListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
 
     fun saveTabs(tabList: List<Tab>) {
-        val jsonToSave = TabsJsonHelper.getJsonToSave(tabList)
+        val jsonToSave = TabsJsonHelper.getJsonToSave(tabList)  // convert a List<Tab> to Json
         sharedPreferences.edit().putString(savedTabsKey, jsonToSave).apply()
     }
 
@@ -63,8 +63,8 @@ class TabsManager private constructor(private val context: Context) {
 
     private fun getPreferenceChangeListener(): SharedPreferences.OnSharedPreferenceChangeListener =
             SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
-                if (key == savedTabsKey) {
-                    if (savedTabsChangeListener != null) savedTabsChangeListener!!.onTabsChanged()
+                if (key == savedTabsKey && savedTabsChangeListener != null) {
+                    savedTabsChangeListener!!.onTabsChanged()
                 }
             }
 

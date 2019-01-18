@@ -10,8 +10,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.schabi.newpipe.database.AppDatabase
-import org.schabi.newpipe.download.downloadDB.DownloadDAO
-import org.schabi.newpipe.download.downloadDB.MissionEntity
+import org.schabi.newpipe.database.downloadDB.DownloadDAO
+import org.schabi.newpipe.database.downloadDB.MissionEntity
 import java.io.IOException
 
 /**

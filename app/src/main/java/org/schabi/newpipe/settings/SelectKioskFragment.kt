@@ -1,55 +1,39 @@
 package org.schabi.newpipe.settings
 
-import android.app.Activity
 import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-
-import org.schabi.newpipe.MainActivity
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.NewPipe
 import org.schabi.newpipe.extractor.ServiceList
-import org.schabi.newpipe.extractor.StreamingService
 import org.schabi.newpipe.report.ErrorActivity
 import org.schabi.newpipe.report.ErrorInfo
 import org.schabi.newpipe.report.UserAction
 import org.schabi.newpipe.util.KioskTranslator
 import org.schabi.newpipe.util.ServiceHelper
-import java.util.Vector
+import java.util.*
 
 /**
- * Created by Christian Schabesberger on 09.10.17.
- * SelectKioskFragment.java is part of NewPipe.
+ * created by Edward 1/18/2019
  *
- * NewPipe is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * NewPipe is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with NewPipe.  If not, see <http:></http:>//www.gnu.org/licenses/>.
+ * this class includes adapter and data model declaration.
  */
-
 class SelectKioskFragment : DialogFragment() {
 
-    internal var recyclerView: RecyclerView? = null
-    internal var selectKioskAdapter: SelectKioskAdapter? = null
+    var recyclerView: RecyclerView? = null
+    var selectKioskAdapter: SelectKioskAdapter? = null
 
-    internal var onSelectedLisener: OnSelectedLisener? = null
-    internal var onCancelListener: OnCancelListener? = null
+    private var onSelectedLisener: OnSelectedLisener? = null
+    private var onCancelListener: OnCancelListener? = null
 
     ///////////////////////////////////////////////////////////////////////////
     // Interfaces
@@ -72,9 +56,9 @@ class SelectKioskFragment : DialogFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val v = inflater.inflate(R.layout.select_kiosk_fragment, container, false)
-        recyclerView = v.findViewById(R.id.items_list)
-        recyclerView!!.layoutManager = LinearLayoutManager(context)
+        val view = inflater.inflate(R.layout.select_kiosk_fragment, container, false)
+        recyclerView = view.findViewById(R.id.items_list)
+        recyclerView?.layoutManager = LinearLayoutManager(context)
         try {
             selectKioskAdapter = SelectKioskAdapter()
         } catch (e: Exception) {
@@ -83,7 +67,7 @@ class SelectKioskFragment : DialogFragment() {
 
         recyclerView!!.adapter = selectKioskAdapter
 
-        return v
+        return view
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -113,27 +97,32 @@ class SelectKioskFragment : DialogFragment() {
         inner class Entry(internal val icon: Int, internal val serviceId: Int, internal val kioskId: String, internal val kioskName: String)
 
         init {
-
+            Log.d(TAG, "NewPipe.getServices() = ${NewPipe.getServices()}")
             for (service in NewPipe.getServices()) {
-                //TODO: Multi-service support
-                if (service.serviceId != ServiceList.YouTube.serviceId && !DEBUG) continue
+                Log.d(TAG, "service.kioskList.availableKiosks = ${service.kioskList.availableKiosks}")
+
+                if (service.serviceId != ServiceList.YouTube.serviceId && service.serviceId != ServiceList.SoundCloud.serviceId) {
+                    Log.e(TAG, "there is wrong Service: ${service.serviceId}")
+                    continue
+                }
 
                 for (kioskId in service.kioskList.availableKiosks) {
                     val name = String.format(getString(R.string.service_kiosk_string),
                             service.serviceInfo.name,
                             KioskTranslator.getTranslatedKioskName(kioskId, context!!))
-                    kioskList.add(Entry(
+
+                    val kioskEntry = Entry(
                             ServiceHelper.getIcon(service.serviceId),
                             service.serviceId,
                             kioskId,
-                            name))
+                            name)
+
+                    kioskList.add(kioskEntry)
                 }
             }
         }
 
-        override fun getItemCount(): Int {
-            return kioskList.size
-        }
+        override fun getItemCount(): Int = kioskList.size
 
         override fun onCreateViewHolder(parent: ViewGroup, type: Int): SelectKioskItemHolder {
             val item = LayoutInflater.from(parent.context)
@@ -142,13 +131,8 @@ class SelectKioskFragment : DialogFragment() {
         }
 
         inner class SelectKioskItemHolder(val view: View) : RecyclerView.ViewHolder(view) {
-            val thumbnailView: ImageView
-            val titleView: TextView
-
-            init {
-                thumbnailView = view.findViewById(R.id.itemThumbnailView)
-                titleView = view.findViewById(R.id.itemTitleView)
-            }
+            val thumbnailView: ImageView = view.findViewById(R.id.itemThumbnailView)
+            val titleView: TextView = view.findViewById(R.id.itemTitleView)
         }
 
         override fun onBindViewHolder(holder: SelectKioskItemHolder, position: Int) {
@@ -163,16 +147,18 @@ class SelectKioskFragment : DialogFragment() {
     // Error
     ///////////////////////////////////////////////////////////////////////////
 
-    protected fun onError(e: Throwable) {
+    private fun onError(e: Throwable) {
         val activity = activity
-        ErrorActivity.reportError(activity!!, e,
-                activity!!.javaClass, null,
-                ErrorInfo.make(UserAction.UI_ERROR,
-                        "none", "", R.string.app_ui_crash))
+        activity?.let {fragmentActivity ->
+            ErrorActivity.reportError(fragmentActivity, e,
+                    fragmentActivity.javaClass, null,
+                    ErrorInfo.make(UserAction.UI_ERROR,
+                            "none", "", R.string.app_ui_crash))
+        }
+
     }
 
     companion object {
-
-        private val DEBUG = MainActivity.DEBUG
+        private const val TAG = "SelectKioskFragment"
     }
 }

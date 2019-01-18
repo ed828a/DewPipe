@@ -5,9 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.preference.Preference
 import android.util.Log
-
 import com.nononsenseapps.filepicker.Utils
-
 import org.schabi.newpipe.R
 import org.schabi.newpipe.util.FilePickerActivityHelper
 
@@ -38,19 +36,19 @@ class DownloadSettingsFragment : BasePreferenceFragment() {
     }
 
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
-        if (DEBUG) {
-            Log.d(TAG, "onPreferenceTreeClick() called with: preference = [$preference]")
-        }
+
+        Log.d(TAG, "onPreferenceTreeClick() called with: preference = [$preference]")
 
         if (preference.key == downloadPathPreference || preference.key == downloadPathAudioPreference) {
-            val i = Intent(activity, FilePickerActivityHelper::class.java)
+            val intent = Intent(activity, FilePickerActivityHelper::class.java)
                     .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)
                     .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_ALLOW_CREATE_DIR, true)
                     .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_MODE, com.nononsenseapps.filepicker.FilePickerActivity.MODE_DIR)
+
             if (preference.key == downloadPathPreference) {
-                startActivityForResult(i, REQUEST_DOWNLOAD_PATH)
+                startActivityForResult(intent, REQUEST_DOWNLOAD_PATH)
             } else if (preference.key == downloadPathAudioPreference) {
-                startActivityForResult(i, REQUEST_DOWNLOAD_AUDIO_PATH)
+                startActivityForResult(intent, REQUEST_DOWNLOAD_AUDIO_PATH)
             }
         }
 
@@ -59,9 +57,8 @@ class DownloadSettingsFragment : BasePreferenceFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (DEBUG) {
-            Log.d(TAG, "onActivityResult() called with: requestCode = [$requestCode], resultCode = [$resultCode], data = [$data]")
-        }
+
+        Log.d(TAG, "onActivityResult() called with: requestCode = [$requestCode], resultCode = [$resultCode], data = [$data]")
 
         if ((requestCode == REQUEST_DOWNLOAD_PATH || requestCode == REQUEST_DOWNLOAD_AUDIO_PATH)
                 && resultCode == Activity.RESULT_OK && data!!.data != null) {
@@ -74,6 +71,7 @@ class DownloadSettingsFragment : BasePreferenceFragment() {
     }
 
     companion object {
+        private val TAG = DownloadSettingsFragment::class.simpleName
         private const val REQUEST_DOWNLOAD_PATH = 0x1235
         private const val REQUEST_DOWNLOAD_AUDIO_PATH = 0x1236
     }

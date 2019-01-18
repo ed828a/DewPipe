@@ -3,7 +3,7 @@ package org.schabi.newpipe.download.background
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import org.schabi.newpipe.download.downloadDB.MissionEntity
+import org.schabi.newpipe.database.downloadDB.MissionEntity
 import org.schabi.newpipe.download.util.Utility
 import java.io.File
 import java.io.Serializable

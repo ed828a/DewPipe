@@ -10,11 +10,13 @@ import java.util.*
 
 /**
  * Class to get a JSON representation of a list of tabs, and the other way around.
+ *
+ * JsonParser/JsonWriter: refer to https://github.com/mmastrac/nanojson
  */
 object TabsJsonHelper {
     private const val JSON_TABS_ARRAY_KEY = "tabs"
 
-    internal val FALLBACK_INITIAL_TABS_LIST = Collections.unmodifiableList(Arrays.asList(
+    val FALLBACK_INITIAL_TABS_LIST: List<Tab> = Collections.unmodifiableList(Arrays.asList(
             Tab.KioskTab(YouTube.serviceId, "Trending"),
             Type.SUBSCRIPTIONS.tab,
             Type.BOOKMARKS.tab
@@ -56,13 +58,12 @@ object TabsJsonHelper {
             val tabsArray = outerJsonObject.getArray(JSON_TABS_ARRAY_KEY)
                     ?: throw InvalidJsonException("JSON doesn't contain \"$JSON_TABS_ARRAY_KEY\" array")
 
-            for (o in tabsArray) {
-                if (o !is JsonObject) continue
-
-                val tab = Tab.from(o)
-
-                if (tab != null) {
-                    returnTabs.add(tab)
+            for (obj in tabsArray) {
+                if (obj is JsonObject){
+                    val tab = Tab.from(obj)
+                    if (tab != null) {
+                        returnTabs.add(tab)
+                    }
                 }
             }
         } catch (e: JsonParserException) {
@@ -77,22 +78,22 @@ object TabsJsonHelper {
 
     /**
      * Get a JSON representation from a list of tabs.
-     *
+     * convert a List<TAB> to Json
      * @param tabList a list of [tabs][Tab].
      * @return a JSON string representing the list of tabs
      */
     fun getJsonToSave(tabList: List<Tab>?): String {
         val jsonWriter = JsonWriter.string()
-        jsonWriter.`object`()
+        jsonWriter.`object`().array(JSON_TABS_ARRAY_KEY)
 
-        jsonWriter.array(JSON_TABS_ARRAY_KEY)
-        if (tabList != null)
+        if (tabList != null) {
             for (tab in tabList) {
                 tab.writeJsonOn(jsonWriter)
             }
-        jsonWriter.end()
+            jsonWriter.end()   // close array
+        }
 
-        jsonWriter.end()
+        jsonWriter.end() // close object
         return jsonWriter.done()
     }
 }
