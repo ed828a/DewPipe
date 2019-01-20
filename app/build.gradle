@@ -68,9 +68,9 @@ dependencies {
     }
 
     // NewPipe Extractor
-//    implementation 'com.github.TeamNewPipe:NewPipeExtractor:24cb684e2353'
+//    implementation 'com.github.TeamNewPipe:NewPipeExtractor:24cb684e2353'  // the original
 //    implementation 'com.github.TeamNewPipe.NewPipeExtractor:NewPipeExtractor:v0.14.1'
-//    implementation 'com.github.TeamNewPipe:NewPipeExtractor:91b1efc97e'
+//    implementation 'com.github.TeamNewPipe:NewPipeExtractor:91b1efc97e'  // the newest
     implementation 'com.github.TeamNewPipe:NewPipeExtractor:66c3c3f45241d4b0c909'
 
     testImplementation 'junit:junit:4.12'

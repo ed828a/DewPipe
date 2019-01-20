@@ -4,22 +4,12 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import android.support.multidex.MultiDex
-
 import com.facebook.stetho.Stetho
 import com.facebook.stetho.okhttp3.StethoInterceptor
-import com.squareup.leakcanary.AndroidHeapDumper
-import com.squareup.leakcanary.DefaultLeakDirectoryProvider
-import com.squareup.leakcanary.HeapDumper
-import com.squareup.leakcanary.LeakCanary
-import com.squareup.leakcanary.LeakDirectoryProvider
-import com.squareup.leakcanary.RefWatcher
-
-import org.schabi.newpipe.extractor.Downloader
-
+import com.squareup.leakcanary.*
+import okhttp3.OkHttpClient
 import java.io.File
 import java.util.concurrent.TimeUnit
-
-import okhttp3.OkHttpClient
 
 class DebugApp : App() {
 
@@ -85,7 +75,7 @@ class DebugApp : App() {
             this.dumpingAllowanceKey = context.getString(R.string.allow_heap_dumping_key)
         }
 
-        override fun dumpHeap(): File {
+        override fun dumpHeap(): File? {
             return if (isDumpingAllowed) dumper.dumpHeap() else HeapDumper.RETRY_LATER
         }
     }

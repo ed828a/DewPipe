@@ -2,52 +2,21 @@ package org.schabi.newpipe.fragments.list.kiosk
 
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.support.v7.app.ActionBar
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.View
-import android.view.ViewGroup
-
+import android.view.*
+import icepick.State
+import io.reactivex.Single
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.ListExtractor
 import org.schabi.newpipe.extractor.NewPipe
-import org.schabi.newpipe.extractor.StreamingService
 import org.schabi.newpipe.extractor.exceptions.ExtractionException
 import org.schabi.newpipe.extractor.kiosk.KioskInfo
-import org.schabi.newpipe.extractor.linkhandler.ListLinkHandlerFactory
-import org.schabi.newpipe.extractor.linkhandler.ListLinkHandler
-import org.schabi.newpipe.extractor.linkhandler.LinkHandlerFactory
 import org.schabi.newpipe.fragments.list.BaseListInfoFragment
 import org.schabi.newpipe.report.UserAction
+import org.schabi.newpipe.util.AnimationUtils.animateView
 import org.schabi.newpipe.util.ExtractorHelper
 import org.schabi.newpipe.util.KioskTranslator
 
-import icepick.State
-import io.reactivex.Single
 
-import org.schabi.newpipe.util.AnimationUtils.animateView
-
-/**
- * Created by Christian Schabesberger on 23.09.17.
- *
- * Copyright (C) Christian Schabesberger 2017 <chris.schabesberger></chris.schabesberger>@mailbox.org>
- * KioskFragment.java is part of NewPipe.
- *
- * NewPipe is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * NewPipe is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with NewPipe.  If not, see <http:></http:>//www.gnu.org/licenses/>.
- */
 
 class KioskFragment : BaseListInfoFragment<KioskInfo>() {
 

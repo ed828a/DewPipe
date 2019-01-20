@@ -414,7 +414,8 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
             }
         }
         searchEditText!!.addTextChangedListener(textWatcher)
-        searchEditText!!.setOnEditorActionListener { v: TextView, actionId: Int, event: KeyEvent ->
+
+        searchEditText!!.setOnEditorActionListener { v , actionId, event ->
             if (DEBUG) {
                 Log.d(TAG, "onEditorAction() called with: v = [$v], actionId = [$actionId], event = [$event]")
             }
