@@ -39,7 +39,7 @@ class StreamItemAdapter<T : Stream> @JvmOverloads constructor(private val contex
         return position.toLong()
     }
 
-    override fun getDropDownView(position: Int, convertView: View, parent: ViewGroup): View {
+    override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
         return getCustomView(position, convertView, parent, true)
     }
 
