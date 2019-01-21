@@ -6,51 +6,20 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import org.schabi.newpipe.BuildConfig.DEBUG
-
 import org.schabi.newpipe.extractor.InfoItem
 import org.schabi.newpipe.extractor.channel.ChannelInfoItem
 import org.schabi.newpipe.extractor.playlist.PlaylistInfoItem
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
-import org.schabi.newpipe.info_list.holder.ChannelInfoItemHolder
-import org.schabi.newpipe.info_list.holder.ChannelMiniInfoItemHolder
-import org.schabi.newpipe.info_list.holder.ChannelGridInfoItemHolder
-import org.schabi.newpipe.info_list.holder.InfoItemHolder
-import org.schabi.newpipe.info_list.holder.PlaylistGridInfoItemHolder
-import org.schabi.newpipe.info_list.holder.PlaylistInfoItemHolder
-import org.schabi.newpipe.info_list.holder.PlaylistMiniInfoItemHolder
-import org.schabi.newpipe.info_list.holder.StreamGridInfoItemHolder
-import org.schabi.newpipe.info_list.holder.StreamInfoItemHolder
-import org.schabi.newpipe.info_list.holder.StreamMiniInfoItemHolder
-import org.schabi.newpipe.util.FallbackViewHolder
+import org.schabi.newpipe.info_list.holder.*
+import org.schabi.newpipe.info_list.holder.FallbackViewHolder
 import org.schabi.newpipe.util.OnClickGesture
+import java.util.*
 
-import java.util.ArrayList
 
-/*
- * Created by Christian Schabesberger on 01.08.16.
- *
- * Copyright (C) Christian Schabesberger 2016 <chris.schabesberger@mailbox.org>
- * InfoListAdapter.java is part of NewPipe.
- *
- * NewPipe is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * NewPipe is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with NewPipe.  If not, see <http://www.gnu.org/licenses/>.
- */
+class InfoListAdapter(activity: Activity) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-class InfoListAdapter(a: Activity) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-    private val infoItemBuilder: InfoItemBuilder
-    val itemsList: ArrayList<InfoItem>
+    private val infoItemBuilder: InfoItemBuilder = InfoItemBuilder(activity)
+    val itemsList: ArrayList<InfoItem> = ArrayList()
     private var useMiniVariant = false
     private var useGridVariant = false
     private var showFooter = false
@@ -58,11 +27,6 @@ class InfoListAdapter(a: Activity) : RecyclerView.Adapter<RecyclerView.ViewHolde
     private var footer: View? = null
 
     inner class HFHolder(var view: View) : RecyclerView.ViewHolder(view)
-
-    init {
-        infoItemBuilder = InfoItemBuilder(a)
-        itemsList = ArrayList()
-    }
 
     fun setOnStreamSelectedListener(listener: OnClickGesture<StreamInfoItem>) {
         infoItemBuilder.onStreamSelectedListener = listener
@@ -85,48 +49,40 @@ class InfoListAdapter(a: Activity) : RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     fun addInfoItemList(data: List<InfoItem>?) {
-        if (data != null) {
-            if (DEBUG) {
-                Log.d(TAG, "addInfoItemList() before > infoItemList.size() = " + itemsList.size + ", data.size() = " + data.size)
-            }
+        data?.let { dataList ->
+            Log.d(TAG, "addInfoItemList() before > infoItemList.size() = ${itemsList.size}, data.size() = ${dataList.size}")
 
             val offsetStart = sizeConsideringHeaderOffset()
-            itemsList.addAll(data)
+            itemsList.addAll(dataList)
 
-            if (DEBUG) {
-                Log.d(TAG, "addInfoItemList() after > offsetStart = " + offsetStart + ", infoItemList.size() = " + itemsList.size + ", header = " + header + ", footer = " + footer + ", showFooter = " + showFooter)
-            }
+            Log.d(TAG, "addInfoItemList() after > offsetStart = $offsetStart, infoItemList.size() = ${itemsList.size}, header = $header, footer = $footer, showFooter = $showFooter")
 
-            notifyItemRangeInserted(offsetStart, data.size)
+            notifyItemRangeInserted(offsetStart, dataList.size)
 
             if (footer != null && showFooter) {
                 val footerNow = sizeConsideringHeaderOffset()
                 notifyItemMoved(offsetStart, footerNow)
 
-                if (DEBUG) Log.d(TAG, "addInfoItemList() footer getTabFrom $offsetStart to $footerNow")
+                Log.d(TAG, "addInfoItemList() footer getTabFrom $offsetStart to $footerNow")
             }
         }
     }
 
     fun addInfoItem(data: InfoItem?) {
         if (data != null) {
-            if (DEBUG) {
-                Log.d(TAG, "addInfoItem() before > infoItemList.size() = " + itemsList.size + ", thread = " + Thread.currentThread())
-            }
+            Log.d(TAG, "addInfoItem() before > infoItemList.size() = ${itemsList.size}, thread = ${Thread.currentThread()}")
 
             val positionInserted = sizeConsideringHeaderOffset()
             itemsList.add(data)
 
-            if (DEBUG) {
-                Log.d(TAG, "addInfoItem() after > position = " + positionInserted + ", infoItemList.size() = " + itemsList.size + ", header = " + header + ", footer = " + footer + ", showFooter = " + showFooter)
-            }
+            Log.d(TAG, "addInfoItem() after > position = $positionInserted, infoItemList.size() = ${itemsList.size}, header = $header, footer = $footer, showFooter = $showFooter")
             notifyItemInserted(positionInserted)
 
             if (footer != null && showFooter) {
                 val footerNow = sizeConsideringHeaderOffset()
                 notifyItemMoved(positionInserted, footerNow)
 
-                if (DEBUG) Log.d(TAG, "addInfoItem() footer getTabFrom $positionInserted to $footerNow")
+                Log.d(TAG, "addInfoItem() footer getTabFrom $positionInserted to $footerNow")
             }
         }
     }
@@ -145,12 +101,12 @@ class InfoListAdapter(a: Activity) : RecyclerView.Adapter<RecyclerView.ViewHolde
         if (changed) notifyDataSetChanged()
     }
 
-    fun setFooter(view: View) {
+    fun setFooter(view: View?) {
         this.footer = view
     }
 
     fun showFooter(show: Boolean) {
-        if (DEBUG) Log.d(TAG, "showFooter() called with: show = [$show]")
+        Log.d(TAG, "showFooter() called with: show = [$show]")
         if (show == showFooter) return
 
         showFooter = show
@@ -162,9 +118,9 @@ class InfoListAdapter(a: Activity) : RecyclerView.Adapter<RecyclerView.ViewHolde
 
 
     private fun sizeConsideringHeaderOffset(): Int {
-        val i = itemsList.size + if (header != null) 1 else 0
-        if (DEBUG) Log.d(TAG, "sizeConsideringHeaderOffset() called → $i")
-        return i
+        val size = itemsList.size + if (header != null) 1 else 0
+        Log.d(TAG, "sizeConsideringHeaderOffset() called → $size")
+        return size
     }
 
     override fun getItemCount(): Int {
@@ -172,15 +128,13 @@ class InfoListAdapter(a: Activity) : RecyclerView.Adapter<RecyclerView.ViewHolde
         if (header != null) count++
         if (footer != null && showFooter) count++
 
-        if (DEBUG) {
-            Log.d(TAG, "getItemCount() called, count = " + count + ", infoItemList.size() = " + itemsList.size + ", header = " + header + ", footer = " + footer + ", showFooter = " + showFooter)
-        }
+        Log.d(TAG, "getItemCount() called, count = $count, infoItemList.size() = ${itemsList.size}, header = $header, footer = $footer, showFooter = $showFooter")
         return count
     }
 
-    override fun getItemViewType(position: Int): Int {
-        var position = position
-        if (DEBUG) Log.d(TAG, "getItemViewType() called with: position = [$position]")
+    override fun getItemViewType(pos: Int): Int {
+        var position = pos
+        Log.d(TAG, "getItemViewType() called with: pos = [$position]")
 
         if (header != null && position == 0) {
             return HEADER_TYPE
@@ -191,20 +145,32 @@ class InfoListAdapter(a: Activity) : RecyclerView.Adapter<RecyclerView.ViewHolde
             return FOOTER_TYPE
         }
         val item = itemsList[position]
-        when (item.infoType) {
-            InfoItem.InfoType.STREAM -> return if (useGridVariant) GRID_STREAM_HOLDER_TYPE else if (useMiniVariant) MINI_STREAM_HOLDER_TYPE else STREAM_HOLDER_TYPE
-            InfoItem.InfoType.CHANNEL -> return if (useGridVariant) GRID_CHANNEL_HOLDER_TYPE else if (useMiniVariant) MINI_CHANNEL_HOLDER_TYPE else CHANNEL_HOLDER_TYPE
-            InfoItem.InfoType.PLAYLIST -> return if (useGridVariant) GRID_PLAYLIST_HOLDER_TYPE else if (useMiniVariant) MINI_PLAYLIST_HOLDER_TYPE else PLAYLIST_HOLDER_TYPE
+        return when (item.infoType) {
+            InfoItem.InfoType.STREAM -> when {
+                useGridVariant -> GRID_STREAM_HOLDER_TYPE
+                useMiniVariant -> MINI_STREAM_HOLDER_TYPE
+                else -> STREAM_HOLDER_TYPE
+            }
+            InfoItem.InfoType.CHANNEL -> when {
+                useGridVariant -> GRID_CHANNEL_HOLDER_TYPE
+                useMiniVariant -> MINI_CHANNEL_HOLDER_TYPE
+                else -> CHANNEL_HOLDER_TYPE
+            }
+            InfoItem.InfoType.PLAYLIST -> when {
+                useGridVariant -> GRID_PLAYLIST_HOLDER_TYPE
+                useMiniVariant -> MINI_PLAYLIST_HOLDER_TYPE
+                else -> PLAYLIST_HOLDER_TYPE
+            }
             else -> {
-                Log.e(TAG, "Trollolo")
-                return -1
+                Log.e(TAG, "item type is invalid: item.infoType = ${item.infoType}")
+                -1
             }
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, type: Int): RecyclerView.ViewHolder {
-        if (DEBUG) Log.d(TAG, "onCreateViewHolder() called with: parent = [$parent], type = [$type]")
-        return when (type) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        Log.d(TAG, "onCreateViewHolder() called with: parent = [$parent], viewType = [$viewType]")
+        return when (viewType) {
             HEADER_TYPE -> HFHolder(header!!)
             FOOTER_TYPE -> HFHolder(footer!!)
             MINI_STREAM_HOLDER_TYPE -> StreamMiniInfoItemHolder(infoItemBuilder, parent)
@@ -217,7 +183,7 @@ class InfoListAdapter(a: Activity) : RecyclerView.Adapter<RecyclerView.ViewHolde
             PLAYLIST_HOLDER_TYPE -> PlaylistInfoItemHolder(infoItemBuilder, parent)
             GRID_PLAYLIST_HOLDER_TYPE -> PlaylistGridInfoItemHolder(infoItemBuilder, parent)
             else -> {
-                Log.e(TAG, "Trollolo")
+                Log.e(TAG, "onCreateViewHolder(), viewType is invalid: viewType = $viewType")
                 FallbackViewHolder(View(parent.context))
             }
         }
@@ -225,7 +191,7 @@ class InfoListAdapter(a: Activity) : RecyclerView.Adapter<RecyclerView.ViewHolde
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         var position = position
-        if (DEBUG) Log.d(TAG, "onBindViewHolder() called with: holder = [" + holder.javaClass.simpleName + "], position = [" + position + "]")
+        Log.d(TAG, "onBindViewHolder() called with: holder = [${holder.javaClass.simpleName}], position = [$position]")
         if (holder is InfoItemHolder) {
             // If header isn't null, offset the items by -1
             if (header != null) position--

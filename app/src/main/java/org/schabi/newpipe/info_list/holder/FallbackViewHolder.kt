@@ -1,4 +1,4 @@
-package org.schabi.newpipe.util
+package org.schabi.newpipe.info_list.holder
 
 import android.support.v7.widget.RecyclerView
 import android.view.View

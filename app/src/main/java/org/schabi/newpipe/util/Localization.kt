@@ -146,7 +146,11 @@ object Localization {
 
         // As we use the already formatted count, is not the responsibility of this method handle long numbers
         // (it probably will fall in the "other" category, or some language have some specific rule... then we have to change it)
-        val safeCount = if (count > Integer.MAX_VALUE) Integer.MAX_VALUE else if (count < Integer.MIN_VALUE) Integer.MIN_VALUE else count.toInt()
+        val safeCount = when {
+            count > Integer.MAX_VALUE -> Integer.MAX_VALUE
+            count < Integer.MIN_VALUE -> Integer.MIN_VALUE
+            else -> count.toInt()
+        }
         return context.resources.getQuantityString(pluralId, safeCount, formattedCount)
     }
 

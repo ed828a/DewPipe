@@ -9,32 +9,8 @@ import org.schabi.newpipe.extractor.channel.ChannelInfoItem
 import org.schabi.newpipe.info_list.InfoItemBuilder
 import org.schabi.newpipe.util.Localization
 
-/*
- * Created by Christian Schabesberger on 12.02.17.
- *
- * Copyright (C) Christian Schabesberger 2016 <chris.schabesberger@mailbox.org>
- * ChannelInfoItemHolder .java is part of NewPipe.
- *
- * NewPipe is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * NewPipe is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with NewPipe.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 class ChannelInfoItemHolder(infoItemBuilder: InfoItemBuilder, parent: ViewGroup) : ChannelMiniInfoItemHolder(infoItemBuilder, R.layout.list_channel_item, parent) {
-    val itemChannelDescriptionView: TextView
-
-    init {
-        itemChannelDescriptionView = itemView.findViewById(R.id.itemChannelDescriptionView)
-    }
+    private val itemChannelDescriptionView: TextView = itemView.findViewById(R.id.itemChannelDescriptionView)
 
     override fun updateFromItem(infoItem: InfoItem) {
         super.updateFromItem(infoItem)
@@ -48,8 +24,7 @@ class ChannelInfoItemHolder(infoItemBuilder: InfoItemBuilder, parent: ViewGroup)
         var details = super.getDetailLine(item)
 
         if (item.streamCount >= 0) {
-            val formattedVideoAmount = Localization.localizeStreamCount(itemBuilder.context,
-                    item.streamCount)
+            val formattedVideoAmount = Localization.localizeStreamCount(itemBuilder.context, item.streamCount)
 
             if (!details.isEmpty()) {
                 details += " • $formattedVideoAmount"

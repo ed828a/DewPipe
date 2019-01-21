@@ -18,7 +18,7 @@ import org.schabi.newpipe.local.holder.LocalStatisticStreamGridItemHolder
 import org.schabi.newpipe.local.holder.LocalStatisticStreamItemHolder
 import org.schabi.newpipe.local.holder.RemotePlaylistGridItemHolder
 import org.schabi.newpipe.local.holder.RemotePlaylistItemHolder
-import org.schabi.newpipe.util.FallbackViewHolder
+import org.schabi.newpipe.info_list.holder.FallbackViewHolder
 import org.schabi.newpipe.util.Localization
 import org.schabi.newpipe.util.OnClickGesture
 

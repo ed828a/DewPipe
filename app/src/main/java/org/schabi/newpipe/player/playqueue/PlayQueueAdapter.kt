@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 
 import org.schabi.newpipe.R
-import org.schabi.newpipe.util.FallbackViewHolder
+import org.schabi.newpipe.info_list.holder.FallbackViewHolder
 
 import io.reactivex.Observer
 import io.reactivex.annotations.NonNull

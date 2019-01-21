@@ -13,13 +13,13 @@ class InfoItemDialog(activity: Activity,
                      commands: Array<String>,
                      actions: DialogInterface.OnClickListener,
                      title: String,
-                     additionalDetail: String?) {
+                     additionalDetails: String?) {
     private val dialog: AlertDialog
 
     constructor(activity: Activity,
                 info: StreamInfoItem,
                 commands: Array<String>,
-                actions: DialogInterface.OnClickListener) : this(activity, commands, actions, info.name, info.uploaderName) { }
+                actions: DialogInterface.OnClickListener) : this(activity, commands, actions, info.name, info.uploaderName)
 
     init {
 
@@ -30,8 +30,8 @@ class InfoItemDialog(activity: Activity,
         titleView.text = title
 
         val detailsView = bannerView.findViewById<TextView>(R.id.itemAdditionalDetails)
-        if (additionalDetail != null) {
-            detailsView.text = additionalDetail
+        if (additionalDetails != null) {
+            detailsView.text = additionalDetails
             detailsView.visibility = View.VISIBLE
         } else {
             detailsView.visibility = View.GONE
