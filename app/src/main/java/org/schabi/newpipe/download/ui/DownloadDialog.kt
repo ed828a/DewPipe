@@ -41,15 +41,15 @@ import org.schabi.newpipe.download.service.DownloadManagerService
 
 class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, AdapterView.OnItemSelectedListener {
 
-    @State
-    lateinit var currentInfo: StreamInfo
-    @State
+    @State @JvmField
+    var currentInfo: StreamInfo? = null
+    @State @JvmField
     var wrappedAudioStreams = StreamSizeWrapper.empty<AudioStream>()
-    @State
+    @State @JvmField
     var wrappedVideoStreams = StreamSizeWrapper.empty<VideoStream>()
-    @State
+    @State @JvmField
     var selectedVideoIndex = 0
-    @State
+    @State @JvmField
     var selectedAudioIndex = 0
 
     private var audioStreamsAdapter: StreamItemAdapter<AudioStream>? = null
@@ -118,8 +118,8 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         nameEditText = view.findViewById(R.id.file_name)
-        nameEditText!!.setText(FilenameUtils.createFilename(context!!, currentInfo.name))
-        selectedAudioIndex = ListHelper.getDefaultAudioFormat(context!!, currentInfo.audioStreams)
+        nameEditText!!.setText(FilenameUtils.createFilename(context!!, currentInfo!!.name))
+        selectedAudioIndex = ListHelper.getDefaultAudioFormat(context!!, currentInfo!!.audioStreams)
 
         streamsSpinner = view.findViewById(R.id.quality_spinner)
         streamsSpinner!!.onItemSelectedListener = this
@@ -274,9 +274,9 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
         val location: String
 
         var fileName = nameEditText!!.text.toString().trim { it <= ' ' }
-        if (fileName.isEmpty()) fileName = FilenameUtils.createFilename(context!!, currentInfo.name)
+        if (fileName.isEmpty()) fileName = FilenameUtils.createFilename(context!!, currentInfo!!.name)
 
-        Log.d(TAG, "fileName= $fileName, currentInfo.name= ${currentInfo.name}")
+        Log.d(TAG, "fileName= $fileName, currentInfo.name= ${currentInfo!!.name}")
 
         val isAudio = radioVideoAudioGroup!!.checkedRadioButtonId == R.id.audio_button
         if (isAudio) {

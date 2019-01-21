@@ -28,6 +28,7 @@ class InfoItemBuilder(val context: Context) {
     var onChannelSelectedListener: OnClickGesture<ChannelInfoItem>? = null
     var onPlaylistSelectedListener: OnClickGesture<PlaylistInfoItem>? = null
 
+    //
     @JvmOverloads
     fun buildView(parent: ViewGroup, infoItem: InfoItem, useMiniVariant: Boolean = false): View {
         val holder = holderFromInfoType(parent, infoItem.infoType, useMiniVariant)
@@ -41,7 +42,7 @@ class InfoItemBuilder(val context: Context) {
             InfoItem.InfoType.CHANNEL -> if (useMiniVariant) ChannelMiniInfoItemHolder(this, parent) else ChannelInfoItemHolder(this, parent)
             InfoItem.InfoType.PLAYLIST -> if (useMiniVariant) PlaylistMiniInfoItemHolder(this, parent) else PlaylistInfoItemHolder(this, parent)
             else -> {
-                Log.e(TAG, "Trollolo")
+                Log.e(TAG, "Wrong infoType: $infoType")
                 throw RuntimeException("InfoType not expected = ${infoType.name}")
             }
         }

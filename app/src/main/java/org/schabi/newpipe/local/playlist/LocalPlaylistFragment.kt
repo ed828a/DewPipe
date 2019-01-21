@@ -51,11 +51,11 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
     private var headerPopupButton: View? = null
     private var headerBackgroundButton: View? = null
 
-    @State
+    @State @JvmField
     var playlistId: Long? = null
-    @State
+    @State @JvmField
     var name: String = ""
-    @State
+    @State @JvmField
     var itemsListState: Parcelable? = null
 
     private var itemTouchHelper: ItemTouchHelper? = null

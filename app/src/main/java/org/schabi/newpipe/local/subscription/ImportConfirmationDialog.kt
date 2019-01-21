@@ -14,7 +14,7 @@ import icepick.Icepick
 import icepick.State
 
 class ImportConfirmationDialog : DialogFragment() {
-    @State
+    @State @JvmField
     var resultServiceIntent: Intent? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

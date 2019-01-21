@@ -56,7 +56,7 @@ import kotlin.Comparator
 class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), SharedPreferences.OnSharedPreferenceChangeListener {
 
     private var itemsList: RecyclerView? = null
-    @State
+    @State @JvmField
     var itemsListState: Parcelable? = null
     private var infoListAdapter: InfoListAdapter? = null
     private var updateFlags = 0
@@ -64,7 +64,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
     private var whatsNewItemListHeader: View? = null
     private var importExportListHeader: View? = null
 
-    @State
+    @State @JvmField
     var importExportOptionsState: Parcelable? = null
     private var importExportOptions: CollapsibleView? = null
 

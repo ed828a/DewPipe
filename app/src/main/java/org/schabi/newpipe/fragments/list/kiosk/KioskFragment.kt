@@ -2,6 +2,7 @@ package org.schabi.newpipe.fragments.list.kiosk
 
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.util.Log
 import android.view.*
 import icepick.State
 import io.reactivex.Single
@@ -13,14 +14,14 @@ import org.schabi.newpipe.extractor.kiosk.KioskInfo
 import org.schabi.newpipe.fragments.list.BaseListInfoFragment
 import org.schabi.newpipe.report.UserAction
 import org.schabi.newpipe.util.AnimationUtils.animateView
+import org.schabi.newpipe.util.Constants.NO_SERVICE_ID
 import org.schabi.newpipe.util.ExtractorHelper
 import org.schabi.newpipe.util.KioskTranslator
 
 
-
 class KioskFragment : BaseListInfoFragment<KioskInfo>() {
 
-    @State
+    @State @JvmField
     protected var kioskId = ""
     protected lateinit var kioskTranslatedName: String
 
@@ -74,6 +75,13 @@ class KioskFragment : BaseListInfoFragment<KioskInfo>() {
                 .getDefaultSharedPreferences(activity)
                 .getString(getString(R.string.content_country_key),
                         getString(R.string.default_country_value))
+
+        Log.d(TAG, "loadResult(forceReload=$forceReload), serviceId = $serviceId, url = $url")
+        // temporary solution to fix resume NO_SERVICE_ID bug
+//        if (serviceId == NO_SERVICE_ID) {
+//            serviceId = 0
+//            url = "https://www.youtube.com/feed/trending"
+//        }
         return ExtractorHelper.getKioskInfo(serviceId,
                 url,
                 contentCountry!!,

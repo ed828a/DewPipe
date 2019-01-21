@@ -36,7 +36,7 @@ import org.schabi.newpipe.util.ServiceHelper
 
 class SubscriptionsImportFragment : BaseFragment() {
 
-    @State
+    @State @JvmField
     var currentServiceId = Constants.NO_SERVICE_ID
 
     private var supportedSources: List<SubscriptionExtractor.ContentSource>? = null

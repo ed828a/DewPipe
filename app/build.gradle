@@ -110,7 +110,8 @@ dependencies {
 //    annotationProcessor "android.arch.persistence.room:compiler:${roomDbLibVersion}"
     kapt "android.arch.persistence.room:compiler:${roomDbLibVersion}"
     implementation "frankiesardo:icepick:${icepickLibVersion}"
-    annotationProcessor "frankiesardo:icepick-processor:${icepickLibVersion}"
+//    annotationProcessor "frankiesardo:icepick-processor:${icepickLibVersion}"
+    kapt "frankiesardo:icepick-processor:${icepickLibVersion}"
     implementation "com.squareup.okhttp3:okhttp:${okHttpLibVersion}"
     releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:${leakCanaryLibVersion}"
 

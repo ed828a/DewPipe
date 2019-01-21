@@ -46,7 +46,7 @@ import org.schabi.newpipe.MainActivity.Companion.DEBUG
  */
 class CollapsibleView : LinearLayout {
 
-    @State
+    @State @JvmField
     @ViewMode
     internal var currentState = COLLAPSED
     private var readyToChangeState: Boolean = false

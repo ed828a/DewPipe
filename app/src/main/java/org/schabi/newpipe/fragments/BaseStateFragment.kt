@@ -35,7 +35,7 @@ import org.schabi.newpipe.util.ExtractorHelper
 
 abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
 
-    @State
+    @State @JvmField
     var wasLoading = AtomicBoolean()
     protected var isLoading = AtomicBoolean()
 

@@ -26,6 +26,7 @@ class InfoListAdapter(activity: Activity) : RecyclerView.Adapter<RecyclerView.Vi
     private var header: View? = null
     private var footer: View? = null
 
+    // Header and Footer ViewHolder, same as HeaderFooterHolder, can be removed
     inner class HFHolder(var view: View) : RecyclerView.ViewHolder(view)
 
     fun setOnStreamSelectedListener(listener: OnClickGesture<StreamInfoItem>) {
@@ -171,8 +172,10 @@ class InfoListAdapter(activity: Activity) : RecyclerView.Adapter<RecyclerView.Vi
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         Log.d(TAG, "onCreateViewHolder() called with: parent = [$parent], viewType = [$viewType]")
         return when (viewType) {
-            HEADER_TYPE -> HFHolder(header!!)
-            FOOTER_TYPE -> HFHolder(footer!!)
+//            HEADER_TYPE -> HFHolder(header!!)
+//            FOOTER_TYPE -> HFHolder(footer!!)
+            HEADER_TYPE -> HeaderFooterHolder(header!!)
+            FOOTER_TYPE -> HeaderFooterHolder(footer!!)
             MINI_STREAM_HOLDER_TYPE -> StreamMiniInfoItemHolder(infoItemBuilder, parent)
             STREAM_HOLDER_TYPE -> StreamInfoItemHolder(infoItemBuilder, parent)
             GRID_STREAM_HOLDER_TYPE -> StreamGridInfoItemHolder(infoItemBuilder, parent)
@@ -192,15 +195,17 @@ class InfoListAdapter(activity: Activity) : RecyclerView.Adapter<RecyclerView.Vi
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         var position = position
         Log.d(TAG, "onBindViewHolder() called with: holder = [${holder.javaClass.simpleName}], position = [$position]")
-        if (holder is InfoItemHolder) {
-            // If header isn't null, offset the items by -1
-            if (header != null) position--
+        when {
+            holder is InfoItemHolder -> {
+                // If header isn't null, offset the items by -1
+                if (header != null) position--
 
-            holder.updateFromItem(itemsList[position])
-        } else if (holder is HFHolder && position == 0 && header != null) {
-            holder.view = header!!
-        } else if (holder is HFHolder && position == sizeConsideringHeaderOffset() && footer != null && showFooter) {
-            holder.view = footer!!
+                holder.updateFromItem(itemsList[position])
+            }
+//            holder is HFHolder && position == 0 && header != null -> holder.view = header!!
+//            holder is HFHolder && position == sizeConsideringHeaderOffset() && footer != null && showFooter -> holder.view = footer!!
+            holder is HeaderFooterHolder && position == 0 && header != null -> holder.view = header!!
+            holder is HeaderFooterHolder && position == sizeConsideringHeaderOffset() && footer != null && showFooter -> holder.view = footer!!
         }
     }
 

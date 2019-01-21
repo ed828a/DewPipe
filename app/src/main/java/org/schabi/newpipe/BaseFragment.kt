@@ -22,7 +22,7 @@ abstract class BaseFragment : Fragment() {
     protected var activity: AppCompatActivity? = null
 
     //These values are used for controlling framgents when they are part of the frontpage
-    @State
+    @State @JvmField
     var useAsFrontPage = false
     protected var mIsVisibleToUser = false
 

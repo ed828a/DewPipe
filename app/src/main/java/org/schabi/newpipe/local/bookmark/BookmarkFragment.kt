@@ -31,7 +31,7 @@ import java.util.*
 
 class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() {
 
-    @State
+    @State @JvmField
     var itemsListState: Parcelable? = null
 
     private var databaseSubscription: Subscription? = null

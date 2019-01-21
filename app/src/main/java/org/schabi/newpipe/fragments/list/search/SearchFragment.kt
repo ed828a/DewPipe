@@ -52,25 +52,25 @@ import java.util.concurrent.TimeUnit
 
 class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<*>>(), BackPressable {
 
-    @State
+    @State @JvmField
     protected var filterItemCheckedId = -1
 
-    @State
+    @State @JvmField
     protected var serviceId = Constants.NO_SERVICE_ID
 
     // this three represet the current search query
-    @State
+    @State @JvmField
     protected var searchString: String? = null
-    @State
-    protected lateinit var contentFilter: Array<String>
-    @State
-    protected lateinit var sortFilter: String
+    @State @JvmField
+    protected var contentFilter: Array<String> = emptyArray()
+    @State @JvmField
+    protected var sortFilter: String? = null
 
     // these represtent the last search
-    @State
+    @State @JvmField
     protected var lastSearchedString: String? = null
 
-    @State
+    @State @JvmField
     protected var wasSearchFocused = false
 
     private var menuItemToFilterName: MutableMap<Int, String>? = null
@@ -173,10 +173,10 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
 
         if (!TextUtils.isEmpty(searchString)) {
             if (wasLoading.getAndSet(false)) {
-                search(searchString, contentFilter, sortFilter)
+                search(searchString, contentFilter, sortFilter!!)
             } else if (infoListAdapter!!.itemsList.size == 0) {
                 if (savedState == null) {
-                    search(searchString, contentFilter, sortFilter)
+                    search(searchString, contentFilter, sortFilter!!)
                 } else if (!isLoading.get() && !wasSearchFocused) {
                     infoListAdapter!!.clearStreamItemList()
                     showEmptyState()
@@ -212,7 +212,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             ReCaptchaActivity.RECAPTCHA_REQUEST -> if (resultCode == Activity.RESULT_OK && !TextUtils.isEmpty(searchString)) {
-                search(searchString, contentFilter, sortFilter)
+                search(searchString, contentFilter, sortFilter!!)
             } else
                 Log.e(TAG, "ReCaptcha failed")
 
@@ -652,7 +652,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
         searchDisposable = ExtractorHelper.searchFor(serviceId,
                 searchString!!,
                 Arrays.asList(*contentFilter),
-                sortFilter,
+                sortFilter!!,
                 contentCountry!!)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -669,7 +669,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
                 serviceId,
                 searchString!!,
                 asList(*contentFilter),
-                sortFilter,
+                sortFilter!!,
                 nextPageUrl!!,
                 contentCountry!!)
                 .subscribeOn(Schedulers.io())
@@ -699,7 +699,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
         this.contentFilter = arrayOf(contentFilter[0])
 
         if (!TextUtils.isEmpty(searchString)) {
-            search(searchString, this.contentFilter, sortFilter)
+            search(searchString, this.contentFilter, sortFilter!!)
         }
     }
 

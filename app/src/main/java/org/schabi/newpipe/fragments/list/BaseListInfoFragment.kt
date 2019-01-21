@@ -4,26 +4,23 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
 import android.view.View
-
-import org.schabi.newpipe.extractor.ListExtractor
-import org.schabi.newpipe.extractor.ListInfo
-import org.schabi.newpipe.util.Constants
-
-import java.util.Queue
-
 import icepick.State
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import org.schabi.newpipe.extractor.ListExtractor
+import org.schabi.newpipe.extractor.ListInfo
+import org.schabi.newpipe.util.Constants
+import java.util.*
 
 abstract class BaseListInfoFragment<I : ListInfo<*>> : BaseListFragment<I, ListExtractor.InfoItemsPage<*>>() {
 
-    @State
+    @State @JvmField
     var serviceId = Constants.NO_SERVICE_ID
-    @State
+    @State @JvmField
     var name: String = ""
-    @State
+    @State @JvmField
     var url: String = ""
 
     protected var currentInfo: I? = null
@@ -81,7 +78,9 @@ abstract class BaseListInfoFragment<I : ListInfo<*>> : BaseListFragment<I, ListE
     ///////////////////////////////////////////////////////////////////////////
 
     override fun doInitialLoadLogic() {
-        if (DEBUG) Log.d(TAG, "doInitialLoadLogic() called, serviceId = $serviceId")
+        Log.d(TAG, "doInitialLoadLogic() called, serviceId = $serviceId")
+        // fix back stack error
+//        if (serviceId == NO_SERVICE_ID) serviceId = 0
         if (currentInfo == null) {
             startLoading(false)
         } else

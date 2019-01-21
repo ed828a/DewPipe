@@ -70,11 +70,11 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
     private var showRelatedStreams: Boolean = false
     private var wasRelatedStreamsExpanded = false
 
-    @State
+    @State @JvmField
     var serviceId = Constants.NO_SERVICE_ID
-    @State
+    @State @JvmField
     var name: String? = null
-    @State
+    @State @JvmField
     var url: String? = null
 
     private var currentInfo: StreamInfo? = null

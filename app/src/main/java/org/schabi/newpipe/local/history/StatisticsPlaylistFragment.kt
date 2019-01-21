@@ -39,7 +39,7 @@ class StatisticsPlaylistFragment : BaseLocalListFragment<List<StreamStatisticsEn
     private var sortButtonIcon: ImageView? = null
     private var sortButtonText: TextView? = null
 
-    @State
+    @State @JvmField
     var itemsListState: Parcelable? = null
 
     /* Used for independent events */

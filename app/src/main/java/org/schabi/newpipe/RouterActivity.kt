@@ -57,12 +57,12 @@ import java.util.*
  */
 class RouterActivity : AppCompatActivity() {
 
-    @State
+    @State @JvmField
     protected var currentServiceId = -1
     private var currentService: StreamingService? = null
-    @State
-    protected lateinit var currentLinkType: LinkType
-    @State
+    @State @JvmField
+    protected var currentLinkType: LinkType? = null
+    @State @JvmField
     protected var selectedRadioPosition = -1
     protected var selectedPreviously = -1
 
@@ -123,7 +123,7 @@ class RouterActivity : AppCompatActivity() {
                         currentService = NewPipe.getService(currentServiceId)
                     }
 
-                    currentLinkType != LinkType.NONE
+                    LinkType.NONE != currentLinkType
                 }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -165,7 +165,7 @@ class RouterActivity : AppCompatActivity() {
         val alwaysAskKey = getString(R.string.always_ask_open_action_key)
 
         if (selectedChoiceKey == alwaysAskKey) {
-            val choices = getChoicesForService(currentService!!, currentLinkType)
+            val choices = getChoicesForService(currentService!!, currentLinkType!!)
 
             if (choices.size == 1) {
                 handleChoice(choices[0].key)
@@ -184,7 +184,7 @@ class RouterActivity : AppCompatActivity() {
             val isVideoPlayerSelected = selectedChoiceKey == videoPlayerKey || selectedChoiceKey == popupPlayerKey
             val isAudioPlayerSelected = selectedChoiceKey == backgroundPlayerKey
 
-            if (currentLinkType != LinkType.STREAM) {
+            if (LinkType.STREAM != currentLinkType) {
                 if (isExtAudioEnabled && isAudioPlayerSelected || isExtVideoEnabled && isVideoPlayerSelected) {
                     Toast.makeText(this, R.string.external_player_unsupported_link_type, Toast.LENGTH_LONG).show()
                     handleChoice(showInfoKey)
@@ -369,7 +369,7 @@ class RouterActivity : AppCompatActivity() {
         }
 
         val intent = Intent(this, FetcherService::class.java)
-        val choice = Choice(currentService!!.serviceId, currentLinkType, currentUrl!!, selectedChoiceKey!!)
+        val choice = Choice(currentService!!.serviceId, currentLinkType!!, currentUrl!!, selectedChoiceKey!!)
         intent.putExtra(FetcherService.KEY_CHOICE, choice)
         startService(intent)
 
