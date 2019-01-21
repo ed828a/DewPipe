@@ -40,7 +40,7 @@ interface DownloadMissionManager {
     fun pauseMission(missionId: Int)
 
     /**
-     * Deletes the missionControl from the downloaded list but keeps the downloaded file.
+     * Deletes the missionControl getTabFrom the downloaded list but keeps the downloaded file.
      *
      * @param id The missionControl identifier
      */

@@ -54,7 +54,7 @@ object ServiceHelper {
     }
 
     /**
-     * For services that support importing from a channel url, return a hint that will
+     * For services that support importing getTabFrom a channel url, return a hint that will
      * be used in the EditText that the user will type in his channel url.
      *
      * @return the hint's string resource or -1 if the service don't support it

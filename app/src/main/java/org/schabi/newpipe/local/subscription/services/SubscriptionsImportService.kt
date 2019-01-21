@@ -112,7 +112,7 @@ class SubscriptionsImportService : BaseImportExportService() {
         } else {
             val filePath = intent.getStringExtra(KEY_VALUE)
             if (TextUtils.isEmpty(filePath)) {
-                stopAndReportError(IllegalStateException("Importing from input stream, but file path is empty or null"), "Importing subscriptions")
+                stopAndReportError(IllegalStateException("Importing getTabFrom input stream, but file path is empty or null"), "Importing subscriptions")
                 return Service.START_NOT_STICKY
             }
 

@@ -96,7 +96,7 @@ class SubscriptionsImportFragment : BaseFragment() {
 
         infoTextView = rootView.findViewById(R.id.info_text_view)
 
-        // TODO: Support services that can import from more than one source (show the option to the user)
+        // TODO: Support services that can import getTabFrom more than one source (show the option to the user)
         if (supportedSources!!.contains(CHANNEL_URL)) {
             inputButton!!.setText(R.string.import_title)
             inputText!!.visibility = View.VISIBLE

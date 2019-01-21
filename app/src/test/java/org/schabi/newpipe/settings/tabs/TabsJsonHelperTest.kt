@@ -1,6 +1,5 @@
 package org.schabi.newpipe.settings.tabs
 
-import com.grack.nanojson.JsonArray
 import com.grack.nanojson.JsonObject
 import com.grack.nanojson.JsonParser
 import com.grack.nanojson.JsonParserException
@@ -8,7 +7,6 @@ import com.grack.nanojson.JsonParserException
 import org.junit.Test
 
 import java.util.Arrays
-import java.util.Collections
 
 import java.util.Objects.requireNonNull
 import org.junit.Assert.assertEquals
@@ -103,19 +101,19 @@ class TabsJsonHelperTest {
 
         assertEquals(tabs.size.toLong(), tabsFromArray.size.toLong())
 
-        val blankTabFromReturnedJson = requireNonNull<Tab.BlankTab>(Tab.from(tabsFromArray[0] as JsonObject) as Tab.BlankTab?)
+        val blankTabFromReturnedJson = requireNonNull<Tab.BlankTab>(Tab.getTabFrom(tabsFromArray[0] as JsonObject) as Tab.BlankTab?)
         assertEquals(blankTab.tabId.toLong(), blankTabFromReturnedJson.tabId.toLong())
 
-        val subscriptionsTabFromReturnedJson = requireNonNull<Tab.SubscriptionsTab>(Tab.from(tabsFromArray[1] as JsonObject) as Tab.SubscriptionsTab?)
+        val subscriptionsTabFromReturnedJson = requireNonNull<Tab.SubscriptionsTab>(Tab.getTabFrom(tabsFromArray[1] as JsonObject) as Tab.SubscriptionsTab?)
         assertEquals(subscriptionsTab.tabId.toLong(), subscriptionsTabFromReturnedJson.tabId.toLong())
 
-        val channelTabFromReturnedJson = requireNonNull<Tab.ChannelTab>(Tab.from(tabsFromArray[2] as JsonObject) as Tab.ChannelTab?)
+        val channelTabFromReturnedJson = requireNonNull<Tab.ChannelTab>(Tab.getTabFrom(tabsFromArray[2] as JsonObject) as Tab.ChannelTab?)
         assertEquals(channelTab.tabId.toLong(), channelTabFromReturnedJson.tabId.toLong())
         assertEquals(channelTab.channelServiceId.toLong(), channelTabFromReturnedJson.channelServiceId.toLong())
         assertEquals(channelTab.channelUrl, channelTabFromReturnedJson.channelUrl)
         assertEquals(channelTab.channelName, channelTabFromReturnedJson.channelName)
 
-        val kioskTabFromReturnedJson = requireNonNull<Tab.KioskTab>(Tab.from(tabsFromArray[3] as JsonObject) as Tab.KioskTab?)
+        val kioskTabFromReturnedJson = requireNonNull<Tab.KioskTab>(Tab.getTabFrom(tabsFromArray[3] as JsonObject) as Tab.KioskTab?)
         assertEquals(kioskTab.tabId.toLong(), kioskTabFromReturnedJson.tabId.toLong())
         assertEquals(kioskTab.kioskServiceId.toLong(), kioskTabFromReturnedJson.kioskServiceId.toLong())
         assertEquals(kioskTab.kioskId, kioskTabFromReturnedJson.kioskId)

@@ -254,7 +254,7 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
                     R.string.subscription_change_failed)
         }
 
-        /* Emit clicks from main thread unto io thread */
+        /* Emit clicks getTabFrom main thread unto io thread */
         return RxView.clicks(subscribeButton!!)
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(Schedulers.io())

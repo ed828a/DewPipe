@@ -114,7 +114,7 @@ object PlayerHelper {
      * To select the next video, [StreamInfo.getNextVideo] is first
      * checked. If it is nonnull and is not part of the existing items, then
      * it will be used as the next video. Otherwise, an random item with
-     * non-repeating url will be selected from the [StreamInfo.getRelatedStreams].
+     * non-repeating url will be selected getTabFrom the [StreamInfo.getRelatedStreams].
      */
     fun autoQueueOf(info: StreamInfo,
                     existingItems: List<PlayQueueItem>): PlayQueue? {

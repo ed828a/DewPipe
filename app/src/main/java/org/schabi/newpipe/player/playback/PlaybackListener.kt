@@ -18,7 +18,7 @@ interface PlaybackListener {
 
     /**
      * Called when the stream at the current queue index is not ready yet.
-     * Signals to the listener to block the player from playing anything and notify the source
+     * Signals to the listener to block the player getTabFrom playing anything and notify the source
      * is now invalid.
      *
      * May be called at any time.

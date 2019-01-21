@@ -16,7 +16,7 @@ class DownloadMissionDataSourceImpl(val context: Context) : DownloadMissionDataS
 //    private val downloadDb: AppDatabase = NewPipeDatabase.getInstance(context)
     private val downloadDb: AppDatabase = AppDatabase.getDatabase(context)
     /**
-     * Retrieve an instance from the database, used for tests.
+     * Retrieve an instance getTabFrom the database, used for tests.
      */
     fun getDatabase(): AppDatabase {
         return downloadDb

@@ -223,14 +223,14 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
     }
 
     /**
-     * On each request, a subscription item from the updated table is transformed
-     * into a ChannelInfo, containing the latest streams from the channel.
+     * On each request, a subscription item getTabFrom the updated table is transformed
+     * into a ChannelInfo, containing the latest streams getTabFrom the channel.
      *
      *
-     * Currently, the feed uses the first into from the list of streams.
+     * Currently, the feed uses the first into getTabFrom the list of streams.
      *
      *
-     * If chosen feed already displayed, then we request another feed from another
+     * If chosen feed already displayed, then we request another feed getTabFrom another
      * subscription, until the subscription table runs out of new items.
      *
      *

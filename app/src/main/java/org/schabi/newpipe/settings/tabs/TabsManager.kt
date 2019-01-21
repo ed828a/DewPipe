@@ -32,6 +32,10 @@ class TabsManager private constructor(private val context: Context) {
         sharedPreferences.edit().putString(savedTabsKey, jsonToSave).apply()
     }
 
+    /**
+     * the working metaphor is after saveTabs removed getTabFrom SharedPreference, next time to retrieve saveTabs will get null
+     *  to retrieve tabs with null will get the default tabs
+     */
     fun resetTabs() {
         sharedPreferences.edit().remove(savedTabsKey).apply()
     }

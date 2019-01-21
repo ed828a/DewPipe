@@ -216,7 +216,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
             } else
                 Log.e(TAG, "ReCaptcha failed")
 
-            else -> Log.e(TAG, "Request code from activity not supported [$requestCode]")
+            else -> Log.e(TAG, "Request code getTabFrom activity not supported [$requestCode]")
         }
     }
 
@@ -817,7 +817,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
         ///////////////////////////////////////////////////////////////////////////
 
         /**
-         * The suggestions will only be fetched from network if the query meet this threshold (>=).
+         * The suggestions will only be fetched getTabFrom network if the query meet this threshold (>=).
          * (local ones will be fetched regardless of the length)
          */
         private val THRESHOLD_NETWORK_SUGGESTION = 1

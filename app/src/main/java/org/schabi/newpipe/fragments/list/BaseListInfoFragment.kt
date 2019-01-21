@@ -89,10 +89,10 @@ abstract class BaseListInfoFragment<I : ListInfo<*>> : BaseListFragment<I, ListE
     }
 
     /**
-     * Implement the logic to load the info from the network.<br></br>
-     * You can use the default implementations from [org.schabi.newpipe.util.ExtractorHelper].
+     * Implement the logic to load the info getTabFrom the network.<br></br>
+     * You can use the default implementations getTabFrom [org.schabi.newpipe.util.ExtractorHelper].
      *
-     * @param forceLoad allow or disallow the result to come from the cache
+     * @param forceLoad allow or disallow the result to come getTabFrom the cache
      */
     protected abstract fun loadResult(forceLoad: Boolean): Single<I>
 
@@ -115,7 +115,7 @@ abstract class BaseListInfoFragment<I : ListInfo<*>> : BaseListFragment<I, ListE
 
     /**
      * Implement the logic to load more items<br></br>
-     * You can use the default implementations from [org.schabi.newpipe.util.ExtractorHelper]
+     * You can use the default implementations getTabFrom [org.schabi.newpipe.util.ExtractorHelper]
      */
     protected abstract fun loadMoreItemsLogic(): Single<ListExtractor.InfoItemsPage<*>>
 

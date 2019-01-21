@@ -53,7 +53,7 @@ import java.io.Serializable
 import java.util.*
 
 /**
- * Get the url from the intent and open it in the chosen preferred player
+ * Get the url getTabFrom the intent and open it in the chosen preferred player
  */
 class RouterActivity : AppCompatActivity() {
 
@@ -591,7 +591,7 @@ class RouterActivity : AppCompatActivity() {
     }
 
     /**
-     * Retrieves all Strings which look remotely like URLs from a text.
+     * Retrieves all Strings which look remotely like URLs getTabFrom a text.
      * Used if NewPipe was called through share menu.
      *
      * @param sharedText text to scan for URLs.

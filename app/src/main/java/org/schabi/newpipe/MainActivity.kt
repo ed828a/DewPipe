@@ -351,7 +351,7 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         if (DEBUG) Log.d(TAG, "onNewIntent() called with: intent = [$intent]")
         if (intent != null) {
-            // Return if launched from a launcher (e.g. Nova Launcher, Pixel Launcher ...)
+            // Return if launched getTabFrom a launcher (e.g. Nova Launcher, Pixel Launcher ...)
             // to not destroy the already created backstack
             val action = intent.action
             if (action != null && action == Intent.ACTION_MAIN && intent.hasCategory(Intent.CATEGORY_LAUNCHER)) return

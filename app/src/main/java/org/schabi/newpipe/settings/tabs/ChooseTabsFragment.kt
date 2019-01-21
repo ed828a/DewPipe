@@ -25,8 +25,7 @@ import org.schabi.newpipe.report.UserAction
 import org.schabi.newpipe.settings.SelectChannelFragment
 import org.schabi.newpipe.settings.SelectKioskFragment
 import org.schabi.newpipe.settings.tabs.AddTabDialog.ChooseTabListItem
-import org.schabi.newpipe.settings.tabs.ChooseTabsFragment.SelectedTabsAdapter.TabViewHolder
-import org.schabi.newpipe.settings.tabs.Tab.Companion.typeFrom
+import org.schabi.newpipe.settings.tabs.Tab.Companion.getTypeFrom
 import org.schabi.newpipe.util.ThemeHelper
 import java.util.*
 
@@ -50,9 +49,8 @@ class ChooseTabsFragment : Fragment() {
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_choose_tabs, container, false)
-    }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
+            inflater.inflate(R.layout.fragment_choose_tabs, container, false)
 
     override fun onViewCreated(rootView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(rootView, savedInstanceState)
@@ -90,21 +88,21 @@ class ChooseTabsFragment : Fragment() {
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         super.onCreateOptionsMenu(menu, inflater)
 
-        val restoreItem = menu!!.add(Menu.NONE, MENU_ITEM_RESTORE_ID, Menu.NONE, R.string.restore_defaults)
-        restoreItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        val restoreItem = menu?.add(Menu.NONE, MENU_ITEM_RESTORE_ID, Menu.NONE, R.string.restore_defaults)
+        restoreItem?.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
 
         val restoreIcon = ThemeHelper.resolveResourceIdFromAttr(requireContext(), R.attr.ic_restore_defaults)
-        restoreItem.icon = AppCompatResources.getDrawable(requireContext(), restoreIcon)
+        restoreItem?.icon = AppCompatResources.getDrawable(requireContext(), restoreIcon)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if (item!!.itemId == MENU_ITEM_RESTORE_ID) {
-            restoreDefaults()
-            return true
-        }
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
+            if (MENU_ITEM_RESTORE_ID == item?.itemId) {
+                restoreDefaults()
+                true
+            } else {
+                super.onOptionsItemSelected(item)
+            }
 
-        return super.onOptionsItemSelected(item)
-    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Utils
@@ -165,7 +163,7 @@ class ChooseTabsFragment : Fragment() {
     }
 
     private fun addTab(tabId: Int) {
-        val type = typeFrom(tabId)
+        val type = getTypeFrom(tabId)
 
         if (type == null) {
             ErrorActivity.reportError(requireContext(), IllegalStateException("Tab id not found: $tabId"), null, null,
@@ -223,6 +221,7 @@ class ChooseTabsFragment : Fragment() {
             }
         }
 
+        // ArrayList.toTypedArray: convert ArrayList to Array
         return returnList.toTypedArray()
     }
 
@@ -231,7 +230,7 @@ class ChooseTabsFragment : Fragment() {
     // List Handling
     ///////////////////////////////////////////////////////////////////////////
 
-    inner class SelectedTabsAdapter(val tabList: List<Tab>,  private val itemTouchHelper: ItemTouchHelper?) : RecyclerView.Adapter<TabViewHolder>() {
+    inner class SelectedTabsAdapter(val tabList: List<Tab>, private val itemTouchHelper: ItemTouchHelper?) : RecyclerView.Adapter<SelectedTabsAdapter.TabViewHolder>() {
 
         fun swapItems(fromPosition: Int, toPosition: Int) {
             Collections.swap(tabList, fromPosition, toPosition)
@@ -259,7 +258,7 @@ class ChooseTabsFragment : Fragment() {
                 handle.setOnTouchListener(getOnTouchListener(holder))
 
                 val tab = tabList[position]
-                val type = Tab.typeFrom(tab.tabId) ?: return
+                val type = Tab.getTypeFrom(tab.tabId) ?: return
 //                var tabName = tab.getTabName(requireContext())
                 var tabName = tab.getTabName(itemView.context)
                 when (type) {
@@ -273,20 +272,20 @@ class ChooseTabsFragment : Fragment() {
             }
 
             @SuppressLint("ClickableViewAccessibility")
-            private fun getOnTouchListener(item: RecyclerView.ViewHolder): View.OnTouchListener {
-                return View.OnTouchListener { view, motionEvent ->
-                    if (motionEvent.actionMasked == MotionEvent.ACTION_DOWN) {
-                        if (itemTouchHelper != null && itemCount > 1) {
-                            itemTouchHelper.startDrag(item)
-                            true
+            private fun getOnTouchListener(item: RecyclerView.ViewHolder): View.OnTouchListener =
+                    View.OnTouchListener { view, motionEvent ->
+                        if (motionEvent.actionMasked == MotionEvent.ACTION_DOWN) {
+                            if (itemTouchHelper != null && itemCount > 1) {
+                                itemTouchHelper.startDrag(item)
+                                true
+                            } else {
+                                false
+                            }
                         } else {
                             false
                         }
-                    } else {
-                        false
+
                     }
-                }
-            }
         }
     }
 
@@ -311,7 +310,7 @@ class ChooseTabsFragment : Fragment() {
                     return minimumAbsVelocity * Math.signum(viewSizeOutOfBounds.toFloat()).toInt()
                 }
 
-                // Called when ItemTouchHelper wants to move the dragged item from its old position to the new position.
+                // Called when ItemTouchHelper wants to move the dragged item getTabFrom its old position to the new position.
                 override fun onMove(recyclerView: RecyclerView, source: RecyclerView.ViewHolder,
                                     target: RecyclerView.ViewHolder): Boolean {
                     if (source.itemViewType != target.itemViewType) {

@@ -53,7 +53,7 @@ abstract class StreamDAO : BasicDAO<StreamEntity> {
     @Transaction
     open fun upsertAll(streams: List<StreamEntity>): List<Long> {
         silentInsertAllInternal(streams)
-        // if Insert was done by RxJava2, the list of streamIds will get from the return of Insert Operation
+        // if Insert was done by RxJava2, the list of streamIds will get getTabFrom the return of Insert Operation
         val streamIds = ArrayList<Long>(streams.size)
         for (stream in streams) {
             val streamId = getStreamIdInternal(stream.serviceId.toLong(), stream.url!!)

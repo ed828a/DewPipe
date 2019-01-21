@@ -119,7 +119,7 @@ class LicenseFragmentHelper(activity: Activity?) : AsyncTask<Any, Void, Int>() {
         /**
          * Cast R.color to a hexadecimal color value
          * @param context the context to use
-         * @param color the color number from R.color
+         * @param color the color number getTabFrom R.color
          * @return a six characters long String with hexadecimal RGB values
          */
         fun getHexRGBColor(context: Context, color: Int): String {

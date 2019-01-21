@@ -64,7 +64,7 @@ class ReCaptchaActivity : AppCompatActivity() {
         val webClient = ReCaptchaWebViewClient(this)
         myWebView.webViewClient = webClient
 
-        // Cleaning cache, history and cookies from webView
+        // Cleaning cache, history and cookies getTabFrom webView
         myWebView.clearCache(true)
         myWebView.clearHistory()
         val cookieManager = CookieManager.getInstance()

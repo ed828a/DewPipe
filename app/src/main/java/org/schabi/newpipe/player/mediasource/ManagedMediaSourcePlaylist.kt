@@ -52,7 +52,7 @@ class ManagedMediaSourcePlaylist {
     }
 
     /**
-     * Removes a [ManagedMediaSource] from [ConcatenatingMediaSource]
+     * Removes a [ManagedMediaSource] getTabFrom [ConcatenatingMediaSource]
      * at the given index. If this index is out of bound, then the removal is ignored.
      * @see ConcatenatingMediaSource.removeMediaSource
      */
@@ -65,7 +65,7 @@ class ManagedMediaSourcePlaylist {
 
     /**
      * Moves a [ManagedMediaSource] in [ConcatenatingMediaSource]
-     * from the given source index to the target index. If either index is out of bound,
+     * getTabFrom the given source index to the target index. If either index is out of bound,
      * then the call is ignored.
      * @see ConcatenatingMediaSource.moveMediaSource
      */

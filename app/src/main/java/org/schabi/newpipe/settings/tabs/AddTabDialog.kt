@@ -4,20 +4,18 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.support.annotation.DrawableRes
-import android.support.v7.widget.AppCompatImageView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import android.widget.TextView
 import kotlinx.android.synthetic.main.list_choose_tabs_dialog.view.*
-
 import org.schabi.newpipe.R
 import org.schabi.newpipe.util.ThemeHelper
 
 class AddTabDialog(context: Context,
                    items: Array<ChooseTabListItem>,
                    actions: DialogInterface.OnClickListener) {
+
     private val dialog: AlertDialog
 
     init {
@@ -32,11 +30,11 @@ class AddTabDialog(context: Context,
         dialog.show()
     }
 
-    class ChooseTabListItem(internal val tabId: Int,
-                            internal val itemName: String,
-                            @param:DrawableRes
-                            @field:DrawableRes
-                            val itemIcon: Int) {
+    data class ChooseTabListItem(internal val tabId: Int,
+                                 internal val itemName: String,
+                                 @param:DrawableRes
+                                 @field:DrawableRes
+                                 val itemIcon: Int) {
 
         internal constructor(context: Context, tab: Tab) : this(tab.tabId, tab.getTabName(context), tab.getTabIconRes(context)) {}
     }

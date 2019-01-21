@@ -206,7 +206,7 @@ object ListHelper {
     }
 
     /**
-     * Get the audio from the list with the highest quality. Format will be ignored if it yields
+     * Get the audio getTabFrom the list with the highest quality. Format will be ignored if it yields
      * no results.
      *
      * @param audioStreams list the audio streams
@@ -236,7 +236,7 @@ object ListHelper {
     }
 
     /**
-     * Get the audio from the list with the lowest bitrate and efficient format. Format will be
+     * Get the audio getTabFrom the list with the lowest bitrate and efficient format. Format will be
      * ignored if it yields no results.
      *
      * @param format The target format type or null if it doesn't matter

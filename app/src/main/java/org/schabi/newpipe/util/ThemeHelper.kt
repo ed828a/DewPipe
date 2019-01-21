@@ -159,7 +159,7 @@ object ThemeHelper {
     }
 
     /**
-     * Get a resource id from a resource styled according to the the context's theme.
+     * Get a resource id getTabFrom a resource styled according to the the context's theme.
      */
     fun resolveResourceIdFromAttr(context: Context, @AttrRes attr: Int): Int {
         val a = context.theme.obtainStyledAttributes(intArrayOf(attr))
@@ -169,7 +169,7 @@ object ThemeHelper {
     }
 
     /**
-     * Get a color from an attr styled according to the the context's theme.
+     * Get a color getTabFrom an attr styled according to the the context's theme.
      */
     fun resolveColorFromAttr(context: Context, @AttrRes attrColor: Int): Int {
         val value = TypedValue()

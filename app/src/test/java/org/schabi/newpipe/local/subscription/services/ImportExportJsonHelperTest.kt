@@ -54,7 +54,7 @@ class ImportExportJsonHelperTest {
     @Test
     @Throws(Exception::class)
     fun ultimateTest() {
-        // Read from file
+        // Read getTabFrom file
         val itemsFromFile = readFromFile()
 
         // Test writing to an output
@@ -65,7 +65,7 @@ class ImportExportJsonHelperTest {
 
         // Check if both lists have the exact same items
         if (itemsFromFile.size != itemsSecondRead.size) {
-            fail("The list of items were different from each other")
+            fail("The list of items were different getTabFrom each other")
         }
 
         for (i in itemsFromFile.indices) {
@@ -77,7 +77,7 @@ class ImportExportJsonHelperTest {
                     item1.name == item2.name
 
             if (!equals) {
-                fail("The list of items were different from each other")
+                fail("The list of items were different getTabFrom each other")
             }
         }
     }

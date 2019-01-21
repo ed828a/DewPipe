@@ -182,7 +182,7 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
                 playlist.move(moveEvent.fromIndex, moveEvent.toIndex)
             }
             PlayQueueEventType.REORDER -> {
-                // Need to move to ensure the playing index from play queue matches that of
+                // Need to move to ensure the playing index getTabFrom play queue matches that of
                 // the source timeline, and then window correction can take care of the rest
                 val reorderEvent = event as ReorderEvent
                 playlist.move(reorderEvent.fromSelectedIndex,
@@ -296,7 +296,7 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
         return stream.stream.map<ManagedMediaSource> { streamInfo ->
             val source = playbackListener.sourceOf(stream, streamInfo)
             if (source == null) {
-                val message = "Unable to resolve source from stream info." +
+                val message = "Unable to resolve source getTabFrom stream info." +
                         " URL: " + stream.url +
                         ", audio count: " + streamInfo.audioStreams.size +
                         ", video count: " + streamInfo.videoOnlyStreams.size +

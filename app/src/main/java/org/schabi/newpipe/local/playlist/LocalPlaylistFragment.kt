@@ -66,7 +66,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
     private var debouncedSaveSignal: PublishSubject<Long>? = null
     private var disposables: CompositeDisposable? = null
 
-    /* Has the playlist been fully loaded from db */
+    /* Has the playlist been fully loaded getTabFrom db */
     private var isLoadingComplete: AtomicBoolean? = null
     /* Has the playlist been modified (e.g. items reordered or deleted) */
     private var isModified: AtomicBoolean? = null

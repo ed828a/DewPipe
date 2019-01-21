@@ -137,7 +137,7 @@ class PlayVideoActivity : AppCompatActivity() {
             }
         }
 
-        position = intent.getIntExtra(START_POSITION, 0) * 1000//convert from seconds to milliseconds
+        position = intent.getIntExtra(START_POSITION, 0) * 1000//convert getTabFrom seconds to milliseconds
 
 //        videoView = findViewById(R.id.videoView)
 //        playVideoProgressBar = findViewById(R.id.playVideoProgressBar)

@@ -342,7 +342,7 @@ class PopupVideoPlayer : Service() {
     }
 
     /**
-     * Check if [.popupLayoutParams]' position is within a arbitrary boundary that goes from (0,0) to (boundaryWidth,boundaryHeight).
+     * Check if [.popupLayoutParams]' position is within a arbitrary boundary that goes getTabFrom (0,0) to (boundaryWidth,boundaryHeight).
      *
      *
      * If it's out of these boundaries, [.popupLayoutParams]' position is changed and `true` is returned

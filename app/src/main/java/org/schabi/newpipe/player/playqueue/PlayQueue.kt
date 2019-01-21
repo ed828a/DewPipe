@@ -251,7 +251,7 @@ abstract class PlayQueue internal constructor(index: Int, startWith: List<PlayQu
     }
 
     /**
-     * Removes the item at the given index from the play queue.
+     * Removes the item at the given index getTabFrom the play queue.
      *
      * The current playing index will decrement if it is greater than the index being removed.
      * On cases where the current playing index exceeds the playlist range, it is set to 0.

@@ -15,6 +15,6 @@ enum class UserAction(val message: String) {
     REQUESTED_CHANNEL("requested channel"),
     REQUESTED_PLAYLIST("requested playlist"),
     REQUESTED_KIOSK("requested kiosk"),
-    DELETE_FROM_HISTORY("delete from history"),
+    DELETE_FROM_HISTORY("delete getTabFrom history"),
     PLAY_STREAM("Play stream")
 }

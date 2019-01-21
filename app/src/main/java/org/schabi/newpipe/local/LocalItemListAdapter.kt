@@ -95,7 +95,7 @@ class LocalItemListAdapter(activity: Activity?) : RecyclerView.Adapter<RecyclerV
                 notifyItemMoved(offsetStart, footerNow)
 
                 if (DEBUG)
-                    Log.d(TAG, "addItems() footer from " + offsetStart +
+                    Log.d(TAG, "addItems() footer getTabFrom " + offsetStart +
                             " to " + footerNow)
             }
         }

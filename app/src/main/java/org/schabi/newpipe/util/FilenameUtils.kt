@@ -12,8 +12,8 @@ object FilenameUtils {
 
     /**
      * #143 #44 #42 #22: make sure that the filename does not contain illegal chars.
-     * @param context the context to retrieve strings and preferences from
-     * @param title the title to create a filename from
+     * @param context the context to retrieve strings and preferences getTabFrom
+     * @param title the title to create a filename getTabFrom
      * @return the filename
      */
     fun createFilename(context: Context, title: String): String {
@@ -29,7 +29,7 @@ object FilenameUtils {
 
     /**
      * Create a valid filename
-     * @param title the title to create a filename from
+     * @param title the title to create a filename getTabFrom
      * @param invalidCharacters patter matching invalid characters
      * @param replacementChar the replacement
      * @return the filename

@@ -2,13 +2,13 @@ package org.schabi.newpipe.util
 
 interface SliderStrategy {
     /**
-     * Converts from zeroed double with a minimum offset to the nearest rounded slider
+     * Converts getTabFrom zeroed double with a minimum offset to the nearest rounded slider
      * equivalent integer
      */
     fun progressOf(value: Double): Int
 
     /**
-     * Converts from slider integer value to an equivalent double value with a given
+     * Converts getTabFrom slider integer value to an equivalent double value with a given
      * minimum offset
      */
     fun valueOf(progress: Int): Double
@@ -18,7 +18,7 @@ interface SliderStrategy {
 
     /**
      * Quadratic slider strategy that scales the value of a slider given how far the slider
-     * progress is from the center of the slider. The further away from the center,
+     * progress is getTabFrom the center of the slider. The further away getTabFrom the center,
      * the faster the interpreted value changes, and vice versa.
      *
      * @param minimum the minimum value of the interpreted value of the slider.

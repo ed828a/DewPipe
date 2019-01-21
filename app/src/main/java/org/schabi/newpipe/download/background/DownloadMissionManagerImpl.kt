@@ -106,7 +106,7 @@ class DownloadMissionManagerImpl(directories: Collection<String>,
     }
 
     /**
-     * Loads finished missions from the data source
+     * Loads finished missions getTabFrom the data source
      */
     private fun loadFinishedMissions() {
         val finishedMissions = ArrayList<MissionControl>()
@@ -123,10 +123,10 @@ class DownloadMissionManagerImpl(directories: Collection<String>,
         for (missionControl in finishedMissions) {
             val downloadedFile = missionControl.downloadedFile
             if (!downloadedFile.isFile) {
-                Log.d(TAG, "file ${downloadedFile.absolutePath} removed from Database." )
+                Log.d(TAG, "file ${downloadedFile.absolutePath} removed getTabFrom Database." )
                 mDownloadDataSource.deleteMission(missionControl)
                         .subscribe {
-                            Log.d(TAG, "removed one missionEntry from Database")
+                            Log.d(TAG, "removed one missionEntry getTabFrom Database")
                         }
                         .dispose()
 

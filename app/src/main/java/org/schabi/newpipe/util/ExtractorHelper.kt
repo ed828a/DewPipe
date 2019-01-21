@@ -161,8 +161,8 @@ object ExtractorHelper {
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     * Check if we can load it from the cache (forceLoad parameter), if we can't,
-     * load from the network (Single loadFromNetwork)
+     * Check if we can load it getTabFrom the cache (forceLoad parameter), if we can't,
+     * load getTabFrom the network (Single loadFromNetwork)
      * and put the results in the cache.
      */
     private fun <I : Info> checkCache(forceLoad: Boolean,
@@ -236,7 +236,7 @@ object ExtractorHelper {
     }
 
     /**
-     * Check if throwable have the cause that can be assignable from the causes to check.
+     * Check if throwable have the cause that can be assignable getTabFrom the causes to check.
      *
      * @see Class.isAssignableFrom
      */
@@ -270,7 +270,7 @@ object ExtractorHelper {
     }
 
     /**
-     * Check if throwable have the exact cause from one of the causes to check.
+     * Check if throwable have the exact cause getTabFrom one of the causes to check.
      */
     fun hasExactCauseThrowable(throwable: Throwable, vararg causesToCheck: Class<*>): Boolean {
         // Check if getCause is not the same as cause (the getCause is already the root),

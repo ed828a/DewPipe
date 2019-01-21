@@ -161,7 +161,7 @@ object AnimationUtils {
     fun animateHeight(view: View, duration: Long, targetHeight: Int): ValueAnimator {
         val height = view.height
         if (DEBUG) {
-            Log.d(TAG, "animateHeight: duration = [$duration], from $height to → $targetHeight in: $view")
+            Log.d(TAG, "animateHeight: duration = [$duration], getTabFrom $height to → $targetHeight in: $view")
         }
 
         val animator = ValueAnimator.ofFloat(height.toFloat(), targetHeight.toFloat())
@@ -190,7 +190,7 @@ object AnimationUtils {
 
     fun animateRotation(view: View, duration: Long, targetRotation: Int) {
         if (DEBUG) {
-            Log.d(TAG, "animateRotation: duration = [" + duration + "], from " + view.rotation + " to → " + targetRotation + " in: " + view)
+            Log.d(TAG, "animateRotation: duration = [" + duration + "], getTabFrom " + view.rotation + " to → " + targetRotation + " in: " + view)
         }
         view.animate().setListener(null).cancel()
 

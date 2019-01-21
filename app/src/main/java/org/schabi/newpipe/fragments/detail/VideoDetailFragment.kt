@@ -245,7 +245,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
                 NavigationHelper.openVideoDetailFragment(fragmentManager, serviceId, url, name)
             } else
                 Log.e(TAG, "ReCaptcha failed")
-            else -> Log.e(TAG, "Request code from activity not supported [$requestCode]")
+            else -> Log.e(TAG, "Request code getTabFrom activity not supported [$requestCode]")
         }
     }
 
@@ -396,7 +396,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
             return
         }
 
-        //Log.d(TAG, "toggleExpandRelatedVideos() called with: info = [" + info + "], from = [" + INITIAL_RELATED_VIDEOS + "]");
+        //Log.d(TAG, "toggleExpandRelatedVideos() called with: info = [" + info + "], getTabFrom = [" + INITIAL_RELATED_VIDEOS + "]");
         for (i in INITIAL_RELATED_VIDEOS until info.relatedStreams.size) {
             val item = info.relatedStreams[i]
             //Log.d(TAG, "i = " + i);
@@ -705,7 +705,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         if (stack.size <= 1) return false
         // Remove top
         stack.pop()
-        // Get stack item from the new top
+        // Get stack item getTabFrom the new top
         val peek = stack.peek()
 
         selectAndLoadVideo(peek.serviceId, peek.url, if (!TextUtils.isEmpty(peek.title)) peek.title!! else "")

@@ -54,7 +54,7 @@ class DownloadRun(private val missionControl: MissionControl, private val mId: I
             missionControl.preserveBlock(position)
             missionControl.setPosition(mId, position)
 
-            // from start to end is just a BLOCK_SIZE  data
+            // getTabFrom start to end is just a BLOCK_SIZE  data
             var start = position * DownloadMissionManager.BLOCK_SIZE
             var end = start + DownloadMissionManager.BLOCK_SIZE - 1
 

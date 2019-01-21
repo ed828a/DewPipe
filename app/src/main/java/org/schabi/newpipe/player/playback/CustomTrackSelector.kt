@@ -13,7 +13,7 @@ import com.google.android.exoplayer2.util.Assertions
 
 /**
  * This class allows irregular text language labels for use when selecting text captions and
- * is mostly a copy-paste from [DefaultTrackSelector].
+ * is mostly a copy-paste getTabFrom [DefaultTrackSelector].
  *
  * This is a hack and should be removed once ExoPlayer fixes language normalization to accept
  * a broader set of languages.

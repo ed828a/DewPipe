@@ -84,7 +84,7 @@ object StateSaver {
         fun writeTo(objectsToSave: Queue<Any>)
 
         /**
-         * Poll saved objects from the queue in the order they were written.
+         * Poll saved objects getTabFrom the queue in the order they were written.
          *
          * @param savedObjects queue of objects returned by [.writeTo]
          */
@@ -104,7 +104,7 @@ object StateSaver {
     }
 
     /**
-     * Try to restore the state from memory and disk, using the [StateSaver.WriteRead.readFrom] from the writeRead.
+     * Try to restore the state getTabFrom memory and disk, using the [StateSaver.WriteRead.readFrom] getTabFrom the writeRead.
      */
     private fun tryToRestore(savedState: SavedState, writeRead: WriteRead): SavedState? {
         if (MainActivity.DEBUG) {
@@ -117,7 +117,7 @@ object StateSaver {
             if (savedObjects != null) {
                 writeRead.readFrom(savedObjects)
                 if (MainActivity.DEBUG) {
-                    Log.d(TAG, "tryToSave: reading objects from holder > $savedObjects, stateObjectsHolder > $stateObjectsHolder")
+                    Log.d(TAG, "tryToSave: reading objects getTabFrom holder > $savedObjects, stateObjectsHolder > $stateObjectsHolder")
                 }
                 return savedState
             }
@@ -177,8 +177,8 @@ object StateSaver {
     }
 
     /**
-     * If it's not changing configuration (i.e. rotating screen), try to write the state from [StateSaver.WriteRead.writeTo]
-     * to the file with the name of prefixFileName + suffixFileName, in a cache folder got from the [.init].
+     * If it's not changing configuration (i.e. rotating screen), try to write the state getTabFrom [StateSaver.WriteRead.writeTo]
+     * to the file with the name of prefixFileName + suffixFileName, in a cache folder got getTabFrom the [.init].
      *
      *
      * It checks if the file already exists and if it does, just return the path, so a good way to save is:

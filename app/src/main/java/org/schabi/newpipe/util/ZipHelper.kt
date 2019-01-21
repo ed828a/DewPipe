@@ -56,7 +56,7 @@ object ZipHelper {
     }
 
     /**
-     * This will extract data from Zipfiles.
+     * This will extract data getTabFrom Zipfiles.
      * Caution this will override the original file.
      * @param file The path of the file on the disk where the data should be extracted to.
      * @param name The path of the file inside the zip.

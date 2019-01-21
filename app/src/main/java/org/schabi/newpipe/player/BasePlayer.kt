@@ -803,7 +803,7 @@ abstract class BasePlayer(protected val context: Context) : Player.EventListener
             if (DEBUG)
                 Log.d(TAG, "Playback - Rewinding to correct" +
                         " index=[" + currentPlayQueueIndex + "]," +
-                        " from=[" + currentPlaylistIndex + "], size=[" + currentPlaylistSize + "].")
+                        " getTabFrom=[" + currentPlaylistIndex + "], size=[" + currentPlaylistSize + "].")
 
             if (item.recoveryPosition != PlayQueueItem.RECOVERY_UNSET) {
                 player!!.seekTo(currentPlayQueueIndex, item.recoveryPosition)

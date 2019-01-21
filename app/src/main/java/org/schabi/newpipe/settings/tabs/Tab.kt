@@ -262,7 +262,9 @@ abstract class Tab(jsonObject: JsonObject? = null) {
                 return ChannelFragment.getInstance(channelServiceId, channelUrl!!, channelName!!)
             }
 
-        constructor() : this(-1, "<no-url>", "<no-name>") {}
+        constructor() : this(NO_SERVICE_ID, NO_URL_STRING, NO_NAME_STRING) {
+            Log.d(TAG, "ChannelTab() called with No_SERVICE_ID")
+        }
 
         constructor(channelServiceId: Int, channelUrl: String, channelName: String) {
             this.channelServiceId = channelServiceId
@@ -313,35 +315,44 @@ abstract class Tab(jsonObject: JsonObject? = null) {
         // Tab Handling
         ///////////////////////////////////////////////////////////////////////////
 
-        fun from(jsonObject: JsonObject): Tab? {
+        fun getTabFrom(jsonObject: JsonObject): Tab? {
+            Log.d(TAG, "getTabFrom(jsonObject: JsonObject): $jsonObject")
             val tabId = jsonObject.getInt(Tab.JSON_TAB_ID_KEY, NO_SERVICE_ID)
 
             return if (tabId == NO_SERVICE_ID) {
                 null
-            } else from(tabId, jsonObject)
+            } else getTabFrom(tabId, jsonObject)
 
         }
 
-        fun from(tabId: Int): Tab? {
-            return from(tabId, null)
+        fun getTabFrom(tabId: Int): Tab? {
+            Log.d(TAG, " getTabFrom(tabId: Int): tabId = $tabId")
+            return getTabFrom(tabId, null)
         }
 
-        fun typeFrom(tabId: Int): Type? {
+        fun getTypeFrom(tabId: Int): Type? {
             for (available in Type.values()) {
                 if (available.tabId == tabId) {
+                    Log.d(TAG, "getType: Type.value = $available")
                     return available
                 }
             }
             return null
         }
 
-        private fun from(tabId: Int, jsonObject: JsonObject?): Tab? {
-            val type = typeFrom(tabId) ?: return null
+        private fun getTabFrom(tabId: Int, jsonObject: JsonObject?): Tab? {
+            val type = getTypeFrom(tabId) ?: return null
 
             if (jsonObject != null) {
                 when (tabId) {
-                    KIOSK_TAB_ID -> return KioskTab(jsonObject)
-                    CHANNEL_TAB_ID -> return ChannelTab(jsonObject)
+                    KIOSK_TAB_ID -> {
+                        Log.d(TAG, "getTabFrom(tabId, jsonObject): tabId = KIOSK_TAB_ID")
+                        return KioskTab(jsonObject)
+                    }
+                    CHANNEL_TAB_ID -> {
+                        Log.d(TAG, "getTabFrom(tabId, jsonObject): tabId = CHANNEL_TAB_ID")
+                        return ChannelTab(jsonObject)
+                    }
                 }
             }
 

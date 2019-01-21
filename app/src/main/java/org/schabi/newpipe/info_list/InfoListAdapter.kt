@@ -103,7 +103,7 @@ class InfoListAdapter(a: Activity) : RecyclerView.Adapter<RecyclerView.ViewHolde
                 val footerNow = sizeConsideringHeaderOffset()
                 notifyItemMoved(offsetStart, footerNow)
 
-                if (DEBUG) Log.d(TAG, "addInfoItemList() footer from $offsetStart to $footerNow")
+                if (DEBUG) Log.d(TAG, "addInfoItemList() footer getTabFrom $offsetStart to $footerNow")
             }
         }
     }
@@ -126,7 +126,7 @@ class InfoListAdapter(a: Activity) : RecyclerView.Adapter<RecyclerView.ViewHolde
                 val footerNow = sizeConsideringHeaderOffset()
                 notifyItemMoved(positionInserted, footerNow)
 
-                if (DEBUG) Log.d(TAG, "addInfoItem() footer from $positionInserted to $footerNow")
+                if (DEBUG) Log.d(TAG, "addInfoItem() footer getTabFrom $positionInserted to $footerNow")
             }
         }
     }
