@@ -22,8 +22,7 @@ open class RemotePlaylistItemHolder : PlaylistItemHolder {
         itemTitleView.text = localItem.name
         itemStreamCountView.text = localItem.streamCount.toString()
         itemUploaderView.text = if (localItem.uploader == null) ""
-        else Localization.concatenateStrings(localItem.uploader!!,
-                NewPipe.getNameOfService(localItem.serviceId))
+        else Localization.concatenateStrings(localItem.uploader!!, NewPipe.getNameOfService(localItem.serviceId))
 
         itemBuilder.displayImage(localItem.thumbnailUrl!!, itemThumbnailView,
                 ImageDisplayConstants.DISPLAY_PLAYLIST_OPTIONS)

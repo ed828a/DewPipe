@@ -27,7 +27,7 @@ class InfoListAdapter(activity: Activity) : RecyclerView.Adapter<RecyclerView.Vi
     private var footer: View? = null
 
     // Header and Footer ViewHolder, same as HeaderFooterHolder, can be removed
-    inner class HFHolder(var view: View) : RecyclerView.ViewHolder(view)
+//    inner class HFHolder(var view: View) : RecyclerView.ViewHolder(view)
 
     fun setOnStreamSelectedListener(listener: OnClickGesture<StreamInfoItem>) {
         infoItemBuilder.onStreamSelectedListener = listener

@@ -29,16 +29,18 @@ open class PlaylistMiniInfoItemHolder(infoItemBuilder: InfoItemBuilder, layoutId
                 .displayImage(infoItem.thumbnailUrl, itemThumbnailView, ImageDisplayConstants.DISPLAY_THUMBNAIL_OPTIONS)
 
         itemView.setOnClickListener { view ->
-            if (itemBuilder.onPlaylistSelectedListener != null) {
-                itemBuilder.onPlaylistSelectedListener!!.selected(infoItem)
-            }
+//            if (itemBuilder.onPlaylistSelectedListener != null) {
+//                itemBuilder.onPlaylistSelectedListener!!.selected(infoItem)
+//            }
+            itemBuilder.onPlaylistSelectedListener?.selected(infoItem)
         }
 
         itemView.isLongClickable = true
         itemView.setOnLongClickListener { view ->
-            if (itemBuilder.onPlaylistSelectedListener != null) {
-                itemBuilder.onPlaylistSelectedListener!!.held(infoItem)
-            }
+//            if (itemBuilder.onPlaylistSelectedListener != null) {
+//                itemBuilder.onPlaylistSelectedListener!!.held(infoItem)
+//            }
+            itemBuilder.onPlaylistSelectedListener?.held(infoItem)
             true
         }
     }

@@ -6,63 +6,26 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import org.schabi.newpipe.BuildConfig.DEBUG
-
 import org.schabi.newpipe.database.LocalItem
-import org.schabi.newpipe.local.holder.LocalItemHolder
-import org.schabi.newpipe.local.holder.LocalPlaylistGridItemHolder
-import org.schabi.newpipe.local.holder.LocalPlaylistItemHolder
-import org.schabi.newpipe.local.holder.LocalPlaylistStreamGridItemHolder
-import org.schabi.newpipe.local.holder.LocalPlaylistStreamItemHolder
-import org.schabi.newpipe.local.holder.LocalStatisticStreamGridItemHolder
-import org.schabi.newpipe.local.holder.LocalStatisticStreamItemHolder
-import org.schabi.newpipe.local.holder.RemotePlaylistGridItemHolder
-import org.schabi.newpipe.local.holder.RemotePlaylistItemHolder
 import org.schabi.newpipe.info_list.holder.FallbackViewHolder
 import org.schabi.newpipe.info_list.holder.HeaderFooterHolder
+import org.schabi.newpipe.local.holder.*
 import org.schabi.newpipe.util.Localization
 import org.schabi.newpipe.util.OnClickGesture
-
 import java.text.DateFormat
-import java.util.ArrayList
+import java.util.*
 
-/*
- * Created by Christian Schabesberger on 01.08.16.
- *
- * Copyright (C) Christian Schabesberger 2016 <chris.schabesberger@mailbox.org>
- * InfoListAdapter.java is part of NewPipe.
- *
- * NewPipe is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * NewPipe is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with NewPipe.  If not, see <http://www.gnu.org/licenses/>.
- */
 
 class LocalItemListAdapter(activity: Activity?) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val localItemBuilder: LocalItemBuilder
-    val itemsList: ArrayList<LocalItem>
-    private val dateFormat: DateFormat
+    private val localItemBuilder: LocalItemBuilder = LocalItemBuilder(activity)
+    val itemsList: ArrayList<LocalItem> = ArrayList()
+    private val dateFormat: DateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Localization.getPreferredLocale(activity!!))
 
     private var showFooter = false
     private var useGridVariant = false
     private var header: View? = null
     private var footer: View? = null
-
-    init {
-        localItemBuilder = LocalItemBuilder(activity)
-        itemsList = ArrayList()
-        dateFormat = DateFormat.getDateInstance(DateFormat.SHORT,
-                Localization.getPreferredLocale(activity!!))
-    }
 
     fun setSelectedListener(listener: OnClickGesture<LocalItem>) {
         localItemBuilder.onItemSelectedListener = listener
@@ -74,20 +37,13 @@ class LocalItemListAdapter(activity: Activity?) : RecyclerView.Adapter<RecyclerV
 
     fun addItems(data: List<LocalItem>?) {
         if (data != null) {
-            if (DEBUG) {
-                Log.d(TAG, "addItems() before > localItems.size() = " +
-                        itemsList.size + ", data.size() = " + data.size)
-            }
+
+            Log.d(TAG, "addItems() before > localItems.size() = ${itemsList.size}, data.size() = ${data.size}")
 
             val offsetStart = sizeConsideringHeader()
             itemsList.addAll(data)
 
-            if (DEBUG) {
-                Log.d(TAG, "addItems() after > offsetStart = " + offsetStart +
-                        ", localItems.size() = " + itemsList.size +
-                        ", header = " + header + ", footer = " + footer +
-                        ", showFooter = " + showFooter)
-            }
+            Log.d(TAG, "addItems() after > offsetStart = $offsetStart, localItems.size() = ${itemsList.size}, header = $header, footer = $footer, showFooter = $showFooter")
 
             notifyItemRangeInserted(offsetStart, data.size)
 
@@ -95,9 +51,7 @@ class LocalItemListAdapter(activity: Activity?) : RecyclerView.Adapter<RecyclerV
                 val footerNow = sizeConsideringHeader()
                 notifyItemMoved(offsetStart, footerNow)
 
-                if (DEBUG)
-                    Log.d(TAG, "addItems() footer getTabFrom " + offsetStart +
-                            " to " + footerNow)
+                Log.d(TAG, "addItems() footer getTabFrom $offsetStart to $footerNow")
             }
         }
     }
@@ -144,7 +98,7 @@ class LocalItemListAdapter(activity: Activity?) : RecyclerView.Adapter<RecyclerV
     }
 
     fun showFooter(show: Boolean) {
-        if (DEBUG) Log.d(TAG, "showFooter() called with: show = [$show]")
+        Log.d(TAG, "showFooter() called with: show = [$show]")
         if (show == showFooter) return
 
         showFooter = show
@@ -167,18 +121,14 @@ class LocalItemListAdapter(activity: Activity?) : RecyclerView.Adapter<RecyclerV
         if (header != null) count++
         if (footer != null && showFooter) count++
 
-        if (DEBUG) {
-            Log.d(TAG, "getItemCount() called, count = " + count +
-                    ", localItems.size() = " + itemsList.size +
-                    ", header = " + header + ", footer = " + footer +
-                    ", showFooter = " + showFooter)
-        }
+        Log.d(TAG, "getItemCount() called, count = $count, localItems.size() = ${itemsList.size}, header = $header, footer = $footer, showFooter = $showFooter")
+
         return count
     }
 
-    override fun getItemViewType(position: Int): Int {
-        var position = position
-        if (DEBUG) Log.d(TAG, "getItemViewType() called with: position = [$position]")
+    override fun getItemViewType(pos: Int): Int {
+        var position = pos
+        Log.d(TAG, "getItemViewType() called with: position = [$position]")
 
         if (header != null && position == 0) {
             return HEADER_TYPE
@@ -190,24 +140,19 @@ class LocalItemListAdapter(activity: Activity?) : RecyclerView.Adapter<RecyclerV
         }
         val item = itemsList[position]
 
-        when (item.localItemType) {
-            LocalItem.LocalItemType.PLAYLIST_LOCAL_ITEM -> return if (useGridVariant) LOCAL_PLAYLIST_GRID_HOLDER_TYPE else LOCAL_PLAYLIST_HOLDER_TYPE
-            LocalItem.LocalItemType.PLAYLIST_REMOTE_ITEM -> return if (useGridVariant) REMOTE_PLAYLIST_GRID_HOLDER_TYPE else REMOTE_PLAYLIST_HOLDER_TYPE
+        return when (item.localItemType) {
+            LocalItem.LocalItemType.PLAYLIST_LOCAL_ITEM -> if (useGridVariant) LOCAL_PLAYLIST_GRID_HOLDER_TYPE else LOCAL_PLAYLIST_HOLDER_TYPE
+            LocalItem.LocalItemType.PLAYLIST_REMOTE_ITEM -> if (useGridVariant) REMOTE_PLAYLIST_GRID_HOLDER_TYPE else REMOTE_PLAYLIST_HOLDER_TYPE
 
-            LocalItem.LocalItemType.PLAYLIST_STREAM_ITEM -> return if (useGridVariant) STREAM_PLAYLIST_GRID_HOLDER_TYPE else STREAM_PLAYLIST_HOLDER_TYPE
-            LocalItem.LocalItemType.STATISTIC_STREAM_ITEM -> return if (useGridVariant) STREAM_STATISTICS_GRID_HOLDER_TYPE else STREAM_STATISTICS_HOLDER_TYPE
-            else -> {
-                Log.e(TAG, "No holder type has been considered for item: [" +
-                        item.localItemType + "]")
-                return -1
-            }
+            LocalItem.LocalItemType.PLAYLIST_STREAM_ITEM -> if (useGridVariant) STREAM_PLAYLIST_GRID_HOLDER_TYPE else STREAM_PLAYLIST_HOLDER_TYPE
+            LocalItem.LocalItemType.STATISTIC_STREAM_ITEM -> if (useGridVariant) STREAM_STATISTICS_GRID_HOLDER_TYPE else STREAM_STATISTICS_HOLDER_TYPE
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, type: Int): RecyclerView.ViewHolder {
-        if (DEBUG)
-            Log.d(TAG, "onCreateViewHolder() called with: parent = [" +
-                    parent + "], type = [" + type + "]")
+
+        Log.d(TAG, "onCreateViewHolder() called with: parent = [$parent], type = [$type]")
+
         when (type) {
             HEADER_TYPE -> return HeaderFooterHolder(header!!)
             FOOTER_TYPE -> return HeaderFooterHolder(footer!!)
@@ -226,33 +171,31 @@ class LocalItemListAdapter(activity: Activity?) : RecyclerView.Adapter<RecyclerV
         }
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        var position = position
-        if (DEBUG)
-            Log.d(TAG, "onBindViewHolder() called with: holder = [" +
-                    holder.javaClass.simpleName + "], position = [" + position + "]")
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, pos: Int) {
+        var position = pos
+        Log.d(TAG, "onBindViewHolder() called with: holder = [${holder.javaClass.simpleName}], position = [$position]")
 
-        if (holder is LocalItemHolder) {
-            // If header isn't null, offset the items by -1
-            if (header != null) position--
+        when {
+            holder is LocalItemHolder -> {
+                // If header isn't null, offset the items by -1
+                if (header != null) position--
 
-            holder.updateFromItem(itemsList[position], dateFormat)
-        } else if (holder is HeaderFooterHolder && position == 0 && header != null) {
-            holder.view = header!!
-        } else if (holder is HeaderFooterHolder && position == sizeConsideringHeader()
-                && footer != null && showFooter) {
-            holder.view = footer!!
+                holder.updateFromItem(itemsList[position], dateFormat)
+            }
+
+            holder is HeaderFooterHolder && position == 0 && header != null -> holder.view = header!!
+
+            holder is HeaderFooterHolder && position == sizeConsideringHeader() && footer != null && showFooter -> holder.view = footer!!
         }
     }
 
-    fun getSpanSizeLookup(spanCount: Int): GridLayoutManager.SpanSizeLookup {
-        return object : GridLayoutManager.SpanSizeLookup() {
+    fun getSpanSizeLookup(spanCount: Int): GridLayoutManager.SpanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
                 val type = getItemViewType(position)
                 return if (type == HEADER_TYPE || type == FOOTER_TYPE) spanCount else 1
             }
         }
-    }
+
 
     companion object {
 
