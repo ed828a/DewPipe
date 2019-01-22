@@ -1178,12 +1178,12 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         } else if (exception is ContentNotAvailableException) {
             showError(getString(R.string.content_not_available), false)
         } else {
-            val errorId = if (exception is YoutubeStreamExtractor.DecryptException)
-                R.string.youtube_signature_decryption_error
-            else if (exception is ParsingException)
-                R.string.parsing_error
-            else
-                R.string.general_error
+            val errorId = when (exception) {
+                is YoutubeStreamExtractor.DecryptException -> R.string.youtube_signature_decryption_error
+                is ParsingException -> R.string.parsing_error
+                else -> R.string.general_error
+            }
+
             onUnrecoverableError(exception,
                     UserAction.REQUESTED_STREAM,
                     NewPipe.getNameOfService(serviceId),

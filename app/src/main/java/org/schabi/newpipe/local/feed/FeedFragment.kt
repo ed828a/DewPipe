@@ -35,7 +35,7 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
     private var itemsLoaded = HashSet<String>()
     private val requestLoadedAtomic = AtomicInteger()
 
-    private var compositeDisposable: CompositeDisposable? = CompositeDisposable()
+//    private var compositeDisposable: CompositeDisposable? = CompositeDisposable()
     private var subscriptionObserver: Disposable? = null
     private var feedSubscriber: Subscription? = null
 
@@ -75,7 +75,7 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
 
         disposeEverything()
         subscriptionService = null
-        compositeDisposable = null
+        if (!compositeDisposable.isDisposed) compositeDisposable.dispose()
         subscriptionObserver = null
         feedSubscriber = null
     }

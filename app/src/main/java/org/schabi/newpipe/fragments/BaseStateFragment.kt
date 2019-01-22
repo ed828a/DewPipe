@@ -10,32 +10,29 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-
 import com.jakewharton.rxbinding2.view.RxView
-
+import icepick.State
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import org.schabi.newpipe.BaseFragment
 import org.schabi.newpipe.MainActivity
 import org.schabi.newpipe.R
 import org.schabi.newpipe.ReCaptchaActivity
 import org.schabi.newpipe.extractor.exceptions.ReCaptchaException
 import org.schabi.newpipe.report.ErrorActivity
+import org.schabi.newpipe.report.ErrorInfo
 import org.schabi.newpipe.report.UserAction
+import org.schabi.newpipe.util.AnimationUtils.animateView
+import org.schabi.newpipe.util.ExtractorHelper
 import org.schabi.newpipe.util.InfoCache
-
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
-import icepick.State
-import io.reactivex.android.schedulers.AndroidSchedulers
-import org.schabi.newpipe.report.ErrorInfo
-
-import org.schabi.newpipe.util.AnimationUtils.animateView
-import org.schabi.newpipe.util.ExtractorHelper
-
 abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
 
-    @State @JvmField
+    @State
+    @JvmField
     var wasLoading = AtomicBoolean()
     protected var isLoading = AtomicBoolean()
 
@@ -45,6 +42,8 @@ abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
     protected lateinit var errorPanelRoot: View
     protected lateinit var errorButtonRetry: Button
     protected lateinit var errorTextView: TextView
+
+    protected val compositeDisposable = CompositeDisposable()
 
     override fun onViewCreated(rootView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(rootView, savedInstanceState)
@@ -56,6 +55,15 @@ abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
         wasLoading.set(isLoading.get())
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        compositeDisposable.clear()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (!compositeDisposable.isDisposed) compositeDisposable.dispose()
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Init
@@ -75,10 +83,12 @@ abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
 
     override fun initListeners() {
         super.initListeners()
-        RxView.clicks(errorButtonRetry)
+        val d = RxView.clicks(errorButtonRetry)
                 .debounce(300, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { o -> onRetryButtonClicked() }
+
+        compositeDisposable.add(d)
     }
 
     protected fun onRetryButtonClicked() {
@@ -189,6 +199,9 @@ abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
     }
 
     fun onUnrecoverableError(exception: Throwable, userAction: UserAction, serviceName: String, request: String, @StringRes errorId: Int) {
+        // if the exception like "ParsingException: Malformed unacceptable url: https://www.youtube.com/channel/UC4ZLnCS3X8CI4RppOXTmT4g"
+        // the link is a channel, still recoverable.
+        // todo: recover this kind of parsing exceptions.
         onUnrecoverableError(listOf(exception), userAction, serviceName, request, errorId)
     }
 

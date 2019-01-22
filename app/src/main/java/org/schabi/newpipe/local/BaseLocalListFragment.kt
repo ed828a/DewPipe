@@ -38,7 +38,7 @@ abstract class BaseLocalListFragment<I, N> : BaseStateFragment<I>(), ListViewCon
 
     protected var itemListAdapter: LocalItemListAdapter? = null
     protected var itemsList: RecyclerView? = null
-    private var updateFlags = 0
+    private var updateFlags = FLAG_NO_UPDATE
 
     ///////////////////////////////////////////////////////////////////////////
     // Lifecycle - View
@@ -60,15 +60,18 @@ abstract class BaseLocalListFragment<I, N> : BaseStateFragment<I>(), ListViewCon
 
     protected fun getListLayoutManager(): RecyclerView.LayoutManager = LinearLayoutManager(activity)
 
+    /**
+     * when screen size is big enough and Landscaped, it's grid layout. or listMode is set to grid.
+     */
     protected fun isGridLayout(): Boolean {
-            val list_mode = PreferenceManager.getDefaultSharedPreferences(activity).getString(getString(R.string.list_view_mode_key), getString(R.string.list_view_mode_value))
-            return if ("auto" == list_mode) {
-                val configuration = resources.configuration
-                configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && configuration.isLayoutSizeAtLeast(Configuration.SCREENLAYOUT_SIZE_LARGE)
-            } else {
-                "grid" == list_mode
-            }
+        val listMode = PreferenceManager.getDefaultSharedPreferences(activity).getString(getString(R.string.list_view_mode_key), getString(R.string.list_view_mode_value))
+        return if ("auto" == listMode) {
+            val configuration = resources.configuration
+            configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && configuration.isLayoutSizeAtLeast(Configuration.SCREENLAYOUT_SIZE_LARGE)
+        } else {
+            "grid" == listMode
         }
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Lifecycle - Creation
@@ -89,14 +92,14 @@ abstract class BaseLocalListFragment<I, N> : BaseStateFragment<I>(), ListViewCon
 
     override fun onResume() {
         super.onResume()
-        if (updateFlags != 0) {
-            if (updateFlags and LIST_MODE_UPDATE_FLAG != 0) {
+        if (updateFlags != FLAG_NO_UPDATE) {
+            if ((updateFlags and LIST_MODE_UPDATE_FLAG) != FLAG_NO_UPDATE) {
                 val useGrid = isGridLayout()
-                itemsList!!.layoutManager = if (useGrid) getGridLayoutManager() else getListLayoutManager()
-                itemListAdapter!!.setGridItemVariants(useGrid)
-                itemListAdapter!!.notifyDataSetChanged()
+                itemsList?.layoutManager = if (useGrid) getGridLayoutManager() else getListLayoutManager()
+                itemListAdapter?.setGridItemVariants(useGrid)
+                itemListAdapter?.notifyDataSetChanged()
             }
-            updateFlags = 0
+            updateFlags = FLAG_NO_UPDATE
         }
     }
 
@@ -107,18 +110,18 @@ abstract class BaseLocalListFragment<I, N> : BaseStateFragment<I>(), ListViewCon
 
         val useGrid = isGridLayout()
         itemsList = rootView.findViewById(R.id.items_list)
-        itemsList!!.layoutManager = if (useGrid) getGridLayoutManager() else getListLayoutManager()
+        itemsList?.layoutManager = if (useGrid) getGridLayoutManager() else getListLayoutManager()
 
-        itemListAdapter!!.setGridItemVariants(useGrid)
+        itemListAdapter?.setGridItemVariants(useGrid)
         headerRootView = getListHeader()
         headerRootView?.let {
-            itemListAdapter!!.setHeader(it)
+            itemListAdapter?.setHeader(it)
         }
 
         footerRootView = getListFooter()
-        itemListAdapter!!.setFooter(footerRootView!!)
+        itemListAdapter?.setFooter(footerRootView!!)
 
-        itemsList!!.adapter = itemListAdapter
+        itemsList?.adapter = itemListAdapter
     }
 
     override fun initListeners() {
@@ -131,11 +134,9 @@ abstract class BaseLocalListFragment<I, N> : BaseStateFragment<I>(), ListViewCon
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         super.onCreateOptionsMenu(menu, inflater)
-        if (DEBUG)
-            Log.d(TAG, "onCreateOptionsMenu() called with: menu = [" + menu +
-                    "], inflater = [" + inflater + "]")
+        Log.d(TAG, "onCreateOptionsMenu() called with: menu = [$menu], inflater = [$inflater]")
 
-        val supportActionBar = activity!!.supportActionBar ?: return
+        val supportActionBar = activity?.supportActionBar ?: return
 
         supportActionBar.setDisplayShowTitleEnabled(true)
     }
@@ -185,8 +186,8 @@ abstract class BaseLocalListFragment<I, N> : BaseStateFragment<I>(), ListViewCon
     }
 
     override fun showListFooter(show: Boolean) {
-        if (itemsList == null) return
-        itemsList!!.post { if (itemListAdapter != null) itemListAdapter!!.showFooter(show) }
+//        if (itemsList == null) return
+        itemsList?.post { itemListAdapter?.showFooter(show) }
     }
 
     override fun handleNextItems(result: N) {
@@ -198,7 +199,7 @@ abstract class BaseLocalListFragment<I, N> : BaseStateFragment<I>(), ListViewCon
     ///////////////////////////////////////////////////////////////////////////
 
     protected open fun resetFragment() {
-        if (itemListAdapter != null) itemListAdapter!!.clearStreamItemList()
+        itemListAdapter?.clearStreamItemList()
     }
 
     override fun onError(exception: Throwable): Boolean {
@@ -213,7 +214,7 @@ abstract class BaseLocalListFragment<I, N> : BaseStateFragment<I>(), ListViewCon
     }
 
     companion object {
-
-        private val LIST_MODE_UPDATE_FLAG = 0x32
+        const val FLAG_NO_UPDATE = 0
+        private const val LIST_MODE_UPDATE_FLAG = 0x32
     }
 }

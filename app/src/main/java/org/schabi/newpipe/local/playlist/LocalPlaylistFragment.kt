@@ -61,10 +61,11 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
     private var itemTouchHelper: ItemTouchHelper? = null
 
     private var playlistManager: LocalPlaylistManager? = null
+    // for backpressure
     private var databaseSubscription: Subscription? = null
 
     private var debouncedSaveSignal: PublishSubject<Long>? = null
-    private var disposables: CompositeDisposable? = null
+//    private var disposables: CompositeDisposable? = null
 
     /* Has the playlist been fully loaded getTabFrom db */
     private var isLoadingComplete: AtomicBoolean? = null
@@ -166,8 +167,6 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
         playlistManager = LocalPlaylistManager(AppDatabase.getDatabase(context!!))
         debouncedSaveSignal = PublishSubject.create()
 
-        disposables = CompositeDisposable()
-
         isLoadingComplete = AtomicBoolean()
         isModified = AtomicBoolean()
     }
@@ -259,8 +258,8 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
     override fun startLoading(forceLoad: Boolean) {
         super.startLoading(forceLoad)
 
-        if (disposables != null) disposables!!.clear()
-        disposables!!.add(debouncedSaver)
+        compositeDisposable.clear()
+        compositeDisposable.add(debouncedSaver)
 
         isLoadingComplete!!.set(false)
         isModified!!.set(false)
@@ -292,7 +291,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
         if (headerPopupButton != null) headerPopupButton!!.setOnClickListener(null)
 
         if (databaseSubscription != null) databaseSubscription!!.cancel()
-        if (disposables != null) disposables!!.clear()
+        compositeDisposable.clear()
 
         databaseSubscription = null
         itemTouchHelper = null
@@ -301,11 +300,10 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
     override fun onDestroy() {
         super.onDestroy()
         if (debouncedSaveSignal != null) debouncedSaveSignal!!.onComplete()
-        if (disposables != null) disposables!!.dispose()
+        if (!compositeDisposable.isDisposed) compositeDisposable.dispose()
 
         debouncedSaveSignal = null
         playlistManager = null
-        disposables = null
 
         isLoadingComplete = null
         isModified = null
@@ -387,7 +385,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
         val disposable = playlistManager!!.renamePlaylist(playlistId!!, name)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({/*Do nothing on success*/ longs -> },  { this.onError(it) })
-        disposables!!.add(disposable)
+        compositeDisposable.add(disposable)
     }
 
     private fun changeThumbnailUrl(thumbnailUrl: String) {
@@ -404,7 +402,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
                 .changePlaylistThumbnail(playlistId!!, thumbnailUrl)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ ignore -> successToast.show() },  { this.onError(it) })
-        disposables!!.add(disposable)
+        compositeDisposable.add(disposable)
     }
 
     private fun deleteItem(item: PlaylistStreamEntry) {
@@ -450,7 +448,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
                         { if (isModified != null) isModified!!.set(false) },
                         { this.onError(it) }
                 )
-        disposables!!.add(disposable)
+        compositeDisposable.add(disposable)
     }
 
     ///////////////////////////////////////////////////////////////////////////
