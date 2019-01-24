@@ -49,7 +49,6 @@ import io.reactivex.functions.Consumer
 import io.reactivex.functions.Function
 import io.reactivex.schedulers.Schedulers
 
-import org.schabi.newpipe.MainActivity.Companion.DEBUG
 import org.schabi.newpipe.util.ExtractorHelper
 
 class SubscriptionsImportService : BaseImportExportService() {
@@ -64,13 +63,13 @@ class SubscriptionsImportService : BaseImportExportService() {
     private val subscriber: Subscriber<List<SubscriptionEntity>>
         get() = object : Subscriber<List<SubscriptionEntity>> {
 
-            override fun onSubscribe(s: Subscription) {
-                subscription = s
-                s.request(java.lang.Long.MAX_VALUE)
+            override fun onSubscribe(sub: Subscription) {
+                subscription = sub
+                sub.request(java.lang.Long.MAX_VALUE)
             }
 
             override fun onNext(successfulInserted: List<SubscriptionEntity>) {
-                if (DEBUG) Log.d(TAG, "startImport() " + successfulInserted.size + " items successfully inserted into the database")
+                Log.d(TAG, "startImport() ${successfulInserted.size} items successfully inserted into the database")
             }
 
             override fun onError(error: Throwable) {
@@ -136,7 +135,7 @@ class SubscriptionsImportService : BaseImportExportService() {
     }
 
     override fun getNotificationId(): Int {
-        return 4568
+        return IMPORT_NOTIFICATION_ID
     }
 
     override fun getTitle(): Int {
@@ -145,17 +144,17 @@ class SubscriptionsImportService : BaseImportExportService() {
 
     override fun disposeAll() {
         super.disposeAll()
-        if (subscription != null) subscription!!.cancel()
+        subscription?.cancel()
     }
 
     private fun startImport() {
         showToast(R.string.import_ongoing)
 
-        var flowable: Flowable<List<SubscriptionItem>>? = null
-        when (currentMode) {
-            CHANNEL_URL_MODE -> flowable = importFromChannelUrl()
-            INPUT_STREAM_MODE -> flowable = importFromInputStream()
-            PREVIOUS_EXPORT_MODE -> flowable = importFromPreviousExport()
+        val flowable: Flowable<List<SubscriptionItem>>? =  when (currentMode) {
+            CHANNEL_URL_MODE -> importFromChannelUrl()
+            INPUT_STREAM_MODE -> importFromInputStream()
+            PREVIOUS_EXPORT_MODE -> importFromPreviousExport()
+            else -> null
         }
 
         if (flowable == null) {
@@ -164,7 +163,8 @@ class SubscriptionsImportService : BaseImportExportService() {
             return
         }
 
-        flowable.doOnNext { subscriptionItems -> eventListener.onSizeReceived(subscriptionItems.size) }
+        val tem =
+                flowable.doOnNext { subscriptionItems -> eventListener.onSizeReceived(subscriptionItems.size) }
                 .flatMap { Flowable.fromIterable(it) }
                 .parallel(PARALLEL_EXTRACTIONS)
                 .runOn(Schedulers.io())
@@ -208,8 +208,10 @@ class SubscriptionsImportService : BaseImportExportService() {
         }
     }
 
+    // YouTube import goes here List<SubscriptionItem>
     private fun importFromInputStream(): Flowable<List<SubscriptionItem>> {
         return Flowable.fromCallable {
+//            val temp =
             NewPipe.getService(currentServiceId)
                     .subscriptionExtractor
                     .fromInputStream(inputStream)
@@ -225,6 +227,8 @@ class SubscriptionsImportService : BaseImportExportService() {
     }
 
     companion object {
+        private val TAG = SubscriptionsImportService::class.java.simpleName
+
         const val CHANNEL_URL_MODE = 0
         const val INPUT_STREAM_MODE = 1
         const val PREVIOUS_EXPORT_MODE = 2
@@ -235,6 +239,7 @@ class SubscriptionsImportService : BaseImportExportService() {
          * A [local broadcast][LocalBroadcastManager] will be made with this action when the import is successfully completed.
          */
         const val IMPORT_COMPLETE_ACTION = "org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.IMPORT_COMPLETE"
+        const val IMPORT_NOTIFICATION_ID = 4568
 
         ///////////////////////////////////////////////////////////////////////////
         // Imports

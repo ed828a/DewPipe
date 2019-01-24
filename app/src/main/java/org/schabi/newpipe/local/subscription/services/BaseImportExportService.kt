@@ -39,7 +39,6 @@ import org.schabi.newpipe.local.subscription.SubscriptionService
 
 import java.io.FileNotFoundException
 import java.io.IOException
-import java.util.Collections
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -51,8 +50,6 @@ import io.reactivex.processors.PublishProcessor
 import org.schabi.newpipe.report.ErrorInfo
 
 abstract class BaseImportExportService : Service() {
-    protected val TAG = this.javaClass.simpleName
-
     protected lateinit var notificationManager: NotificationManagerCompat
     protected lateinit var notificationBuilder: NotificationCompat.Builder
 
@@ -85,9 +82,7 @@ abstract class BaseImportExportService : Service() {
 
     protected var toast: Toast? = null
 
-    override fun onBind(intent: Intent): IBinder? {
-        return null
-    }
+    override fun onBind(intent: Intent): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -101,7 +96,7 @@ abstract class BaseImportExportService : Service() {
     }
 
     protected open fun disposeAll() {
-        disposables.clear()
+        if (!disposables.isDisposed) disposables.dispose()
     }
 
     protected fun setupNotification() {
@@ -114,11 +109,12 @@ abstract class BaseImportExportService : Service() {
                     .concatWith(flow.skip(1).throttleLast(NOTIFICATION_SAMPLING_PERIOD.toLong(), TimeUnit.MILLISECONDS))
         }
 
-        disposables.add(notificationUpdater
-                .filter { s -> !s.isEmpty() }
+        val d = notificationUpdater
+                .filter { string -> string.isNotEmpty() }
                 .publish<String>(throttleAfterFirstEmission)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { this.updateNotification(it) })
+                .subscribe {string -> this.updateNotification(string) }
+        disposables.add(d)
     }
 
     protected fun updateNotification(text: String) {
@@ -143,13 +139,12 @@ abstract class BaseImportExportService : Service() {
     protected fun stopAndReportError(error: Throwable?, request: String) {
         stopService()
 
-        val errorInfo = ErrorInfo.make(UserAction.SUBSCRIPTION, "unknown",
-                request, R.string.general_error)
+        val errorInfo = ErrorInfo.make(UserAction.SUBSCRIPTION, "unknown", request, R.string.general_error)
         ErrorActivity.reportError(this, if (error != null) listOf(error) else emptyList(), null, null, errorInfo)
     }
 
     protected fun postErrorResult(title: String?, text: String?) {
-        var text = text
+        var locText = text
         disposeAll()
         stopForeground(true)
         stopSelf()
@@ -158,31 +153,31 @@ abstract class BaseImportExportService : Service() {
             return
         }
 
-        text = text ?: ""
+        locText = locText ?: ""
         notificationBuilder = NotificationCompat.Builder(this, getString(R.string.notification_channel_id))
                 .setSmallIcon(R.drawable.ic_newpipe_triangle_white)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentTitle(title)
-                .setStyle(NotificationCompat.BigTextStyle().bigText(text))
-                .setContentText(text)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(locText))
+                .setContentText(locText)
         notificationManager.notify(getNotificationId(), notificationBuilder.build())
     }
 
-    protected fun createNotification(): NotificationCompat.Builder {
-        return NotificationCompat.Builder(this, getString(R.string.notification_channel_id))
+    protected fun createNotification(): NotificationCompat.Builder =
+         NotificationCompat.Builder(this, getString(R.string.notification_channel_id))
                 .setOngoing(true)
                 .setProgress(-1, -1, true)
                 .setSmallIcon(R.drawable.ic_newpipe_triangle_white)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentTitle(getString(getTitle()))
-    }
+
 
     protected fun showToast(@StringRes message: Int) {
         showToast(getString(message))
     }
 
     protected fun showToast(message: String) {
-        if (toast != null) toast!!.cancel()
+        toast?.cancel()
 
         toast = Toast.makeText(this, message, Toast.LENGTH_SHORT)
         toast!!.show()
@@ -206,17 +201,17 @@ abstract class BaseImportExportService : Service() {
 
     protected fun getErrorMessage(error: Throwable): String? {
         var message: String? = null
-        if (error is SubscriptionExtractor.InvalidSourceException) {
-            message = getString(R.string.invalid_source)
-        } else if (error is FileNotFoundException) {
-            message = getString(R.string.invalid_file)
-        } else if (error is IOException) {
-            message = getString(R.string.network_error)
+        when (error) {
+            is SubscriptionExtractor.InvalidSourceException -> message = getString(R.string.invalid_source)
+            is FileNotFoundException -> message = getString(R.string.invalid_file)
+            is IOException -> message = getString(R.string.network_error)
         }
         return message
     }
 
     companion object {
+
+        private val TAG = BaseImportExportService.javaClass.simpleName + "@" + hashCode()
 
         ///////////////////////////////////////////////////////////////////////////
         // Notification Impl

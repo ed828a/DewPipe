@@ -29,7 +29,6 @@ import io.reactivex.functions.Function
 import io.reactivex.schedulers.Schedulers
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
-import org.schabi.newpipe.MainActivity.Companion.DEBUG
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.subscription.SubscriptionItem
 import org.schabi.newpipe.local.subscription.ImportExportJsonHelper
@@ -46,13 +45,13 @@ class SubscriptionsExportService : BaseImportExportService() {
 
     private val subscriber: Subscriber<File>
         get() = object : Subscriber<File> {
-            override fun onSubscribe(s: Subscription) {
-                subscription = s
-                s.request(1)
+            override fun onSubscribe(sub: Subscription) {
+                subscription = sub
+                sub.request(1)
             }
 
             override fun onNext(file: File) {
-                if (DEBUG) Log.d(TAG, "startExport() success: file = $file")
+                Log.d(TAG, "startExport() success: file = $file")
             }
 
             override fun onError(error: Throwable) {
@@ -90,7 +89,7 @@ class SubscriptionsExportService : BaseImportExportService() {
     }
 
     override fun getNotificationId(): Int {
-        return 4567
+        return EXPORT_NOTIFICATION_ID
     }
 
     override fun getTitle(): Int {
@@ -99,7 +98,7 @@ class SubscriptionsExportService : BaseImportExportService() {
 
     override fun disposeAll() {
         super.disposeAll()
-        if (subscription != null) subscription!!.cancel()
+        subscription?.cancel()
     }
 
     private fun startExport() {
@@ -123,8 +122,8 @@ class SubscriptionsExportService : BaseImportExportService() {
 
     private fun exportToFile(): Function<List<SubscriptionItem>, File> {
         return Function{ subscriptionItems ->
-            outputStream?.let {
-                ImportExportJsonHelper.writeTo(subscriptionItems, it, eventListener)
+            outputStream?.let {fileOutputStream ->
+                ImportExportJsonHelper.writeTo(subscriptionItems, fileOutputStream, eventListener)
             }
             outFile
         }
@@ -135,7 +134,10 @@ class SubscriptionsExportService : BaseImportExportService() {
     }
 
     companion object {
+        private val TAG = SubscriptionsExportService::class.java.simpleName
         const val KEY_FILE_PATH = "key_file_path"
+
+        const val EXPORT_NOTIFICATION_ID = 4567
 
         /**
          * A [local broadcast][LocalBroadcastManager] will be made with this action when the export is successfully completed.

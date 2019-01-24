@@ -16,7 +16,6 @@ import android.widget.TextView
 import android.widget.Toast
 import icepick.State
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.disposables.Disposables
 import io.reactivex.subjects.PublishSubject
@@ -51,11 +50,14 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
     private var headerPopupButton: View? = null
     private var headerBackgroundButton: View? = null
 
-    @State @JvmField
+    @State
+    @JvmField
     var playlistId: Long? = null
-    @State @JvmField
+    @State
+    @JvmField
     var name: String = ""
-    @State @JvmField
+    @State
+    @JvmField
     var itemsListState: Parcelable? = null
 
     private var itemTouchHelper: ItemTouchHelper? = null
@@ -79,22 +81,22 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
     private// Skip handling the result after it has been modified
     val playlistObserver: Subscriber<List<PlaylistStreamEntry>>
         get() = object : Subscriber<List<PlaylistStreamEntry>> {
-            override fun onSubscribe(s: Subscription) {
+            override fun onSubscribe(subscription: Subscription) {
                 showLoading()
-                isLoadingComplete!!.set(false)
+                isLoadingComplete?.set(false)
 
-                if (databaseSubscription != null) databaseSubscription!!.cancel()
-                databaseSubscription = s
-                databaseSubscription!!.request(1)
+                databaseSubscription?.cancel()
+                databaseSubscription = subscription
+                databaseSubscription?.request(1)
             }
 
             override fun onNext(streams: List<PlaylistStreamEntry>) {
                 if (isModified == null || !isModified!!.get()) {
                     handleResult(streams)
-                    isLoadingComplete!!.set(true)
+                    isLoadingComplete?.set(true)
                 }
 
-                if (databaseSubscription != null) databaseSubscription!!.request(1)
+                databaseSubscription?.request(1)
             }
 
             override fun onError(exception: Throwable) {
@@ -105,10 +107,11 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
         }
 
     private val debouncedSaver: Disposable
-        get() = if (debouncedSaveSignal == null) Disposables.empty() else debouncedSaveSignal!!
+        get() = if (debouncedSaveSignal == null) Disposables.empty()
+        else debouncedSaveSignal!!
                 .debounce(SAVE_DEBOUNCE_MILLIS, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ ignored -> saveImmediate() },  { this.onError(it) })
+                .subscribe({ ignored -> saveImmediate() }, { this.onError(it) })
 
 
     private val itemTouchCallback: ItemTouchHelper.SimpleCallback
@@ -119,17 +122,24 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
             }
             return object : ItemTouchHelper.SimpleCallback(directions,
                     ItemTouchHelper.ACTION_STATE_IDLE) {
-                override fun interpolateOutOfBoundsScroll(recyclerView: RecyclerView, viewSize: Int,
-                                                          viewSizeOutOfBounds: Int, totalSize: Int,
+                override fun interpolateOutOfBoundsScroll(recyclerView: RecyclerView,
+                                                          viewSize: Int,
+                                                          viewSizeOutOfBounds: Int,
+                                                          totalSize: Int,
                                                           msSinceStartScroll: Long): Int {
-                    val standardSpeed = super.interpolateOutOfBoundsScroll(recyclerView, viewSize,
-                            viewSizeOutOfBounds, totalSize, msSinceStartScroll)
-                    val minimumAbsVelocity = Math.max(MINIMUM_INITIAL_DRAG_VELOCITY,
-                            Math.abs(standardSpeed))
+                    val standardSpeed = super.interpolateOutOfBoundsScroll(recyclerView,
+                            viewSize,
+                            viewSizeOutOfBounds,
+                            totalSize,
+                            msSinceStartScroll)
+
+                    val minimumAbsVelocity = Math.max(MINIMUM_INITIAL_DRAG_VELOCITY, Math.abs(standardSpeed))
+
                     return minimumAbsVelocity * Math.signum(viewSizeOutOfBounds.toFloat()).toInt()
                 }
 
-                override fun onMove(recyclerView: RecyclerView, source: RecyclerView.ViewHolder,
+                override fun onMove(recyclerView: RecyclerView,
+                                    source: RecyclerView.ViewHolder,
                                     target: RecyclerView.ViewHolder): Boolean {
                     if (source.itemViewType != target.itemViewType || itemListAdapter == null) {
                         return false
@@ -142,13 +152,11 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
                     return isSwapped
                 }
 
-                override fun isLongPressDragEnabled(): Boolean {
-                    return false
-                }
+                override fun isLongPressDragEnabled(): Boolean = true
 
-                override fun isItemViewSwipeEnabled(): Boolean {
-                    return false
-                }
+
+                override fun isItemViewSwipeEnabled(): Boolean = true
+
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {}
             }
@@ -184,9 +192,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
     override fun setTitle(title: String) {
         super.setTitle(title)
 
-        if (headerTitleView != null) {
-            headerTitleView!!.text = title
-        }
+        headerTitleView?.text = title
     }
 
     override fun initViews(rootView: View, savedInstanceState: Bundle?) {
@@ -195,8 +201,8 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
     }
 
     override fun getListHeader(): View? {
-        headerRootLayout = activity!!.layoutInflater.inflate(R.layout.local_playlist_header,
-                itemsList, false)
+        headerRootLayout = activity!!.layoutInflater.inflate(R.layout.local_playlist_header, itemsList, false)
+        if (headerRootLayout == null) return null
 
         headerTitleView = headerRootLayout!!.findViewById(R.id.playlist_title_view)
         headerTitleView!!.isSelected = true
@@ -214,12 +220,12 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
     override fun initListeners() {
         super.initListeners()
 
-        headerTitleView!!.setOnClickListener { view -> createRenameDialog() }
+        headerTitleView?.setOnClickListener { view -> createRenameDialog() }
 
         itemTouchHelper = ItemTouchHelper(itemTouchCallback)
-        itemTouchHelper!!.attachToRecyclerView(itemsList)
+        itemTouchHelper?.attachToRecyclerView(itemsList)
 
-        itemListAdapter!!.setSelectedListener(object : OnClickGesture<LocalItem>() {
+        itemListAdapter?.setSelectedListener(object : OnClickGesture<LocalItem>() {
             override fun selected(selectedItem: LocalItem) {
                 if (selectedItem is PlaylistStreamEntry) {
                     NavigationHelper.openVideoDetailFragment(fragmentManager,
@@ -234,7 +240,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
             }
 
             override fun drag(selectedItem: LocalItem, viewHolder: RecyclerView.ViewHolder) {
-                if (itemTouchHelper != null) itemTouchHelper!!.startDrag(viewHolder)
+                itemTouchHelper?.startDrag(viewHolder)
             }
         })
     }
@@ -261,13 +267,14 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
         compositeDisposable.clear()
         compositeDisposable.add(debouncedSaver)
 
-        isLoadingComplete!!.set(false)
-        isModified!!.set(false)
+        isLoadingComplete?.set(false)
+        isModified?.set(false)
 
-        playlistManager!!.getPlaylistStreams(playlistId!!)
-                .onBackpressureLatest()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(playlistObserver)
+        if (playlistManager != null && playlistId != null)
+            playlistManager!!.getPlaylistStreams(playlistId!!)
+                    .onBackpressureLatest()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(playlistObserver)
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -276,7 +283,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
 
     override fun onPause() {
         super.onPause()
-        itemsListState = itemsList!!.layoutManager!!.onSaveInstanceState()
+        itemsListState = itemsList?.layoutManager?.onSaveInstanceState()
 
         // Save on exit
         saveImmediate()
@@ -285,12 +292,12 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
     override fun onDestroyView() {
         super.onDestroyView()
 
-        if (itemListAdapter != null) itemListAdapter!!.unsetSelectedListener()
-        if (headerBackgroundButton != null) headerBackgroundButton!!.setOnClickListener(null)
-        if (headerPlayAllButton != null) headerPlayAllButton!!.setOnClickListener(null)
-        if (headerPopupButton != null) headerPopupButton!!.setOnClickListener(null)
+        itemListAdapter?.unsetSelectedListener()
+        headerBackgroundButton?.setOnClickListener(null)
+        headerPlayAllButton?.setOnClickListener(null)
+        headerPopupButton?.setOnClickListener(null)
 
-        if (databaseSubscription != null) databaseSubscription!!.cancel()
+        databaseSubscription?.cancel()
         compositeDisposable.clear()
 
         databaseSubscription = null
@@ -299,7 +306,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
 
     override fun onDestroy() {
         super.onDestroy()
-        if (debouncedSaveSignal != null) debouncedSaveSignal!!.onComplete()
+        debouncedSaveSignal?.onComplete()
         if (!compositeDisposable.isDisposed) compositeDisposable.dispose()
 
         debouncedSaveSignal = null
@@ -340,7 +347,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
 
     override fun resetFragment() {
         super.resetFragment()
-        if (databaseSubscription != null) databaseSubscription!!.cancel()
+        databaseSubscription?.cancel()
     }
 
     override fun onError(exception: Throwable): Boolean {
@@ -356,7 +363,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
     ///////////////////////////////////////////////////////////////////////////
 
     private fun createRenameDialog() {
-        if (playlistId == null || name == null || context == null) return
+        if (playlistId == null || context == null) return
 
         val dialogView = View.inflate(context, R.layout.dialog_playlist_name, null)
         val nameEdit = dialogView.findViewById<EditText>(R.id.playlist_name)
@@ -379,12 +386,11 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
         this.name = name
         setTitle(name)
 
-        Log.d(TAG, "Updating playlist id=[" + playlistId +
-                "] with new name=[" + name + "] items")
+        Log.d(TAG, "Updating playlist id=[$playlistId] with new name=[$name] items")
 
         val disposable = playlistManager!!.renamePlaylist(playlistId!!, name)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({/*Do nothing on success*/ longs -> },  { this.onError(it) })
+                .subscribe({/*Do nothing on success*/ longs -> }, { this.onError(it) })
         compositeDisposable.add(disposable)
     }
 
@@ -395,13 +401,13 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
                 R.string.playlist_thumbnail_change_success,
                 Toast.LENGTH_SHORT)
 
-        Log.d(TAG, "Updating playlist id=[" + playlistId +
-                "] with new thumbnail url=[" + thumbnailUrl + "]")
+        Log.d(TAG, "Updating playlist id=[$playlistId] with new thumbnail url=[$thumbnailUrl]")
 
         val disposable = playlistManager!!
                 .changePlaylistThumbnail(playlistId!!, thumbnailUrl)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ ignore -> successToast.show() },  { this.onError(it) })
+                .subscribe({ ignore -> successToast.show() }, { this.onError(it) })
+
         compositeDisposable.add(disposable)
     }
 
@@ -427,7 +433,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
         if (isLoadingComplete == null || isModified == null ||
                 !isLoadingComplete!!.get() || !isModified!!.get()) {
             Log.w(TAG, "Attempting to save playlist when local playlist " +
-                    "is not loaded or not modified: playlist id=[" + playlistId + "]")
+                    "is not loaded or not modified: playlist id=[$playlistId]")
             return
         }
 
@@ -439,13 +445,12 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
             }
         }
 
-        Log.d(TAG, "Updating playlist id=[" + playlistId +
-                "] with [" + streamIds.size + "] items")
+        Log.d(TAG, "Updating playlist id=[$playlistId] with [${streamIds.size}] items")
 
         val disposable = playlistManager!!.updateJoin(playlistId!!, streamIds)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        { if (isModified != null) isModified!!.set(false) },
+                        { isModified?.set(false) },
                         { this.onError(it) }
                 )
         compositeDisposable.add(disposable)
@@ -467,8 +472,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
         val actions = DialogInterface.OnClickListener { dialog, which ->
             val index = Math.max(itemListAdapter!!.itemsList.indexOf(item), 0)
             when (which) {
-                0 -> NavigationHelper.enqueueOnBackgroundPlayer(context,
-                        SinglePlayQueue(infoItem))
+                0 -> NavigationHelper.enqueueOnBackgroundPlayer(context, SinglePlayQueue(infoItem))
                 1 -> NavigationHelper.enqueueOnPopupPlayer(activity, SinglePlayQueue(infoItem))
                 2 -> NavigationHelper.playOnMainPlayer(context, getPlayQueue(index))
                 3 -> NavigationHelper.playOnBackgroundPlayer(context, getPlayQueue(index))

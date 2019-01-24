@@ -46,10 +46,10 @@ import java.util.concurrent.ConcurrentHashMap
  */
 object StateSaver {
     private val stateObjectsHolder = ConcurrentHashMap<String, Queue<Any>>()
-    private val TAG = "StateSaver"
-    private val CACHE_DIR_NAME = "state_cache"
+    private const val TAG = "StateSaver"
+    private const val CACHE_DIR_NAME = "state_cache"
 
-    val KEY_SAVED_STATE = "key_saved_state"
+    const val KEY_SAVED_STATE = "key_saved_state"
     private var cacheDirPath: String? = null
 
     /**
@@ -158,8 +158,7 @@ object StateSaver {
      */
     fun tryToSave(isChangingConfig: Boolean, savedState: SavedState?, outState: Bundle, writeRead: WriteRead): SavedState? {
         var savedState = savedState
-        val currentSavedPrefix: String
-        currentSavedPrefix = if (savedState == null || TextUtils.isEmpty(savedState.prefixFileSaved)) {
+        val currentSavedPrefix: String = if (savedState == null || TextUtils.isEmpty(savedState.prefixFileSaved)) {
             // Generate unique prefix
             (System.nanoTime() - writeRead.hashCode()).toString() + ""
         } else {
@@ -261,16 +260,14 @@ object StateSaver {
      * Delete the cache file contained in the savedState and remove any possible-existing value in the memory-cache.
      */
     fun onDestroy(savedState: SavedState?) {
-        if (MainActivity.DEBUG) Log.d(TAG, "onDestroy() called with: savedState = [$savedState]")
+        Log.d(TAG, "StateSaver.onDestroy() called with: savedState = [$savedState]")
 
         if (savedState != null && !TextUtils.isEmpty(savedState.pathFileSaved)) {
             stateObjectsHolder.remove(savedState.prefixFileSaved)
+
             try {
-
                 File(savedState.pathFileSaved).delete()
-            } catch (ignored: Exception) {
-            }
-
+            } catch (ignored: Exception) { }
         }
     }
 

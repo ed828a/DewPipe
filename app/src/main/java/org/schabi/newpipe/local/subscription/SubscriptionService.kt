@@ -23,9 +23,7 @@ import java.util.concurrent.TimeUnit
  */
 class SubscriptionService private constructor(context: Context) {
 
-    protected val TAG = "SubscriptionService@" + Integer.toHexString(hashCode())
-
-    private val db: AppDatabase
+    private val db: AppDatabase = AppDatabase.getDatabase(context.applicationContext)
     /**
      * Provides an observer to the latest update to the subscription table.
      *
@@ -51,40 +49,38 @@ class SubscriptionService private constructor(context: Context) {
     private// Wait for a period of infrequent updates and return the latest update
     // Share allows multiple subscribers on the same observable
     // Replay synchronizes subscribers to the last emitted result
-    val subscriptionInfos: Flowable<List<SubscriptionEntity>>
-        get() = subscriptionTable().all
-                .debounce(SUBSCRIPTION_DEBOUNCE_INTERVAL.toLong(), TimeUnit.MILLISECONDS)
-                .share()
-                .replay(1)
-                .autoConnect()
+    fun getSubscriptionInfos(): Flowable<List<SubscriptionEntity>> =
+            subscriptionTable().all
+                    .debounce(SUBSCRIPTION_DEBOUNCE_INTERVAL.toLong(), TimeUnit.MILLISECONDS)
+                    .share()
+                    .replay(1)
+                    .autoConnect()
 
     init {
 //        db = NewPipeDatabase.getInstance(context.applicationContext)
-        db = AppDatabase.getDatabase(context.applicationContext)
-        subscription = subscriptionInfos
+        subscription = getSubscriptionInfos()
 
         val subscriptionExecutor = Executors.newFixedThreadPool(SUBSCRIPTION_THREAD_POOL_SIZE)
         subscriptionScheduler = Schedulers.from(subscriptionExecutor)
     }
 
     fun getChannelInfo(subscriptionEntity: SubscriptionEntity): Maybe<ChannelInfo> {
-        if (DEBUG) Log.d(TAG, "getChannelInfo() called with: subscriptionEntity = [$subscriptionEntity]")
+        Log.d(TAG, "getChannelInfo() called with: subscriptionEntity = [$subscriptionEntity]")
 
-        return Maybe.fromSingle(ExtractorHelper
-                .getChannelInfo(subscriptionEntity.serviceId, subscriptionEntity.url!!, false))
+        return Maybe.fromSingle(
+                ExtractorHelper.getChannelInfo(subscriptionEntity.serviceId, subscriptionEntity.url!!, false))
                 .subscribeOn(subscriptionScheduler)
     }
 
     /**
      * Returns the database access interface for subscription table.
      */
-    fun subscriptionTable(): SubscriptionDAO {
-        return db.subscriptionDAO()
-    }
+    fun subscriptionTable(): SubscriptionDAO = db.subscriptionDAO()
 
     fun updateChannelInfo(info: ChannelInfo): Completable {
         val update = Function<List<SubscriptionEntity>, CompletableSource> { subscriptionEntities ->
-            if (DEBUG) Log.d(TAG, "updateChannelInfo() called with: subscriptionEntities = [$subscriptionEntities]")
+            Log.d(TAG, "updateChannelInfo() called with: subscriptionEntities = [$subscriptionEntities]")
+
             if (subscriptionEntities.size == 1) {
                 val subscription = subscriptionEntities[0]
 
@@ -107,21 +103,23 @@ class SubscriptionService private constructor(context: Context) {
 
     fun upsertAll(infoList: List<ChannelInfo>): List<SubscriptionEntity> {
         val entityList = ArrayList<SubscriptionEntity>()
-        for (info in infoList) entityList.add(SubscriptionEntity.from(info))
+//        for (info in infoList) entityList.add(SubscriptionEntity.from(info))
+        infoList.forEach { info -> entityList.add(SubscriptionEntity.from(info)) }
 
         return subscriptionTable().upsertAll(entityList)
     }
 
-    private fun isSubscriptionUpToDate(info: ChannelInfo, entity: SubscriptionEntity): Boolean {
-        return info.url == entity.url &&
-                info.serviceId == entity.serviceId &&
-                info.name == entity.name &&
-                info.avatarUrl == entity.avatarUrl &&
-                info.description == entity.description &&
-                info.subscriberCount == entity.subscriberCount
-    }
+    private fun isSubscriptionUpToDate(info: ChannelInfo, entity: SubscriptionEntity): Boolean =
+            info.url == entity.url &&
+                    info.serviceId == entity.serviceId &&
+                    info.name == entity.name &&
+                    info.avatarUrl == entity.avatarUrl &&
+                    info.description == entity.description &&
+                    info.subscriberCount == entity.subscriberCount
+
 
     companion object {
+        private val TAG = "SubscriptionService@" + Integer.toHexString(hashCode())
 
         @Volatile
         private var instance: SubscriptionService? = null
@@ -141,7 +139,6 @@ class SubscriptionService private constructor(context: Context) {
             return result!!
         }
 
-        protected val DEBUG = MainActivity.DEBUG
         private const val SUBSCRIPTION_DEBOUNCE_INTERVAL = 500
         private const val SUBSCRIPTION_THREAD_POOL_SIZE = 4
     }

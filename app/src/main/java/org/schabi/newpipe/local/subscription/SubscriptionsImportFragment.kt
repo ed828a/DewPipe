@@ -7,6 +7,7 @@ import android.support.annotation.StringRes
 import android.support.v4.text.util.LinkifyCompat
 import android.text.TextUtils
 import android.text.util.Linkify
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -97,7 +98,7 @@ class SubscriptionsImportFragment : BaseFragment() {
         infoTextView = rootView.findViewById(R.id.info_text_view)
 
         // TODO: Support services that can import getTabFrom more than one source (show the option to the user)
-        if (supportedSources!!.contains(CHANNEL_URL)) {
+        if (supportedSources!!.contains(CHANNEL_URL)) { // CHANNEL_URL is for SoundCloud
             inputButton!!.setText(R.string.import_title)
             inputText!!.visibility = View.VISIBLE
             inputText!!.setHint(ServiceHelper.getImportInstructionsHint(currentServiceId))
@@ -143,6 +144,7 @@ class SubscriptionsImportFragment : BaseFragment() {
                 .putExtra(Constants.KEY_SERVICE_ID, currentServiceId))
     }
 
+    // youtube import file
     fun onImportFile() {
         startActivityForResult(FilePickerActivityHelper.chooseSingleFile(activity!!), REQUEST_IMPORT_FILE_CODE)
     }
@@ -153,6 +155,7 @@ class SubscriptionsImportFragment : BaseFragment() {
 
         if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_IMPORT_FILE_CODE && data.data != null) {
             val path = Utils.getFileForUri(data.data!!).absolutePath
+            Log.d(TAG, "before ImportConfirmationDialog: currentServiceId = $currentServiceId, path = $path, INPUT_STREAM_MODE")
             ImportConfirmationDialog.show(this, Intent(activity, SubscriptionsImportService::class.java)
                     .putExtra(KEY_MODE, INPUT_STREAM_MODE)
                     .putExtra(KEY_VALUE, path)
@@ -170,16 +173,17 @@ class SubscriptionsImportFragment : BaseFragment() {
                 val extractor = NewPipe.getService(currentServiceId).subscriptionExtractor
                 supportedSources = extractor.supportedSources
                 relatedUrl = extractor.relatedUrl
-                instructionsString = ServiceHelper.getImportInstructions(currentServiceId)
-                return
+                Log.d(TAG, "setupServiceVariables(): relatedUrl = $relatedUrl")
+                instructionsString = ServiceHelper.getImportInstructions(currentServiceId) // ServiceId = 0 : YouTube, 1: SoundCloud
+//                return
             } catch (ignored: ExtractionException) {
             }
 
+        } else {
+            supportedSources = emptyList<SubscriptionExtractor.ContentSource>()
+            relatedUrl = null
+            instructionsString = 0
         }
-
-        supportedSources = emptyList<SubscriptionExtractor.ContentSource>()
-        relatedUrl = null
-        instructionsString = 0
     }
 
     private fun setInfoText(infoString: String) {

@@ -1,14 +1,11 @@
 package org.schabi.newpipe.fragments.list
 
-import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.content.SharedPreferences
 import android.content.res.Configuration
-import android.content.res.Resources
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.support.v7.app.ActionBar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
@@ -17,7 +14,6 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
-
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.InfoItem
 import org.schabi.newpipe.extractor.channel.ChannelInfoItem
@@ -30,14 +26,11 @@ import org.schabi.newpipe.info_list.InfoListAdapter
 import org.schabi.newpipe.local.dialog.PlaylistAppendDialog
 import org.schabi.newpipe.player.playqueue.SinglePlayQueue
 import org.schabi.newpipe.report.ErrorActivity
+import org.schabi.newpipe.util.AnimationUtils.animateView
 import org.schabi.newpipe.util.NavigationHelper
 import org.schabi.newpipe.util.OnClickGesture
 import org.schabi.newpipe.util.StateSaver
-
-import java.util.Collections
-import java.util.Queue
-
-import org.schabi.newpipe.util.AnimationUtils.animateView
+import java.util.*
 
 abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract<I, N>, StateSaver.WriteRead, SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -78,12 +71,12 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
 
     protected val isGridLayout: Boolean
         get() {
-            val list_mode = PreferenceManager.getDefaultSharedPreferences(activity).getString(getString(R.string.list_view_mode_key), getString(R.string.list_view_mode_value))
-            if ("auto" == list_mode) {
+            val listMode = PreferenceManager.getDefaultSharedPreferences(activity).getString(getString(R.string.list_view_mode_key), getString(R.string.list_view_mode_value))
+            if ("auto" == listMode) {
                 val configuration = resources.configuration
                 return configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && configuration.isLayoutSizeAtLeast(Configuration.SCREENLAYOUT_SIZE_LARGE)
             } else {
-                return "grid" == list_mode
+                return "grid" == listMode
             }
         }
 
@@ -113,20 +106,20 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
     override fun onResume() {
         super.onResume()
 
-        if (updateFlags != 0) {
-            if (updateFlags and LIST_MODE_UPDATE_FLAG != 0) {
+        if (updateFlags != FLAG_NO_UPDATE) {
+            if (updateFlags and LIST_MODE_UPDATE_FLAG != FLAG_NO_UPDATE) {
                 val useGrid = isGridLayout
-                itemsList!!.layoutManager = if (useGrid) getGridLayoutManager() else getListLayoutManager()
-                infoListAdapter!!.setGridItemVariants(useGrid)
-                infoListAdapter!!.notifyDataSetChanged()
+                itemsList?.layoutManager = if (useGrid) getGridLayoutManager() else getListLayoutManager()
+                infoListAdapter?.setGridItemVariants(useGrid)
+                infoListAdapter?.notifyDataSetChanged()
             }
-            updateFlags = 0
+            updateFlags = FLAG_NO_UPDATE
         }
     }
 
     override fun generateSuffix(): String {
         // Naive solution, but it's good for now (the items don't change)
-        return "." + infoListAdapter!!.itemsList.size + ".list"
+        return ".${infoListAdapter!!.itemsList.size}.list"
     }
 
     override fun writeTo(objectsToSave: Queue<Any>) {
@@ -226,8 +219,8 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
 
     private fun onStreamSelected(selectedItem: StreamInfoItem) {
         onItemSelected(selectedItem)
-        NavigationHelper.openVideoDetailFragment(getFM(),
-                selectedItem.serviceId, selectedItem.url, selectedItem.name)
+
+        NavigationHelper.openVideoDetailFragment(getFM(), selectedItem.serviceId, selectedItem.url, selectedItem.name)
     }
 
     protected fun onScrollToBottom() {
@@ -330,7 +323,7 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
     }
 
     companion object {
-
+        private const val FLAG_NO_UPDATE = 0
         private const val LIST_MODE_UPDATE_FLAG = 0x32
     }
 }

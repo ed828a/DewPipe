@@ -4,13 +4,15 @@ package org.schabi.newpipe.download.background
 import android.content.Context
 import android.content.Intent
 import android.os.Handler
+import android.support.design.widget.Snackbar
 import android.util.Log
+import android.widget.Toast
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.observers.DisposableCompletableObserver
-import org.schabi.newpipe.download.background.MissionControl.Companion.NO_ERROR
 import org.schabi.newpipe.database.downloadDB.DownloadMissionDataSource
 import org.schabi.newpipe.database.downloadDB.DownloadMissionDataSourceImpl
 import org.schabi.newpipe.database.downloadDB.MissionEntity
+import org.schabi.newpipe.download.background.MissionControl.Companion.NO_ERROR
 import org.schabi.newpipe.download.ui.ExtSDDownloadFailedActivity
 import org.schabi.newpipe.download.util.Utility
 import java.io.File
@@ -123,7 +125,7 @@ class DownloadMissionManagerImpl(directories: Collection<String>,
         for (missionControl in finishedMissions) {
             val downloadedFile = missionControl.downloadedFile
             if (!downloadedFile.isFile) {
-                Log.d(TAG, "file ${downloadedFile.absolutePath} removed getTabFrom Database." )
+                Log.d(TAG, "file ${downloadedFile.absolutePath} removed getTabFrom Database.")
                 mDownloadDataSource.deleteMission(missionControl)
                         .subscribe {
                             Log.d(TAG, "removed one missionEntry getTabFrom Database")
@@ -259,6 +261,7 @@ class DownloadMissionManagerImpl(directories: Collection<String>,
 
                 File(missionControl.mission.location).mkdirs()
                 File("${missionControl.mission.location}/${missionControl.mission.name}").createNewFile()
+
                 Log.d(TAG, "${missionControl.mission.name} file has been created.")
 
                 val af = RandomAccessFile("${missionControl.mission.location}/${missionControl.mission.name}", "rw")
@@ -269,6 +272,11 @@ class DownloadMissionManagerImpl(directories: Collection<String>,
             } catch (ie: IOException) {
                 if (ie.message != null && ie.message!!.contains("Permission denied")) {
                     handler.post { context.startActivity(Intent(context, ExtSDDownloadFailedActivity::class.java)) }
+                } else if (ie.message!!.contains("No such file or directory")){
+                    handler.post {
+                        // inform user that the input name is illegal, please use legal name.
+                        Toast.makeText(context, "The file name contains illegal characters, please use legal name and try again!", Toast.LENGTH_LONG).show()
+                    }
                 } else
                     throw RuntimeException(ie)
             } catch (e: Exception) {

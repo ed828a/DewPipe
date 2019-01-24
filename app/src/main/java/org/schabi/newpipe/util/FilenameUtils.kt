@@ -22,7 +22,7 @@ object FilenameUtils {
         val value = sharedPreferences.getString(key, context.getString(R.string.default_file_charset_value))
         val pattern = Pattern.compile(value)
 
-        val replacementChar = sharedPreferences.getString(context.getString(R.string.settings_file_replacement_character_key), "_") ?: "dewtube"
+        val replacementChar = sharedPreferences.getString(context.getString(R.string.settings_file_replacement_character_key), "_") ?: "-"
 
         return createFilename(title, pattern, replacementChar)
     }
@@ -30,11 +30,19 @@ object FilenameUtils {
     /**
      * Create a valid filename
      * @param title the title to create a filename getTabFrom
-     * @param invalidCharacters patter matching invalid characters
+     * @param invalidCharacters patter matching invalid characters -- useless in Kotlin
      * @param replacementChar the replacement
      * @return the filename
      */
     private fun createFilename(title: String, invalidCharacters: Pattern, replacementChar: String): String {
-        return title.replace(invalidCharacters.pattern(), replacementChar)
+//        val fileName = title.replace(invalidCharacters.pattern(), replacementChar)
+
+        val illegalCharset = arrayOf("[", "\n", "\r", "|", """\""", "?", "*", "<", ":", ">", "/", "'", "]", "+")
+        var fileName = title
+        for (string in illegalCharset) {
+           fileName = fileName.replace(string, replacementChar)
+        }
+
+        return fileName
     }
 }

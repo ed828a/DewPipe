@@ -19,18 +19,12 @@ import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 
 class LocalPlaylistManager(private val database: AppDatabase) {
-    private val streamTable: StreamDAO
-    private val playlistTable: PlaylistDAO
-    private val playlistStreamTable: PlaylistStreamDAO
+    private val streamTable: StreamDAO = database.streamDAO()
+    private val playlistTable: PlaylistDAO = database.playlistDAO()
+    private val playlistStreamTable: PlaylistStreamDAO = database.playlistStreamDAO()
 
     val playlists: Flowable<List<PlaylistMetadataEntry>>
         get() = playlistStreamTable.playlistMetadata.subscribeOn(Schedulers.io())
-
-    init {
-        streamTable = database.streamDAO()
-        playlistTable = database.playlistDAO()
-        playlistStreamTable = database.playlistStreamDAO()
-    }
 
     fun createPlaylist(name: String, streams: List<StreamEntity>): Maybe<List<Long>> {
         // Disallow creation of empty playlists
@@ -38,14 +32,22 @@ class LocalPlaylistManager(private val database: AppDatabase) {
         val defaultStream = streams[0]
         val newPlaylist = PlaylistEntity(name, defaultStream.thumbnailUrl)
 
-        return Maybe.fromCallable { database.runInTransaction<List<Long>> { upsertStreams(playlistTable.insert(newPlaylist), streams, 0) } }.subscribeOn(Schedulers.io())
+        return Maybe.fromCallable {
+            database.runInTransaction<List<Long>> {
+                upsertStreams(playlistTable.insert(newPlaylist), streams, 0)
+            } }
+                .subscribeOn(Schedulers.io())
     }
 
     fun appendToPlaylist(playlistId: Long,
                          streams: List<StreamEntity>): Maybe<List<Long>> {
         return playlistStreamTable.getMaximumIndexOf(playlistId)
                 .firstElement()
-                .map { maxJoinIndex -> database.runInTransaction<List<Long>> { upsertStreams(playlistId, streams, maxJoinIndex + 1) } }.subscribeOn(Schedulers.io())
+                .map { maxJoinIndex ->
+                    database.runInTransaction<List<Long>> {
+                        upsertStreams(playlistId, streams, maxJoinIndex + 1)
+                    } }
+                .subscribeOn(Schedulers.io())
     }
 
     private fun upsertStreams(playlistId: Long,
@@ -104,7 +106,8 @@ class LocalPlaylistManager(private val database: AppDatabase) {
                     if (name != null) playlist.name = name
                     if (thumbnailUrl != null) playlist.thumbnailUrl = thumbnailUrl
                     playlistTable.update(playlist)
-                }.subscribeOn(Schedulers.io())
+                }
+                .subscribeOn(Schedulers.io())
     }
 
 }

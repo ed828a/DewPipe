@@ -2,6 +2,7 @@ package org.schabi.newpipe.settings
 
 import android.os.Bundle
 import org.schabi.newpipe.BuildConfig
+import org.schabi.newpipe.BuildConfig.DEBUG
 import org.schabi.newpipe.R
 
 class MainSettingsFragment : BasePreferenceFragment() {
@@ -15,7 +16,4 @@ class MainSettingsFragment : BasePreferenceFragment() {
         }
     }
 
-    companion object {
-        const val DEBUG = BuildConfig.BUILD_TYPE != "release"
-    }
 }

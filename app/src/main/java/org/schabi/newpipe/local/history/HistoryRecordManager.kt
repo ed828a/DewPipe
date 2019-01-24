@@ -1,23 +1,5 @@
 package org.schabi.newpipe.local.history
 
-/*
- * Copyright (C) Mauricio Colli 2018
- * HistoryRecordManager.java is part of NewPipe.
- *
- * NewPipe is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * NewPipe is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with NewPipe.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
@@ -42,7 +24,7 @@ import java.util.*
 
 class HistoryRecordManager(context: Context) {
 
-    private val database: AppDatabase
+    private val database: AppDatabase = AppDatabase.getDatabase(context)
     private val streamTable: StreamDAO
     private val streamHistoryTable: StreamHistoryDAO
     private val searchHistoryTable: SearchHistoryDAO
@@ -64,8 +46,6 @@ class HistoryRecordManager(context: Context) {
         get() = sharedPreferences.getBoolean(searchHistoryKey, false)
 
     init {
-//        database = NewPipeDatabase.getInstance(context)
-        database = AppDatabase.getDatabase(context)
         streamTable = database.streamDAO()
         streamHistoryTable = database.streamHistoryDAO()
         searchHistoryTable = database.searchHistoryDAO()
@@ -100,31 +80,39 @@ class HistoryRecordManager(context: Context) {
         }.subscribeOn(Schedulers.io())
     }
 
-    fun deleteStreamHistory(streamId: Long): Single<Int> {
-        return Single.fromCallable { streamHistoryTable.deleteStreamHistory(streamId) }
-                .subscribeOn(Schedulers.io())
-    }
+    fun deleteStreamHistory(streamId: Long): Single<Int> =
+            Single.fromCallable { streamHistoryTable.deleteStreamHistory(streamId) }
+                    .subscribeOn(Schedulers.io())
 
-    fun deleteWholeStreamHistory(): Single<Int> {
-        return Single.fromCallable { streamHistoryTable.deleteAll() }
-                .subscribeOn(Schedulers.io())
-    }
+
+    fun deleteWholeStreamHistory(): Single<Int> =
+            Single.fromCallable { streamHistoryTable.deleteAll() }
+                    .subscribeOn(Schedulers.io())
+
 
     fun insertStreamHistory(entries: Collection<StreamHistoryEntry>): Single<List<Long>> {
-        val entities = ArrayList<StreamHistoryEntity>(entries.size)
-        for (entry in entries) {
-            entities.add(entry.toStreamHistoryEntity())
-        }
-        return Single.fromCallable { streamHistoryTable.insertAll(entities) }
+//        val entities = ArrayList<StreamHistoryEntity>(entries.size)
+//        for (entry in entries) {
+//            entities.add(entry.toStreamHistoryEntity())
+//        }
+
+        val tempEntities = entries.map { it.toStreamHistoryEntity() }
+
+        return Single.fromCallable { streamHistoryTable.insertAll(tempEntities) }
                 .subscribeOn(Schedulers.io())
     }
 
     fun deleteStreamHistory(entries: Collection<StreamHistoryEntry>): Single<Int> {
-        val entities = ArrayList<StreamHistoryEntity>(entries.size)
-        for (entry in entries) {
-            entities.add(entry.toStreamHistoryEntity())
-        }
-        return Single.fromCallable { streamHistoryTable.delete(entities) }
+//        val entities = ArrayList<StreamHistoryEntity>(entries.size)
+//        for (entry in entries) {
+//            entities.add(entry.toStreamHistoryEntity())
+//        }
+//        return Single.fromCallable { streamHistoryTable.delete(entities) }
+//                .subscribeOn(Schedulers.io())
+
+        val tempEntities = entries.map { it.toStreamHistoryEntity() }
+
+        return Single.fromCallable { streamHistoryTable.delete(tempEntities) }
                 .subscribeOn(Schedulers.io())
     }
 
@@ -195,7 +183,7 @@ class HistoryRecordManager(context: Context) {
     ///////////////////////////////////////////////////////
 
     fun removeOrphanedRecords(): Single<Int> {
-        return Single.fromCallable{ streamTable.deleteOrphans() }
+        return Single.fromCallable { streamTable.deleteOrphans() }
                 .subscribeOn(Schedulers.io())
     }
 }

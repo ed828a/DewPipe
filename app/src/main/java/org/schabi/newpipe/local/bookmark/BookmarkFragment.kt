@@ -56,13 +56,8 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-
-        if (!useAsFrontPage) {
-            setTitle(activity!!.getString(R.string.tab_bookmarks))
-        }
-        return inflater.inflate(R.layout.fragment_bookmarks, container, false)
-    }
+                              savedInstanceState: Bundle?): View? =
+            inflater.inflate(R.layout.fragment_bookmarks, container, false)
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
@@ -78,6 +73,10 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
     override fun initViews(rootView: View, savedInstanceState: Bundle?) {
         super.initViews(rootView, savedInstanceState)
         Log.d("BookmarkFragment", "BookmarkFragment::initViews() called.")
+
+        if (!useAsFrontPage) {
+            setTitle(activity!!.getString(R.string.tab_bookmarks))
+        }
     }
 
     override fun initListeners() {

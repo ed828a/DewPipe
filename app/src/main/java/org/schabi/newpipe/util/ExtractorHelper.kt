@@ -111,6 +111,7 @@ object ExtractorHelper {
         return checkCache(forceLoad, serviceId, url, Single.fromCallable { StreamInfo.getInfo(NewPipe.getService(serviceId), url) })
     }
 
+    // YouTube Channel goes here
     fun getChannelInfo(serviceId: Int,
                        url: String,
                        forceLoad: Boolean): Single<ChannelInfo> {
