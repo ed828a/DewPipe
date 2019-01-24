@@ -1,14 +1,15 @@
 package org.schabi.newpipe.util
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.preference.PreferenceManager
+import android.util.Log
 
 import org.schabi.newpipe.R
 
 import java.util.regex.Pattern
 
 object FilenameUtils {
+    const val TAG = "FilenameUtils"
 
     /**
      * #143 #44 #42 #22: make sure that the filename does not contain illegal chars.
@@ -21,8 +22,8 @@ object FilenameUtils {
         val key = context.getString(R.string.settings_file_charset_key)
         val value = sharedPreferences.getString(key, context.getString(R.string.default_file_charset_value))
         val pattern = Pattern.compile(value)
-
-        val replacementChar = sharedPreferences.getString(context.getString(R.string.settings_file_replacement_character_key), "_") ?: "-"
+        Log.d(TAG, "createFilename(): value = $value, pattern = $pattern")
+        val replacementChar = sharedPreferences.getString(context.getString(R.string.settings_file_replacement_character_key), "_") ?: "*"
 
         return createFilename(title, pattern, replacementChar)
     }
@@ -35,14 +36,10 @@ object FilenameUtils {
      * @return the filename
      */
     private fun createFilename(title: String, invalidCharacters: Pattern, replacementChar: String): String {
-//        val fileName = title.replace(invalidCharacters.pattern(), replacementChar)
+        val regex = Regex(invalidCharacters.pattern())
 
-        val illegalCharset = arrayOf("[", "\n", "\r", "|", """\""", "?", "*", "<", ":", ">", "/", "'", "]", "+")
-        var fileName = title
-        for (string in illegalCharset) {
-           fileName = fileName.replace(string, replacementChar)
-        }
-
-        return fileName
+        return regex.replace(title, replacementChar)
     }
+
+
 }
