@@ -81,6 +81,7 @@ object ExtractorHelper {
                            sortFilter: String,
                            pageUrl: String,
                            contentCountry: String): Single<InfoItemsPage<*>> {
+        Log.d(TAG, "getMoreSearchItems(): serviceId = $serviceId, searchString = $searchString, pageUrl = $pageUrl")
         checkServiceId(serviceId)
         return Single.fromCallable {
             SearchInfo.getMoreItems(NewPipe.getService(serviceId),
@@ -96,6 +97,7 @@ object ExtractorHelper {
     fun suggestionsFor(serviceId: Int,
                        query: String,
                        contentCountry: String): Single<List<String>> {
+        Log.d(TAG, "suggestionsFor(serviceId = $serviceId, query = $query, contentCountry = $contentCountry)")
         checkServiceId(serviceId)
         return Single.fromCallable {
             NewPipe.getService(serviceId)

@@ -10,13 +10,16 @@ import org.schabi.newpipe.R
 
 class BlankFragment : BaseFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        setTitle("NewPipe")
+        setTitle(TITLE)
         return inflater.inflate(R.layout.fragment_blank, container, false)
     }
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
-        setTitle("NewPipe")
+        setTitle(TITLE)
 
+    }
+    companion object {
+        const val TITLE = "DEW"
     }
 }

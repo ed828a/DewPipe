@@ -11,8 +11,6 @@ import android.widget.TextView
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import io.reactivex.disposables.Disposables
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
@@ -43,27 +41,27 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
 
-    private var disposables: CompositeDisposable? = null
+    //    private var disposables: CompositeDisposable? = null
     private var bookmarkReactor: Subscription? = null
-    private var isBookmarkButtonReady: AtomicBoolean? = null
+    private var isBookmarkButtonReady: AtomicBoolean = AtomicBoolean(false)
 
-    private var remotePlaylistManager: RemotePlaylistManager? = null
+    private lateinit var remotePlaylistManager: RemotePlaylistManager
     private var playlistEntity: PlaylistRemoteEntity? = null
     ///////////////////////////////////////////////////////////////////////////
     // Views
     ///////////////////////////////////////////////////////////////////////////
 
-    private var headerRootLayout: View? = null
-    private var headerTitleView: TextView? = null
-    private var headerUploaderLayout: View? = null
-    private var headerUploaderName: TextView? = null
-    private var headerUploaderAvatar: ImageView? = null
-    private var headerStreamCount: TextView? = null
-    private var playlistCtrl: View? = null
+    private lateinit var headerRootLayout: View
+    private lateinit var headerTitleView: TextView
+    private lateinit var headerUploaderLayout: View
+    private lateinit var headerUploaderName: TextView
+    private lateinit var headerUploaderAvatar: ImageView
+    private lateinit var headerStreamCount: TextView
+    private lateinit var playlistCtrl: View
 
-    private var headerPlayAllButton: View? = null
-    private var headerPopupButton: View? = null
-    private var headerBackgroundButton: View? = null
+    private lateinit var headerPlayAllButton: View
+    private lateinit var headerPopupButton: View
+    private lateinit var headerBackgroundButton: View
 
     private var playlistBookmarkButton: MenuItem? = null
 
@@ -72,9 +70,9 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
 
     private val playlistBookmarkSubscriber: Subscriber<List<PlaylistRemoteEntity>>
         get() = object : Subscriber<List<PlaylistRemoteEntity>> {
-            override fun onSubscribe(s: Subscription) {
+            override fun onSubscribe(subscription: Subscription) {
                 if (bookmarkReactor != null) bookmarkReactor!!.cancel()
-                bookmarkReactor = s
+                bookmarkReactor = subscription
                 bookmarkReactor!!.request(1)
             }
 
@@ -82,9 +80,8 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
                 playlistEntity = if (playlist.isEmpty()) null else playlist[0]
 
                 updateBookmarkButtons()
-                isBookmarkButtonReady!!.set(true)
-
-                if (bookmarkReactor != null) bookmarkReactor!!.request(1)
+                isBookmarkButtonReady?.set(true)
+                bookmarkReactor?.request(1)
             }
 
             override fun onError(t: Throwable) {
@@ -102,8 +99,8 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        disposables = CompositeDisposable()
-        isBookmarkButtonReady = AtomicBoolean(false)
+//        disposables = CompositeDisposable()
+//        isBookmarkButtonReady = AtomicBoolean(false)
 //        remotePlaylistManager = RemotePlaylistManager(NewPipeDatabase.getInstance(requireContext()))
         remotePlaylistManager = RemotePlaylistManager(AppDatabase.getDatabase(requireContext()))
     }
@@ -119,17 +116,17 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
 
     override fun getListHeader(): View? {
         headerRootLayout = activity!!.layoutInflater.inflate(R.layout.playlist_header, itemsList, false)
-        headerTitleView = headerRootLayout!!.findViewById(R.id.playlist_title_view)
-        headerUploaderLayout = headerRootLayout!!.findViewById(R.id.uploader_layout)
-        headerUploaderName = headerRootLayout!!.findViewById(R.id.uploader_name)
-        headerUploaderAvatar = headerRootLayout!!.findViewById(R.id.uploader_avatar_view)
-        headerStreamCount = headerRootLayout!!.findViewById(R.id.playlist_stream_count)
-        playlistCtrl = headerRootLayout!!.findViewById(R.id.playlist_control)
 
-        headerPlayAllButton = headerRootLayout!!.findViewById(R.id.playlist_ctrl_play_all_button)
-        headerPopupButton = headerRootLayout!!.findViewById(R.id.playlist_ctrl_play_popup_button)
-        headerBackgroundButton = headerRootLayout!!.findViewById(R.id.playlist_ctrl_play_bg_button)
+        headerTitleView = headerRootLayout.findViewById(R.id.playlist_title_view)
+        headerUploaderLayout = headerRootLayout.findViewById(R.id.uploader_layout)
+        headerUploaderName = headerRootLayout.findViewById(R.id.uploader_name)
+        headerUploaderAvatar = headerRootLayout.findViewById(R.id.uploader_avatar_view)
+        headerStreamCount = headerRootLayout.findViewById(R.id.playlist_stream_count)
+        playlistCtrl = headerRootLayout.findViewById(R.id.playlist_control)
 
+        headerPlayAllButton = headerRootLayout.findViewById(R.id.playlist_ctrl_play_all_button)
+        headerPopupButton = headerRootLayout.findViewById(R.id.playlist_ctrl_play_popup_button)
+        headerBackgroundButton = headerRootLayout.findViewById(R.id.playlist_ctrl_play_bg_button)
 
         return headerRootLayout
     }
@@ -147,9 +144,9 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
 
         val commands = arrayOf(context.resources.getString(R.string.enqueue_on_background), context.resources.getString(R.string.enqueue_on_popup), context.resources.getString(R.string.start_here_on_main), context.resources.getString(R.string.start_here_on_background), context.resources.getString(R.string.start_here_on_popup), context.resources.getString(R.string.share))
 
-        val actions = DialogInterface.OnClickListener { dialogInterface, i ->
+        val actions = DialogInterface.OnClickListener { dialogInterface, which ->
             val index = Math.max(infoListAdapter!!.itemsList.indexOf(item), 0)
-            when (i) {
+            when (which) {
                 0 -> NavigationHelper.enqueueOnBackgroundPlayer(context, SinglePlayQueue(item))
                 1 -> NavigationHelper.enqueueOnPopupPlayer(activity, SinglePlayQueue(item))
                 2 -> NavigationHelper.playOnMainPlayer(context, getPlayQueue(index))
@@ -165,35 +162,34 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        if (DEBUG)
-            Log.d(TAG, "onCreateOptionsMenu() called with: menu = [" + menu +
-                    "], inflater = [" + inflater + "]")
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater!!.inflate(R.menu.menu_playlist, menu)
+        Log.d(TAG, "onCreateOptionsMenu() called with: menu = [$menu], inflater = [$inflater]")
+        if (menu == null || inflater == null) return
 
-        playlistBookmarkButton = menu!!.findItem(R.id.menu_item_bookmark)
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_playlist, menu)
+
+        playlistBookmarkButton = menu.findItem(R.id.menu_item_bookmark)
         updateBookmarkButtons()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (isBookmarkButtonReady != null) isBookmarkButtonReady!!.set(false)
+        isBookmarkButtonReady.set(false)
 
-        if (disposables != null) disposables!!.clear()
+        compositeDisposable.clear()
         if (bookmarkReactor != null) bookmarkReactor!!.cancel()
-
         bookmarkReactor = null
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
-        if (disposables != null) disposables!!.dispose()
+        if (!compositeDisposable.isDisposed) compositeDisposable.dispose()
 
-        disposables = null
-        remotePlaylistManager = null
+//        disposables = null
+//        remotePlaylistManager = null
         playlistEntity = null
-        isBookmarkButtonReady = null
+//        isBookmarkButtonReady = null
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -208,15 +204,23 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
         return ExtractorHelper.getPlaylistInfo(serviceId, url, forceLoad)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when (item!!.itemId) {
-            R.id.menu_item_openInBrowser -> openUrlInBrowser(url)
-            R.id.menu_item_share -> shareUrl(name, url)
-            R.id.menu_item_bookmark -> onBookmarkClicked()
-            else -> return super.onOptionsItemSelected(item)
-        }
-        return true
-    }
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
+            when (item!!.itemId) {
+                R.id.menu_item_openInBrowser -> {
+                    openUrlInBrowser(url)
+                    true
+                }
+                R.id.menu_item_share -> {
+                    shareUrl(name, url)
+                    true
+                }
+                R.id.menu_item_bookmark -> {
+                    onBookmarkClicked()
+                    true
+                }
+
+                else -> super.onOptionsItemSelected(item)
+            }
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -225,23 +229,23 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
 
     override fun showLoading() {
         super.showLoading()
-        animateView(headerRootLayout!!, false, 200)
+        animateView(headerRootLayout, false, 200)
         animateView(itemsList!!, false, 100)
 
-        BaseFragment.imageLoader.cancelDisplayTask(headerUploaderAvatar!!)
-        animateView(headerUploaderLayout!!, false, 200)
+        BaseFragment.imageLoader.cancelDisplayTask(headerUploaderAvatar)
+        animateView(headerUploaderLayout, false, 200)
     }
 
     override fun handleResult(result: PlaylistInfo) {
         super.handleResult(result)
 
-        animateView(headerRootLayout!!, true, 100)
-        animateView(headerUploaderLayout!!, true, 300)
-        headerUploaderLayout!!.setOnClickListener(null)
+        animateView(headerRootLayout, true, 100)
+        animateView(headerUploaderLayout, true, 300)
+        headerUploaderLayout.setOnClickListener(null)
         if (!TextUtils.isEmpty(result.uploaderName)) {
-            headerUploaderName!!.text = result.uploaderName
+            headerUploaderName.text = result.uploaderName
             if (!TextUtils.isEmpty(result.uploaderUrl)) {
-                headerUploaderLayout!!.setOnClickListener { v ->
+                headerUploaderLayout.setOnClickListener { v ->
                     try {
                         NavigationHelper.openChannelFragment(fragmentManager,
                                 result.serviceId,
@@ -249,41 +253,42 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
                                 result.uploaderName)
                     } catch (e: Exception) {
                         val context = getActivity()
-                        context?.let{
-                            ErrorActivity.reportUiError( it as AppCompatActivity, e)
+                        context?.let {
+                            ErrorActivity.reportUiError(it as AppCompatActivity, e)
                         }
                     }
                 }
             }
         }
 
-        playlistCtrl!!.visibility = View.VISIBLE
+        playlistCtrl.visibility = View.VISIBLE
 
-        BaseFragment.imageLoader.displayImage(result.uploaderAvatarUrl, headerUploaderAvatar!!,
+        BaseFragment.imageLoader.displayImage(result.uploaderAvatarUrl, headerUploaderAvatar,
                 ImageDisplayConstants.DISPLAY_AVATAR_OPTIONS)
-        headerStreamCount!!.text = resources.getQuantityString(R.plurals.videos,
+        headerStreamCount.text = resources.getQuantityString(R.plurals.videos,
                 result.streamCount.toInt(), result.streamCount.toInt())
 
         if (!result.errors.isEmpty()) {
             showSnackBarError(result.errors, UserAction.REQUESTED_PLAYLIST, NewPipe.getNameOfService(result.serviceId), result.url, 0)
         }
 
-        remotePlaylistManager!!.getPlaylist(result)
-                .flatMap({ lists -> getUpdateProcessor(lists, result) }, { lists, id -> lists })
+        remotePlaylistManager.getPlaylist(result)
+                .flatMap({ lists -> getUpdateProcessor(lists, result) },
+                        { lists, id -> lists })
                 .onBackpressureLatest()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(playlistBookmarkSubscriber)
 
-        headerPlayAllButton!!.setOnClickListener { view -> NavigationHelper.playOnMainPlayer(activity, playQueue) }
-        headerPopupButton!!.setOnClickListener { view -> NavigationHelper.playOnPopupPlayer(activity, playQueue) }
-        headerBackgroundButton!!.setOnClickListener { view -> NavigationHelper.playOnBackgroundPlayer(activity, playQueue) }
+        headerPlayAllButton.setOnClickListener { view -> NavigationHelper.playOnMainPlayer(activity, playQueue) }
+        headerPopupButton.setOnClickListener { view -> NavigationHelper.playOnPopupPlayer(activity, playQueue) }
+        headerBackgroundButton.setOnClickListener { view -> NavigationHelper.playOnBackgroundPlayer(activity, playQueue) }
     }
 
     private fun getPlayQueue(index: Int): PlayQueue {
         val infoItems = ArrayList<StreamInfoItem>()
-        for (i in infoListAdapter!!.itemsList) {
-            if (i is StreamInfoItem) {
-                infoItems.add(i)
+        for (infoItem in infoListAdapter!!.itemsList) {
+            if (infoItem is StreamInfoItem) {
+                infoItems.add(infoItem)
             }
         }
         return PlaylistPlayQueue(
@@ -329,50 +334,46 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
         if (playlists.isEmpty()) return noItemToUpdate
 
         val playlistEntity = playlists[0]
-        return if (playlistEntity.isIdenticalTo(result)) noItemToUpdate else remotePlaylistManager!!.onUpdate(playlists[0].uid, result).toFlowable()
-
+        return if (playlistEntity.isIdenticalTo(result)) noItemToUpdate
+        else remotePlaylistManager.onUpdate(playlists[0].uid, result).toFlowable()
     }
 
     override fun setTitle(title: String) {
+        Log.d(TAG, "setTitle: title = $title")
         super.setTitle(title)
-        headerTitleView!!.text = title
+        headerTitleView.text = title
     }
 
     private fun onBookmarkClicked() {
-        if (isBookmarkButtonReady == null || !isBookmarkButtonReady!!.get() ||
-                remotePlaylistManager == null)
-            return
+        if (!isBookmarkButtonReady.get()) return
 
-        val action: Disposable
+        val action =
+                when {
+                    currentInfo != null && playlistEntity == null -> {
+                        remotePlaylistManager.onBookmark(currentInfo!!)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe({/* Do nothing */ ignored -> }, { this.onError(it) })
+                    }
 
-        if (currentInfo != null && playlistEntity == null) {
-            action = remotePlaylistManager!!.onBookmark(currentInfo!!)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({/* Do nothing */ ignored -> }, { this.onError(it) })
-        } else if (playlistEntity != null) {
-            action = remotePlaylistManager!!.deletePlaylist(playlistEntity!!.uid)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doFinally { playlistEntity = null }
-                    .subscribe({/* Do nothing */ ignored -> }, { this.onError(it) })
-        } else {
-            action = Disposables.empty()
-        }
+                    playlistEntity != null -> {
+                        remotePlaylistManager.deletePlaylist(playlistEntity!!.uid)
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .doFinally { playlistEntity = null }
+                                .subscribe({/* Do nothing */ ignored -> }, { this.onError(it) })
+                    }
 
-        disposables!!.add(action)
+                    else -> Disposables.empty()
+                }
+
+        compositeDisposable.add(action)
     }
 
     private fun updateBookmarkButtons() {
         if (playlistBookmarkButton == null || activity == null) return
 
-        val iconAttr = if (playlistEntity == null)
-            R.attr.ic_playlist_add
-        else
-            R.attr.ic_playlist_check
+        val iconAttr = if (playlistEntity == null) R.attr.ic_playlist_add else R.attr.ic_playlist_check
 
-        val titleRes = if (playlistEntity == null)
-            R.string.bookmark_playlist
-        else
-            R.string.unbookmark_playlist
+        val titleRes = if (playlistEntity == null) R.string.bookmark_playlist else R.string.unbookmark_playlist
 
         playlistBookmarkButton!!.setIcon(ThemeHelper.resolveResourceIdFromAttr(activity!!, iconAttr))
         playlistBookmarkButton!!.setTitle(titleRes)

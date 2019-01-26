@@ -29,24 +29,20 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
-
-import org.schabi.newpipe.util.AnimationUtils
-
-import java.lang.annotation.Retention
-import java.util.ArrayList
-
 import icepick.Icepick
 import icepick.State
-
+import org.schabi.newpipe.util.AnimationUtils
+import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy.SOURCE
-import org.schabi.newpipe.MainActivity.Companion.DEBUG
+import java.util.*
 
 /**
  * A view that can be fully collapsed and expanded.
  */
 class CollapsibleView : LinearLayout {
 
-    @State @JvmField
+    @State
+    @JvmField
     @ViewMode
     internal var currentState = COLLAPSED
     private var readyToChangeState: Boolean = false
@@ -74,9 +70,8 @@ class CollapsibleView : LinearLayout {
      * some child changes (e.g. add new views, change text).
      */
     fun ready() {
-        if (DEBUG) {
-            Log.d(TAG, getDebugLogString("ready() called"))
-        }
+
+        Log.d(TAG, getDebugLogString("ready() called"))
 
         measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST), View.MeasureSpec.UNSPECIFIED)
         targetHeight = measuredHeight
@@ -87,15 +82,11 @@ class CollapsibleView : LinearLayout {
 
         readyToChangeState = true
 
-        if (DEBUG) {
-            Log.d(TAG, getDebugLogString("ready() *after* measuring"))
-        }
+        Log.d(TAG, getDebugLogString("ready() *after* measuring"))
     }
 
     fun collapse() {
-        if (DEBUG) {
-            Log.d(TAG, getDebugLogString("collapse() called"))
-        }
+        Log.d(TAG, getDebugLogString("collapse() called"))
 
         if (!readyToChangeState) return
 
@@ -111,10 +102,8 @@ class CollapsibleView : LinearLayout {
         setCurrentState(COLLAPSED)
     }
 
-    fun expand() {
-        if (DEBUG) {
-            Log.d(TAG, getDebugLogString("expand() called"))
-        }
+    private fun expand() {
+        Log.d(TAG, getDebugLogString("expand() called"))
 
         if (!readyToChangeState) return
 
@@ -144,12 +133,12 @@ class CollapsibleView : LinearLayout {
         return currentState
     }
 
-    fun setCurrentState(@ViewMode currentState: Int) {
+    private fun setCurrentState(@ViewMode currentState: Int) {
         this.currentState = currentState
         broadcastState()
     }
 
-    fun broadcastState() {
+    private fun broadcastState() {
         for (listener in listeners) {
             listener.onStateChanged(currentState)
         }
@@ -204,16 +193,13 @@ class CollapsibleView : LinearLayout {
     // Internal
     ///////////////////////////////////////////////////////////////////////////
 
-    fun getDebugLogString(description: String): String {
-        return String.format("%-100s → %s",
-                description, "readyToChangeState = [" + readyToChangeState + "], currentState = [" + currentState + "], targetHeight = [" + targetHeight + "]," +
-                " mW x mH = [" + measuredWidth + "x" + measuredHeight + "]" +
-                " W x H = [" + width + "x" + height + "]")
-    }
+    private fun getDebugLogString(description: String): String = String.format("%-100s → %s",
+            description,
+            "readyToChangeState = [$readyToChangeState], currentState = [$currentState], targetHeight = [$targetHeight], mW x mH = [${measuredWidth}x$measuredHeight] W x H = [${width}x$height]")
+
 
     companion object {
-        private val TAG = CollapsibleView::class.java.simpleName
-
+        private const val TAG = "CollapsibleView"
         ///////////////////////////////////////////////////////////////////////////
         // Collapse/expand logic
         ///////////////////////////////////////////////////////////////////////////

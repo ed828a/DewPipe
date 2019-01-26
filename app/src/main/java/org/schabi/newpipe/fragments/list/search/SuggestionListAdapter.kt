@@ -1,7 +1,6 @@
 package org.schabi.newpipe.fragments.list.search
 
 import android.content.Context
-import android.content.res.TypedArray
 import android.support.annotation.AttrRes
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -47,8 +46,8 @@ class SuggestionListAdapter(private val context: Context) : RecyclerView.Adapter
         this.listener = listener
     }
 
-    fun setShowSuggestionHistory(v: Boolean) {
-        showSuggestionHistory = v
+    fun setShowSuggestionHistory(visible: Boolean) {
+        showSuggestionHistory = visible
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SuggestionItemHolder {
@@ -75,21 +74,16 @@ class SuggestionListAdapter(private val context: Context) : RecyclerView.Adapter
     }
 
     class SuggestionItemHolder (rootView: View) : RecyclerView.ViewHolder(rootView) {
-        private val itemSuggestionQuery: TextView
-        private val suggestionIcon: ImageView
-        val queryView: View
-        val insertView: View
+        private val itemSuggestionQuery: TextView = rootView.findViewById(R.id.item_suggestion_query)
+        private val suggestionIcon: ImageView = rootView.findViewById(R.id.item_suggestion_icon)
+        val queryView: View = rootView.findViewById(R.id.suggestion_search)
+        val insertView: View = rootView.findViewById(R.id.suggestion_insert)
 
         // Cache some ids, as they can potentially be constantly updated/recycled
         private val historyResId: Int
         private val searchResId: Int
 
         init {
-            suggestionIcon = rootView.findViewById(R.id.item_suggestion_icon)
-            itemSuggestionQuery = rootView.findViewById(R.id.item_suggestion_query)
-
-            queryView = rootView.findViewById(R.id.suggestion_search)
-            insertView = rootView.findViewById(R.id.suggestion_insert)
 
             historyResId = resolveResourceIdFromAttr(rootView.context, R.attr.history)
             searchResId = resolveResourceIdFromAttr(rootView.context, R.attr.search)
@@ -101,9 +95,9 @@ class SuggestionListAdapter(private val context: Context) : RecyclerView.Adapter
         }
 
         private fun resolveResourceIdFromAttr(context: Context, @AttrRes attr: Int): Int {
-            val a = context.theme.obtainStyledAttributes(intArrayOf(attr))
-            val attributeResourceId = a.getResourceId(0, 0)
-            a.recycle()
+            val typedArray = context.theme.obtainStyledAttributes(intArrayOf(attr))
+            val attributeResourceId = typedArray.getResourceId(0, 0)
+            typedArray.recycle()
             return attributeResourceId
         }
     }

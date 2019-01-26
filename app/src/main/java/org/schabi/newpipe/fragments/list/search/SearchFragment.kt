@@ -3,6 +3,7 @@ package org.schabi.newpipe.fragments.list.search
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v7.app.AlertDialog
@@ -17,11 +18,9 @@ import android.view.animation.DecelerateInterpolator
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import android.widget.TextView
 import icepick.State
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
@@ -52,53 +51,61 @@ import java.util.concurrent.TimeUnit
 
 class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<*>>(), BackPressable {
 
-    @State @JvmField
+    @State
+    @JvmField
     protected var filterItemCheckedId = -1
 
-    @State @JvmField
+    @State
+    @JvmField
     protected var serviceId = Constants.NO_SERVICE_ID
 
-    // this three represet the current search query
-    @State @JvmField
+    // these three represet the current search query
+    @State
+    @JvmField
     protected var searchString: String? = null
-    @State @JvmField
+    @State
+    @JvmField
     protected var contentFilter: Array<String> = emptyArray()
-    @State @JvmField
+    @State
+    @JvmField
     protected var sortFilter: String? = null
 
-    // these represtent the last search
-    @State @JvmField
+    // these two represtent the last search
+    @State
+    @JvmField
     protected var lastSearchedString: String? = null
 
-    @State @JvmField
+    @State
+    @JvmField
     protected var wasSearchFocused = false
 
-    private var menuItemToFilterName: MutableMap<Int, String>? = null
+    private val menuItemToFilterName: MutableMap<Int, String> = HashMap()
     private var service: StreamingService? = null
-    private var currentPageUrl: String? = null
-    private var nextPageUrl: String? = null
-    private var contentCountry: String? = null
+    private var currentPageUrl: String? = null   // StateSaver takes care it
+    private var nextPageUrl: String? = null      // SateSave takes care it
+    private lateinit var contentCountry: String
     private var isSuggestionsEnabled = true
     private var isSearchHistoryEnabled = true
 
     private val suggestionPublisher = PublishSubject.create<String>()
     private var searchDisposable: Disposable? = null
     private var suggestionDisposable: Disposable? = null
-    private val disposables = CompositeDisposable()
+//    private val disposables = CompositeDisposable()
 
-    private var suggestionListAdapter: SuggestionListAdapter? = null
-    private var historyRecordManager: HistoryRecordManager? = null
+    private lateinit var suggestionListAdapter: SuggestionListAdapter
+    private lateinit var historyRecordManager: HistoryRecordManager
 
+    private lateinit var preferences: SharedPreferences
     ///////////////////////////////////////////////////////////////////////////
     // Views
     ///////////////////////////////////////////////////////////////////////////
 
-    private var searchToolbarContainer: View? = null
-    private var searchEditText: EditText? = null
-    private var searchClear: View? = null
+    private lateinit var searchToolbarContainer: View
+    private lateinit var searchEditText: EditText
+    private lateinit var searchClear: View
 
-    private var suggestionsPanel: View? = null
-    private var suggestionsRecyclerView: RecyclerView? = null
+    private lateinit var suggestionsPanel: View
+    private lateinit var suggestionsRecyclerView: RecyclerView
 
     ///////////////////////////////////////////////////////////////////////////
     // Search
@@ -121,9 +128,9 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
         super.onAttach(context)
 
         suggestionListAdapter = SuggestionListAdapter(activity!!)
-        val preferences = PreferenceManager.getDefaultSharedPreferences(activity)
+        preferences = PreferenceManager.getDefaultSharedPreferences(activity)
         isSearchHistoryEnabled = preferences.getBoolean(getString(R.string.enable_search_history_key), true)
-        suggestionListAdapter!!.setShowSuggestionHistory(isSearchHistoryEnabled)
+        suggestionListAdapter.setShowSuggestionHistory(isSearchHistoryEnabled)
 
         historyRecordManager = HistoryRecordManager(context!!)
     }
@@ -131,9 +138,10 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val preferences = PreferenceManager.getDefaultSharedPreferences(activity)
+//        val preferences = PreferenceManager.getDefaultSharedPreferences(activity)
         isSuggestionsEnabled = preferences.getBoolean(getString(R.string.show_search_suggestions_key), true)
         contentCountry = preferences.getString(getString(R.string.content_country_key), getString(R.string.default_country_value))
+                ?: getString(R.string.default_country_value)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -151,24 +159,25 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
 
         wasSearchFocused = searchEditText!!.hasFocus()
 
-        if (searchDisposable != null) searchDisposable!!.dispose()
-        if (suggestionDisposable != null) suggestionDisposable!!.dispose()
-        disposables?.clear()
+        searchDisposable?.dispose()
+        suggestionDisposable?.dispose()
+        compositeDisposable.clear()
         hideKeyboardSearch()
     }
 
     override fun onResume() {
-        if (DEBUG) Log.d(TAG, "onResume() called")
+        Log.d(TAG, "onResume() called")
         super.onResume()
 
         try {
             service = NewPipe.getService(serviceId)
-        } catch (e: Exception) {
-            ErrorActivity.reportError(activity!!, e, activity!!.javaClass,
+        } catch (exception: Exception) {
+            ErrorActivity.reportError(activity!!, exception, activity!!.javaClass,
                     activity!!.findViewById(android.R.id.content),
                     ErrorInfo.make(UserAction.UI_ERROR,
                             "",
-                            "", R.string.general_error))
+                            "",
+                            R.string.general_error))
         }
 
         if (!TextUtils.isEmpty(searchString)) {
@@ -197,7 +206,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
     }
 
     override fun onDestroyView() {
-        if (DEBUG) Log.d(TAG, "onDestroyView() called")
+        Log.d(TAG, "onDestroyView() called")
         unsetSearchListeners()
         super.onDestroyView()
     }
@@ -206,7 +215,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
         super.onDestroy()
         if (searchDisposable != null) searchDisposable!!.dispose()
         if (suggestionDisposable != null) suggestionDisposable!!.dispose()
-        disposables?.clear()
+        if (!compositeDisposable.isDisposed) compositeDisposable.dispose()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -228,12 +237,12 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
         super.initViews(rootView, savedInstanceState)
         suggestionsPanel = rootView.findViewById(R.id.suggestions_panel)
         suggestionsRecyclerView = rootView.findViewById(R.id.suggestions_list)
-        suggestionsRecyclerView!!.adapter = suggestionListAdapter
-        suggestionsRecyclerView!!.layoutManager = LayoutManagerSmoothScroller(activity!!)
+        suggestionsRecyclerView.adapter = suggestionListAdapter
+        suggestionsRecyclerView.layoutManager = LayoutManagerSmoothScroller(activity!!)
 
         searchToolbarContainer = activity!!.findViewById(R.id.toolbar_search_container)
-        searchEditText = searchToolbarContainer!!.findViewById(R.id.toolbar_search_edit_text)
-        searchClear = searchToolbarContainer!!.findViewById(R.id.toolbar_search_clear)
+        searchEditText = searchToolbarContainer.findViewById(R.id.toolbar_search_edit_text)
+        searchClear = searchToolbarContainer.findViewById(R.id.toolbar_search_clear)
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -254,10 +263,11 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
     }
 
     override fun onSaveInstanceState(bundle: Bundle) {
-        searchString = if (searchEditText != null)
-            searchEditText!!.text.toString()
-        else
-            searchString
+//        searchString = if (searchEditText != null)
+//            searchEditText.text.toString()
+//        else
+//            searchString
+        searchString = searchEditText.text.toString()
         super.onSaveInstanceState(bundle)
     }
 
@@ -266,16 +276,16 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
     ///////////////////////////////////////////////////////////////////////////
 
     override fun reloadContent() {
-        if (!TextUtils.isEmpty(searchString) || searchEditText != null && !TextUtils.isEmpty(searchEditText!!.text)) {
-            search(if (!TextUtils.isEmpty(searchString))
-                searchString
-            else
-                searchEditText!!.text.toString(), arrayOf<String>(), "")
+        if (!TextUtils.isEmpty(searchString) && !TextUtils.isEmpty(searchEditText.text)) {
+            val searchText = if (!TextUtils.isEmpty(searchString)) searchString!!
+            else searchEditText.text.toString()
+
+            search(searchText, arrayOf<String>(), "")
         } else {
-            if (searchEditText != null) {
-                searchEditText!!.setText("")
-                showKeyboardSearch()
-            }
+//            if (searchEditText != null) {
+            searchEditText.setText("")
+            showKeyboardSearch()
+//            }
             animateView(errorPanelRoot, false, 200)
         }
     }
@@ -287,39 +297,44 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         super.onCreateOptionsMenu(menu, inflater)
 
-        val supportActionBar = activity!!.supportActionBar
-        if (supportActionBar != null) {
-            supportActionBar.setDisplayShowTitleEnabled(false)
-            supportActionBar.setDisplayHomeAsUpEnabled(true)
+        val supportActionBar = activity!!.supportActionBar?.apply {
+            setDisplayShowTitleEnabled(true)
+            setDisplayHomeAsUpEnabled(true)
         }
+//        if (supportActionBar != null) {
+//            supportActionBar.setDisplayShowTitleEnabled(false)
+//            supportActionBar.setDisplayHomeAsUpEnabled(true)
+//        }
 
-        menuItemToFilterName = HashMap()
+//        menuItemToFilterName = HashMap()
 
         var itemId = 0
         var isFirstItem = true
-        val c = context
-        for (filter in service!!.searchQHFactory.availableContentFilter) {
-            menuItemToFilterName!![itemId] = filter
-            val item = menu!!.add(1,
-                    itemId++,
-                    0,
-                    ServiceHelper.getTranslatedFilterString(filter, c!!))
-            if (isFirstItem) {
-                item.isChecked = true
-                isFirstItem = false
+        val context = context
+        if (context != null && menu != null) {
+            for (filter in service!!.searchQHFactory.availableContentFilter) {
+                menuItemToFilterName[itemId] = filter
+                val item = menu.add(1,
+                        itemId++,
+                        0,
+                        ServiceHelper.getTranslatedFilterString(filter, context))
+                if (isFirstItem) {
+                    item.isChecked = true
+                    isFirstItem = false
+                }
             }
+            menu.setGroupCheckable(1, true, true)
+            restoreFilterChecked(menu, filterItemCheckedId)
         }
-        menu!!.setGroupCheckable(1, true, true)
-
-        restoreFilterChecked(menu, filterItemCheckedId)
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
 
         val contentFilter = ArrayList<String>(1)
-        contentFilter.add(menuItemToFilterName!![item!!.itemId]!!)
-        changeContentFilter(item, contentFilter)
-
+        if (item != null) {
+            contentFilter.add(menuItemToFilterName[item.itemId]!!)
+            changeContentFilter(item, contentFilter)
+        }
         return true
     }
 
@@ -332,69 +347,79 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
     }
 
     private fun showSearchOnStart() {
-        if (DEBUG)
-            Log.d(TAG, "showSearchOnStart() called, searchQuery → "
-                    + searchString
-                    + ", lastSearchedQuery → "
-                    + lastSearchedString)
-        searchEditText!!.setText(searchString)
+        Log.d(TAG, "showSearchOnStart(): searchQuery = $searchString, lastSearchedQuery = $lastSearchedString")
+        searchEditText.setText(searchString)
 
-        if (TextUtils.isEmpty(searchString) || TextUtils.isEmpty(searchEditText!!.text)) {
-            searchToolbarContainer!!.translationX = 100f
-            searchToolbarContainer!!.alpha = 0f
-            searchToolbarContainer!!.visibility = View.VISIBLE
-            searchToolbarContainer!!.animate()
-                    .translationX(0f)
-                    .alpha(1f)
-                    .setDuration(200)
-                    .setInterpolator(DecelerateInterpolator()).start()
+        if (TextUtils.isEmpty(searchString) || TextUtils.isEmpty(searchEditText.text)) {
+//            searchToolbarContainer!!.translationX = 100f
+//            searchToolbarContainer!!.alpha = 0f
+//            searchToolbarContainer!!.visibility = View.VISIBLE
+//            searchToolbarContainer!!.animate()
+//                    .translationX(0f)
+//                    .alpha(1f)
+//                    .setDuration(200)
+//                    .setInterpolator(DecelerateInterpolator()).start()
+            searchToolbarContainer.apply {
+                translationX = 100f
+                alpha = 0f
+                visibility = View.VISIBLE
+                animate()
+                        .translationX(0f)
+                        .alpha(1f)
+                        .setDuration(200)
+                        .setInterpolator(DecelerateInterpolator()).start()
+            }
         } else {
-            searchToolbarContainer!!.translationX = 0f
-            searchToolbarContainer!!.alpha = 1f
-            searchToolbarContainer!!.visibility = View.VISIBLE
+            searchToolbarContainer.apply {
+                translationX = 0f
+                alpha = 1f
+                visibility = View.VISIBLE
+            }
+//            searchToolbarContainer!!.translationX = 0f
+//            searchToolbarContainer!!.alpha = 1f
+//            searchToolbarContainer!!.visibility = View.VISIBLE
         }
     }
 
     private fun initSearchListeners() {
-        if (DEBUG) Log.d(TAG, "initSearchListeners() called")
-        searchClear!!.setOnClickListener { v ->
-            if (DEBUG) Log.d(TAG, "onClick() called with: v = [$v]")
-            if (TextUtils.isEmpty(searchEditText!!.text)) {
+        Log.d(TAG, "initSearchListeners() called")
+        searchClear.setOnClickListener { view ->
+            Log.d(TAG, "searchClear.onClick() : view = [$view]")
+            if (TextUtils.isEmpty(searchEditText.text)) {
                 NavigationHelper.gotoMainFragment(fragmentManager!!)
                 return@setOnClickListener
             }
 
-            searchEditText!!.setText("")
-            suggestionListAdapter!!.setItems(ArrayList())
+            searchEditText.setText("")
+            suggestionListAdapter.setItems(ArrayList())
             showKeyboardSearch()
         }
 
-        TooltipCompat.setTooltipText(searchClear!!, getString(R.string.clear))
+        TooltipCompat.setTooltipText(searchClear, getString(R.string.clear))
 
-        searchEditText!!.setOnClickListener { v ->
-            if (DEBUG) Log.d(TAG, "onClick() called with: v = [$v]")
+        searchEditText.setOnClickListener { v ->
+            Log.d(TAG, "searchEditText.onClick(): view = [$v]")
             if (isSuggestionsEnabled && errorPanelRoot.visibility != View.VISIBLE) {
                 showSuggestionsPanel()
             }
         }
 
-        searchEditText!!.setOnFocusChangeListener { v: View, hasFocus: Boolean ->
-            if (DEBUG) Log.d(TAG, "onFocusChange() called with: v = [$v], hasFocus = [$hasFocus]")
+        searchEditText.setOnFocusChangeListener { v: View, hasFocus: Boolean ->
+            Log.d(TAG, "searchEditText.onFocusChange(): v = [$v], hasFocus = [$hasFocus]")
             if (isSuggestionsEnabled && hasFocus && errorPanelRoot.visibility != View.VISIBLE) {
                 showSuggestionsPanel()
             }
         }
 
-        suggestionListAdapter!!.setListener(object : SuggestionListAdapter.OnSuggestionItemSelected {
+        suggestionListAdapter.setListener(object : SuggestionListAdapter.OnSuggestionItemSelected {
             override fun onSuggestionItemSelected(item: SuggestionItem) {
-//                search(item.query, arrayOfNulls(0), "")
                 search(item.query, arrayOf(), "")
-                searchEditText!!.setText(item.query)
+                searchEditText.setText(item.query)
             }
 
             override fun onSuggestionItemInserted(item: SuggestionItem) {
-                searchEditText!!.setText(item.query)
-                searchEditText!!.setSelection(searchEditText!!.text.length)
+                searchEditText.setText(item.query)
+                searchEditText.setSelection(searchEditText.text.length)
             }
 
             override fun onSuggestionItemLongClick(item: SuggestionItem) {
@@ -402,25 +427,26 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
             }
         })
 
-        if (textWatcher != null) searchEditText!!.removeTextChangedListener(textWatcher)
+        // this part can use RxTextView.textChanges(searchEditText)
+        if (textWatcher != null) searchEditText.removeTextChangedListener(textWatcher)
         textWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
 
             override fun afterTextChanged(s: Editable) {
-                val newText = searchEditText!!.text.toString()
+                val newText = searchEditText.text.toString()
                 suggestionPublisher.onNext(newText)
             }
         }
-        searchEditText!!.addTextChangedListener(textWatcher)
+        searchEditText.addTextChangedListener(textWatcher)
 
-        searchEditText!!.setOnEditorActionListener { v , actionId, event ->
-            if (DEBUG) {
-                Log.d(TAG, "onEditorAction() called with: v = [$v], actionId = [$actionId], event = [$event]")
-            }
+        searchEditText.setOnEditorActionListener { v, actionId, event ->
+
+            Log.d(TAG, "searchEditText.onEditorAction() : v = [$v], actionId = [$actionId], event = [$event]")
+
             if (event != null && (event.keyCode == KeyEvent.KEYCODE_ENTER || event.action == EditorInfo.IME_ACTION_SEARCH)) {
-                search(searchEditText!!.text.toString(), arrayOf(), "")
+                search(searchEditText.text.toString(), arrayOf(), "")
                 return@setOnEditorActionListener true
             }
             false
@@ -431,54 +457,48 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
     }
 
     private fun unsetSearchListeners() {
-        if (DEBUG) Log.d(TAG, "unsetSearchListeners() called")
-        searchClear!!.setOnClickListener(null)
-        searchClear!!.setOnLongClickListener(null)
-        searchEditText!!.setOnClickListener(null)
-        searchEditText!!.onFocusChangeListener = null
-        searchEditText!!.setOnEditorActionListener(null)
+        Log.d(TAG, "SearchFragment.unsetSearchListeners() called")
+        searchClear.setOnClickListener(null)
+        searchClear.setOnLongClickListener(null)
+        searchEditText.setOnClickListener(null)
+        searchEditText.onFocusChangeListener = null
+        searchEditText.setOnEditorActionListener(null)
 
-        if (textWatcher != null) searchEditText!!.removeTextChangedListener(textWatcher)
+        if (textWatcher != null) searchEditText.removeTextChangedListener(textWatcher)
         textWatcher = null
     }
 
     private fun showSuggestionsPanel() {
-        if (DEBUG) Log.d(TAG, "showSuggestionsPanel() called")
-        animateView(suggestionsPanel!!, AnimationUtils.Type.LIGHT_SLIDE_AND_ALPHA, true, 200)
+        Log.d(TAG, "showSuggestionsPanel() called")
+        animateView(suggestionsPanel, AnimationUtils.Type.LIGHT_SLIDE_AND_ALPHA, true, 200)
     }
 
     private fun hideSuggestionsPanel() {
-        if (DEBUG) Log.d(TAG, "hideSuggestionsPanel() called")
-        animateView(suggestionsPanel!!, AnimationUtils.Type.LIGHT_SLIDE_AND_ALPHA, false, 200)
+        Log.d(TAG, "hideSuggestionsPanel() called")
+        animateView(suggestionsPanel, AnimationUtils.Type.LIGHT_SLIDE_AND_ALPHA, false, 200)
     }
 
     private fun showKeyboardSearch() {
-        if (DEBUG) Log.d(TAG, "showKeyboardSearch() called")
-        if (searchEditText == null) return
+        Log.d(TAG, "showKeyboardSearch() called")
 
-        if (searchEditText!!.requestFocus()) {
-            val imm = activity!!.getSystemService(
-                    Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.showSoftInput(searchEditText, InputMethodManager.SHOW_IMPLICIT)
+        if (searchEditText.requestFocus()) {
+            val inputMethodManager = activity!!.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.showSoftInput(searchEditText, InputMethodManager.SHOW_IMPLICIT)
         }
     }
 
     private fun hideKeyboardSearch() {
-        if (DEBUG) Log.d(TAG, "hideKeyboardSearch() called")
-        if (searchEditText == null) return
+        Log.d(TAG, "hideKeyboardSearch() called")
 
-        val imm = activity!!.getSystemService(
-                Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(searchEditText!!.windowToken,
-                InputMethodManager.HIDE_NOT_ALWAYS)
+        val inputMethodManager = activity!!.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(searchEditText.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
 
-        searchEditText!!.clearFocus()
+        searchEditText.clearFocus()
     }
 
     private fun showDeleteSuggestionDialog(item: SuggestionItem) {
-        if (activity == null || historyRecordManager == null || suggestionPublisher == null ||
-                searchEditText == null || disposables == null)
-            return
+        if (activity == null) return
+
         val query = item.query
         AlertDialog.Builder(activity!!)
                 .setTitle(query)
@@ -486,30 +506,30 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
                 .setCancelable(true)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.delete) { dialog, which ->
-                    val onDelete = historyRecordManager!!.deleteSearchHistory(query!!)
+                    val onDelete = historyRecordManager.deleteSearchHistory(query!!)
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(
                                     { howManyDeleted ->
                                         suggestionPublisher
-                                                .onNext(searchEditText!!.text.toString())
+                                                .onNext(searchEditText.text.toString())
                                     },
                                     { throwable ->
                                         showSnackBarError(throwable,
                                                 UserAction.DELETE_FROM_HISTORY, "none",
                                                 "Deleting item failed", R.string.general_error)
                                     })
-                    disposables.add(onDelete)
+                    compositeDisposable.add(onDelete)
                 }
                 .show()
     }
 
     override fun onBackPressed(): Boolean {
-        if (suggestionsPanel!!.visibility == View.VISIBLE
+        if (suggestionsPanel.visibility == View.VISIBLE
                 && infoListAdapter!!.itemsList.size > 0
                 && !isLoading.get()) {
             hideSuggestionsPanel()
             hideKeyboardSearch()
-            searchEditText!!.setText(lastSearchedString)
+            searchEditText.setText(lastSearchedString)
             return true
         }
         return false
@@ -520,8 +540,8 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
     }
 
     private fun initSuggestionObserver() {
-        if (DEBUG) Log.d(TAG, "initSuggestionObserver() called")
-        if (suggestionDisposable != null) suggestionDisposable!!.dispose()
+        Log.d(TAG, "initSuggestionObserver() called")
+        if (suggestionDisposable != null && !suggestionDisposable!!.isDisposed) suggestionDisposable!!.dispose()
 
         val observable = suggestionPublisher
                 .debounce(SUGGESTIONS_DEBOUNCE.toLong(), TimeUnit.MILLISECONDS)
@@ -532,9 +552,9 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
                 .filter { searchString -> isSuggestionsEnabled }
 
         suggestionDisposable = observable
-                .switchMap{ query ->
-                    val flowable = historyRecordManager!!
-                            .getRelatedSearches(query, 3, 25)
+                .switchMap { query ->
+                    val flowable = historyRecordManager.getRelatedSearches(query, 5, 25)
+
                     val local = flowable.toObservable()
                             .map<List<SuggestionItem>> { searchHistoryEntries ->
                                 val result = ArrayList<SuggestionItem>()
@@ -550,8 +570,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
 
                     }
 
-                    val network = ExtractorHelper
-                            .suggestionsFor(serviceId, query, contentCountry!!)
+                    val network = ExtractorHelper.suggestionsFor(serviceId, query, contentCountry)
                             .toObservable()
                             .map<List<SuggestionItem>> { strings ->
                                 val result = ArrayList<SuggestionItem>()
@@ -561,41 +580,45 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
                                 result
                             }
 
-                    Observable.zip<List<SuggestionItem>, List<SuggestionItem>, List<SuggestionItem>>(local, network, BiFunction{ localResult, networkResult ->
-                        val result = ArrayList<SuggestionItem>()
-                        if (localResult.size > 0) result.addAll(localResult)
+                    Observable.zip<List<SuggestionItem>, List<SuggestionItem>, List<SuggestionItem>>(
+                            local,
+                            network,
+                            BiFunction { localResult, networkResult ->
+                                val result = ArrayList<SuggestionItem>()
+                                if (localResult.isNotEmpty()) result.addAll(localResult)
 
-                        // Remove duplicates
-                        val iterator = networkResult.iterator() as MutableIterator<SuggestionItem>
-                        while (iterator.hasNext() && localResult.size > 0) {
-                            val next = iterator.next()
-                            for (item in localResult) {
-                                if (item.query == next.query) {
-                                    iterator.remove()
-                                    break
+                                // Remove duplicates
+                                val iterator = networkResult.iterator() as MutableIterator<SuggestionItem>
+                                while (iterator.hasNext() && localResult.isNotEmpty()) {
+                                    val next = iterator.next()
+                                    for (item in localResult) {
+                                        if (item.query == next.query) {
+                                            iterator.remove()
+                                            break
+                                        }
+                                    }
                                 }
-                            }
-                        }
 
-                        if (networkResult.size > 0) result.addAll(networkResult)
-                        result
-                    }).materialize()
+                                if (networkResult.isNotEmpty()) result.addAll(networkResult)
+                                result
+                            }).materialize()
                 }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { listNotification ->
-                    if (listNotification.isOnNext()) {
-                        handleSuggestions(listNotification.getValue()!!)
-                    } else if (listNotification.isOnError()) {
-                        val error = listNotification.getError()
-                        error?.let{throwable ->
-                            if (!ExtractorHelper.hasAssignableCauseThrowable(throwable,
-                                            IOException::class.java, SocketException::class.java,
-                                            InterruptedException::class.java, InterruptedIOException::class.java)) {
-                                onSuggestionError(throwable)
+                    when {
+                        listNotification.isOnNext -> handleSuggestions(listNotification.value!!)
+                        listNotification.isOnError -> {
+                            val error = listNotification.error
+                            error?.let { throwable ->
+                                if (!ExtractorHelper.hasAssignableCauseThrowable(throwable,
+                                                IOException::class.java, SocketException::class.java,
+                                                InterruptedException::class.java, InterruptedIOException::class.java)) {
+                                    onSuggestionError(throwable)
+                                }
                             }
-                        }
 
+                        }
                     }
                 }
     }
@@ -605,34 +628,41 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
     }
 
     private fun search(searchString: String?, contentFilter: Array<String>, sortFilter: String) {
-        if (DEBUG) Log.d(TAG, "search() called with: query = [$searchString]")
-        if (searchString!!.isEmpty()) return
+        Log.d(TAG, "search() called with: query = [$searchString]")
+        if (TextUtils.isEmpty(searchString)) return
 
         try {
             val service = NewPipe.getServiceByUrl(searchString)
             if (service != null) {
                 showLoading()
-                disposables.add(Observable
+                val d = Observable
                         .fromCallable { NavigationHelper.getIntentByLink(activity, service, searchString) }
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({ intent ->
-                            fragmentManager!!.popBackStackImmediate()
-                            activity!!.startActivity(intent)
-                        }, { throwable -> showError(getString(R.string.url_not_supported_toast), false) }))
+                        .subscribe(
+                                { intent ->
+                                    fragmentManager?.popBackStackImmediate()
+                                    activity?.startActivity(intent)
+                                },
+                                { throwable ->
+                                    showError(getString(R.string.url_not_supported_toast), false)
+                                })
+
+                compositeDisposable.add(d)
                 return
             }
         } catch (e: Exception) {
             // Exception occurred, it's not a url
+            Log.d(TAG, "Exception occurred, because searchString is not a url")
         }
 
         lastSearchedString = this.searchString
         this.searchString = searchString
-        infoListAdapter!!.clearStreamItemList()
+        infoListAdapter?.clearStreamItemList()
         hideSuggestionsPanel()
         hideKeyboardSearch()
 
-        historyRecordManager!!.onSearched(serviceId, searchString)
+        val d2 = historyRecordManager.onSearched(serviceId, searchString!!)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         { ignored -> },
@@ -642,36 +672,38 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
                         }
                 )
         suggestionPublisher.onNext(searchString)
-        startLoading(false)
+        startLoading(false)   // start loading search result
+        compositeDisposable.add(d2)
     }
 
     public override fun startLoading(forceLoad: Boolean) {
         super.startLoading(forceLoad)
-        disposables?.clear()
-        if (searchDisposable != null) searchDisposable!!.dispose()
+        compositeDisposable.clear()
+        if (searchDisposable != null && !searchDisposable!!.isDisposed) searchDisposable!!.dispose()
         searchDisposable = ExtractorHelper.searchFor(serviceId,
                 searchString!!,
                 Arrays.asList(*contentFilter),
                 sortFilter!!,
-                contentCountry!!)
+                contentCountry)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnEvent { searchResult, throwable -> isLoading.set(false) }
-                .subscribe( { this.handleResult(it) },  { this.onError(it) })
+                .subscribe({result -> this.handleResult(result) },
+                        {error -> this.onError(error) })
 
     }
 
     override fun loadMoreItems() {
         isLoading.set(true)
         showListFooter(true)
-        if (searchDisposable != null) searchDisposable!!.dispose()
+        if (searchDisposable != null && !searchDisposable!!.isDisposed) searchDisposable!!.dispose()
         searchDisposable = ExtractorHelper.getMoreSearchItems(
                 serviceId,
                 searchString!!,
                 asList(*contentFilter),
                 sortFilter!!,
                 nextPageUrl!!,
-                contentCountry!!)
+                contentCountry)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnEvent { nextItemsResult, throwable -> isLoading.set(false) }
@@ -714,18 +746,18 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
     // Suggestion Results
     ///////////////////////////////////////////////////////////////////////////
 
-    fun handleSuggestions(suggestions: List<SuggestionItem>) {
-        if (DEBUG) Log.d(TAG, "handleSuggestions() called with: suggestions = [$suggestions]")
-        suggestionsRecyclerView!!.smoothScrollToPosition(0)
-        suggestionsRecyclerView!!.post { suggestionListAdapter!!.setItems(suggestions) }
+    private fun handleSuggestions(suggestions: List<SuggestionItem>) {
+        Log.d(TAG, "handleSuggestions(): suggestions = [$suggestions]")
+        suggestionsRecyclerView.smoothScrollToPosition(0)
+        suggestionsRecyclerView.post { suggestionListAdapter.setItems(suggestions) }
 
         if (errorPanelRoot.visibility == View.VISIBLE) {
             hideLoading()
         }
     }
 
-    fun onSuggestionError(exception: Throwable) {
-        if (DEBUG) Log.d(TAG, "onSuggestionError() called with: exception = [$exception]")
+    private fun onSuggestionError(exception: Throwable) {
+        Log.d(TAG, "onSuggestionError(): exception = [$exception]")
         if (super.onError(exception)) return
 
         val errorId = if (exception is ParsingException)
@@ -756,8 +788,9 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
     ///////////////////////////////////////////////////////////////////////////
 
     override fun handleResult(result: SearchInfo) {
+        Log.d(TAG, "handleResult(result = $result): result.url = ${result.url}, result.nextPageUrl = ${result.nextPageUrl},  result.relatedItems = ${result.relatedItems}")
         val exceptions = result.errors
-        if (!exceptions.isEmpty() && !(exceptions.size == 1 && exceptions[0] is SearchExtractor.NothingFoundException)) {
+        if (exceptions != null && !exceptions.isEmpty() && !(exceptions.size == 1 && exceptions[0] is SearchExtractor.NothingFoundException)) {
             showSnackBarError(result.errors, UserAction.SEARCHED,
                     NewPipe.getNameOfService(serviceId), searchString!!, 0)
         }
@@ -766,7 +799,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
         nextPageUrl = result.nextPageUrl
         currentPageUrl = result.url
 
-        if (infoListAdapter!!.itemsList.size == 0) {
+        if (infoListAdapter != null && infoListAdapter!!.itemsList.size == 0) {
             if (!result.relatedItems.isEmpty()) {
                 infoListAdapter!!.addInfoItemList(result.relatedItems)
             } else {
@@ -820,12 +853,12 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
          * The suggestions will only be fetched getTabFrom network if the query meet this threshold (>=).
          * (local ones will be fetched regardless of the length)
          */
-        private val THRESHOLD_NETWORK_SUGGESTION = 1
+        private const val THRESHOLD_NETWORK_SUGGESTION = 1
 
         /**
          * How much time have to pass without emitting a item (i.e. the user stop typing) to fetch/show the suggestions, in milliseconds.
          */
-        private val SUGGESTIONS_DEBOUNCE = 120 //ms
+        private const val SUGGESTIONS_DEBOUNCE = 120 //ms
 
         //////////////////////////////////////////////////////////////////////////
 

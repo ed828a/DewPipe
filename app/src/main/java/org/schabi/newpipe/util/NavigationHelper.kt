@@ -44,8 +44,9 @@ import org.schabi.newpipe.settings.SettingsActivity
 import java.util.*
 
 object NavigationHelper {
-    val MAIN_FRAGMENT_TAG = "main_fragment_tag"
-    val SEARCH_FRAGMENT_TAG = "search_fragment_tag"
+    const val TAG = "NavigationHelper"
+    const val MAIN_FRAGMENT_TAG = "main_fragment_tag"
+    const val SEARCH_FRAGMENT_TAG = "search_fragment_tag"
 
     ///////////////////////////////////////////////////////////////////////////
     // Players
@@ -461,6 +462,7 @@ object NavigationHelper {
 
     @Throws(ExtractionException::class)
     fun getIntentByLink(context: Context?, service: StreamingService, url: String?): Intent {
+        Log.d(TAG, "getIntentByLink(): url = $url")
         val linkType = service.getLinkTypeByUrl(url)
 
         if (linkType == StreamingService.LinkType.NONE) {

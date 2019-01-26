@@ -43,7 +43,7 @@ class ChooseTabsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        tabsManager = TabsManager.getManager(requireContext())  // requireContext() is better than getContext()
+        tabsManager = TabsManager.getTabsManager(requireContext())  // requireContext() is better than getContext()
         updateTabList()
 
         setHasOptionsMenu(true)

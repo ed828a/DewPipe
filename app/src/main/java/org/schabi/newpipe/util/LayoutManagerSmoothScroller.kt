@@ -6,11 +6,10 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.LinearSmoothScroller
 import android.support.v7.widget.RecyclerView
 
-class LayoutManagerSmoothScroller : LinearLayoutManager {
-
-    constructor(context: Context) : super(context, LinearLayoutManager.VERTICAL, false) {}
-
-    constructor(context: Context, orientation: Int, reverseLayout: Boolean) : super(context, orientation, reverseLayout) {}
+class LayoutManagerSmoothScroller (context: Context,
+                                   orientation: Int = LinearLayoutManager.VERTICAL,
+                                   reverseLayout: Boolean = false
+): LinearLayoutManager (context, orientation, reverseLayout){
 
     override fun smoothScrollToPosition(recyclerView: RecyclerView, state: RecyclerView.State?, position: Int) {
         val smoothScroller = TopSnappedSmoothScroller(recyclerView.context)

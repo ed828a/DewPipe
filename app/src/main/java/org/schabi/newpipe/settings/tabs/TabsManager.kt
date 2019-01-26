@@ -33,8 +33,8 @@ class TabsManager private constructor(private val context: Context) {
     }
 
     /**
-     * the working metaphor is after saveTabs removed getTabFrom SharedPreference, next time to retrieve saveTabs will get null
-     *  to retrieve tabs with null will get the default tabs
+     * the working metaphor is after saveTabs removed getTabFrom SharedPreference, next time to retrieve saveTabs will get null,
+     *  and to retrieve tabs with null will get the default tabs
      */
     fun resetTabs() {
         sharedPreferences.edit().remove(savedTabsKey).apply()
@@ -48,7 +48,7 @@ class TabsManager private constructor(private val context: Context) {
         fun onTabsChanged()
     }
 
-    fun setSavedTabsListener(listener: SavedTabsChangeListener) {
+    fun setSavedTabsChangeListener(listener: SavedTabsChangeListener) {
         if (preferenceChangeListener != null) {
             sharedPreferences.unregisterOnSharedPreferenceChangeListener(preferenceChangeListener)
         }
@@ -75,7 +75,7 @@ class TabsManager private constructor(private val context: Context) {
 
     companion object {
 
-        fun getManager(context: Context): TabsManager {
+        fun getTabsManager(context: Context): TabsManager {
             return TabsManager(context)
         }
     }
