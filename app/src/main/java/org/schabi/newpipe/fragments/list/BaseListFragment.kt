@@ -56,9 +56,9 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
 
     protected open fun getListFooter(): View = activity!!.layoutInflater.inflate(R.layout.pignate_footer, itemsList, false)
 
-    protected fun getListLayoutManager(): RecyclerView.LayoutManager = LinearLayoutManager(activity)
+    private fun getListLayoutManager(): RecyclerView.LayoutManager = LinearLayoutManager(activity)
 
-    protected fun getGridLayoutManager(): RecyclerView.LayoutManager {
+    private fun getGridLayoutManager(): RecyclerView.LayoutManager {
         val resources = activity!!.resources
         var width = resources.getDimensionPixelSize(R.dimen.video_item_grid_thumbnail_image_width)
         width += (24 * resources.displayMetrics.density).toInt()
@@ -69,14 +69,14 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
     }
 
 
-    protected val isGridLayout: Boolean
+    private val isGridLayout: Boolean
         get() {
             val listMode = PreferenceManager.getDefaultSharedPreferences(activity).getString(getString(R.string.list_view_mode_key), getString(R.string.list_view_mode_value))
-            if ("auto" == listMode) {
+            return if ("auto" == listMode) {
                 val configuration = resources.configuration
-                return configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && configuration.isLayoutSizeAtLeast(Configuration.SCREENLAYOUT_SIZE_LARGE)
+                configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && configuration.isLayoutSizeAtLeast(Configuration.SCREENLAYOUT_SIZE_LARGE)
             } else {
-                return "grid" == listMode
+                "grid" == listMode
             }
         }
 

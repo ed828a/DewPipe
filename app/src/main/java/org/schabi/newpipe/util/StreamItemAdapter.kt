@@ -22,7 +22,11 @@ import java.io.Serializable
 /**
  * A list adapter for a list of [streams][Stream], currently supporting [VideoStream] and [AudioStream].
  */
-class StreamItemAdapter<T : Stream> @JvmOverloads constructor(private val context: Context, private val streamsWrapper: StreamSizeWrapper<T>, private val showIconNoAudio: Boolean = false) : BaseAdapter() {
+class StreamItemAdapter<T : Stream> @JvmOverloads constructor(
+        private val context: Context,
+        private val streamsWrapper: StreamSizeWrapper<T>,
+        private val showIconNoAudio: Boolean = false
+) : BaseAdapter() {
 
     val all: List<T>
         get() = streamsWrapper.streamsList
@@ -48,35 +52,37 @@ class StreamItemAdapter<T : Stream> @JvmOverloads constructor(private val contex
     }
 
     private fun getCustomView(position: Int, convertView: View?, parent: ViewGroup, isDropdownItem: Boolean): View {
-        var convertView = convertView
-        if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.stream_quality_item, parent, false)
-        }
+        val locConvertView: View = convertView ?: LayoutInflater.from(context).inflate(R.layout.stream_quality_item, parent, false)
+//        if (locConvertView == null) {
+//            locConvertView = LayoutInflater.from(context).inflate(R.layout.stream_quality_item, parent, false)
+//        }
 
-        val woSoundIconView = convertView!!.findViewById<ImageView>(R.id.wo_sound_icon)
-        val formatNameView = convertView.findViewById<TextView>(R.id.stream_format_name)
-        val qualityView = convertView.findViewById<TextView>(R.id.stream_quality)
-        val sizeView = convertView.findViewById<TextView>(R.id.stream_size)
+        val woSoundIconView = locConvertView.findViewById<ImageView>(R.id.wo_sound_icon)
+        val formatNameView = locConvertView.findViewById<TextView>(R.id.stream_format_name)
+        val qualityView = locConvertView.findViewById<TextView>(R.id.stream_quality)
+        val sizeView = locConvertView.findViewById<TextView>(R.id.stream_size)
 
         val stream = getItem(position)
 
         var woSoundIconVisibility = View.GONE
+
         val qualityString: String
+        when (stream) {
+            is VideoStream -> {
+                if (!showIconNoAudio) {
+                    woSoundIconVisibility = View.GONE
+                } else if ((stream as VideoStream).isVideoOnly()) {
+                    woSoundIconVisibility = View.VISIBLE
+                } else if (isDropdownItem) {
+                    woSoundIconVisibility = View.INVISIBLE
+                }
 
-        if (stream is VideoStream) {
-            qualityString = (stream as VideoStream).getResolution()
-
-            if (!showIconNoAudio) {
-                woSoundIconVisibility = View.GONE
-            } else if ((stream as VideoStream).isVideoOnly()) {
-                woSoundIconVisibility = View.VISIBLE
-            } else if (isDropdownItem) {
-                woSoundIconVisibility = View.INVISIBLE
+                qualityString = (stream as VideoStream).getResolution()
             }
-        } else if (stream is AudioStream) {
-            qualityString = (stream as AudioStream).averageBitrate.toString() + "kbps"
-        } else {
-            qualityString = stream.getFormat().getSuffix()
+
+            is AudioStream -> qualityString = "${(stream as AudioStream).averageBitrate}kbps"
+
+            else -> qualityString = stream.getFormat().getSuffix()
         }
 
         if (streamsWrapper.getSizeInBytes(position) > 0) {
@@ -90,18 +96,16 @@ class StreamItemAdapter<T : Stream> @JvmOverloads constructor(private val contex
         qualityView.text = qualityString
         woSoundIconView.visibility = woSoundIconVisibility
 
-        return convertView
+        return locConvertView
     }
 
     /**
      * A wrapper class that includes a way of storing the stream sizes.
      */
     class StreamSizeWrapper<T : Stream>(val streamsList: List<T>) : Serializable {
-        private val streamSizes: LongArray
+        private val streamSizes: LongArray = LongArray(streamsList.size)
 
         init {
-            this.streamSizes = LongArray(streamsList.size)
-
             for (i in streamSizes.indices) streamSizes[i] = -1
         }
 

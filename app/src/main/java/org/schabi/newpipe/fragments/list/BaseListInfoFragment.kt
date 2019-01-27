@@ -79,8 +79,7 @@ abstract class BaseListInfoFragment<I : ListInfo<*>> : BaseListFragment<I, ListE
 
     override fun doInitialLoadLogic() {
         Log.d(TAG, "doInitialLoadLogic() called, serviceId = $serviceId")
-        // fix back stack error
-//        if (serviceId == NO_SERVICE_ID) serviceId = 0
+
         if (currentInfo == null) {
             startLoading(false)
         } else
@@ -172,7 +171,7 @@ abstract class BaseListInfoFragment<I : ListInfo<*>> : BaseListFragment<I, ListE
     ///////////////////////////////////////////////////////////////////////////
 
     protected fun setInitialData(serviceId: Int, url: String, name: String) {
-        if (DEBUG) Log.d(TAG, "setInitialData() called, serviceId = $serviceId")
+        Log.d(TAG, "setInitialData() called, serviceId = $serviceId")
         this.serviceId = serviceId
         this.url = url
         this.name = if (!TextUtils.isEmpty(name)) name else ""
