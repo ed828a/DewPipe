@@ -4,6 +4,7 @@ import android.content.Context
 import android.preference.PreferenceManager
 import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
+import android.util.Log
 
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.NewPipe
@@ -15,14 +16,18 @@ import java.util.concurrent.TimeUnit
 
 import org.schabi.newpipe.extractor.ServiceList.SoundCloud
 
+// NewPipe Extractor support only 2 service so far: YouTube and SoundCloud.
 object ServiceHelper {
+    private const val TAG = "ServiceHelper"
     private val DEFAULT_FALLBACK_SERVICE = ServiceList.YouTube
+    private const val YOUTUBE_SERVICE_ID = 0
+    private const val SOUNDCLOUD_SERVICE_ID = 1
 
     @DrawableRes
     fun getIcon(serviceId: Int): Int {
         return when (serviceId) {
-            0 -> R.drawable.place_holder_youtube
-            1 -> R.drawable.place_holder_circle
+            YOUTUBE_SERVICE_ID -> R.drawable.place_holder_youtube
+            SOUNDCLOUD_SERVICE_ID -> R.drawable.place_holder_circle
             else -> R.drawable.service
         }
     }
@@ -47,8 +52,8 @@ object ServiceHelper {
     @StringRes
     fun getImportInstructions(serviceId: Int): Int {
         return when (serviceId) {
-            0 -> R.string.import_youtube_instructions
-            1 -> R.string.import_soundcloud_instructions
+            YOUTUBE_SERVICE_ID -> R.string.import_youtube_instructions
+            SOUNDCLOUD_SERVICE_ID -> R.string.import_soundcloud_instructions
             else -> -1
         }
     }
@@ -62,7 +67,7 @@ object ServiceHelper {
     @StringRes
     fun getImportInstructionsHint(serviceId: Int): Int {
         return when (serviceId) {
-            1 -> R.string.import_soundcloud_instructions_hint
+            SOUNDCLOUD_SERVICE_ID -> R.string.import_soundcloud_instructions_hint
             else -> -1
         }
     }
@@ -72,19 +77,18 @@ object ServiceHelper {
         val serviceName = PreferenceManager.getDefaultSharedPreferences(context)
                 .getString(context.getString(R.string.current_service_key), context.getString(R.string.default_service_value))
 
-        var serviceId: Int
-        serviceId = try {
+        val serviceId: Int = try {
             NewPipe.getService(serviceName).serviceId
         } catch (e: ExtractionException) {
             DEFAULT_FALLBACK_SERVICE.serviceId
         }
 
+        Log.d(TAG, "getSelectedServiceId(): serviceName: $serviceName, serviceId = $serviceId")
         return serviceId
     }
 
     fun setSelectedServiceId(context: Context, serviceId: Int) {
-        var serviceName: String
-        serviceName = try {
+        val serviceName: String = try {
             NewPipe.getService(serviceId).serviceInfo.name
         } catch (e: ExtractionException) {
             DEFAULT_FALLBACK_SERVICE.serviceInfo.name
@@ -107,14 +111,14 @@ object ServiceHelper {
 
     fun getCacheExpirationMillis(serviceId: Int): Long {
         return if (serviceId == SoundCloud.serviceId) {
-            TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES)
+            TimeUnit.MILLISECONDS.convert(15, TimeUnit.MINUTES)
         } else {
             TimeUnit.MILLISECONDS.convert(1, TimeUnit.HOURS)
         }
     }
 
-    fun isBeta(s: StreamingService): Boolean {
-        return when (s.serviceInfo.name) {
+    fun isBeta(streamingService: StreamingService): Boolean {
+        return when (streamingService.serviceInfo.name) {
             "YouTube" -> false
             else -> true
         }

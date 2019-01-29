@@ -196,6 +196,7 @@ class MainActivity : AppCompatActivity() {
 
     @Throws(ExtractionException::class)
     private fun tabSelected(item: MenuItem) {
+
         when (item.itemId) {
             ITEM_ID_SUBSCRIPTIONS -> NavigationHelper.openSubscriptionFragment(supportFragmentManager)
             ITEM_ID_FEED -> NavigationHelper.openWhatsNewFragment(supportFragmentManager)

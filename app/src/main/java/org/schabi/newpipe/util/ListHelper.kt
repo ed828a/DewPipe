@@ -1,15 +1,14 @@
 package org.schabi.newpipe.util
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.net.ConnectivityManager
 import android.preference.PreferenceManager
 import android.support.annotation.StringRes
-
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.MediaFormat
 import org.schabi.newpipe.extractor.stream.AudioStream
 import org.schabi.newpipe.extractor.stream.VideoStream
+
 
 import java.util.ArrayList
 import java.util.Arrays
@@ -32,8 +31,7 @@ object ListHelper {
      * @see .getDefaultResolutionIndex
      */
     fun getDefaultResolutionIndex(context: Context, videoStreams: List<VideoStream>): Int {
-        val defaultResolution = computeDefaultResolution(context,
-                R.string.default_resolution_key, R.string.default_resolution_value)
+        val defaultResolution = computeDefaultResolution(context, R.string.default_resolution_key, R.string.default_resolution_value)
         return getDefaultResolutionWithDefaultFormat(context, defaultResolution, videoStreams)
     }
 
@@ -48,8 +46,7 @@ object ListHelper {
      * @see .getDefaultResolutionIndex
      */
     fun getPopupDefaultResolutionIndex(context: Context, videoStreams: List<VideoStream>): Int {
-        val defaultResolution = computeDefaultResolution(context,
-                R.string.default_popup_resolution_key, R.string.default_popup_resolution_value)
+        val defaultResolution = computeDefaultResolution(context, R.string.default_popup_resolution_key, R.string.default_popup_resolution_value)
         return getDefaultResolutionWithDefaultFormat(context, defaultResolution, videoStreams)
     }
 
@@ -61,11 +58,10 @@ object ListHelper {
     }
 
     fun getDefaultAudioFormat(context: Context, audioStreams: List<AudioStream>): Int {
-        val defaultFormat = getDefaultFormat(context, R.string.default_audio_format_key,
-                R.string.default_audio_format_value)
+        val defaultFormat = getDefaultFormat(context, R.string.default_audio_format_key, R.string.default_audio_format_value)
 
-        // If the user has chosen to limit resolution to conserve mobile data
-        // usage then we should also limit our audio usage.
+        // If the user has chosen to limit resolution to conserve mobile data usage
+        // then we should also limit our audio usage.
         return if (isLimitingDataUsage(context)) {
             getMostCompactAudioIndex(defaultFormat, audioStreams)
         } else {
@@ -83,9 +79,13 @@ object ListHelper {
      * @param ascendingOrder   true -> smallest to greatest | false -> greatest to smallest
      * @return the sorted list
      */
-    fun getSortedStreamVideosList(context: Context, videoStreams: List<VideoStream>, videoOnlyStreams: List<VideoStream>?, ascendingOrder: Boolean): List<VideoStream> {
+    fun getSortedStreamVideosList(
+            context: Context,
+            videoStreams: List<VideoStream>,
+            videoOnlyStreams: List<VideoStream>?,
+            ascendingOrder: Boolean
+    ): List<VideoStream> {
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-
         val showHigherResolutions = preferences.getBoolean(context.getString(R.string.show_higher_resolutions_key), false)
         val defaultFormat = getDefaultFormat(context, R.string.default_video_format_key, R.string.default_video_format_value)
 
@@ -100,16 +100,15 @@ object ListHelper {
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
 
         // Load the prefered resolution otherwise the best available
-        var resolution: String? = if (preferences != null)
-            preferences.getString(context.getString(key), context.getString(value))
-        else
-            context.getString(R.string.best_resolution_key)
+        val resolution: String? = preferences?.getString(context.getString(key), context.getString(value))
+        var locResolution = resolution ?: context.getString(R.string.best_resolution_key)
 
-        val maxResolution = getResolutionLimit(context)
-        if (maxResolution != null && compareVideoStreamResolution(maxResolution, resolution!!) < 1) {
-            resolution = maxResolution
+        val maxResolution: String? = getResolutionLimit(context)
+        if (locResolution != null && maxResolution != null && compareVideoStreamResolution(maxResolution, locResolution) < 1) {
+            locResolution = maxResolution
         }
-        return resolution!!
+
+        return locResolution
     }
 
     /**
@@ -118,8 +117,10 @@ object ListHelper {
      *
      * @return index of the default resolution&format
      */
-    internal fun getDefaultResolutionIndex(defaultResolution: String, bestResolutionKey: String,
-                                           defaultFormat: MediaFormat?, videoStreams: List<VideoStream>?): Int {
+    fun getDefaultResolutionIndex(defaultResolution: String,
+                                  bestResolutionKey: String,
+                                  defaultFormat: MediaFormat?,
+                                  videoStreams: List<VideoStream>?): Int {
         if (videoStreams == null || videoStreams.isEmpty()) return -1
 
         sortStreamList(videoStreams, false)
@@ -147,20 +148,39 @@ object ListHelper {
      * @param ascendingOrder        true -> smallest to greatest | false -> greatest to smallest    @return the sorted list
      * @return the sorted list
      */
-    internal fun getSortedStreamVideosList(defaultFormat: MediaFormat?, showHigherResolutions: Boolean, videoStreams: List<VideoStream>?, videoOnlyStreams: List<VideoStream>?, ascendingOrder: Boolean): List<VideoStream> {
+    fun getSortedStreamVideosList(
+            defaultFormat: MediaFormat?,
+            showHigherResolutions: Boolean,
+            videoStreams: List<VideoStream>?,
+            videoOnlyStreams: List<VideoStream>?,
+            ascendingOrder: Boolean
+    ): List<VideoStream> {
         val retList = ArrayList<VideoStream>()
         val hashMap = HashMap<String, VideoStream>()
 
-        if (videoOnlyStreams != null) {
-            for (stream in videoOnlyStreams) {
-                if (!showHigherResolutions && HIGH_RESOLUTION_LIST.contains(stream.getResolution())) continue
-                retList.add(stream)
+//        if (videoOnlyStreams != null) {
+//            for (stream in videoOnlyStreams) {
+//                if (showHigherResolutions || !HIGH_RESOLUTION_LIST.contains(stream.getResolution())) {
+//                    retList.add(stream)
+//                }
+//            }
+//        }
+
+        videoOnlyStreams?.forEach { videoStream ->
+            if (showHigherResolutions || !HIGH_RESOLUTION_LIST.contains(videoStream.getResolution())) {
+                retList.add(videoStream)
             }
         }
-        if (videoStreams != null) {
-            for (stream in videoStreams) {
-                if (!showHigherResolutions && HIGH_RESOLUTION_LIST.contains(stream.getResolution())) continue
-                retList.add(stream)
+//        if (videoStreams != null) {
+//            for (stream in videoStreams) {
+//                if (showHigherResolutions || !HIGH_RESOLUTION_LIST.contains(stream.getResolution())) {
+//                    retList.add(stream)
+//                }
+//            }
+//        }
+        videoStreams?.forEach { videoStream ->
+            if (showHigherResolutions || !HIGH_RESOLUTION_LIST.contains(videoStream.getResolution())) {
+                retList.add(videoStream)
             }
         }
 
@@ -175,6 +195,7 @@ object ListHelper {
         retList.clear()
         retList.addAll(hashMap.values)
         sortStreamList(retList, ascendingOrder)
+
         return retList
     }
 
@@ -220,8 +241,8 @@ object ListHelper {
                 var prevStream: AudioStream? = null
                 for (idx in audioStreams.indices) {
                     val stream = audioStreams[idx]
-                    if ((format == null || stream.getFormat() == format) && (prevStream == null || compareAudioStreamBitrate(prevStream, stream,
-                                    AUDIO_FORMAT_QUALITY_RANKING) < 0)) {
+                    if ((format == null || stream.getFormat() == format) && (prevStream == null ||
+                                    compareAudioStreamBitrate(prevStream, stream, AUDIO_FORMAT_QUALITY_RANKING) < 0)) {
                         prevStream = stream
                         result = idx
                     }
@@ -276,53 +297,48 @@ object ListHelper {
      * 5. Find a resolution just below the requested resolution and ignore the refresh
      * 6. Give up
      */
-    internal fun getVideoStreamIndex(targetResolution: String, targetFormat: MediaFormat?,
-                                     videoStreams: List<VideoStream>): Int {
+    fun getVideoStreamIndex(targetResolution: String, targetFormat: MediaFormat?,
+                            videoStreams: List<VideoStream>): Int {
         var fullMatchIndex = -1
         var fullMatchNoRefreshIndex = -1
         var resMatchOnlyIndex = -1
         var resMatchOnlyNoRefreshIndex = -1
         var lowerResMatchNoRefreshIndex = -1
-        val targetResolutionNoRefresh = targetResolution.replace("p\\d+$".toRegex(), "p")
+        val targetResolutionNoRefresh = (targetResolution as CharSequence).replace("p\\d+$".toRegex(), "p")
 
-        for (idx in videoStreams.indices) {
-            val format = if (targetFormat == null) null else videoStreams[idx].getFormat()
-            val resolution = videoStreams[idx].getResolution()
-            val resolutionNoRefresh = resolution.replace("p\\d+$".toRegex(), "p")
+        for (index in videoStreams.indices) {
+            val format = if (targetFormat == null) null else videoStreams[index].getFormat()
+            val resolution = videoStreams[index].getResolution() ?: continue
+            val resolutionNoRefresh = (resolution as CharSequence).replace("p\\d+$".toRegex(), "p")
 
             if (format == targetFormat && resolution == targetResolution) {
-                fullMatchIndex = idx
+                fullMatchIndex = index
             }
 
             if (format == targetFormat && resolutionNoRefresh == targetResolutionNoRefresh) {
-                fullMatchNoRefreshIndex = idx
+                fullMatchNoRefreshIndex = index
             }
 
             if (resMatchOnlyIndex == -1 && resolution == targetResolution) {
-                resMatchOnlyIndex = idx
+                resMatchOnlyIndex = index
             }
 
             if (resMatchOnlyNoRefreshIndex == -1 && resolutionNoRefresh == targetResolutionNoRefresh) {
-                resMatchOnlyNoRefreshIndex = idx
+                resMatchOnlyNoRefreshIndex = index
             }
 
             if (lowerResMatchNoRefreshIndex == -1 && compareVideoStreamResolution(resolutionNoRefresh, targetResolutionNoRefresh) < 0) {
-                lowerResMatchNoRefreshIndex = idx
+                lowerResMatchNoRefreshIndex = index
             }
         }
 
-        if (fullMatchIndex != -1) {
-            return fullMatchIndex
+        return when {
+            fullMatchIndex != -1 -> fullMatchIndex
+            fullMatchNoRefreshIndex != -1 -> fullMatchNoRefreshIndex
+            resMatchOnlyIndex != -1 -> resMatchOnlyIndex
+            resMatchOnlyNoRefreshIndex != -1 -> resMatchOnlyNoRefreshIndex
+            else -> lowerResMatchNoRefreshIndex
         }
-        if (fullMatchNoRefreshIndex != -1) {
-            return fullMatchNoRefreshIndex
-        }
-        if (resMatchOnlyIndex != -1) {
-            return resMatchOnlyIndex
-        }
-        return if (resMatchOnlyNoRefreshIndex != -1) {
-            resMatchOnlyNoRefreshIndex
-        } else lowerResMatchNoRefreshIndex
     }
 
     /**
@@ -339,8 +355,8 @@ object ListHelper {
 
         val defaultFormat = context.getString(defaultFormatValueKey)
         val defaultFormatString = preferences.getString(context.getString(defaultFormatKey), defaultFormat)
-
-        var defaultMediaFormat = getMediaFormatFromKey(context, defaultFormatString!!)
+                ?: throw Exception("Didn't set default Format")
+        var defaultMediaFormat = getMediaFormatFromKey(context, defaultFormatString)
         if (defaultMediaFormat == null) {
             preferences.edit().putString(context.getString(defaultFormatKey), defaultFormat).apply()
             defaultMediaFormat = getMediaFormatFromKey(context, defaultFormat)
@@ -349,21 +365,16 @@ object ListHelper {
         return defaultMediaFormat
     }
 
-    private fun getMediaFormatFromKey(context: Context, formatKey: String): MediaFormat? {
-        var format: MediaFormat? = null
-        if (formatKey == context.getString(R.string.video_webm_key)) {
-            format = MediaFormat.WEBM
-        } else if (formatKey == context.getString(R.string.video_mp4_key)) {
-            format = MediaFormat.MPEG_4
-        } else if (formatKey == context.getString(R.string.video_3gp_key)) {
-            format = MediaFormat.v3GPP
-        } else if (formatKey == context.getString(R.string.audio_webm_key)) {
-            format = MediaFormat.WEBMA
-        } else if (formatKey == context.getString(R.string.audio_m4a_key)) {
-            format = MediaFormat.M4A
-        }
-        return format
-    }
+    private fun getMediaFormatFromKey(context: Context, formatKey: String): MediaFormat? =
+            when (formatKey) {
+                context.getString(R.string.video_webm_key) -> MediaFormat.WEBM
+                context.getString(R.string.video_mp4_key) -> MediaFormat.MPEG_4
+                context.getString(R.string.video_3gp_key) -> MediaFormat.v3GPP
+                context.getString(R.string.audio_webm_key) -> MediaFormat.WEBMA
+                context.getString(R.string.audio_m4a_key) -> MediaFormat.M4A
+                else -> null
+            }
+
 
     // Compares the quality of two audio streams
     private fun compareAudioStreamBitrate(streamA: AudioStream?, streamB: AudioStream?,
@@ -377,17 +388,19 @@ object ListHelper {
         if (streamA.averageBitrate < streamB.averageBitrate) {
             return -1
         }
-        return if (streamA.averageBitrate > streamB.averageBitrate) {
-            1
-        } else formatRanking.indexOf(streamA.getFormat()) - formatRanking.indexOf(streamB.getFormat())
+        if (streamA.averageBitrate > streamB.averageBitrate) {
+            return 1
+        }
 
         // Same bitrate and format
+        return formatRanking.indexOf(streamA.getFormat()) - formatRanking.indexOf(streamB.getFormat())
     }
 
     private fun compareVideoStreamResolution(r1: String, r2: String): Int {
-        val res1 = Integer.parseInt(r1.replace("0p\\d+$".toRegex(), "1")
+
+        val res1 = Integer.parseInt(((r1 as CharSequence).replace("0p\\d+$".toRegex(), "1") as CharSequence)
                 .replace("[^\\d.]".toRegex(), ""))
-        val res2 = Integer.parseInt(r2.replace("0p\\d+$".toRegex(), "1")
+        val res2 = Integer.parseInt(((r2 as CharSequence).replace("0p\\d+$".toRegex(), "1") as CharSequence)
                 .replace("[^\\d.]".toRegex(), ""))
         return res1 - res2
     }
@@ -402,11 +415,12 @@ object ListHelper {
         }
 
         val resComp = compareVideoStreamResolution(streamA.getResolution(), streamB.getResolution())
-        return if (resComp != 0) {
-            resComp
-        } else ListHelper.VIDEO_FORMAT_QUALITY_RANKING.indexOf(streamA.getFormat()) - ListHelper.VIDEO_FORMAT_QUALITY_RANKING.indexOf(streamB.getFormat())
+        if (resComp != 0) {
+            return   resComp
+        }
 
         // Same bitrate and format
+        return ListHelper.VIDEO_FORMAT_QUALITY_RANKING.indexOf(streamA.getFormat()) - ListHelper.VIDEO_FORMAT_QUALITY_RANKING.indexOf(streamB.getFormat())
     }
 
 
@@ -438,6 +452,6 @@ object ListHelper {
      */
     private fun isWifiActive(context: Context): Boolean {
         val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        return manager != null && manager.activeNetworkInfo != null && manager.activeNetworkInfo.type == ConnectivityManager.TYPE_WIFI
+        return manager.activeNetworkInfo != null && manager.activeNetworkInfo.type == ConnectivityManager.TYPE_WIFI
     }
 }

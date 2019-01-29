@@ -64,8 +64,13 @@ object ExtractorHelper {
                   searchString: String,
                   contentFilter: List<String>,
                   sortFilter: String,
-                  contentCountry: String): Single<SearchInfo> {
+                  contentCountry: String
+    ): Single<SearchInfo> {
         checkServiceId(serviceId)
+        val searchQueryHandler = NewPipe.getService(serviceId)
+                .searchQHFactory
+                .fromQuery(searchString, contentFilter, sortFilter)
+
         return Single.fromCallable {
             SearchInfo.getInfo(NewPipe.getService(serviceId),
                     NewPipe.getService(serviceId)
@@ -110,7 +115,10 @@ object ExtractorHelper {
                       url: String,
                       forceLoad: Boolean): Single<StreamInfo> {
         checkServiceId(serviceId)
-        return checkCache(forceLoad, serviceId, url, Single.fromCallable { StreamInfo.getInfo(NewPipe.getService(serviceId), url) })
+        return checkCache(forceLoad, serviceId, url,
+                Single.fromCallable {
+                    StreamInfo.getInfo(NewPipe.getService(serviceId), url)
+                })
     }
 
     // YouTube Channel goes here
@@ -118,7 +126,10 @@ object ExtractorHelper {
                        url: String,
                        forceLoad: Boolean): Single<ChannelInfo> {
         checkServiceId(serviceId)
-        return checkCache(forceLoad, serviceId, url, Single.fromCallable { ChannelInfo.getInfo(NewPipe.getService(serviceId), url) })
+        return checkCache(forceLoad, serviceId, url,
+                Single.fromCallable {
+                    ChannelInfo.getInfo(NewPipe.getService(serviceId), url)
+                })
     }
 
     fun getMoreChannelItems(serviceId: Int,
@@ -132,7 +143,10 @@ object ExtractorHelper {
                         url: String,
                         forceLoad: Boolean): Single<PlaylistInfo> {
         checkServiceId(serviceId)
-        return checkCache(forceLoad, serviceId, url, Single.fromCallable { PlaylistInfo.getInfo(NewPipe.getService(serviceId), url) })
+        return checkCache(forceLoad, serviceId, url,
+                Single.fromCallable {
+                    PlaylistInfo.getInfo(NewPipe.getService(serviceId), url)
+                })
     }
 
     fun getMorePlaylistItems(serviceId: Int,
@@ -146,17 +160,17 @@ object ExtractorHelper {
                      url: String,
                      contentCountry: String,
                      forceLoad: Boolean): Single<KioskInfo> {
-        return checkCache(forceLoad, serviceId, url, Single.fromCallable { KioskInfo.getInfo(NewPipe.getService(serviceId), url, contentCountry) })
+        return checkCache(forceLoad, serviceId, url,
+                Single.fromCallable {
+                    KioskInfo.getInfo(NewPipe.getService(serviceId), url, contentCountry)
+                })
     }
 
     fun getMoreKioskItems(serviceId: Int,
                           url: String,
                           nextStreamsUrl: String,
                           contentCountry: String): Single<InfoItemsPage<*>> {
-        return Single.fromCallable {
-            KioskInfo.getMoreItems(NewPipe.getService(serviceId),
-                    url, nextStreamsUrl, contentCountry)
-        }
+        return Single.fromCallable { KioskInfo.getMoreItems(NewPipe.getService(serviceId), url, nextStreamsUrl, contentCountry) }
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -172,39 +186,35 @@ object ExtractorHelper {
                                       serviceId: Int,
                                       url: String,
                                       loadFromNetwork: Single<I>): Single<I> {
-        var loadFromNetwork = loadFromNetwork
+//        var loadFromNetwork = loadFromNetwork
         checkServiceId(serviceId)
-        loadFromNetwork = loadFromNetwork.doOnSuccess { info -> cache.putInfo(serviceId, url, info) }
+        val loadFromNetwork = loadFromNetwork.doOnSuccess { info -> cache.putInfo(serviceId, url, info) }
 
-        val load: Single<I>
-        if (forceLoad) {
+        return if (forceLoad) {
             cache.removeInfo(serviceId, url)
-            load = loadFromNetwork
+            loadFromNetwork
         } else {
-            load = Maybe.concat(ExtractorHelper.loadFromCache(serviceId, url),
-                    loadFromNetwork.toMaybe())
+            Maybe.concat(loadFromCache(serviceId, url), loadFromNetwork.toMaybe())
                     .firstElement() //Take the first valid
                     .toSingle()
         }
-
-        return load
     }
 
     /**
      * Default implementation uses the [InfoCache] to get cached results
      */
-    fun <I : Info> loadFromCache(serviceId: Int, url: String): Maybe<I> {
+    private fun <I : Info> loadFromCache(serviceId: Int, url: String): Maybe<I> {
         checkServiceId(serviceId)
         return Maybe.defer {
-            val info = cache.getFromKey(serviceId, url) as I?
-            if (MainActivity.DEBUG) Log.d(TAG, "loadFromCache() called, info > $info")
+            val info = cache.getFromKey(serviceId, url)
+            Log.d(TAG, "loadFromCache() called, info > $info")
 
-            // Only return info if it's not null (it is cached)
+            // Only return info if it's not null (which means that it is cached)
             if (info != null) {
-                return@defer Maybe.just< I >(info)
+                Maybe.just<I>(info as I)
+            } else {
+                Maybe.empty<I>()
             }
-
-            Maybe.empty<I>()
         }
     }
 
@@ -215,25 +225,31 @@ object ExtractorHelper {
         val handler = Handler(context.mainLooper)
 
         handler.post {
-            if (exception is ReCaptchaException) {
-                Toast.makeText(context, R.string.recaptcha_request_toast, Toast.LENGTH_LONG).show()
-                // Starting ReCaptcha Challenge Activity
-                val intent = Intent(context, ReCaptchaActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
-            } else if (exception is IOException) {
-                Toast.makeText(context, R.string.network_error, Toast.LENGTH_LONG).show()
-            } else if (exception is YoutubeStreamExtractor.GemaException) {
-                Toast.makeText(context, R.string.blocked_by_gema, Toast.LENGTH_LONG).show()
-            } else if (exception is ContentNotAvailableException) {
-                Toast.makeText(context, R.string.content_not_available, Toast.LENGTH_LONG).show()
-            } else {
-                val errorId = if (exception is YoutubeStreamExtractor.DecryptException)
-                    R.string.youtube_signature_decryption_error
-                else if (exception is ParsingException) R.string.parsing_error else R.string.general_error
-                ErrorActivity.reportError(handler, context, exception, MainActivity::class.java, null, ErrorInfo.make(userAction,
-                        if (serviceId == -1) "none" else NewPipe.getNameOfService(serviceId), url + (optionalErrorMessage
-                        ?: ""), errorId))
+            when (exception) {
+                is ReCaptchaException -> {
+                    Toast.makeText(context, R.string.recaptcha_request_toast, Toast.LENGTH_LONG).show()
+                    // Starting ReCaptcha Challenge Activity
+                    val intent = Intent(context, ReCaptchaActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(intent)
+                }
+                is IOException -> Toast.makeText(context, R.string.network_error, Toast.LENGTH_LONG).show()
+                is YoutubeStreamExtractor.GemaException -> Toast.makeText(context, R.string.blocked_by_gema, Toast.LENGTH_LONG).show()
+                is ContentNotAvailableException -> Toast.makeText(context, R.string.content_not_available, Toast.LENGTH_LONG).show()
+                else -> {
+                    val errorId = when (exception) {
+                        is YoutubeStreamExtractor.DecryptException -> R.string.youtube_signature_decryption_error
+                        is ParsingException -> R.string.parsing_error
+                        else -> R.string.general_error
+                    }
+
+                    ErrorActivity.reportError(handler, context, exception, MainActivity::class.java, null,
+                            ErrorInfo.make(userAction,
+                                    if (serviceId == -1) "none" else NewPipe.getNameOfService(serviceId),
+                                    url + (optionalErrorMessage ?: ""),
+                                    errorId)
+                    )
+                }
             }
         }
     }
@@ -245,11 +261,6 @@ object ExtractorHelper {
      */
     fun hasAssignableCauseThrowable(throwable: Throwable,
                                     vararg causesToCheck: Class<*>): Boolean {
-        // Check if getCause is not the same as cause (the getCause is already the root),
-        // as it will cause a infinite loop if it is
-        var cause: Throwable?
-        var getCause = throwable
-
         // Check if throwable is a subclass of any of the filtered classes
         val throwableClass = throwable.javaClass
         for (causesEl in causesToCheck) {
@@ -259,9 +270,8 @@ object ExtractorHelper {
         }
 
         // Iteratively checks if the root cause of the throwable is a subclass of the filtered class
-        cause = throwable.cause
-        while (cause != null && getCause !== cause) {
-            getCause = cause
+        val cause: Throwable? = throwable.cause
+        if (cause != null) {
             val causeClass = cause.javaClass
             for (causesEl in causesToCheck) {
                 if (causesEl.isAssignableFrom(causeClass)) {
@@ -275,21 +285,15 @@ object ExtractorHelper {
     /**
      * Check if throwable have the exact cause getTabFrom one of the causes to check.
      */
-    fun hasExactCauseThrowable(throwable: Throwable, vararg causesToCheck: Class<*>): Boolean {
-        // Check if getCause is not the same as cause (the getCause is already the root),
-        // as it will cause a infinite loop if it is
-        var cause: Throwable?
-        var getCause = throwable
-
+    private fun hasExactCauseThrowable(throwable: Throwable, vararg causesToCheck: Class<*>): Boolean {
         for (causesEl in causesToCheck) {
             if (throwable.javaClass == causesEl) {
                 return true
             }
         }
 
-        cause = throwable.cause
-        while (cause != null && getCause !== cause) {
-            getCause = cause
+        val cause: Throwable? = throwable.cause
+        if (cause != null ) {
             for (causesEl in causesToCheck) {
                 if (cause.javaClass == causesEl) {
                     return true
@@ -307,4 +311,4 @@ object ExtractorHelper {
                 InterruptedIOException::class.java,
                 InterruptedException::class.java)
     }
-}//no instance
+}

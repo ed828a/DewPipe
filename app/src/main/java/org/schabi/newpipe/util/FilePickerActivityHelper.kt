@@ -35,6 +35,8 @@ class FilePickerActivityHelper : com.nononsenseapps.filepicker.FilePickerActivit
     }
 
     override fun onBackPressed() {
+        if (currentFragment == null) return
+
         // If at top most level, normal behaviour
         if (currentFragment!!.isBackTop) {
             super.onBackPressed()
@@ -46,11 +48,11 @@ class FilePickerActivityHelper : com.nononsenseapps.filepicker.FilePickerActivit
 
     override fun getFragment(startPath: String?,
                              mode: Int,
-                             allowMultiple:
-                             Boolean,
+                             allowMultiple: Boolean,
                              allowCreateDir: Boolean,
                              allowExistingFile: Boolean,
-                             singleClick: Boolean): AbstractFilePickerFragment<File> {
+                             singleClick: Boolean
+    ): AbstractFilePickerFragment<File> {
         val fragment = CustomFilePickerFragment()
         fragment.setArgs(startPath ?: Environment.getExternalStorageDirectory().path,
                 mode, allowMultiple, allowCreateDir, allowExistingFile, singleClick)
@@ -65,7 +67,7 @@ class FilePickerActivityHelper : com.nononsenseapps.filepicker.FilePickerActivit
 
     class CustomFilePickerFragment : FilePickerFragment() {
 
-        val backTop: File
+        private val backTop: File
             get() {
                 if (arguments == null) return Environment.getExternalStorageDirectory()
 
@@ -113,23 +115,23 @@ class FilePickerActivityHelper : com.nononsenseapps.filepicker.FilePickerActivit
 
     companion object {
 
-        fun chooseSingleFile(context: Context): Intent {
-            return Intent(context, FilePickerActivityHelper::class.java)
-                    .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)
-                    .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_ALLOW_CREATE_DIR, false)
-                    .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_SINGLE_CLICK, true)
-                    .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_MODE,
-                            com.nononsenseapps.filepicker.FilePickerActivity.MODE_FILE)
-        }
+        fun chooseSingleFile(context: Context): Intent =
+                Intent(context, FilePickerActivityHelper::class.java)
+                        .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)
+                        .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_ALLOW_CREATE_DIR, false)
+                        .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_SINGLE_CLICK, true)
+                        .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_MODE,
+                                com.nononsenseapps.filepicker.FilePickerActivity.MODE_FILE)
 
-        fun chooseFileToSave(context: Context, startPath: String?): Intent {
-            return Intent(context, FilePickerActivityHelper::class.java)
-                    .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)
-                    .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_ALLOW_CREATE_DIR, true)
-                    .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_ALLOW_EXISTING_FILE, true)
-                    .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_START_PATH, startPath)
-                    .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_MODE,
-                            com.nononsenseapps.filepicker.FilePickerActivity.MODE_NEW_FILE)
-        }
+
+        fun chooseFileToSave(context: Context, startPath: String?): Intent =
+                Intent(context, FilePickerActivityHelper::class.java)
+                        .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)
+                        .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_ALLOW_CREATE_DIR, true)
+                        .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_ALLOW_EXISTING_FILE, true)
+                        .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_START_PATH, startPath)
+                        .putExtra(com.nononsenseapps.filepicker.FilePickerActivity.EXTRA_MODE,
+                                com.nononsenseapps.filepicker.FilePickerActivity.MODE_NEW_FILE)
+
     }
 }

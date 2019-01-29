@@ -24,8 +24,7 @@ class LayoutManagerSmoothScroller (context: Context,
                     .computeScrollVectorForPosition(targetPosition)
         }
 
-        override fun getVerticalSnapPreference(): Int {
-            return LinearSmoothScroller.SNAP_TO_START
-        }
+        override fun getVerticalSnapPreference(): Int = LinearSmoothScroller.SNAP_TO_START
+
     }
 }

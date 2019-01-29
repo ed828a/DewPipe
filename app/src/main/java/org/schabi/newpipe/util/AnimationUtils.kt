@@ -32,22 +32,22 @@ import android.view.View
 import android.widget.TextView
 import org.schabi.newpipe.BuildConfig.DEBUG
 
-import org.schabi.newpipe.MainActivity
-
 object AnimationUtils {
     private const val TAG = "AnimationUtils"
 
     enum class Type {
         ALPHA,
-        SCALE_AND_ALPHA, LIGHT_SCALE_AND_ALPHA,
-        SLIDE_AND_ALPHA, LIGHT_SLIDE_AND_ALPHA
+        SCALE_AND_ALPHA,
+        LIGHT_SCALE_AND_ALPHA,
+        SLIDE_AND_ALPHA,
+        LIGHT_SLIDE_AND_ALPHA
     }
 
-    fun animateView(view: View, enterOrExit: Boolean, duration: Long) {
-        animateView(view, Type.ALPHA, enterOrExit, duration, 0, null)
-    }
+//    fun animateView(view: View, enterOrExit: Boolean, duration: Long) {
+//        animateView(view, Type.ALPHA, enterOrExit, duration, 0, null)
+//    }
 
-    fun animateView(view: View, enterOrExit: Boolean, duration: Long, delay: Long) {
+    fun animateView(view: View, enterOrExit: Boolean, duration: Long, delay: Long = 0) {
         animateView(view, Type.ALPHA, enterOrExit, duration, delay, null)
     }
 
@@ -68,11 +68,10 @@ object AnimationUtils {
     @JvmOverloads
     fun animateView(view: View, animationType: Type, enterOrExit: Boolean, duration: Long, delay: Long = 0, execOnEnd: Runnable? = null) {
         if (DEBUG) {
-            var id: String
-            try {
-                id = view.resources.getResourceEntryName(view.id)
+            val id: String = try {
+                view.resources.getResourceEntryName(view.id)
             } catch (e: Exception) {
-                id = view.id.toString() + ""
+                "${view.id}"
             }
 
             val msg = String.format("%8s →  [%s:%s] [%s %s:%s] execOnEnd=%s",
@@ -80,25 +79,24 @@ object AnimationUtils {
             Log.d(TAG, "animateView()$msg")
         }
 
+        view.animate().setListener(null).cancel()
         if (view.visibility == View.VISIBLE && enterOrExit) {
-            if (DEBUG) Log.d(TAG, "animateView() view was already visible > view = [$view]")
-            view.animate().setListener(null).cancel()
+            Log.d(TAG, "animateView() view is visible > view = [$view]")
+//            view.animate().setListener(null).cancel()
             view.visibility = View.VISIBLE
             view.alpha = 1f
             execOnEnd?.run()
             return
         } else if ((view.visibility == View.GONE || view.visibility == View.INVISIBLE) && !enterOrExit) {
-            if (DEBUG) Log.d(TAG, "animateView() view was already gone > view = [$view]")
-            view.animate().setListener(null).cancel()
+            Log.d(TAG, "animateView() view is gone > view = [$view]")
+//            view.animate().setListener(null).cancel()
             view.visibility = View.GONE
             view.alpha = 0f
             execOnEnd?.run()
             return
         }
 
-        view.animate().setListener(null).cancel()
         view.visibility = View.VISIBLE
-
         when (animationType) {
             AnimationUtils.Type.ALPHA -> animateAlpha(view, enterOrExit, duration, delay, execOnEnd)
             AnimationUtils.Type.SCALE_AND_ALPHA -> animateScaleAndAlpha(view, enterOrExit, duration, delay, execOnEnd)
@@ -113,18 +111,16 @@ object AnimationUtils {
      * Animate the background color of a view
      */
     fun animateBackgroundColor(view: View, duration: Long, @ColorInt colorStart: Int, @ColorInt colorEnd: Int) {
-        if (DEBUG) {
-            Log.d(TAG, "animateBackgroundColor() called with: view = [$view], duration = [$duration], colorStart = [$colorStart], colorEnd = [$colorEnd]")
-        }
+        Log.d(TAG, "animateBackgroundColor() called with: view = [$view], duration = [$duration], colorStart = [$colorStart], colorEnd = [$colorEnd]")
 
-        val EMPTY = arrayOf(IntArray(0))
+        val emptyIntArray = arrayOf(IntArray(0))
         val viewPropertyAnimator = ValueAnimator.ofObject(ArgbEvaluator(), colorStart, colorEnd)
         viewPropertyAnimator.interpolator = FastOutSlowInInterpolator()
         viewPropertyAnimator.duration = duration
-        viewPropertyAnimator.addUpdateListener { animation -> ViewCompat.setBackgroundTintList(view, ColorStateList(EMPTY, intArrayOf(animation.animatedValue as Int))) }
+        viewPropertyAnimator.addUpdateListener { animation -> ViewCompat.setBackgroundTintList(view, ColorStateList(emptyIntArray, intArrayOf(animation.animatedValue as Int))) }
         viewPropertyAnimator.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator) {
-                ViewCompat.setBackgroundTintList(view, ColorStateList(EMPTY, intArrayOf(colorEnd)))
+                ViewCompat.setBackgroundTintList(view, ColorStateList(emptyIntArray, intArrayOf(colorEnd)))
             }
 
             override fun onAnimationCancel(animation: Animator) {
@@ -138,9 +134,7 @@ object AnimationUtils {
      * Animate the text color of any view that extends [TextView] (Buttons, EditText...)
      */
     fun animateTextColor(view: TextView, duration: Long, @ColorInt colorStart: Int, @ColorInt colorEnd: Int) {
-        if (DEBUG) {
-            Log.d(TAG, "animateTextColor() called with: view = [$view], duration = [$duration], colorStart = [$colorStart], colorEnd = [$colorEnd]")
-        }
+        Log.d(TAG, "animateTextColor() called with: view = [$view], duration = [$duration], colorStart = [$colorStart], colorEnd = [$colorEnd]")
 
         val viewPropertyAnimator = ValueAnimator.ofObject(ArgbEvaluator(), colorStart, colorEnd)
         viewPropertyAnimator.interpolator = FastOutSlowInInterpolator()
@@ -160,9 +154,8 @@ object AnimationUtils {
 
     fun animateHeight(view: View, duration: Long, targetHeight: Int): ValueAnimator {
         val height = view.height
-        if (DEBUG) {
-            Log.d(TAG, "animateHeight: duration = [$duration], getTabFrom $height to → $targetHeight in: $view")
-        }
+
+        Log.d(TAG, "animateHeight: duration = [$duration], getTabFrom $height to → $targetHeight in: $view")
 
         val animator = ValueAnimator.ofFloat(height.toFloat(), targetHeight.toFloat())
         animator.interpolator = FastOutSlowInInterpolator()
@@ -189,12 +182,14 @@ object AnimationUtils {
     }
 
     fun animateRotation(view: View, duration: Long, targetRotation: Int) {
-        if (DEBUG) {
-            Log.d(TAG, "animateRotation: duration = [" + duration + "], getTabFrom " + view.rotation + " to → " + targetRotation + " in: " + view)
-        }
+        Log.d(TAG, "animateRotation: duration = [$duration], getTabFrom ${view.rotation} to → $targetRotation in: $view")
+
         view.animate().setListener(null).cancel()
 
-        view.animate().rotation(targetRotation.toFloat()).setDuration(duration).setInterpolator(FastOutSlowInInterpolator())
+        view.animate()
+                .rotation(targetRotation.toFloat())
+                .setDuration(duration)
+                .setInterpolator(FastOutSlowInInterpolator())
                 .setListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationCancel(animation: Animator) {
                         view.rotation = targetRotation.toFloat()
@@ -203,7 +198,8 @@ object AnimationUtils {
                     override fun onAnimationEnd(animation: Animator) {
                         view.rotation = targetRotation.toFloat()
                     }
-                }).start()
+                })
+                .start()
     }
 
     ///////////////////////////////////////////////////////////////////////////

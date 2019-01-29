@@ -97,7 +97,7 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (DEBUG) Log.d(TAG, "onCreate() called with: savedInstanceState = [$savedInstanceState]")
+        Log.d(TAG, "onCreate() called with: savedInstanceState = [$savedInstanceState]")
         if (!PermissionHelper.checkStoragePermissions(activity!!, PermissionHelper.DOWNLOAD_DIALOG_REQUEST_CODE)) {
             dialog.dismiss()
             return
@@ -111,7 +111,7 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        if (DEBUG) Log.d(TAG, "onCreateView() called with: inflater = [$inflater], container = [$container], savedInstanceState = [$savedInstanceState]")
+        Log.d(TAG, "onCreateView() called with: inflater = [$inflater], container = [$container], savedInstanceState = [$savedInstanceState]")
         return inflater.inflate(R.layout.download_dialog, container)
     }
 
@@ -180,7 +180,7 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
     ///////////////////////////////////////////////////////////////////////////
 
     private fun initToolbar(toolbar: Toolbar) {
-        if (DEBUG) Log.d(TAG, "initToolbar() called with: toolbar = [$toolbar]")
+        Log.d(TAG, "initToolbar() called with: toolbar = [$toolbar]")
         toolbar.setTitle(R.string.download_dialog_title)
         toolbar.setNavigationIcon(if (ThemeHelper.isLightThemeSelected(activity!!)) R.drawable.ic_arrow_back_black_24dp else R.drawable.ic_arrow_back_white_24dp)
         toolbar.inflateMenu(R.menu.dialog_url)
@@ -216,7 +216,7 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
     ///////////////////////////////////////////////////////////////////////////
 
     override fun onCheckedChanged(group: RadioGroup, @IdRes checkedId: Int) {
-        if (DEBUG) Log.d(TAG, "onCheckedChanged() called with: group = [$group], checkedId = [$checkedId]")
+        Log.d(TAG, "onCheckedChanged() called with: group = [$group], checkedId = [$checkedId]")
         when (checkedId) {
             R.id.audio_button -> setupAudioSpinner()
             R.id.video_button -> setupVideoSpinner()
@@ -297,7 +297,6 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
 
     companion object {
         private const val TAG = "DialogFragment"
-        private val DEBUG = MainActivity.DEBUG
 
         fun newInstance(info: StreamInfo): DownloadDialog {
             val dialog = DownloadDialog()

@@ -32,8 +32,7 @@ interface SliderStrategy {
      * the slider. Should be as large as possible to avoid floating
      * point round-off error. Using odd number is recommended.
      */
-    class Quadratic
-    (minimum: Double, maximum: Double, private val center: Double, maxProgress: Int) : SliderStrategy {
+    class Quadratic(minimum: Double, maximum: Double, private val center: Double, maxProgress: Int) : SliderStrategy {
         private val leftGap: Double
         private val rightGap: Double
 
@@ -44,8 +43,8 @@ interface SliderStrategy {
                 throw IllegalArgumentException("Center must be in between minimum and maximum")
             }
 
-            this.leftGap = minimum - center
-            this.rightGap = maximum - center
+            this.leftGap = minimum - center   // a negative value
+            this.rightGap = maximum - center  // a positive value
 
             this.centerProgress = maxProgress / 2
         }

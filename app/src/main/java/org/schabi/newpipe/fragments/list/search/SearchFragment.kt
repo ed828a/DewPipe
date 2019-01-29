@@ -633,10 +633,11 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
 
         try {
             val service = NewPipe.getServiceByUrl(searchString)
+            val context = activity ?: return
             if (service != null) {
                 showLoading()
                 val d = Observable
-                        .fromCallable { NavigationHelper.getIntentByLink(activity, service, searchString) }
+                        .fromCallable { NavigationHelper.getIntentByLink(context, service, searchString) }
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(

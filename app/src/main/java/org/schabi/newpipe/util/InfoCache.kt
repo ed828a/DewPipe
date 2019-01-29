@@ -25,9 +25,7 @@ import org.schabi.newpipe.BuildConfig.DEBUG
 import org.schabi.newpipe.extractor.Info
 
 
-class InfoCache private constructor()//no instance
-{
-    private val TAG = javaClass.simpleName
+class InfoCache private constructor() { //no instance
 
     val size: Long
         get() = synchronized(lruCache) {
@@ -35,14 +33,14 @@ class InfoCache private constructor()//no instance
         }
 
     fun getFromKey(serviceId: Int, url: String): Info? {
-        if (DEBUG) Log.d(TAG, "getFromKey() called with: serviceId = [$serviceId], url = [$url]")
+        Log.d(TAG, "getFromKey(): serviceId = [$serviceId], url = [$url]")
         synchronized(lruCache) {
             return getInfo(keyOf(serviceId, url))
         }
     }
 
     fun putInfo(serviceId: Int, url: String, info: Info) {
-        if (DEBUG) Log.d(TAG, "putInfo() called with: info = [$info]")
+        Log.d(TAG, "putInfo() : info = [$info]")
 
         val expirationMillis = ServiceHelper.getCacheExpirationMillis(info.serviceId)
         synchronized(lruCache) {
@@ -52,28 +50,28 @@ class InfoCache private constructor()//no instance
     }
 
     fun removeInfo(serviceId: Int, url: String) {
-        if (DEBUG) Log.d(TAG, "removeInfo() called with: serviceId = [$serviceId], url = [$url]")
+        Log.d(TAG, "removeInfo(): serviceId = [$serviceId], url = [$url]")
         synchronized(lruCache) {
             lruCache.remove(keyOf(serviceId, url))
         }
     }
 
     fun clearCache() {
-        if (DEBUG) Log.d(TAG, "clearCache() called")
+        Log.d(TAG, "clearCache() called")
         synchronized(lruCache) {
             lruCache.evictAll()
         }
     }
 
     fun trimCache() {
-        if (DEBUG) Log.d(TAG, "trimCache() called")
+        Log.d(TAG, "trimCache() called")
         synchronized(lruCache) {
             removeStaleCache()
             lruCache.trimToSize(TRIM_CACHE_TO)
         }
     }
 
-    private class CacheData (val info: Info, timeoutMillis: Long) {
+    private class CacheData(val info: Info, timeoutMillis: Long) {
         private val expireTimestamp: Long = System.currentTimeMillis() + timeoutMillis
 
         val isExpired: Boolean
@@ -82,20 +80,18 @@ class InfoCache private constructor()//no instance
     }
 
     companion object {
-//        private val DEBUG = MainActivity.DEBUG
+        private const val TAG = "InfoCache"
 
         val instance = InfoCache()
         private const val MAX_ITEMS_ON_CACHE = 60
         /**
          * Trim the cache to this size
          */
-        private val TRIM_CACHE_TO = 30
+        private const val TRIM_CACHE_TO = 30
 
         private val lruCache = LruCache<String, CacheData>(MAX_ITEMS_ON_CACHE)
 
-        private fun keyOf(serviceId: Int, url: String): String {
-            return serviceId.toString() + url
-        }
+        private fun keyOf(serviceId: Int, url: String): String = "$serviceId$url"
 
         private fun removeStaleCache() {
             for ((key, data) in InfoCache.lruCache.snapshot()) {

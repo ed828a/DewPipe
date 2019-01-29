@@ -575,7 +575,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
             for (i in 0 until initialSize) {
                 val item = info.relatedStreams[i]
                 //each = System.nanoTime();
-                relatedStreamsView!!.addView(infoItemBuilder!!.buildView(relatedStreamsView!!, item))
+                relatedStreamsView!!.addView(infoItemBuilder.buildView(relatedStreamsView!!, item))
                 //if (DEBUG) Log.d(TAG, "each took " + ((System.nanoTime() - each) / 1000000L) + "ms");
             }
             //if (DEBUG) Log.d(TAG, "Total time " + ((System.nanoTime() - first) / 1000000L) + "ms");

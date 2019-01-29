@@ -224,9 +224,8 @@ abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
      * Show a SnackBar and only call ErrorActivity#reportError IF we a find a valid view (otherwise the error screen appears)
      */
     fun showSnackBarError(exception: List<Throwable>, userAction: UserAction, serviceName: String, request: String, @StringRes errorId: Int) {
-        if (DEBUG) {
-            Log.d(TAG, "showSnackBarError() called with: exception = [$exception], userAction = [$userAction], request = [$request], errorId = [$errorId]")
-        }
+        Log.d(TAG, "showSnackBarError() called with: exception = [$exception], userAction = [$userAction], request = [$request], errorId = [$errorId]")
+
         var rootView: View? = if (activity != null) activity!!.findViewById(android.R.id.content) else null
         if (rootView == null && view != null) rootView = view
         if (rootView == null) return

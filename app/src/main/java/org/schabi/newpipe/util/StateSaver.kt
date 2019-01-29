@@ -1,22 +1,3 @@
-/*
- * Copyright 2017 Mauricio Colli <mauriciocolli@outlook.com>
- * StateSaver.java is part of NewPipe
- *
- * License: GPL-3.0+
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
 package org.schabi.newpipe.util
 
 
@@ -26,23 +7,16 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.text.TextUtils
 import android.util.Log
-
 import org.schabi.newpipe.BuildConfig
 import org.schabi.newpipe.MainActivity
-
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.FilenameFilter
-import java.io.IOException
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
-import java.util.LinkedList
-import java.util.Queue
+import java.io.*
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 /**
  * A way to save state to disk or in a in-memory map if it's just changing configurations (i.e. rotating the phone).
+ *
+ *  icepick may replace this StateSaver
  */
 object StateSaver {
     private val stateObjectsHolder = ConcurrentHashMap<String, Queue<Any>>()
@@ -59,7 +33,7 @@ object StateSaver {
      */
     fun init(context: Context) {
         val externalCacheDir = context.externalCacheDir
-        if (externalCacheDir != null) cacheDirPath = externalCacheDir.absolutePath
+        cacheDirPath = externalCacheDir?.absolutePath
         if (TextUtils.isEmpty(cacheDirPath)) cacheDirPath = context.cacheDir.absolutePath
     }
 
@@ -107,33 +81,29 @@ object StateSaver {
      * Try to restore the state getTabFrom memory and disk, using the [StateSaver.WriteRead.readFrom] getTabFrom the writeRead.
      */
     private fun tryToRestore(savedState: SavedState, writeRead: WriteRead): SavedState? {
-        if (MainActivity.DEBUG) {
-            Log.d(TAG, "tryToRestore() called with: savedState = [$savedState], writeRead = [$writeRead]")
-        }
+        Log.d(TAG, "tryToRestore() called with: savedState = [$savedState], writeRead = [$writeRead]")
 
         var fileInputStream: FileInputStream? = null
         try {
             var savedObjects = stateObjectsHolder.remove(savedState.prefixFileSaved)
             if (savedObjects != null) {
                 writeRead.readFrom(savedObjects)
-                if (MainActivity.DEBUG) {
-                    Log.d(TAG, "tryToSave: reading objects getTabFrom holder > $savedObjects, stateObjectsHolder > $stateObjectsHolder")
-                }
+
+                Log.d(TAG, "tryToSave: reading objects getTabFrom holder > $savedObjects, stateObjectsHolder > $stateObjectsHolder")
+
                 return savedState
             }
 
             val file = File(savedState.pathFileSaved)
             if (!file.exists()) {
-                if (MainActivity.DEBUG) {
-                    Log.d(TAG, "Cache file doesn't exist: " + file.absolutePath)
-                }
+                Log.d(TAG, "Cache file doesn't exist: " + file.absolutePath)
                 return null
             }
 
             fileInputStream = FileInputStream(file)
             val inputStream = ObjectInputStream(fileInputStream)
 
-            savedObjects = inputStream.readObject() as Queue<Any>
+            savedObjects = inputStream.readObject() as Queue<Any>?
             if (savedObjects != null) {
                 writeRead.readFrom(savedObjects)
             }
@@ -157,22 +127,20 @@ object StateSaver {
      * @see .tryToSave
      */
     fun tryToSave(isChangingConfig: Boolean, savedState: SavedState?, outState: Bundle, writeRead: WriteRead): SavedState? {
-        var savedState = savedState
-        val currentSavedPrefix: String = if (savedState == null || TextUtils.isEmpty(savedState.prefixFileSaved)) {
+        var locSavedState = savedState
+        val currentSavedPrefix: String = if (locSavedState == null || TextUtils.isEmpty(locSavedState.prefixFileSaved)) {
             // Generate unique prefix
-            (System.nanoTime() - writeRead.hashCode()).toString() + ""
+            "${(System.nanoTime() - writeRead.hashCode())}"
         } else {
             // Reuse prefix
-            savedState.prefixFileSaved!!
+            locSavedState.prefixFileSaved!!
         }
 
-        savedState = tryToSave(isChangingConfig, currentSavedPrefix, writeRead.generateSuffix(), writeRead)
-        if (savedState != null) {
-            outState.putParcelable(StateSaver.KEY_SAVED_STATE, savedState)
-            return savedState
-        }
-
-        return null
+        locSavedState = tryToSave(isChangingConfig, currentSavedPrefix, writeRead.generateSuffix(), writeRead)
+        return if (locSavedState != null) {
+            outState.putParcelable(StateSaver.KEY_SAVED_STATE, locSavedState)
+            locSavedState
+        } else null
     }
 
     /**
@@ -192,40 +160,34 @@ object StateSaver {
      * @param writeRead
      */
     private fun tryToSave(isChangingConfig: Boolean, prefixFileName: String, suffixFileName: String, writeRead: WriteRead): SavedState? {
-        var suffixFileName = suffixFileName
-        if (MainActivity.DEBUG) {
-            Log.d(TAG, "tryToSave() called with: isChangingConfig = [$isChangingConfig], prefixFileName = [$prefixFileName], suffixFileName = [$suffixFileName], writeRead = [$writeRead]")
-        }
+        Log.d(TAG, "tryToSave() called with: isChangingConfig = [$isChangingConfig], prefixFileName = [$prefixFileName], suffixFileName = [$suffixFileName], writeRead = [$writeRead]")
 
+        var locSuffixFileName = suffixFileName
         val savedObjects = LinkedList<Any>()
         writeRead.writeTo(savedObjects)
 
         if (isChangingConfig) {
-            if (savedObjects.size > 0) {
+            return if (savedObjects.size > 0) {
                 stateObjectsHolder[prefixFileName] = savedObjects
-                return SavedState(prefixFileName, "")
+                SavedState(prefixFileName, "")
             } else {
-                if (MainActivity.DEBUG) Log.d(TAG, "Nothing to save")
-                return null
+                Log.d(TAG, "Nothing to save")
+                null
             }
         }
 
         var fileOutputStream: FileOutputStream? = null
         try {
             var cacheDir = File(cacheDirPath)
-            if (!cacheDir.exists()) throw RuntimeException("Cache dir does not exist > " + cacheDirPath!!)
+            if (!cacheDir.exists()) throw RuntimeException("Cache dir does not exist > ${cacheDirPath!!}")
             cacheDir = File(cacheDir, CACHE_DIR_NAME)
-            if (!cacheDir.exists()) {
-                if (!cacheDir.mkdir()) {
-                    if (BuildConfig.DEBUG) {
-                        Log.e(TAG, "Failed to create cache directory " + cacheDir.absolutePath)
-                    }
-                    return null
-                }
+            if (!cacheDir.exists() && !cacheDir.mkdir()) {
+                Log.e(TAG, "Failed to create cache directory ${cacheDir.absolutePath}")
+                return null
             }
 
-            if (TextUtils.isEmpty(suffixFileName)) suffixFileName = ".cache"
-            val file = File(cacheDir, prefixFileName + suffixFileName)
+            if (TextUtils.isEmpty(locSuffixFileName)) locSuffixFileName = ".cache"
+            val file = File(cacheDir, prefixFileName + locSuffixFileName)
             if (file.exists() && file.length() > 0) {
                 // If the file already exists, just return it
                 return SavedState(prefixFileName, file.absolutePath)
@@ -267,7 +229,8 @@ object StateSaver {
 
             try {
                 File(savedState.pathFileSaved).delete()
-            } catch (ignored: Exception) { }
+            } catch (ignored: Exception) {
+            }
         }
     }
 
@@ -275,7 +238,7 @@ object StateSaver {
      * Clear all the files in cache (in memory and disk).
      */
     fun clearStateFiles() {
-        if (MainActivity.DEBUG) Log.d(TAG, "clearStateFiles() called")
+        Log.d(TAG, "clearStateFiles() called")
 
         stateObjectsHolder.clear()
         var cacheDir = File(cacheDirPath)
@@ -298,13 +261,13 @@ object StateSaver {
                      val pathFileSaved: String? // Get the path to the saved file
     ) : Parcelable {
 
-        constructor(`in`: Parcel): this(
+        constructor(`in`: Parcel) : this(
                 `in`.readString(),
                 `in`.readString()
-        ) {}
+        )
 
         override fun toString(): String {
-            return "$prefixFileSaved > $pathFileSaved"
+            return "prefix: $prefixFileSaved > path: $pathFileSaved"
         }
 
         override fun describeContents(): Int {
@@ -330,4 +293,4 @@ object StateSaver {
     }
 
 
-}//no instance
+}

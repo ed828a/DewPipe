@@ -31,17 +31,12 @@ class StreamItemAdapter<T : Stream> @JvmOverloads constructor(
     val all: List<T>
         get() = streamsWrapper.streamsList
 
-    override fun getCount(): Int {
-        return streamsWrapper.streamsList.size
-    }
+    override fun getCount(): Int = streamsWrapper.streamsList.size
 
-    override fun getItem(position: Int): T {
-        return streamsWrapper.streamsList[position]
-    }
+    override fun getItem(position: Int): T = streamsWrapper.streamsList[position]
 
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
-    }
+    // use index as identifier
+    override fun getItemId(position: Int): Long = position.toLong()
 
     override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
         return getCustomView(position, convertView, parent, true)
@@ -52,7 +47,8 @@ class StreamItemAdapter<T : Stream> @JvmOverloads constructor(
     }
 
     private fun getCustomView(position: Int, convertView: View?, parent: ViewGroup, isDropdownItem: Boolean): View {
-        val locConvertView: View = convertView ?: LayoutInflater.from(context).inflate(R.layout.stream_quality_item, parent, false)
+        val locConvertView: View = convertView
+                ?: LayoutInflater.from(context).inflate(R.layout.stream_quality_item, parent, false)
 //        if (locConvertView == null) {
 //            locConvertView = LayoutInflater.from(context).inflate(R.layout.stream_quality_item, parent, false)
 //        }
@@ -69,12 +65,11 @@ class StreamItemAdapter<T : Stream> @JvmOverloads constructor(
         val qualityString: String
         when (stream) {
             is VideoStream -> {
-                if (!showIconNoAudio) {
-                    woSoundIconVisibility = View.GONE
-                } else if ((stream as VideoStream).isVideoOnly()) {
-                    woSoundIconVisibility = View.VISIBLE
-                } else if (isDropdownItem) {
-                    woSoundIconVisibility = View.INVISIBLE
+                woSoundIconVisibility = when {
+                    !showIconNoAudio -> View.GONE
+                    (stream as VideoStream).isVideoOnly() -> View.VISIBLE
+                    isDropdownItem -> View.INVISIBLE
+                    else -> View.GONE
                 }
 
                 qualityString = (stream as VideoStream).getResolution()
@@ -146,13 +141,11 @@ class StreamItemAdapter<T : Stream> @JvmOverloads constructor(
                 val fetchAndSet = {
                     var hasChanged = false
                     for (stream in streamsWrapper.streamsList) {
-                        if (streamsWrapper.getSizeInBytes(stream) > 0) {
-                            continue
+                        if (streamsWrapper.getSizeInBytes(stream) <= 0) {
+                            val contentLength = Downloader.instance?.getContentLength(stream.getUrl()) ?: 0L
+                            streamsWrapper.setSize(stream, contentLength)
+                            hasChanged = true
                         }
-
-                        val contentLength = Downloader.instance?.getContentLength(stream.getUrl()) ?: 0L
-                        streamsWrapper.setSize(stream, contentLength)
-                        hasChanged = true
                     }
                     hasChanged
                 }

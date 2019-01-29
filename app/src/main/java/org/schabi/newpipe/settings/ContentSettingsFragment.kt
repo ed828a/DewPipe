@@ -179,7 +179,6 @@ class ContentSettingsFragment : BasePreferenceFragment() {
             }
 
             val isDbFileExtracted = ZipHelper.extractFileFromZip(filePath, newpipeDb.path, DATABASE_NAME)
-
             if (isDbFileExtracted) {
                 newpipeDbJournal.delete()
                 newpipeDbWal.delete()

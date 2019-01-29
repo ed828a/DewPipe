@@ -1,33 +1,12 @@
-/*
- * Copyright 2018 Mauricio Colli <mauriciocolli@outlook.com>
- * ThemeHelper.java is part of NewPipe
- *
- * License: GPL-3.0+
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
 package org.schabi.newpipe.util
 
 import android.content.Context
-import android.content.res.TypedArray
 import android.preference.PreferenceManager
 import android.support.annotation.AttrRes
 import android.support.annotation.StyleRes
 import android.support.v4.content.ContextCompat
 import android.util.TypedValue
 import android.view.ContextThemeWrapper
-
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.NewPipe
 import org.schabi.newpipe.extractor.StreamingService
@@ -41,7 +20,7 @@ object ThemeHelper {
      *
      * @param context   context that the theme will be applied
      * @param serviceId the theme will be styled to the service with this id,
-     * pass -1 to get the default style
+     *                  pass -1 to get the default style
      */
     @JvmOverloads
     fun setTheme(context: Context, serviceId: Int = -1) {
@@ -95,7 +74,7 @@ object ThemeHelper {
      *
      * @param context   context to get the selected theme
      * @param serviceId return a theme styled to this service,
-     * -1 to get the default
+     *                  -1 to get the default
      * @return the selected style (styled)
      */
     @StyleRes
@@ -104,14 +83,14 @@ object ThemeHelper {
         val darkTheme = context.resources.getString(R.string.dark_theme_key)
         val blackTheme = context.resources.getString(R.string.black_theme_key)
 
-        val selectedTheme = getSelectedThemeString(context)
+        val selectedTheme = getSelectedThemeString(context)  // from default SharedPreferences
 
-        var defaultTheme = R.style.DarkTheme
-        if (selectedTheme == lightTheme)
-            defaultTheme = R.style.LightTheme
-        else if (selectedTheme == blackTheme)
-            defaultTheme = R.style.BlackTheme
-        else if (selectedTheme == darkTheme) defaultTheme = R.style.DarkTheme
+        val defaultTheme = when (selectedTheme) {
+            lightTheme -> R.style.LightTheme
+            blackTheme -> R.style.BlackTheme
+            darkTheme -> R.style.DarkTheme
+            else -> R.style.DarkTheme
+        }
 
         if (serviceId <= -1) {
             return defaultTheme
@@ -124,12 +103,12 @@ object ThemeHelper {
             return defaultTheme
         }
 
-        var themeName = "DarkTheme"
-        if (selectedTheme == lightTheme)
-            themeName = "LightTheme"
-        else if (selectedTheme == blackTheme)
-            themeName = "BlackTheme"
-        else if (selectedTheme == darkTheme) themeName = "DarkTheme"
+        var themeName = when (selectedTheme) {
+            lightTheme -> "LightTheme"
+            blackTheme -> "BlackTheme"
+            darkTheme -> "DarkTheme"
+            else -> "DarkTheme"
+        }
 
         themeName += "." + service.serviceInfo.name
         val resourceId = context.resources.getIdentifier(themeName, "style", context.packageName)
@@ -137,7 +116,6 @@ object ThemeHelper {
         return if (resourceId > 0) {
             resourceId
         } else defaultTheme
-
     }
 
     @StyleRes
@@ -148,23 +126,21 @@ object ThemeHelper {
 
         val selectedTheme = getSelectedThemeString(context)
 
-        return if (selectedTheme == lightTheme)
-            R.style.LightSettingsTheme
-        else if (selectedTheme == blackTheme)
-            R.style.BlackSettingsTheme
-        else if (selectedTheme == darkTheme)
-            R.style.DarkSettingsTheme
-        else
-            R.style.DarkSettingsTheme// Fallback
+        return when (selectedTheme) {
+            lightTheme -> R.style.LightSettingsTheme
+            blackTheme -> R.style.BlackSettingsTheme
+            darkTheme -> R.style.DarkSettingsTheme
+            else -> R.style.DarkSettingsTheme  // Fallback
+        }
     }
 
     /**
      * Get a resource id getTabFrom a resource styled according to the the context's theme.
      */
     fun resolveResourceIdFromAttr(context: Context, @AttrRes attr: Int): Int {
-        val a = context.theme.obtainStyledAttributes(intArrayOf(attr))
-        val attributeResourceId = a.getResourceId(0, 0)
-        a.recycle()
+        val typedArray = context.theme.obtainStyledAttributes(intArrayOf(attr))
+        val attributeResourceId = typedArray.getResourceId(0, 0)
+        typedArray.recycle()
         return attributeResourceId
     }
 
@@ -199,9 +175,3 @@ object ThemeHelper {
                 .getResourceId(0, -1)
     }
 }
-/**
- * Apply the selected theme (on NewPipe settings) in the context
- * with the default style (see [.setTheme]).
- *
- * @param context context that the theme will be applied
- */

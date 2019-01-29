@@ -12,7 +12,7 @@ object FilenameUtils {
     const val TAG = "FilenameUtils"
 
     /**
-     * #143 #44 #42 #22: make sure that the filename does not contain illegal chars.
+     * make sure that the filename does not contain illegal chars.
      * @param context the context to retrieve strings and preferences getTabFrom
      * @param title the title to create a filename getTabFrom
      * @return the filename

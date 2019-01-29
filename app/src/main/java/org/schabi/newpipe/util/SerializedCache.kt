@@ -2,30 +2,20 @@ package org.schabi.newpipe.util
 
 import android.support.v4.util.LruCache
 import android.util.Log
-import org.schabi.newpipe.BuildConfig.DEBUG
-
-import org.schabi.newpipe.MainActivity
-
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
-import java.io.Serializable
-import java.util.UUID
+import java.io.*
+import java.util.*
 
 class SerializedCache private constructor()//no instance
 {
-    private val TAG = javaClass.simpleName
-
     fun <T> take(key: String, type: Class<T>): T? {
-        if (DEBUG) Log.d(TAG, "take() called with: key = [$key]")
+        Log.d(TAG, "take() called with: key = [$key]")
         synchronized(lruCache) {
             return if (lruCache.get(key) != null) getItem(lruCache.remove(key)!!, type) else null
         }
     }
 
     operator fun <T> get(key: String, type: Class<T>): T? {
-        if (DEBUG) Log.d(TAG, "get() called with: key = [$key]")
+        Log.d(TAG, "get() called with: key = [$key]")
         synchronized(lruCache) {
             val data = lruCache.get(key)
             return if (data != null) getItem(data, type) else null
@@ -37,9 +27,8 @@ class SerializedCache private constructor()//no instance
         return if (put(key, item, type)) key else null
     }
 
-    fun <T : Serializable> put(key: String, item: T,
-                               type: Class<T>): Boolean {
-        if (DEBUG) Log.d(TAG, "put() called with: key = [$key], item = [$item]")
+    fun <T : Serializable> put(key: String, item: T, type: Class<T>): Boolean {
+        Log.d(TAG, "put() called with: key = [$key], item = [$item]")
         synchronized(lruCache) {
             try {
                 lruCache.put(key, CacheData(clone(item, type), type))
@@ -53,7 +42,7 @@ class SerializedCache private constructor()//no instance
     }
 
     fun clear() {
-        if (DEBUG) Log.d(TAG, "clear() called")
+        Log.d(TAG, "clear() called")
         synchronized(lruCache) {
             lruCache.evictAll()
         }
@@ -70,21 +59,22 @@ class SerializedCache private constructor()//no instance
     }
 
     @Throws(Exception::class)
-    private fun <T : Serializable> clone(item: T,
-                                         type: Class<T>): T {
+    private fun <T : Serializable> clone(item: T, type: Class<T>): T {
         val bytesOutput = ByteArrayOutputStream()
         ObjectOutputStream(bytesOutput).use { objectOutput ->
             objectOutput.writeObject(item)
             objectOutput.flush()
         }
-        val clone = ObjectInputStream(
+        val clone: Any = ObjectInputStream(
                 ByteArrayInputStream(bytesOutput.toByteArray())).readObject()
-        return type.cast(clone)
+        return type.cast(clone)!!
     }
 
-    private class CacheData<T> (val item: T, val type: Class<T>)
+    private class CacheData<T>(val item: T, val type: Class<T>)
 
     companion object {
+        private const val TAG = "SerializedCache"
+
         val instance = SerializedCache()
         private const val MAX_ITEMS_ON_CACHE = 5
 
