@@ -8,13 +8,15 @@ android {
     buildToolsVersion '28.0.3'
     defaultConfig {
         applicationId "org.schabi.newpipe"
-        minSdkVersion 19
+        minSdkVersion 22
         targetSdkVersion 28
         versionCode 68
         versionName "0.14.1"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -23,7 +25,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-            multiDexEnabled true
+//            multiDexEnabled true
             debuggable true
             applicationIdSuffix ".debug"
         }
@@ -53,10 +55,25 @@ ext {
 }
 
 dependencies {
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.2', {
         exclude module: 'support-annotations'
     })
-    implementation 'com.github.TeamNewPipe:NewPipeExtractor:24cb684e2353'
+    androidTestImplementation 'org.mockito:mockito-android:2.8.47'
+//    androidTestImplementation 'org.mockito:mockito-inline:2.23.0'
+//    androidTestImplementation 'org.mockito:mockito-core:2.23.0'
+    androidTestImplementation ('com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0') {
+        exclude group: 'org.jetbrains.kotlin'
+        exclude group: 'org.mockito'
+    }
+
+    // NewPipe Extractor
+//    implementation 'com.github.TeamNewPipe:NewPipeExtractor:24cb684e2353'  // the original
+//    implementation 'com.github.TeamNewPipe.NewPipeExtractor:NewPipeExtractor:v0.14.1'
+//    implementation 'com.github.TeamNewPipe:NewPipeExtractor:91b1efc97e'  // the newest
+//    implementation 'com.github.TeamNewPipe:NewPipeExtractor:66c3c3f45241d4b0c909'
+    implementation 'com.github.TeamNewPipe:NewPipeExtractor:f7c7b9df1a'
+
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:2.23.0'
     testImplementation ('com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0') {
@@ -73,6 +90,8 @@ dependencies {
     implementation "com.android.support:cardview-v7:${supportLibVersion}"
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     implementation 'ch.acra:acra:4.9.2'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
     //4.11
     implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
@@ -81,23 +100,27 @@ dependencies {
     implementation 'com.nononsenseapps:filepicker:4.2.1'
     implementation "com.google.android.exoplayer:exoplayer:${exoPlayerLibVersion}"
     implementation "com.google.android.exoplayer:extension-mediasession:${exoPlayerLibVersion}"
-    debugImplementation "com.facebook.stetho:stetho:${stethoLibVersion}"
-    debugImplementation "com.facebook.stetho:stetho-urlconnection:${stethoLibVersion}"
-    debugImplementation 'com.android.support:multidex:1.0.3'
+
+//    debugImplementation 'com.android.support:multidex:1.0.3'
+    implementation 'com.android.support:multidex:1.0.3'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.2'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
-    implementation 'com.jakewharton.rxbinding2:rxbinding:2.1.1'
+    implementation 'com.jakewharton.rxbinding2:rxbinding:2.2.0'
     implementation "android.arch.persistence.room:runtime:${roomDbLibVersion}"
     implementation "android.arch.persistence.room:rxjava2:${roomDbLibVersion}"
 //    annotationProcessor "android.arch.persistence.room:compiler:${roomDbLibVersion}"
     kapt "android.arch.persistence.room:compiler:${roomDbLibVersion}"
     implementation "frankiesardo:icepick:${icepickLibVersion}"
-    annotationProcessor "frankiesardo:icepick-processor:${icepickLibVersion}"
-    debugImplementation "com.squareup.leakcanary:leakcanary-android:${leakCanaryLibVersion}"
-    releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:${leakCanaryLibVersion}"
+//    annotationProcessor "frankiesardo:icepick-processor:${icepickLibVersion}"
+    kapt "frankiesardo:icepick-processor:${icepickLibVersion}"
     implementation "com.squareup.okhttp3:okhttp:${okHttpLibVersion}"
+    releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:${leakCanaryLibVersion}"
+
+    debugImplementation "com.squareup.leakcanary:leakcanary-android:${leakCanaryLibVersion}"
+    debugImplementation "com.facebook.stetho:stetho:${stethoLibVersion}"
+    debugImplementation "com.facebook.stetho:stetho-urlconnection:${stethoLibVersion}"
     debugImplementation "com.facebook.stetho:stetho-okhttp3:${stethoLibVersion}"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
 }
 repositories {
     mavenCentral()
