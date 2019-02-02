@@ -21,12 +21,22 @@ import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
-
-import org.schabi.newpipe.download.DownloadDialog
+import icepick.Icepick
+import icepick.State
+import io.reactivex.Observable
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
+import io.reactivex.functions.Consumer
+import io.reactivex.schedulers.Schedulers
+import org.schabi.newpipe.download.ui.DownloadDialog
 import org.schabi.newpipe.extractor.Info
 import org.schabi.newpipe.extractor.NewPipe
 import org.schabi.newpipe.extractor.StreamingService
 import org.schabi.newpipe.extractor.StreamingService.LinkType
+import org.schabi.newpipe.extractor.StreamingService.ServiceInfo.MediaCapability.AUDIO
+import org.schabi.newpipe.extractor.StreamingService.ServiceInfo.MediaCapability.VIDEO
 import org.schabi.newpipe.extractor.channel.ChannelInfo
 import org.schabi.newpipe.extractor.exceptions.ExtractionException
 import org.schabi.newpipe.extractor.playlist.PlaylistInfo
@@ -37,43 +47,27 @@ import org.schabi.newpipe.player.playqueue.PlayQueue
 import org.schabi.newpipe.player.playqueue.PlaylistPlayQueue
 import org.schabi.newpipe.player.playqueue.SinglePlayQueue
 import org.schabi.newpipe.report.UserAction
-
-import java.io.Serializable
-import java.util.ArrayList
-import java.util.Arrays
-import java.util.HashSet
-
-import icepick.Icepick
-import icepick.State
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.functions.Consumer
-import io.reactivex.schedulers.Schedulers
-
-import org.schabi.newpipe.extractor.StreamingService.ServiceInfo.MediaCapability.AUDIO
-import org.schabi.newpipe.extractor.StreamingService.ServiceInfo.MediaCapability.VIDEO
 import org.schabi.newpipe.util.*
 import org.schabi.newpipe.util.ThemeHelper.resolveResourceIdFromAttr
+import java.io.Serializable
+import java.util.*
 
 /**
- * Get the url from the intent and open it in the chosen preferred player
+ * Get the url getTabFrom the intent and open it in the chosen preferred simpleExoPlayer
  */
 class RouterActivity : AppCompatActivity() {
 
-    @State
-    var currentServiceId = -1
+    @State @JvmField
+    protected var currentServiceId = -1
     private var currentService: StreamingService? = null
-    @State
-    lateinit var currentLinkType: LinkType
-    @State
-    var selectedRadioPosition = -1
+    @State @JvmField
+    protected var currentLinkType: LinkType? = null
+    @State @JvmField
+    protected var selectedRadioPosition = -1
     protected var selectedPreviously = -1
 
     protected var currentUrl: String? = null
-    protected val disposables = CompositeDisposable()
+    protected var disposables = CompositeDisposable()
 
     private var selectionIsDownload = false
 
@@ -129,7 +123,7 @@ class RouterActivity : AppCompatActivity() {
                         currentService = NewPipe.getService(currentServiceId)
                     }
 
-                    currentLinkType != LinkType.NONE
+                    LinkType.NONE != currentLinkType
                 }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -148,7 +142,7 @@ class RouterActivity : AppCompatActivity() {
         if (error is ExtractionException) {
             Toast.makeText(this, R.string.url_not_supported_toast, Toast.LENGTH_LONG).show()
         } else {
-            ExtractorHelper.handleGeneralException(this, -1, null, error, UserAction.SOMETHING_ELSE, null)
+            ExtractorHelper.handleGeneralException(this, -1, null!!, error, UserAction.SOMETHING_ELSE, null)
         }
 
         finish()
@@ -171,12 +165,14 @@ class RouterActivity : AppCompatActivity() {
         val alwaysAskKey = getString(R.string.always_ask_open_action_key)
 
         if (selectedChoiceKey == alwaysAskKey) {
-            val choices = getChoicesForService(currentService!!, currentLinkType)
+            val choices = getChoicesForService(currentService!!, currentLinkType!!)
 
-            when (choices.size) {
-                1 -> handleChoice(choices[0].key)
-                0 -> handleChoice(showInfoKey)
-                else -> showDialog(choices)
+            if (choices.size == 1) {
+                handleChoice(choices[0].key)
+            } else if (choices.size == 0) {
+                handleChoice(showInfoKey)
+            } else {
+                showDialog(choices)
             }
         } else if (selectedChoiceKey == showInfoKey) {
             handleChoice(showInfoKey)
@@ -188,7 +184,7 @@ class RouterActivity : AppCompatActivity() {
             val isVideoPlayerSelected = selectedChoiceKey == videoPlayerKey || selectedChoiceKey == popupPlayerKey
             val isAudioPlayerSelected = selectedChoiceKey == backgroundPlayerKey
 
-            if (currentLinkType != LinkType.STREAM) {
+            if (LinkType.STREAM != currentLinkType) {
                 if (isExtAudioEnabled && isAudioPlayerSelected || isExtVideoEnabled && isVideoPlayerSelected) {
                     Toast.makeText(this, R.string.external_player_unsupported_link_type, Toast.LENGTH_LONG).show()
                     handleChoice(showInfoKey)
@@ -221,7 +217,7 @@ class RouterActivity : AppCompatActivity() {
         val rootLayout = inflater.inflate(R.layout.preferred_player_dialog_view, null, false) as LinearLayout
         val radioGroup = rootLayout.findViewById<RadioGroup>(android.R.id.list)
 
-        val dialogButtonsClickListener = DialogInterface.OnClickListener {  dialog, which ->
+        val dialogButtonsClickListener = DialogInterface.OnClickListener{ dialog, which ->
             val indexOfChild = radioGroup.indexOfChild(
                     radioGroup.findViewById(radioGroup.checkedRadioButtonId))
             val choice = choices[indexOfChild]
@@ -246,7 +242,7 @@ class RouterActivity : AppCompatActivity() {
         alertDialog.setOnShowListener { dialog -> setDialogButtonsState(alertDialog, radioGroup.checkedRadioButtonId != -1) }
 
         radioGroup.setOnCheckedChangeListener { group, checkedId -> setDialogButtonsState(alertDialog, true) }
-        val radioButtonsClickListener =  View.OnClickListener{ v ->
+        val radioButtonsClickListener = View.OnClickListener { v ->
             val indexOfChild = radioGroup.indexOfChild(v)
             if (indexOfChild == -1) return@OnClickListener
 
@@ -258,7 +254,7 @@ class RouterActivity : AppCompatActivity() {
             }
         }
 
-        var id = SAMPLE_ID
+        var id = 12345
         for (item in choices) {
             val radioButton = inflater.inflate(R.layout.list_radio_icon_item, null) as RadioButton
             radioButton.text = item.description
@@ -373,7 +369,7 @@ class RouterActivity : AppCompatActivity() {
         }
 
         val intent = Intent(this, FetcherService::class.java)
-        val choice = Choice(currentService!!.serviceId, currentLinkType, currentUrl!!, selectedChoiceKey!!)
+        val choice = Choice(currentService!!.serviceId, currentLinkType!!, currentUrl!!, selectedChoiceKey!!)
         intent.putExtra(FetcherService.KEY_CHOICE, choice)
         startService(intent)
 
@@ -400,7 +396,7 @@ class RouterActivity : AppCompatActivity() {
                     downloadDialog.setSelectedVideoStream(selectedVideoStreamIndex)
                     downloadDialog.show(fm, "downloadDialog")
                     fm.executePendingTransactions()
-                    downloadDialog.dialog.setOnDismissListener { dialog -> finish() }
+                    downloadDialog.getDialog().setOnDismissListener({ dialog -> finish() })
                 }, { throwable: Throwable -> onError() })
     }
 
@@ -546,8 +542,9 @@ class RouterActivity : AppCompatActivity() {
         }
 
         companion object {
-            private const val ID = 456
-            const val KEY_CHOICE = "key_choice"
+
+            private val ID = 456
+            val KEY_CHOICE = "key_choice"
         }
     }
 
@@ -561,7 +558,7 @@ class RouterActivity : AppCompatActivity() {
             //this means that vidoe was called through share menu
             val extraText = intent.getStringExtra(Intent.EXTRA_TEXT)
             val uris = getUris(extraText)
-            videoUrl = if (uris.isNotEmpty()) uris[0] else null
+            videoUrl = if (uris.size > 0) uris[0] else null
         }
 
         return videoUrl
@@ -583,10 +580,10 @@ class RouterActivity : AppCompatActivity() {
             return input
         } else {
             var output: String = input
-            while (output.isNotEmpty() && output.substring(0, 1).matches(REGEX_REMOVE_FROM_URL.toRegex())) {
+            while (output.length > 0 && output.substring(0, 1).matches(REGEX_REMOVE_FROM_URL.toRegex())) {
                 output = output.substring(1)
             }
-            while (output.isNotEmpty() && output.substring(output.length - 1, output.length).matches(REGEX_REMOVE_FROM_URL.toRegex())) {
+            while (output.length > 0 && output.substring(output.length - 1, output.length).matches(REGEX_REMOVE_FROM_URL.toRegex())) {
                 output = output.substring(0, output.length - 1)
             }
             return output
@@ -594,7 +591,7 @@ class RouterActivity : AppCompatActivity() {
     }
 
     /**
-     * Retrieves all Strings which look remotely like URLs from a text.
+     * Retrieves all Strings which look remotely like URLs getTabFrom a text.
      * Used if NewPipe was called through share menu.
      *
      * @param sharedText text to scan for URLs.
@@ -606,11 +603,11 @@ class RouterActivity : AppCompatActivity() {
             val array = sharedText.split("\\p{Space}".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             for (s in array) {
                 val string = trim(s)!!
-                if (string.isNotEmpty()) {
-                    if (s.matches(".+://.+".toRegex())) {
-                        result.add(removeHeadingGibberish(s))
-                    } else if (s.matches(".+\\..+".toRegex())) {
-                        result.add("http://$s")
+                if (string.length != 0) {
+                    if (string.matches(".+://.+".toRegex())) {
+                        result.add(removeHeadingGibberish(string))
+                    } else if (string.matches(".+\\..+".toRegex())) {
+                        result.add("http://$string")
                     }
                 }
             }
@@ -629,7 +626,6 @@ class RouterActivity : AppCompatActivity() {
          * brackets (\p{P}). See http://www.regular-expressions.info/unicode.html for
          * more details.
          */
-        private const val REGEX_REMOVE_FROM_URL = "[\\p{Z}\\p{P}]"
-        private const val SAMPLE_ID = 12345
+        private val REGEX_REMOVE_FROM_URL = "[\\p{Z}\\p{P}]"
     }
 }

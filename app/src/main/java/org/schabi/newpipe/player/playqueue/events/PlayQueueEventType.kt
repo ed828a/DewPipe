@@ -9,7 +9,7 @@ enum class PlayQueueEventType {
     // sent when more streams are added to the play queue
     APPEND,
 
-    // sent when a pending stream is removed from the play queue
+    // sent when a pending stream is removed getTabFrom the play queue
     REMOVE,
 
     // sent when two streams swap place in the play queue

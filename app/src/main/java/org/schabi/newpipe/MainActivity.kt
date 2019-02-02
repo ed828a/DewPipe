@@ -79,7 +79,7 @@ class MainActivity : AppCompatActivity() {
     ///////////////////////////////////////////////////////////////////////////
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (DEBUG) Log.d(TAG, "onCreate() called with: savedInstanceState = [$savedInstanceState]")
+        Log.d(TAG, "onCreate() called with: savedInstanceState = [$savedInstanceState]")
 
         ThemeHelper.setTheme(this, ServiceHelper.getSelectedServiceId(this))
 
@@ -196,6 +196,7 @@ class MainActivity : AppCompatActivity() {
 
     @Throws(ExtractionException::class)
     private fun tabSelected(item: MenuItem) {
+
         when (item.itemId) {
             ITEM_ID_SUBSCRIPTIONS -> NavigationHelper.openSubscriptionFragment(supportFragmentManager)
             ITEM_ID_FEED -> NavigationHelper.openWhatsNewFragment(supportFragmentManager)
@@ -351,7 +352,7 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         if (DEBUG) Log.d(TAG, "onNewIntent() called with: intent = [$intent]")
         if (intent != null) {
-            // Return if launched from a launcher (e.g. Nova Launcher, Pixel Launcher ...)
+            // Return if launched getTabFrom a launcher (e.g. Nova Launcher, Pixel Launcher ...)
             // to not destroy the already created backstack
             val action = intent.action
             if (action != null && action == Intent.ACTION_MAIN && intent.hasCategory(Intent.CATEGORY_LAUNCHER)) return
@@ -437,7 +438,7 @@ class MainActivity : AppCompatActivity() {
 
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_holder)
         if (fragment !is VideoDetailFragment) {
-            findViewById<View>(R.id.toolbar).findViewById<View>(R.id.toolbar_spinner).visibility = View.GONE
+            findViewById<View>(R.id.toolbar).findViewById<View>(R.id.toolbarSpinner).visibility = View.GONE
         }
 
         if (fragment !is SearchFragment) {

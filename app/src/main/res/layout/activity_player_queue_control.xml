@@ -33,7 +33,7 @@
         android:layout_below="@id/appbar"
         android:layout_above="@id/center"
         android:scrollbars="vertical"
-        app:layoutManager="LinearLayoutManager"
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
         tools:listitem="@layout/play_queue_item"/>
 
     <RelativeLayout

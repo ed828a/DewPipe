@@ -14,6 +14,7 @@ import com.squareup.leakcanary.LeakCanary
 import com.squareup.leakcanary.RefWatcher
 
 import org.acra.ACRA
+import org.acra.config.ACRAConfiguration
 import org.acra.config.ACRAConfigurationException
 import org.acra.config.ConfigurationBuilder
 import org.acra.sender.ReportSenderFactory
@@ -23,11 +24,13 @@ import org.schabi.newpipe.report.AcraReportSenderFactory
 import org.schabi.newpipe.report.ErrorActivity
 import org.schabi.newpipe.report.UserAction
 import org.schabi.newpipe.settings.SettingsActivity
+import org.schabi.newpipe.util.ExtractorHelper
 import org.schabi.newpipe.util.StateSaver
 
 import java.io.IOException
 import java.io.InterruptedIOException
 import java.net.SocketException
+import java.util.Collections
 
 import io.reactivex.annotations.NonNull
 import io.reactivex.exceptions.CompositeException
@@ -36,7 +39,7 @@ import io.reactivex.exceptions.OnErrorNotImplementedException
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.functions.Consumer
 import io.reactivex.plugins.RxJavaPlugins
-import org.schabi.newpipe.util.ExtractorHelper
+import org.schabi.newpipe.report.ErrorInfo
 
 /*
  * Copyright (C) Hans-Christoph Steiner 2016 <hans@eds.org>
@@ -60,8 +63,7 @@ open class App : Application() {
     private var refWatcher: RefWatcher? = null
 
     protected open val downloader: Downloader
-        get() = org.schabi.newpipe.Downloader.init(
-                null)
+        get() = org.schabi.newpipe.Downloader.init(null)
 
     protected open val isDisposedRxExceptionsReported: Boolean
         get() = false
@@ -85,8 +87,7 @@ open class App : Application() {
         // Initialize settings first because others inits can use its values
         SettingsActivity.initSettings(this)
 
-        NewPipe.init(downloader,
-                org.schabi.newpipe.util.Localization.getPreferredExtractorLocal(this))
+        NewPipe.init(downloader)
         StateSaver.init(this)
         initNotificationChannel()
 
@@ -99,8 +100,9 @@ open class App : Application() {
     private fun configureRxJavaErrorHandler() {
         // https://github.com/ReactiveX/RxJava/wiki/What's-different-in-2.0#error-handling
         RxJavaPlugins.setErrorHandler(object : Consumer<Throwable> {
-            override fun accept(@NonNull throwAble: Throwable) {
-                var throwable = throwAble
+            @Throws(Exception::class)
+            override fun accept(@NonNull throwable: Throwable) {
+                var throwable = throwable
                 Log.e(TAG, "RxJavaPlugins.ErrorHandler called with -> : " +
                         "throwable = [" + throwable.javaClass.name + "]")
 
@@ -174,12 +176,8 @@ open class App : Application() {
             ACRA.init(this, acraConfig)
         } catch (ace: ACRAConfigurationException) {
             ace.printStackTrace()
-            ErrorActivity.reportError(this,
-                    ace,
-                    null,
-                    null,
-                    ErrorActivity.ErrorInfo.make(UserAction.SOMETHING_ELSE, "none",
-                            "Could not initialize ACRA crash report", R.string.app_ui_crash))
+            ErrorActivity.reportError(this, ace, null, null, ErrorInfo.make(UserAction.SOMETHING_ELSE, "none",
+                    "Could not initialize ACRA crash report", R.string.app_ui_crash))
         }
 
     }

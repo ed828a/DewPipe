@@ -413,7 +413,7 @@
     <string name="drawer_header_action_paceholder_text">Something will appear here soon ;D</string>
 
 
-    <!-- Preferred player -->
+    <!-- Preferred simpleExoPlayer -->
     <string name="preferred_open_action_share_menu_title" translatable="false">NewPipe</string>
     <string name="preferred_open_action_settings_title">Preferred \'open\' action</string>
     <string name="preferred_open_action_settings_summary">Default action when opening content — %s</string>
@@ -525,4 +525,8 @@
     <string name="grid">Grid</string>
 	  <string name="auto">Auto</string>
     <string name="switch_view">Switch View</string>
+    <string name="todo">TODO</string>
+    <string name="size_100_00mb">100.00MB</string>
+    <string name="xxx_xx">XXX.xx</string>
+    <string name="download_service_disconnected">Download Service disconnected</string>
 </resources>

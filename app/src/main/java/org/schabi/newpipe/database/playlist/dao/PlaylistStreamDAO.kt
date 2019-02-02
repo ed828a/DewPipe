@@ -44,13 +44,10 @@ abstract class PlaylistStreamDAO : BasicDAO<PlaylistStreamEntity> {
         throw UnsupportedOperationException()
     }
 
-    @Query("DELETE FROM " + PLAYLIST_STREAM_JOIN_TABLE +
-            " WHERE " + JOIN_PLAYLIST_ID + " = :playlistId")
+    @Query("DELETE FROM $PLAYLIST_STREAM_JOIN_TABLE WHERE $JOIN_PLAYLIST_ID = :playlistId")
     abstract fun deleteBatch(playlistId: Long)
 
-    @Query("SELECT COALESCE(MAX(" + JOIN_INDEX + "), -1)" +
-            " FROM " + PLAYLIST_STREAM_JOIN_TABLE +
-            " WHERE " + JOIN_PLAYLIST_ID + " = :playlistId")
+    @Query("SELECT COALESCE(MAX($JOIN_INDEX), -1) FROM $PLAYLIST_STREAM_JOIN_TABLE WHERE $JOIN_PLAYLIST_ID = :playlistId")
     abstract fun getMaximumIndexOf(playlistId: Long): Flowable<Int>
 
     @Transaction

@@ -6,7 +6,7 @@ import android.arch.persistence.room.migration.Migration
 object Migrations {
 
     const val DB_VER_11_0 = 1
-    const val DB_VER_12_0 = 2
+    const val DB_VER_12_0 = 3
 
     val MIGRATION_11_12: Migration = object : Migration(DB_VER_11_0, DB_VER_12_0) {
         override fun migrate(database: SupportSQLiteDatabase) {
@@ -45,7 +45,7 @@ object Migrations {
                     "ORDER BY creation_date DESC")
 
             // Once the streams have PKs, join them with the normalized history table
-            // and populate it with the remaining data from watch history
+            // and populate it with the remaining data getTabFrom watch history
             database.execSQL("INSERT INTO stream_history (stream_id, access_date, repeat_count)" +
                     "SELECT uid, creation_date, 1 " +
                     "FROM watch_history INNER JOIN streams " +

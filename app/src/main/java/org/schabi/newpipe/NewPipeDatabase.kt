@@ -33,4 +33,4 @@ object NewPipeDatabase {
 
         return result!!
     }
-}//no instance
+}

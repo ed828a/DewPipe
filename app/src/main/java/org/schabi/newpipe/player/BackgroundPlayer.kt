@@ -80,7 +80,7 @@ class BackgroundPlayer : Service() {
     ///////////////////////////////////////////////////////////////////////////
 
     override fun onCreate() {
-        if (DEBUG) Log.d(TAG, "onCreate() called")
+        Log.d(TAG, "onCreate() called")
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         lockManager = LockManager(this)
 
@@ -93,7 +93,7 @@ class BackgroundPlayer : Service() {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        if (DEBUG)
+
             Log.d(TAG, "onStartCommand() called with: intent = [" + intent +
                     "], flags = [" + flags + "], startId = [" + startId + "]")
         basePlayerImpl!!.handleIntent(intent)
@@ -104,7 +104,7 @@ class BackgroundPlayer : Service() {
     }
 
     override fun onDestroy() {
-        if (DEBUG) Log.d(TAG, "destroy() called")
+        Log.d(TAG, "destroy() called")
         onClose()
     }
 
@@ -116,7 +116,7 @@ class BackgroundPlayer : Service() {
     // Actions
     ///////////////////////////////////////////////////////////////////////////
     private fun onClose() {
-        if (DEBUG) Log.d(TAG, "onClose() called")
+        Log.d(TAG, "onClose() called")
 
         if (lockManager != null) {
             lockManager!!.releaseWifiAndCpu()
@@ -135,7 +135,7 @@ class BackgroundPlayer : Service() {
     }
 
     private fun onScreenOnOff(on: Boolean) {
-        if (DEBUG) Log.d(TAG, "onScreenOnOff() called with: on = [$on]")
+        Log.d(TAG, "onScreenOnOff() called with: on = [$on]")
         shouldUpdateOnProgress = on
         basePlayerImpl!!.triggerProgressUpdate()
         if (on) {
@@ -185,7 +185,7 @@ class BackgroundPlayer : Service() {
         remoteViews.setOnClickPendingIntent(R.id.notificationRepeat,
                 PendingIntent.getBroadcast(this, NOTIFICATION_ID, Intent(ACTION_REPEAT), PendingIntent.FLAG_UPDATE_CURRENT))
 
-        // Starts background player activity -- attempts to unlock lockscreen
+        // Starts background simpleExoPlayer activity -- attempts to unlock lockscreen
         val intent = NavigationHelper.getBackgroundPlayerActivityIntent(this)
         remoteViews.setOnClickPendingIntent(R.id.notificationContent,
                 PendingIntent.getActivity(this, NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT))
@@ -217,7 +217,7 @@ class BackgroundPlayer : Service() {
      */
     @Synchronized
     private fun updateNotification(drawableId: Int) {
-        //if (DEBUG) Log.d(TAG, "updateNotification() called with: drawableId = [" + drawableId + "]");
+        //Log.d(TAG, "updateNotification() called with: drawableId = [" + drawableId + "]");
         if (notBuilder == null) return
         if (drawableId != -1) {
             if (notRemoteView != null) notRemoteView!!.setImageViewResource(R.id.notificationPlayPause, drawableId)
@@ -295,7 +295,7 @@ class BackgroundPlayer : Service() {
 
         override fun onPrepared(playWhenReady: Boolean) {
             super.onPrepared(playWhenReady)
-            player!!.volume = 1f
+            simpleExoPlayer!!.volume = 1f
         }
 
         override fun onShuffleClicked() {
@@ -399,7 +399,7 @@ class BackgroundPlayer : Service() {
         }
 
         private fun updatePlayback() {
-            if (activityListener != null && player != null && playQueue != null) {
+            if (activityListener != null && simpleExoPlayer != null && playQueue != null) {
                 activityListener!!.onPlaybackUpdate(currentState, repeatMode,
                         playQueue!!.isShuffled, playbackParameters)
             }
@@ -441,7 +441,7 @@ class BackgroundPlayer : Service() {
         override fun onBroadcastReceived(intent: Intent?) {
             super.onBroadcastReceived(intent)
             if (intent == null || intent.action == null) return
-            if (BasePlayer.DEBUG) Log.d(BasePlayer.TAG, "onBroadcastReceived() called with: intent = [$intent]")
+            Log.d(BasePlayer.TAG, "onBroadcastReceived() called with: intent = [$intent]")
             when (intent.action) {
                 ACTION_CLOSE -> onClose()
                 ACTION_PLAY_PAUSE -> onPlayPause()
@@ -497,15 +497,14 @@ class BackgroundPlayer : Service() {
 
     companion object {
         private const val TAG = "BackgroundPlayer"
-        private val DEBUG = BasePlayer.DEBUG
 
-        const val ACTION_CLOSE = "org.schabi.newpipe.player.BackgroundPlayer.CLOSE"
-        const val ACTION_PLAY_PAUSE = "org.schabi.newpipe.player.BackgroundPlayer.PLAY_PAUSE"
-        const val ACTION_REPEAT = "org.schabi.newpipe.player.BackgroundPlayer.REPEAT"
-        const val ACTION_PLAY_NEXT = "org.schabi.newpipe.player.BackgroundPlayer.ACTION_PLAY_NEXT"
-        const val ACTION_PLAY_PREVIOUS = "org.schabi.newpipe.player.BackgroundPlayer.ACTION_PLAY_PREVIOUS"
-        const val ACTION_FAST_REWIND = "org.schabi.newpipe.player.BackgroundPlayer.ACTION_FAST_REWIND"
-        const val ACTION_FAST_FORWARD = "org.schabi.newpipe.player.BackgroundPlayer.ACTION_FAST_FORWARD"
+        const val ACTION_CLOSE = "org.schabi.newpipe.simpleExoPlayer.BackgroundPlayer.CLOSE"
+        const val ACTION_PLAY_PAUSE = "org.schabi.newpipe.simpleExoPlayer.BackgroundPlayer.PLAY_PAUSE"
+        const val ACTION_REPEAT = "org.schabi.newpipe.simpleExoPlayer.BackgroundPlayer.REPEAT"
+        const val ACTION_PLAY_NEXT = "org.schabi.newpipe.simpleExoPlayer.BackgroundPlayer.ACTION_PLAY_NEXT"
+        const val ACTION_PLAY_PREVIOUS = "org.schabi.newpipe.simpleExoPlayer.BackgroundPlayer.ACTION_PLAY_PREVIOUS"
+        const val ACTION_FAST_REWIND = "org.schabi.newpipe.simpleExoPlayer.BackgroundPlayer.ACTION_FAST_REWIND"
+        const val ACTION_FAST_FORWARD = "org.schabi.newpipe.simpleExoPlayer.BackgroundPlayer.ACTION_FAST_FORWARD"
 
         const val SET_IMAGE_RESOURCE_METHOD = "setImageResource"
 

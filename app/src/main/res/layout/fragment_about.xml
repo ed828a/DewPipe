@@ -34,7 +34,7 @@
 
 
         <TextView
-            android:id="@+id/app_version"
+            android:id="@+id/appVersion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -63,7 +63,7 @@
             android:text="@string/contribution_encouragement" />
 
         <Button
-            android:id="@+id/github_link"
+            android:id="@+id/githubLink"
             style="@style/Base.Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -84,7 +84,7 @@
             android:text="@string/donation_encouragement" />
 
         <Button
-            android:id="@+id/donation_link"
+            android:id="@+id/donationLink"
             style="@style/Base.Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -105,7 +105,7 @@
             android:text="@string/website_encouragement" />
 
         <Button
-            android:id="@+id/website_link"
+            android:id="@+id/websiteLink"
             style="@style/Base.Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -126,7 +126,7 @@
             android:text="@string/privacy_policy_encouragement" />
 
         <Button
-            android:id="@+id/privacy_policy_link"
+            android:id="@+id/privacyPolicyLink"
             style="@style/Base.Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

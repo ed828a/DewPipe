@@ -11,7 +11,7 @@ import java.util.Queue
 
 abstract class PlaylistDialog : DialogFragment(), StateSaver.WriteRead {
 
-    protected var streams: List<StreamEntity>? = null
+    protected var streams: List<StreamEntity>? = null  // StateSaver take care this
         private set
 
     private var savedState: StateSaver.SavedState? = null

@@ -4,26 +4,23 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
 import android.view.View
-
-import org.schabi.newpipe.extractor.ListExtractor
-import org.schabi.newpipe.extractor.ListInfo
-import org.schabi.newpipe.util.Constants
-
-import java.util.Queue
-
 import icepick.State
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import org.schabi.newpipe.extractor.ListExtractor
+import org.schabi.newpipe.extractor.ListInfo
+import org.schabi.newpipe.util.Constants
+import java.util.*
 
 abstract class BaseListInfoFragment<I : ListInfo<*>> : BaseListFragment<I, ListExtractor.InfoItemsPage<*>>() {
 
-    @State
+    @State @JvmField
     var serviceId = Constants.NO_SERVICE_ID
-    @State
+    @State @JvmField
     var name: String = ""
-    @State
+    @State @JvmField
     var url: String = ""
 
     protected var currentInfo: I? = null
@@ -72,7 +69,7 @@ abstract class BaseListInfoFragment<I : ListInfo<*>> : BaseListFragment<I, ListE
     @Throws(Exception::class)
     override fun readFrom(savedObjects: Queue<Any>) {
         super.readFrom(savedObjects)
-        currentInfo = savedObjects.poll() as I
+        currentInfo = savedObjects.poll() as I?
         currentNextPageUrl = savedObjects.poll() as String
     }
 
@@ -81,7 +78,8 @@ abstract class BaseListInfoFragment<I : ListInfo<*>> : BaseListFragment<I, ListE
     ///////////////////////////////////////////////////////////////////////////
 
     override fun doInitialLoadLogic() {
-        if (DEBUG) Log.d(TAG, "doInitialLoadLogic() called")
+        Log.d(TAG, "doInitialLoadLogic() called, serviceId = $serviceId")
+
         if (currentInfo == null) {
             startLoading(false)
         } else
@@ -89,10 +87,10 @@ abstract class BaseListInfoFragment<I : ListInfo<*>> : BaseListFragment<I, ListE
     }
 
     /**
-     * Implement the logic to load the info from the network.<br></br>
-     * You can use the default implementations from [org.schabi.newpipe.util.ExtractorHelper].
+     * Implement the logic to load the info getTabFrom the network.<br></br>
+     * You can use the default implementations getTabFrom [org.schabi.newpipe.util.ExtractorHelper].
      *
-     * @param forceLoad allow or disallow the result to come from the cache
+     * @param forceLoad allow or disallow the result to come getTabFrom the cache
      */
     protected abstract fun loadResult(forceLoad: Boolean): Single<I>
 
@@ -115,7 +113,7 @@ abstract class BaseListInfoFragment<I : ListInfo<*>> : BaseListFragment<I, ListE
 
     /**
      * Implement the logic to load more items<br></br>
-     * You can use the default implementations from [org.schabi.newpipe.util.ExtractorHelper]
+     * You can use the default implementations getTabFrom [org.schabi.newpipe.util.ExtractorHelper]
      */
     protected abstract fun loadMoreItemsLogic(): Single<ListExtractor.InfoItemsPage<*>>
 
@@ -173,6 +171,7 @@ abstract class BaseListInfoFragment<I : ListInfo<*>> : BaseListFragment<I, ListE
     ///////////////////////////////////////////////////////////////////////////
 
     protected fun setInitialData(serviceId: Int, url: String, name: String) {
+        Log.d(TAG, "setInitialData() called, serviceId = $serviceId")
         this.serviceId = serviceId
         this.url = url
         this.name = if (!TextUtils.isEmpty(name)) name else ""

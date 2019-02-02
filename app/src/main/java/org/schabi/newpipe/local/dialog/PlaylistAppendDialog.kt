@@ -8,9 +8,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-
-import org.schabi.newpipe.NewPipeDatabase
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import org.schabi.newpipe.R
+import org.schabi.newpipe.database.AppDatabase
 import org.schabi.newpipe.database.LocalItem
 import org.schabi.newpipe.database.playlist.PlaylistMetadataEntry
 import org.schabi.newpipe.database.stream.model.StreamEntity
@@ -20,12 +22,7 @@ import org.schabi.newpipe.local.LocalItemListAdapter
 import org.schabi.newpipe.local.playlist.LocalPlaylistManager
 import org.schabi.newpipe.player.playqueue.PlayQueueItem
 import org.schabi.newpipe.util.OnClickGesture
-
-import java.util.ArrayList
-import java.util.Collections
-
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
+import java.util.*
 
 class PlaylistAppendDialog : PlaylistDialog() {
 
@@ -34,6 +31,7 @@ class PlaylistAppendDialog : PlaylistDialog() {
 
     private var playlistReactor: Disposable? = null
 
+    private val compositeDisposable = CompositeDisposable()
     ///////////////////////////////////////////////////////////////////////////
     // LifeCycle - Creation
     ///////////////////////////////////////////////////////////////////////////
@@ -46,28 +44,27 @@ class PlaylistAppendDialog : PlaylistDialog() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val playlistManager = LocalPlaylistManager(NewPipeDatabase.getInstance(context!!))
-
+//        val playlistManager = LocalPlaylistManager(NewPipeDatabase.getInstance(context!!))
+        val playlistManager = LocalPlaylistManager(AppDatabase.getDatabase(context!!))
         playlistAdapter = LocalItemListAdapter(activity!!)
-        playlistAdapter!!.setSelectedListener(object : OnClickGesture<LocalItem>() {
+        playlistAdapter?.setSelectedListener(object : OnClickGesture<LocalItem>() {
             override fun selected(selectedItem: LocalItem) {
                 if (selectedItem !is PlaylistMetadataEntry || streams == null)
                     return
-                onPlaylistSelected(playlistManager, selectedItem,
-                        streams!!)
+                onPlaylistSelected(playlistManager, selectedItem, streams!!)
             }
         })
 
         playlistRecyclerView = view.findViewById(R.id.playlist_list)
-        playlistRecyclerView!!.layoutManager = LinearLayoutManager(context)
-        playlistRecyclerView!!.adapter = playlistAdapter
+        playlistRecyclerView?.layoutManager = LinearLayoutManager(context) as RecyclerView.LayoutManager?
+        playlistRecyclerView?.adapter = playlistAdapter
 
         val newPlaylistButton = view.findViewById<View>(R.id.newPlaylist)
         newPlaylistButton.setOnClickListener { ignored -> openCreatePlaylistDialog() }
 
         playlistReactor = playlistManager.playlists
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { this.onPlaylistsReceived(it) }
+                .subscribe {list -> this.onPlaylistsReceived(list) }
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -76,19 +73,20 @@ class PlaylistAppendDialog : PlaylistDialog() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (playlistReactor != null) playlistReactor!!.dispose()
-        if (playlistAdapter != null) playlistAdapter!!.unsetSelectedListener()
+        playlistReactor?.dispose()
+        playlistAdapter?.unsetSelectedListener()
 
         playlistReactor = null
         playlistRecyclerView = null
         playlistAdapter = null
+        if (!compositeDisposable.isDisposed) compositeDisposable.dispose()
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // Helper
     ///////////////////////////////////////////////////////////////////////////
 
-    fun openCreatePlaylistDialog() {
+    private fun openCreatePlaylistDialog() {
         if (streams == null || fragmentManager == null) return
 
         PlaylistCreationDialog.newInstance(streams!!).show(fragmentManager!!, TAG)
@@ -111,16 +109,16 @@ class PlaylistAppendDialog : PlaylistDialog() {
     private fun onPlaylistSelected(manager: LocalPlaylistManager,
                                    playlist: PlaylistMetadataEntry,
                                    streams: List<StreamEntity>) {
-        if (streams == null) return
 
         @SuppressLint("ShowToast")
         val successToast = Toast.makeText(context,
                 R.string.playlist_add_stream_success, Toast.LENGTH_SHORT)
 
-        manager.appendToPlaylist(playlist.uid, streams)
+        val d = manager.appendToPlaylist(playlist.uid, streams)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { ignored -> successToast.show() }
 
+        compositeDisposable.add(d)
         dialog.dismiss()
     }
 

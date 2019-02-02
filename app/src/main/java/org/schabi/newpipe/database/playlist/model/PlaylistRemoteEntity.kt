@@ -11,46 +11,44 @@ import org.schabi.newpipe.database.playlist.model.PlaylistRemoteEntity.Companion
 import org.schabi.newpipe.extractor.playlist.PlaylistInfo
 import org.schabi.newpipe.util.Constants
 
-@Entity(tableName = REMOTE_PLAYLIST_TABLE, indices = arrayOf(Index(value = *arrayOf(REMOTE_PLAYLIST_NAME)), Index(value = *arrayOf(REMOTE_PLAYLIST_SERVICE_ID, REMOTE_PLAYLIST_URL), unique = true)))
-class PlaylistRemoteEntity(serviceId: Int, @field:ColumnInfo(name = REMOTE_PLAYLIST_NAME)
-var name: String?, @field:ColumnInfo(name = REMOTE_PLAYLIST_URL)
-                           var url: String?, @field:ColumnInfo(name = REMOTE_PLAYLIST_THUMBNAIL_URL)
-                           var thumbnailUrl: String?,
-                           @field:ColumnInfo(name = REMOTE_PLAYLIST_UPLOADER_NAME)
-                           var uploader: String?, @field:ColumnInfo(name = REMOTE_PLAYLIST_STREAM_COUNT)
-                           var streamCount: Long?) : PlaylistLocalItem {
+@Entity(tableName = REMOTE_PLAYLIST_TABLE,
+        indices = [Index(value = arrayOf(REMOTE_PLAYLIST_NAME)),
+            Index(value = arrayOf(REMOTE_PLAYLIST_SERVICE_ID, REMOTE_PLAYLIST_URL), unique = true)])
+class PlaylistRemoteEntity(
+        @field:ColumnInfo(name = REMOTE_PLAYLIST_SERVICE_ID) var serviceId: Int = Constants.NO_SERVICE_ID,
+        @field:ColumnInfo(name = REMOTE_PLAYLIST_NAME) var name: String?,
+        @field:ColumnInfo(name = REMOTE_PLAYLIST_URL) var url: String?,
+        @field:ColumnInfo(name = REMOTE_PLAYLIST_THUMBNAIL_URL) var thumbnailUrl: String?,
+        @field:ColumnInfo(name = REMOTE_PLAYLIST_UPLOADER_NAME) var uploader: String?,
+        @field:ColumnInfo(name = REMOTE_PLAYLIST_STREAM_COUNT) var streamCount: Long?) : PlaylistLocalItem {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = REMOTE_PLAYLIST_ID)
     var uid: Long = 0
 
-    @ColumnInfo(name = REMOTE_PLAYLIST_SERVICE_ID)
-    var serviceId = Constants.NO_SERVICE_ID
-
     override val localItemType: LocalItem.LocalItemType
         get() = PLAYLIST_REMOTE_ITEM
 
-    init {
-        this.serviceId = serviceId
-    }
-
     @Ignore
-    constructor(info: PlaylistInfo) : this(info.serviceId, info.name, info.url,
+    constructor(info: PlaylistInfo) : this(
+            info.serviceId,
+            info.name,
+            info.url,
             if (info.thumbnailUrl == null) info.uploaderAvatarUrl else info.thumbnailUrl,
-            info.uploaderName, info.streamCount) {
-    }
+            info.uploaderName,
+            info.streamCount)
 
     @Ignore
-    fun isIdenticalTo(info: PlaylistInfo): Boolean {
-        return serviceId == info.serviceId && name == info.name &&
-                streamCount == info.streamCount && url == info.url &&
-                thumbnailUrl == info.thumbnailUrl &&
-                uploader == info.uploaderName
-    }
+    fun isIdenticalTo(info: PlaylistInfo): Boolean =
+                    serviceId == info.serviceId &&
+                    name == info.name &&
+                    streamCount == info.streamCount &&
+                    url == info.url &&
+                    thumbnailUrl == info.thumbnailUrl &&
+                    uploader == info.uploaderName
 
-    override fun getOrderingName(): String? {
-        return name
-    }
+
+    override fun getOrderingName(): String? = name
 
     companion object {
         const val REMOTE_PLAYLIST_TABLE = "remote_playlists"

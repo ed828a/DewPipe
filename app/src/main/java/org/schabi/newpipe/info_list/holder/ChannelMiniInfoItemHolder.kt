@@ -12,20 +12,16 @@ import org.schabi.newpipe.util.Localization
 
 import de.hdodenhof.circleimageview.CircleImageView
 
-open class ChannelMiniInfoItemHolder internal constructor(infoItemBuilder: InfoItemBuilder, layoutId: Int, parent: ViewGroup) : InfoItemHolder(infoItemBuilder, layoutId, parent) {
-    val itemThumbnailView: CircleImageView
-    val itemTitleView: TextView
-    val itemAdditionalDetailView: TextView
-
-    init {
-
-        itemThumbnailView = itemView.findViewById(R.id.itemThumbnailView)
-        itemTitleView = itemView.findViewById(R.id.itemTitleView)
-        itemAdditionalDetailView = itemView.findViewById(R.id.itemAdditionalDetails)
-    }
+open class ChannelMiniInfoItemHolder(infoItemBuilder: InfoItemBuilder,
+                                     layoutId: Int,
+                                     parent: ViewGroup) : InfoItemHolder(infoItemBuilder, layoutId, parent) {
+    val itemThumbnailView: CircleImageView = itemView.findViewById(R.id.itemThumbnailView)
+    val itemTitleView: TextView = itemView.findViewById(R.id.itemTitleView)
+    private val itemAdditionalDetailView: TextView = itemView.findViewById(R.id.itemAdditionalDetails)
 
     constructor(infoItemBuilder: InfoItemBuilder, parent: ViewGroup) : this(infoItemBuilder, R.layout.list_channel_mini_item, parent) {}
 
+    // bindToView
     override fun updateFromItem(infoItem: InfoItem) {
         if (infoItem !is ChannelInfoItem) return
 

@@ -1,0 +1,17 @@
+-------- 1 -----------------
+org/schabi/newpipe/DebugApp.kt	
+org/schabi/newpipe/App.kt	
+org/schabi/newpipe/Downloader.kt	
+org/schabi/newpipe/settings/ContentSettingsFragment.kt	
+org/schabi/newpipe/util/ExtractorHelper.kt	
+org/schabi/newpipe/util/Localization.kt	
+
+--------- 2 ---------------------------------
+org/schabi/newpipe/fragments/list/kiosk/KioskFragment.kt	
+org/schabi/newpipe/fragments/list/search/SearchFragment.kt	
+org/schabi/newpipe/player/playqueue/ChannelPlayQueue.kt	
+org/schabi/newpipe/util/StreamItemAdapter.kt	
+
+--------- 3 ------------------------	
+org/schabi/newpipe/player/playqueue/PlaylistPlayQueue.kt	
+org/schabi/newpipe/RouterActivity.kt	

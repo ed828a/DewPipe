@@ -3,7 +3,6 @@ package org.schabi.newpipe
 import android.text.TextUtils
 
 import org.schabi.newpipe.extractor.exceptions.ReCaptchaException
-import org.schabi.newpipe.extractor.utils.Localization
 
 import java.io.IOException
 import java.io.InputStream
@@ -19,14 +18,9 @@ import okhttp3.ResponseBody
 
 class Downloader private constructor(builder: OkHttpClient.Builder) : org.schabi.newpipe.extractor.Downloader {
     var cookies: String? = null
-    private val client: OkHttpClient
-
-    init {
-        this.client = builder
-                .readTimeout(30, TimeUnit.SECONDS)
-                //.cache(new Cache(new File(context.getExternalCacheDir(), "okhttp"), 16 * 1024 * 1024))
-                .build()
-    }
+    private val client: OkHttpClient = builder.readTimeout(30, TimeUnit.SECONDS)
+            //.cache(new Cache(new File(context.getExternalCacheDir(), "okhttp"), 16 * 1024 * 1024))
+            .build()
 
     /**
      * Get the size of the content that the url is pointing by firing a HEAD request.
@@ -57,13 +51,13 @@ class Downloader private constructor(builder: OkHttpClient.Builder) : org.schabi
      * but set the HTTP header field "Accept-Language" to the supplied string.
      *
      * @param siteUrl  the URL of the text file to return the contents of
-     * @param localisation the language and country (usually a 2-character code) to set
+     * @param language the language (usually a 2-character code) to set as the preferred language
      * @return the contents of the specified text file
      */
     @Throws(IOException::class, ReCaptchaException::class)
-    override fun download(siteUrl: String, localisation: Localization): String {
+    override fun download(siteUrl: String, language: String): String {
         val requestProperties = HashMap<String, String>()
-        requestProperties["Accept-Language"] = localisation.language
+        requestProperties["Accept-Language"] = language
         return download(siteUrl, requestProperties)
     }
 
@@ -136,7 +130,8 @@ class Downloader private constructor(builder: OkHttpClient.Builder) : org.schabi
     companion object {
         const val USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
 
-        lateinit var instance: Downloader
+        var instance: Downloader? = null
+            private set
 
         /**
          * It's recommended to call exactly once in the entire lifetime of the application.
@@ -145,9 +140,7 @@ class Downloader private constructor(builder: OkHttpClient.Builder) : org.schabi
          */
         fun init(builder: OkHttpClient.Builder?): Downloader {
             instance = Downloader(builder ?: OkHttpClient.Builder())
-
-            return  instance
-
+            return instance!!
         }
     }
 }

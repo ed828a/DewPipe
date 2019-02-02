@@ -24,7 +24,6 @@ import com.nononsenseapps.filepicker.Utils
 import icepick.State
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import org.schabi.newpipe.R
@@ -37,7 +36,6 @@ import org.schabi.newpipe.fragments.BaseStateFragment
 import org.schabi.newpipe.info_list.InfoListAdapter
 import org.schabi.newpipe.local.subscription.services.SubscriptionsExportService
 import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService
-import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.*
 import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.Companion.KEY_MODE
 import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.Companion.KEY_VALUE
 import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.Companion.PREVIOUS_EXPORT_MODE
@@ -57,6 +55,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
 
     private var itemsList: RecyclerView? = null
     @State
+    @JvmField
     var itemsListState: Parcelable? = null
     private var infoListAdapter: InfoListAdapter? = null
     private var updateFlags = 0
@@ -65,10 +64,11 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
     private var importExportListHeader: View? = null
 
     @State
+    @JvmField
     var importExportOptionsState: Parcelable? = null
     private var importExportOptions: CollapsibleView? = null
 
-    private var disposables: CompositeDisposable? = CompositeDisposable()
+    //    private var disposables: CompositeDisposable? = CompositeDisposable()
     private var subscriptionService: SubscriptionService? = null
 
     protected val listLayoutManager: RecyclerView.LayoutManager
@@ -95,7 +95,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
     private val deleteObserver: Observer<List<SubscriptionEntity>>
         get() = object : Observer<List<SubscriptionEntity>> {
             override fun onSubscribe(d: Disposable) {
-                disposables!!.add(d)
+                compositeDisposable.add(d)
             }
 
             override fun onNext(subscriptionEntities: List<SubscriptionEntity>) {
@@ -113,7 +113,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
         get() = object : Observer<List<SubscriptionEntity>> {
             override fun onSubscribe(d: Disposable) {
                 showLoading()
-                disposables!!.add(d)
+                compositeDisposable.add(d)
             }
 
             override fun onNext(subscriptions: List<SubscriptionEntity>) {
@@ -127,14 +127,14 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
             override fun onComplete() {}
         }
 
-    protected val isGridLayout: Boolean
+    private val isGridLayout: Boolean
         get() {
-            val list_mode = PreferenceManager.getDefaultSharedPreferences(activity).getString(getString(R.string.list_view_mode_key), getString(R.string.list_view_mode_value))
-            if ("auto" == list_mode) {
+            val listMode = PreferenceManager.getDefaultSharedPreferences(activity).getString(getString(R.string.list_view_mode_key), getString(R.string.list_view_mode_value))
+            return if ("auto" == listMode) {
                 val configuration = resources.configuration
-                return configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && configuration.isLayoutSizeAtLeast(Configuration.SCREENLAYOUT_SIZE_LARGE)
+                configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && configuration.isLayoutSizeAtLeast(Configuration.SCREENLAYOUT_SIZE_LARGE)
             } else {
-                return "grid" == list_mode
+                "grid" == listMode
             }
         }
 
@@ -172,14 +172,14 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
     override fun onResume() {
         super.onResume()
         setupBroadcastReceiver()
-        if (updateFlags != 0) {
-            if (updateFlags and LIST_MODE_UPDATE_FLAG != 0) {
+        if (updateFlags != FLAG_NO_UPDATE) {
+            if (updateFlags and LIST_MODE_UPDATE_FLAG != FLAG_NO_UPDATE) {
                 val useGrid = isGridLayout
                 itemsList!!.layoutManager = if (useGrid) gridLayoutManager else listLayoutManager
                 infoListAdapter!!.setGridItemVariants(useGrid)
                 infoListAdapter!!.notifyDataSetChanged()
             }
-            updateFlags = 0
+            updateFlags = FLAG_NO_UPDATE
         }
     }
 
@@ -194,14 +194,13 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
     }
 
     override fun onDestroyView() {
-        if (disposables != null) disposables!!.clear()
+        compositeDisposable.clear()
 
         super.onDestroyView()
     }
 
     override fun onDestroy() {
-        if (disposables != null) disposables!!.dispose()
-        disposables = null
+        if (!compositeDisposable.isDisposed) compositeDisposable.dispose()
         subscriptionService = null
 
         PreferenceManager.getDefaultSharedPreferences(activity)
@@ -235,7 +234,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
         filters.addAction(SubscriptionsImportService.IMPORT_COMPLETE_ACTION)
         subscriptionBroadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                if (importExportOptions != null) importExportOptions!!.collapse()
+                importExportOptions?.collapse()
             }
         }
 
@@ -259,8 +258,9 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
                 ThemeHelper.resolveResourceIdFromAttr(context!!, R.attr.ic_backup), listHolder)
         previousBackupItem.setOnClickListener { item -> onImportPreviousSelected() }
 
-        val iconColor = if (ThemeHelper.isLightThemeSelected(context)) Color.BLACK else Color.WHITE
-        val services = resources.getStringArray(R.array.service_list)
+        val iconColor = if (ThemeHelper.isLightThemeSelected(context!!)) Color.BLACK else Color.WHITE
+        val services = resources.getStringArray(R.array.service_list) // [YouTube, SoundCloud]
+
         for (serviceName in services) {
             try {
                 val service = NewPipe.getService(serviceName)
@@ -307,19 +307,22 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (data != null && data.data != null && resultCode == Activity.RESULT_OK) {
-            if (requestCode == REQUEST_EXPORT_CODE) {
-                val exportFile = Utils.getFileForUri(data.data!!)
-                if (!exportFile.parentFile.canWrite() || !exportFile.parentFile.canRead()) {
-                    Toast.makeText(activity, R.string.invalid_directory, Toast.LENGTH_SHORT).show()
-                } else {
-                    activity!!.startService(Intent(activity, SubscriptionsExportService::class.java)
-                            .putExtra(SubscriptionsExportService.KEY_FILE_PATH, exportFile.absolutePath))
+            when (requestCode) {
+                REQUEST_EXPORT_CODE -> {
+                    val exportFile = Utils.getFileForUri(data.data!!)
+                    if (!exportFile.parentFile.canWrite() || !exportFile.parentFile.canRead()) {
+                        Toast.makeText(activity, R.string.invalid_directory, Toast.LENGTH_SHORT).show()
+                    } else {
+                        activity!!.startService(Intent(activity, SubscriptionsExportService::class.java)
+                                .putExtra(SubscriptionsExportService.KEY_FILE_PATH, exportFile.absolutePath))
+                    }
                 }
-            } else if (requestCode == REQUEST_IMPORT_CODE) {
-                val path = Utils.getFileForUri(data.data!!).absolutePath
-                ImportConfirmationDialog.show(this, Intent(activity, SubscriptionsImportService::class.java)
-                        .putExtra(KEY_MODE, PREVIOUS_EXPORT_MODE)
-                        .putExtra(KEY_VALUE, path))
+                REQUEST_IMPORT_CODE -> {
+                    val path = Utils.getFileForUri(data.data!!).absolutePath
+                    ImportConfirmationDialog.show(this, Intent(activity, SubscriptionsImportService::class.java)
+                            .putExtra(KEY_MODE, PREVIOUS_EXPORT_MODE)
+                            .putExtra(KEY_VALUE, path))
+                }
             }
         }
     }
@@ -441,7 +444,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
     }
 
     private fun resetFragment() {
-        if (disposables != null) disposables!!.clear()
+        compositeDisposable.clear()
         if (infoListAdapter != null) infoListAdapter!!.clearStreamItemList()
     }
 
@@ -495,12 +498,12 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
 
     override fun showLoading() {
         super.showLoading()
-        animateView(itemsList, false, 100)
+        animateView(itemsList!!, false, 100)
     }
 
     override fun hideLoading() {
         super.hideLoading()
-        animateView(itemsList, true, 200)
+        animateView(itemsList!!, true, 200)
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -530,5 +533,6 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
         private const val REQUEST_IMPORT_CODE = 667
 
         private const val LIST_MODE_UPDATE_FLAG = 0x32
+        private const val FLAG_NO_UPDATE = 0
     }
 }

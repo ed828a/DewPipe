@@ -9,27 +9,22 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.os.Parcel
-import android.os.Parcelable
 import android.preference.PreferenceManager
-import android.support.annotation.StringRes
 import android.support.design.widget.Snackbar
 import android.support.v4.app.NavUtils
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
+
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
+import kotlinx.android.synthetic.main.activity_error.*
 
 import org.acra.ReportField
 import org.acra.collector.CrashReportData
 import org.json.JSONArray
 import org.json.JSONObject
-import org.schabi.newpipe.ActivityCommunicator
 import org.schabi.newpipe.BuildConfig
 import org.schabi.newpipe.MainActivity
 import org.schabi.newpipe.R
@@ -38,36 +33,15 @@ import org.schabi.newpipe.util.ThemeHelper
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.TimeZone
-import java.util.Vector
+import java.util.*
 
-/*
- * Created by Christian Schabesberger on 24.10.15.
- *
- * Copyright (C) Christian Schabesberger 2016 <chris.schabesberger@mailbox.org>
- * ErrorActivity.java is part of NewPipe.
- *
- * NewPipe is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * <
- * NewPipe is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * <
- * You should have received a copy of the GNU General Public License
- * along with NewPipe.  If not, see <http://www.gnu.org/licenses/>.
- */
 
 class ErrorActivity : AppCompatActivity() {
     private var errorList: Array<String>? = null
-    private var errorInfo: ErrorInfo? = null
+    private lateinit var errorInfo: ErrorInfo
     private var returnActivity: Class<*>? = null
     private var currentTimeStamp: String? = null
-    private var userCommentBox: EditText? = null
+//    private lateinit var errorCommentBox: EditText
 
     private val contentLangString: String?
         get() = PreferenceManager.getDefaultSharedPreferences(this)
@@ -76,10 +50,7 @@ class ErrorActivity : AppCompatActivity() {
     private val osString: String
         get() {
             val osBase = if (Build.VERSION.SDK_INT >= 23) Build.VERSION.BASE_OS else "Android"
-            return (System.getProperty("os.name")
-                    + " " + (if (osBase.isEmpty()) "Android" else osBase)
-                    + " " + Build.VERSION.RELEASE
-                    + " - " + Integer.toString(Build.VERSION.SDK_INT))
+            return ("${System.getProperty("os.name")} ${if (osBase.isEmpty()) "Android" else osBase} ${Build.VERSION.RELEASE} - ${Integer.toString(Build.VERSION.SDK_INT)}")
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -99,11 +70,11 @@ class ErrorActivity : AppCompatActivity() {
             actionBar.setDisplayShowTitleEnabled(true)
         }
 
-        val reportButton = findViewById<Button>(R.id.errorReportButton)
-        userCommentBox = findViewById(R.id.errorCommentBox)
-        val errorView = findViewById<TextView>(R.id.errorView)
-        val infoView = findViewById<TextView>(R.id.errorInfosView)
-        val errorMessageView = findViewById<TextView>(R.id.errorMessageView)
+//        val reportButton = findViewById<Button>(R.id.errorReportButton)
+//        errorCommentBox = findViewById(R.id.errorCommentBox)
+//        val errorView = findViewById<TextView>(R.id.errorView)
+//        val infoView = findViewById<TextView>(R.id.errorInfosView)
+//        val errorMessageView = findViewById<TextView>(R.id.errorMessageView)
 
         val ac = ActivityCommunicator.communicator
         returnActivity = ac.returnActivity
@@ -114,7 +85,7 @@ class ErrorActivity : AppCompatActivity() {
         addGuruMeditaion()
         currentTimeStamp = getCurrentTimeStamp()
 
-        reportButton.setOnClickListener { v: View ->
+        errorReportButton.setOnClickListener { v: View ->
             val context = this
             AlertDialog.Builder(context)
                     .setIcon(android.R.drawable.ic_dialog_alert)
@@ -128,27 +99,29 @@ class ErrorActivity : AppCompatActivity() {
                         context.startActivity(webIntent)
                     }
                     .setPositiveButton(R.string.accept) { dialog, which ->
-                        val i = Intent(Intent.ACTION_SENDTO)
-                        i.setData(Uri.parse("mailto:$ERROR_EMAIL_ADDRESS"))
+                        val target = Intent(Intent.ACTION_SENDTO)
+                        target.setData(Uri.parse("mailto:$ERROR_EMAIL_ADDRESS"))
                                 .putExtra(Intent.EXTRA_SUBJECT, ERROR_EMAIL_SUBJECT)
                                 .putExtra(Intent.EXTRA_TEXT, buildJson())
 
-                        startActivity(Intent.createChooser(i, "Send Email"))
+                        startActivity(Intent.createChooser(target, "Send Email"))
                     }
                     .setNegativeButton(R.string.decline) { dialog, which ->
                         // do nothing
+                        dialog.dismiss()  // redundant, no this, dialog still dismiss.
                     }
                     .show()
 
         }
 
         // normal bugreport
-        buildInfo(errorInfo!!)
-        if (errorInfo!!.message != 0) {
-            errorMessageView.setText(errorInfo!!.message)
+        buildInfo(errorInfo)
+        if (errorInfo.message != 0) {
+            errorMessageView.setText(errorInfo.message)
         } else {
             errorMessageView.visibility = View.GONE
-            findViewById<View>(R.id.messageWhatHappenedView).visibility = View.GONE
+//            findViewById<View>(R.id.messageWhatHappenedView).visibility = View.GONE
+            messageWhatHappenedView.visibility = View.GONE
         }
 
         errorView.text = formErrorText(errorList)
@@ -180,10 +153,10 @@ class ErrorActivity : AppCompatActivity() {
         return false
     }
 
-    private fun formErrorText(el: Array<String>?): String {
+    private fun formErrorText(errorList: Array<String>?): String {
         val text = StringBuilder()
-        if (el != null) {
-            for (e in el) {
+        if (errorList != null) {
+            for (e in errorList) {
                 text.append("-------------------------------------\n").append(e)
             }
         }
@@ -195,6 +168,12 @@ class ErrorActivity : AppCompatActivity() {
         val checkedReturnActivity = getReturnActivity(returnActivity)
         if (checkedReturnActivity == null) {
             super.onBackPressed()
+            // or we can go up to MainActivity with Intent.FLAG_ACTIVITY_CLEAR_TOP flag
+//            val intent = Intent(this, MainActivity::class.java)
+//            intent.action = Intent.ACTION_MAIN
+//            intent.addCategory(Intent.CATEGORY_LAUNCHER)
+//            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+//            NavUtils.navigateUpTo(this, intent)
         } else {
             val intent = Intent(this, checkedReturnActivity)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -203,11 +182,11 @@ class ErrorActivity : AppCompatActivity() {
     }
 
     private fun buildInfo(info: ErrorInfo) {
-        val infoLabelView = findViewById<TextView>(R.id.errorInfoLabelsView)
-        val infoView = findViewById<TextView>(R.id.errorInfosView)
+//        val infoLabelView = findViewById<TextView>(R.id.errorInfoLabelsView)
+//        val infoView = findViewById<TextView>(R.id.errorInfosView)
         var text = ""
 
-        infoLabelView.text = getString(R.string.info_labels).replace("\\n", "\n")
+        errorInfoLabelsView.text = getString(R.string.info_labels).replace("\\n", "\n")
 
         text += (getUserActionString(info.userAction)
                 + "\n" + info.request
@@ -218,17 +197,17 @@ class ErrorActivity : AppCompatActivity() {
                 + "\n" + BuildConfig.VERSION_NAME
                 + "\n" + osString)
 
-        infoView.text = text
+        errorInfosView.text = text
     }
 
     private fun buildJson(): String {
         val errorObject = JSONObject()
 
         try {
-            errorObject.put("user_action", getUserActionString(errorInfo!!.userAction))
-                    .put("request", errorInfo!!.request)
+            errorObject.put("user_action", getUserActionString(errorInfo.userAction))
+                    .put("request", errorInfo.request)
                     .put("content_language", contentLangString)
-                    .put("service", errorInfo!!.serviceName)
+                    .put("service", errorInfo.serviceName)
                     .put("package", packageName)
                     .put("version", BuildConfig.VERSION_NAME)
                     .put("os", osString)
@@ -242,15 +221,15 @@ class ErrorActivity : AppCompatActivity() {
             }
 
             errorObject.put("exceptions", exceptionArray)
-            errorObject.put("user_comment", userCommentBox!!.text.toString())
+            errorObject.put("user_comment", errorCommentBox!!.text.toString())
 
             return errorObject.toString(3)
         } catch (e: Throwable) {
             Log.e(TAG, "Error while erroring: Could not build json")
             e.printStackTrace()
-        }
 
-        return ""
+            return ""
+        }
     }
 
     private fun getUserActionString(userAction: UserAction?): String {
@@ -263,10 +242,10 @@ class ErrorActivity : AppCompatActivity() {
 
     private fun addGuruMeditaion() {
         //just an easter egg
-        val sorryView = findViewById<TextView>(R.id.errorSorryView)
-        var text = sorryView.text.toString()
-        text += "\n" + getString(R.string.guru_meditation)
-        sorryView.text = text
+//        val sorryView = findViewById<TextView>(R.id.errorSorryView)
+        var text = errorSorryView.text.toString()
+        text += "\n${getString(R.string.guru_meditation)}"
+        errorSorryView.text = text
     }
 
     override fun onBackPressed() {
@@ -274,60 +253,10 @@ class ErrorActivity : AppCompatActivity() {
         goToReturnActivity()
     }
 
-    fun getCurrentTimeStamp(): String {
-        val df = SimpleDateFormat("yyyy-MM-dd HH:mm")
+    private fun getCurrentTimeStamp(): String {
+        val df = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
         df.timeZone = TimeZone.getTimeZone("GMT")
         return df.format(Date())
-    }
-
-    class ErrorInfo : Parcelable {
-        val userAction: UserAction
-        val request: String?
-        val serviceName: String?
-        @StringRes
-        val message: Int
-
-        private constructor(userAction: UserAction, serviceName: String, request: String, @StringRes message: Int) {
-            this.userAction = userAction
-            this.serviceName = serviceName
-            this.request = request
-            this.message = message
-        }
-
-        protected constructor(`in`: Parcel) {
-            this.userAction = UserAction.valueOf(`in`.readString())
-            this.request = `in`.readString()
-            this.serviceName = `in`.readString()
-            this.message = `in`.readInt()
-        }
-
-        override fun describeContents(): Int {
-            return 0
-        }
-
-        override fun writeToParcel(dest: Parcel, flags: Int) {
-            dest.writeString(this.userAction.name)
-            dest.writeString(this.request)
-            dest.writeString(this.serviceName)
-            dest.writeInt(this.message)
-        }
-
-        companion object {
-            @JvmField
-            val CREATOR: Parcelable.Creator<ErrorInfo> = object : Parcelable.Creator<ErrorInfo> {
-                override fun createFromParcel(source: Parcel): ErrorInfo {
-                    return ErrorInfo(source)
-                }
-
-                override fun newArray(size: Int): Array<ErrorInfo?> {
-                    return arrayOfNulls(size)
-                }
-            }
-
-            fun make(userAction: UserAction, serviceName: String, request: String, @StringRes message: Int): ErrorInfo {
-                return ErrorInfo(userAction, serviceName, request, message)
-            }
-        }
     }
 
     companion object {
@@ -337,7 +266,7 @@ class ErrorActivity : AppCompatActivity() {
         const val ERROR_INFO = "error_info"
         const val ERROR_LIST = "error_list"
 
-        const val ERROR_EMAIL_ADDRESS = "crashreport@newpipe.schabi.org"
+        const val ERROR_EMAIL_ADDRESS = "ed828a@gmail.com"
         const val ERROR_EMAIL_SUBJECT = "Exception in NewPipe " + BuildConfig.VERSION_NAME
 
         fun reportUiError(activity: AppCompatActivity, el: Throwable) {
@@ -361,7 +290,8 @@ class ErrorActivity : AppCompatActivity() {
             ac.returnActivity = returnActivity
             val intent = Intent(context, ErrorActivity::class.java)
             intent.putExtra(ERROR_INFO, errorInfo)
-            intent.putExtra(ERROR_LIST, errorListToStringList(el!!))
+            if (el != null)
+                intent.putExtra(ERROR_LIST, errorListToStringList(el))
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
         }
@@ -402,13 +332,17 @@ class ErrorActivity : AppCompatActivity() {
                     key = k
                 }
             }
-            val el = arrayOf(report[key]!!.toString())
+            val stackTrace = report[key]
+            stackTrace?.let {
+                val el = arrayOf(it.toString())
 
-            val intent = Intent(context, ErrorActivity::class.java)
-            intent.putExtra(ERROR_INFO, errorInfo)
-            intent.putExtra(ERROR_LIST, el)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(intent)
+                val intent = Intent(context, ErrorActivity::class.java)
+                intent.putExtra(ERROR_INFO, errorInfo)
+                intent.putExtra(ERROR_LIST, el)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(intent)
+            }
+
         }
 
         private fun getStackTrace(throwable: Throwable): String {
@@ -436,10 +370,10 @@ class ErrorActivity : AppCompatActivity() {
         fun getReturnActivity(returnActivity: Class<*>?): Class<out Activity>? {
             var checkedReturnActivity: Class<out Activity>? = null
             if (returnActivity != null) {
-                if (Activity::class.java.isAssignableFrom(returnActivity)) {
-                    checkedReturnActivity = returnActivity.asSubclass(Activity::class.java)
+                checkedReturnActivity = if (Activity::class.java.isAssignableFrom(returnActivity)) {
+                    returnActivity.asSubclass(Activity::class.java)
                 } else {
-                    checkedReturnActivity = MainActivity::class.java
+                    MainActivity::class.java
                 }
             }
             return checkedReturnActivity

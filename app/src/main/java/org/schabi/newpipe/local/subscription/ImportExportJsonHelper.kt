@@ -19,26 +19,25 @@
 
 package org.schabi.newpipe.local.subscription
 
-import com.grack.nanojson.JsonAppendableWriter
-import com.grack.nanojson.JsonArray
+import android.util.Log
 import com.grack.nanojson.JsonObject
 import com.grack.nanojson.JsonParser
 import com.grack.nanojson.JsonSink
 import com.grack.nanojson.JsonWriter
-
 import org.schabi.newpipe.BuildConfig
 import org.schabi.newpipe.extractor.subscription.SubscriptionExtractor.InvalidSourceException
 import org.schabi.newpipe.extractor.subscription.SubscriptionItem
-
 import java.io.InputStream
 import java.io.OutputStream
-import java.util.ArrayList
+import java.util.*
 
 /**
  * A JSON implementation capable of importing and exporting subscriptions, it has the advantage
  * of being able to transfer subscriptions to any device.
  */
 object ImportExportJsonHelper {
+
+    val TAG = "${this::class.simpleName}@${hashCode()}"
 
     ///////////////////////////////////////////////////////////////////////////
     // Json implementation
@@ -56,29 +55,30 @@ object ImportExportJsonHelper {
     /**
      * Read a JSON source through the input stream and return the parsed subscription items.
      *
-     * @param in            the input stream (e.g. a file)
+     * @param `inputStream`            the input stream (e.g. a file)
      * @param eventListener listener for the events generated
      */
     @Throws(InvalidSourceException::class)
-    fun readFrom(`in`: InputStream?, eventListener: ImportExportEventListener?): List<SubscriptionItem> {
-        if (`in` == null) throw InvalidSourceException("input is null")
+    fun readFrom(inputStream: InputStream?, eventListener: ImportExportEventListener?): List<SubscriptionItem> {
+        if (inputStream == null) throw InvalidSourceException("input is null")
 
         val channels = ArrayList<SubscriptionItem>()
 
         try {
-            val parentObject = JsonParser.`object`().from(`in`)
+            val parentObject = JsonParser.`object`().from(inputStream)
             val channelsArray = parentObject.getArray(JSON_SUBSCRIPTIONS_ARRAY_KEY)
-            eventListener?.onSizeReceived(channelsArray!!.size)
-
-            if (channelsArray == null) {
-                throw InvalidSourceException("Channels array is null")
+            if (channelsArray == null || channelsArray.isEmpty()){
+                Log.e(TAG, "Error: Channels array is null/Empty")
+                return channels
             }
 
-            for (o in channelsArray) {
-                if (o is JsonObject) {
-                    val serviceId = o.getInt(JSON_SERVICE_ID_KEY, 0)
-                    val url = o.getString(JSON_URL_KEY)
-                    val name = o.getString(JSON_NAME_KEY)
+            eventListener?.onSizeReceived(channelsArray.size)
+
+            for (obj in channelsArray) {
+                if (obj is JsonObject) {
+                    val serviceId = obj.getInt(JSON_SERVICE_ID_KEY, 0)
+                    val url = obj.getString(JSON_URL_KEY)
+                    val name = obj.getString(JSON_NAME_KEY)
 
                     if (url != null && name != null && !url.isEmpty() && !name.isEmpty()) {
                         channels.add(SubscriptionItem(serviceId, url, name))
@@ -127,9 +127,9 @@ object ImportExportJsonHelper {
 
             eventListener?.onItemCompleted(item.name)
         }
-        writer.end()
+        writer.end()  // ending array
 
-        writer.end()
+        writer.end()  // ending object
     }
 
 }

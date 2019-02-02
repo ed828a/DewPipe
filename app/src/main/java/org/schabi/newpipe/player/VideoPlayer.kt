@@ -1,29 +1,6 @@
-/*
- * Copyright 2017 Mauricio Colli <mauriciocolli@outlook.com>
- * VideoPlayer.java is part of NewPipe
- *
- * License: GPL-3.0+
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
 package org.schabi.newpipe.player
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.ObjectAnimator
-import android.animation.PropertyValuesHolder
-import android.animation.ValueAnimator
+import android.animation.*
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -37,75 +14,72 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.SurfaceView
 import android.view.View
-import android.widget.ImageView
-import android.widget.PopupMenu
-import android.widget.ProgressBar
-import android.widget.SeekBar
-import android.widget.TextView
-
+import android.widget.*
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.PlaybackParameters
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.source.MediaSource
-import com.google.android.exoplayer2.source.TrackGroup
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.text.CaptionStyleCompat
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.SubtitleView
 import com.google.android.exoplayer2.video.VideoListener
-import org.jsoup.Connection
-
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.MediaFormat
 import org.schabi.newpipe.extractor.stream.StreamInfo
 import org.schabi.newpipe.extractor.stream.StreamType
 import org.schabi.newpipe.extractor.stream.VideoStream
 import org.schabi.newpipe.player.helper.PlayerHelper
+import org.schabi.newpipe.player.helper.PlayerHelper.formatSpeed
+import org.schabi.newpipe.player.helper.PlayerHelper.getTimeString
 import org.schabi.newpipe.player.playqueue.PlayQueueItem
 import org.schabi.newpipe.player.resolver.MediaSourceTag
 import org.schabi.newpipe.player.resolver.VideoPlaybackResolver
 import org.schabi.newpipe.util.AnimationUtils
-
-import java.util.ArrayList
-
-import org.schabi.newpipe.player.helper.PlayerHelper.formatSpeed
-import org.schabi.newpipe.player.helper.PlayerHelper.getTimeString
 import org.schabi.newpipe.util.AnimationUtils.animateView
+import java.util.*
 
 /**
  * Base for **video** players
  *
- * @author mauriciocolli
  */
-abstract class VideoPlayer(
-        val TAG: String,
-        context: Context
-) : BasePlayer(context), VideoListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener, Player.EventListener, PopupMenu.OnMenuItemClickListener, PopupMenu.OnDismissListener {
+abstract class VideoPlayer(val TAG: String,
+                           context: Context
+) : BasePlayer(context),
+        VideoListener,
+        SeekBar.OnSeekBarChangeListener,
+        View.OnClickListener,
+        Player.EventListener,
+        PopupMenu.OnMenuItemClickListener,
+        PopupMenu.OnDismissListener {
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Player
+    ///////////////////////////////////////////////////////////////////////////
     private var availableStreams: List<VideoStream>? = null
     private var selectedStreamIndex: Int = 0
 
-    protected var wasPlaying = false
+    private var wasPlaying = false
 
     private val resolver: VideoPlaybackResolver
+
     ///////////////////////////////////////////////////////////////////////////
     // Views
     ///////////////////////////////////////////////////////////////////////////
 
     var rootView: View? = null
 
-    var aspectRatioFrameLayout: AspectRatioFrameLayout? = null
-        private set
-    var surfaceView: SurfaceView? = null
-        private set
-    var surfaceForeground: View? = null
-        private set
+    private var aspectRatioFrameLayout: AspectRatioFrameLayout? = null
+
+    private var surfaceView: SurfaceView? = null
+
+    private var surfaceForeground: View? = null
 
     var loadingPanel: View? = null
         private set
-    var endScreen: ImageView? = null
-        private set
+    private var endScreen: ImageView? = null
+
     var controlAnimationView: ImageView? = null
         private set
 
@@ -114,12 +88,12 @@ abstract class VideoPlayer(
     var currentDisplaySeek: TextView? = null
         private set
 
-    var bottomControlsRoot: View? = null
-        private set
-    var playbackSeekBar: SeekBar? = null
-        private set
-    var playbackCurrentTime: TextView? = null
-        private set
+    private var bottomControlsRoot: View? = null
+
+    private var playbackSeekBar: SeekBar? = null
+
+    private var playbackCurrentTime: TextView? = null
+
     var playbackEndTime: TextView? = null
         private set
     private var playbackLiveSync: TextView? = null
@@ -127,8 +101,7 @@ abstract class VideoPlayer(
 
     var topControlsRoot: View? = null
         private set
-    var qualityTextView: TextView? = null
-        private set
+    private var qualityTextView: TextView? = null
 
     var subtitleView: SubtitleView? = null
         private set
@@ -139,20 +112,25 @@ abstract class VideoPlayer(
         private set
 
     private var controlViewAnimator: ValueAnimator? = null
+
     val controlsVisibilityHandler = Handler()
 
     var isSomePopupMenuVisible = false
         internal set
     private val qualityPopupMenuGroupId = 69
+
     var qualityPopupMenu: PopupMenu? = null
         private set
 
     private val playbackSpeedPopupMenuGroupId = 79
+
     var playbackSpeedPopupMenu: PopupMenu? = null
         private set
 
     private val captionPopupMenuGroupId = 89
+
     private var captionPopupMenu: PopupMenu? = null
+
     ///////////////////////////////////////////////////////////////////////////
     // Playback Listener
     ///////////////////////////////////////////////////////////////////////////
@@ -220,8 +198,7 @@ abstract class VideoPlayer(
 
         //this.aspectRatioFrameLayout.setAspectRatio(16.0f / 9.0f);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-            playbackSeekBar!!.thumb.setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN)
+        playbackSeekBar!!.thumb.setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN)
         this.playbackSeekBar!!.progressDrawable.setColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY)
 
         this.qualityPopupMenu = PopupMenu(context, qualityTextView)
@@ -250,11 +227,11 @@ abstract class VideoPlayer(
         super.initPlayer(playOnReady)
 
         // Setup video view
-        player?.setVideoSurfaceView(surfaceView)
-        player?.addVideoListener(this)
+        simpleExoPlayer?.setVideoSurfaceView(surfaceView)
+        simpleExoPlayer?.addVideoListener(this)
 
         // Setup subtitle view
-        player?.addTextOutput { cues -> subtitleView!!.onCues(cues) }
+        simpleExoPlayer?.addTextOutput { cues -> subtitleView!!.onCues(cues) }
 
         // Setup audio session with onboard equalizer
         if (Build.VERSION.SDK_INT >= 21) {
@@ -277,15 +254,16 @@ abstract class VideoPlayer(
     // UI Builders
     ///////////////////////////////////////////////////////////////////////////
 
-    fun buildQualityMenu() {
+    private fun buildQualityMenu() {
         if (qualityPopupMenu == null) return
 
         qualityPopupMenu!!.menu.removeGroup(qualityPopupMenuGroupId)
-        for (i in availableStreams!!.indices) {
-            val videoStream = availableStreams!![i]
-            qualityPopupMenu!!.menu.add(qualityPopupMenuGroupId, i, Menu.NONE,
+        for (index in availableStreams!!.indices) {
+            val videoStream = availableStreams!![index]
+            qualityPopupMenu!!.menu.add(qualityPopupMenuGroupId, index, Menu.NONE,
                     MediaFormat.getNameById(videoStream.formatId) + " " + videoStream.resolution)
         }
+
         if (selectedVideoStream != null) {
             qualityTextView!!.text = selectedVideoStream!!.resolution
         }
@@ -394,6 +372,9 @@ abstract class VideoPlayer(
         playbackSpeedTextView!!.visibility = View.VISIBLE
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Playback Listener
+    ///////////////////////////////////////////////////////////////////////////
     override fun onMetadataChanged(tag: MediaSourceTag) {
         super.onMetadataChanged(tag)
         updateStreamRelatedViews()
@@ -411,16 +392,16 @@ abstract class VideoPlayer(
         super.onBlocked()
 
         controlsVisibilityHandler.removeCallbacksAndMessages(null)
-        animateView(controlsRoot, false, DEFAULT_CONTROLS_DURATION.toLong())
+        animateView(controlsRoot!!, false, DEFAULT_CONTROLS_DURATION.toLong())
 
         playbackSeekBar!!.isEnabled = false
         // Bug on lower api, disabling and enabling the seekBar resets the thumb color -.-, so sets the color again
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-            playbackSeekBar!!.thumb.setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN)
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+        playbackSeekBar!!.thumb.setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN)
 
         loadingPanel!!.setBackgroundColor(Color.BLACK)
-        animateView(loadingPanel, true, 0)
-        animateView(surfaceForeground, true, 100)
+        animateView(loadingPanel!!, true, 0)
+        animateView(surfaceForeground!!, true, 100)
     }
 
     override fun onPlaying() {
@@ -431,28 +412,27 @@ abstract class VideoPlayer(
         showAndAnimateControl(-1, true)
 
         playbackSeekBar!!.isEnabled = true
-        // Bug on lower api, disabling and enabling the seekBar resets the thumb color -.-, so sets the color again
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-            playbackSeekBar!!.thumb.setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN)
+
+        playbackSeekBar!!.thumb.setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN)
 
         loadingPanel!!.visibility = View.GONE
 
-        animateView(currentDisplaySeek, AnimationUtils.Type.SCALE_AND_ALPHA, false, 200)
+        animateView(currentDisplaySeek!!, AnimationUtils.Type.SCALE_AND_ALPHA, false, 200)
     }
 
     override fun onBuffering() {
-        if (DEBUG) Log.d(TAG, "onBuffering() called")
+        Log.d(TAG, "onBuffering() called")
         loadingPanel!!.setBackgroundColor(Color.TRANSPARENT)
     }
 
     override fun onPaused() {
-        if (DEBUG) Log.d(TAG, "onPaused() called")
+        Log.d(TAG, "onPaused() called")
         showControls(400)
         loadingPanel!!.visibility = View.GONE
     }
 
     override fun onPausedSeek() {
-        if (DEBUG) Log.d(TAG, "onPausedSeek() called")
+        Log.d(TAG, "onPausedSeek() called")
         showAndAnimateControl(-1, true)
     }
 
@@ -460,15 +440,15 @@ abstract class VideoPlayer(
         super.onCompleted()
 
         showControls(500)
-        animateView(endScreen, true, 800)
-        animateView(currentDisplaySeek, AnimationUtils.Type.SCALE_AND_ALPHA, false, 200)
+        animateView(endScreen!!, true, 800)
+        animateView(currentDisplaySeek!!, AnimationUtils.Type.SCALE_AND_ALPHA, false, 200)
         loadingPanel!!.visibility = View.GONE
 
-        animateView(surfaceForeground, true, 100)
+        animateView(surfaceForeground!!, true, 100)
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    // ExoPlayer Video Listener
+    // ExoPlayer.EventListener and Video Listener
     ///////////////////////////////////////////////////////////////////////////
 
     override fun onTracksChanged(trackGroups: TrackGroupArray, trackSelections: TrackSelectionArray) {
@@ -482,14 +462,12 @@ abstract class VideoPlayer(
     }
 
     override fun onVideoSizeChanged(width: Int, height: Int, unappliedRotationDegrees: Int, pixelWidthHeightRatio: Float) {
-        if (DEBUG) {
-            Log.d(TAG, "onVideoSizeChanged() called with: width / height = [" + width + " / " + height + " = " + width.toFloat() / height + "], unappliedRotationDegrees = [" + unappliedRotationDegrees + "], pixelWidthHeightRatio = [" + pixelWidthHeightRatio + "]")
-        }
+        Log.d(TAG, "onVideoSizeChanged() called with: width / height = [" + width + " / " + height + " = " + width.toFloat() / height + "], unappliedRotationDegrees = [" + unappliedRotationDegrees + "], pixelWidthHeightRatio = [" + pixelWidthHeightRatio + "]")
         aspectRatioFrameLayout!!.setAspectRatio(width.toFloat() / height)
     }
 
     override fun onRenderedFirstFrame() {
-        animateView(surfaceForeground, false, 100)
+        animateView(surfaceForeground!!, false, 100)
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -536,10 +514,10 @@ abstract class VideoPlayer(
     ///////////////////////////////////////////////////////////////////////////
 
     override fun onPrepared(playWhenReady: Boolean) {
-        if (DEBUG) Log.d(TAG, "onPrepared() called with: playWhenReady = [$playWhenReady]")
+        Log.d(TAG, "onPrepared() called with: playWhenReady = [$playWhenReady]")
 
-        playbackSeekBar!!.max = player!!.duration.toInt()
-        playbackEndTime!!.text = getTimeString(player!!.duration.toInt())
+        playbackSeekBar!!.max = simpleExoPlayer!!.duration.toInt()
+        playbackEndTime!!.text = getTimeString(simpleExoPlayer!!.duration.toInt())
         playbackSpeedTextView!!.text = formatSpeed(playbackSpeed.toDouble())
 
         super.onPrepared(playWhenReady)
@@ -547,7 +525,7 @@ abstract class VideoPlayer(
 
     override fun destroy() {
         super.destroy()
-        if (endScreen != null) endScreen!!.setImageBitmap(null)
+        endScreen?.setImageBitmap(null)
     }
 
     override fun onUpdateProgress(currentProgress: Int, duration: Int, bufferPercent: Int) {
@@ -561,10 +539,10 @@ abstract class VideoPlayer(
             if (currentState != BasePlayer.STATE_PAUSED_SEEK) playbackSeekBar!!.progress = currentProgress
             playbackCurrentTime!!.text = getTimeString(currentProgress)
         }
-        if (player!!.isLoading || bufferPercent > 90) {
+        if (simpleExoPlayer!!.isLoading || bufferPercent > 90) {
             playbackSeekBar!!.secondaryProgress = (playbackSeekBar!!.max * (bufferPercent.toFloat() / 100)).toInt()
         }
-        if (DEBUG && bufferPercent % 20 == 0) { //Limit log
+        if (bufferPercent % 20 == 0) { //Limit log
             Log.d(TAG, "updateProgress() called with: isVisible = $isControlsVisible, currentProgress = [$currentProgress], duration = [$duration], bufferPercent = [$bufferPercent]")
         }
         playbackLiveSync!!.isClickable = !isLiveEdge
@@ -572,7 +550,7 @@ abstract class VideoPlayer(
 
     override fun onLoadingComplete(imageUri: String, view: View?, loadedImage: Bitmap?) {
         super.onLoadingComplete(imageUri, view, loadedImage)
-        if (loadedImage != null) endScreen!!.setImageBitmap(loadedImage)
+        endScreen?.setImageBitmap(loadedImage)
     }
 
     protected open fun onFullScreenButtonClicked() {
@@ -593,18 +571,14 @@ abstract class VideoPlayer(
     // OnClick related
     ///////////////////////////////////////////////////////////////////////////
 
-    override fun onClick(v: View) {
-        if (DEBUG) Log.d(TAG, "onClick() called with: v = [$v]")
-        if (v.id == qualityTextView!!.id) {
-            onQualitySelectorClicked()
-        } else if (v.id == playbackSpeedTextView!!.id) {
-            onPlaybackSpeedClicked()
-        } else if (v.id == resizeView!!.id) {
-            onResizeClicked()
-        } else if (v.id == captionTextView!!.id) {
-            onCaptionClicked()
-        } else if (v.id == playbackLiveSync!!.id) {
-            seekToDefault()
+    override fun onClick(view: View) {
+        Log.d(TAG, "onClick() called with: view = [$view]")
+        when(view.id) {
+            qualityTextView!!.id -> onQualitySelectorClicked()
+            playbackSpeedTextView!!.id -> onPlaybackSpeedClicked()
+            resizeView!!.id -> onResizeClicked()
+            captionTextView!!.id -> onCaptionClicked()
+            playbackLiveSync!!.id -> seekToDefault()
         }
     }
 
@@ -612,8 +586,8 @@ abstract class VideoPlayer(
      * Called when an item of the quality selector or the playback speed selector is selected
      */
     override fun onMenuItemClick(menuItem: MenuItem): Boolean {
-        if (DEBUG)
-            Log.d(TAG, "onMenuItemClick() called with: menuItem = [" + menuItem + "], menuItem.getItemId = [" + menuItem.itemId + "]")
+
+        Log.d(TAG, "onMenuItemClick() called with: menuItem = [" + menuItem + "], menuItem.getItemId = [" + menuItem.itemId + "]")
 
         if (qualityPopupMenuGroupId == menuItem.groupId) {
             val menuItemIndex = menuItem.itemId
@@ -643,15 +617,15 @@ abstract class VideoPlayer(
      * Called when some popup menu is dismissed
      */
     override fun onDismiss(menu: PopupMenu) {
-        if (DEBUG) Log.d(TAG, "onDismiss() called with: menu = [$menu]")
+        Log.d(TAG, "onDismiss() called with: menu = [$menu]")
         isSomePopupMenuVisible = false
         if (selectedVideoStream != null) {
             qualityTextView!!.text = selectedVideoStream!!.resolution
         }
     }
 
-    fun onQualitySelectorClicked() {
-        if (DEBUG) Log.d(TAG, "onQualitySelectorClicked() called")
+    private fun onQualitySelectorClicked() {
+        Log.d(TAG, "onQualitySelectorClicked() called")
         qualityPopupMenu!!.show()
         isSomePopupMenuVisible = true
         showControls(DEFAULT_CONTROLS_DURATION.toLong())
@@ -663,18 +637,18 @@ abstract class VideoPlayer(
             qualityTextView!!.text = qualityText
         }
 
-        wasPlaying = player!!.playWhenReady
+        wasPlaying = simpleExoPlayer!!.playWhenReady
     }
 
     open fun onPlaybackSpeedClicked() {
-        if (DEBUG) Log.d(TAG, "onPlaybackSpeedClicked() called")
+        Log.d(TAG, "onPlaybackSpeedClicked() called")
         playbackSpeedPopupMenu!!.show()
         isSomePopupMenuVisible = true
         showControls(DEFAULT_CONTROLS_DURATION.toLong())
     }
 
     private fun onCaptionClicked() {
-        if (DEBUG) Log.d(TAG, "onCaptionClicked() called")
+        Log.d(TAG, "onCaptionClicked() called")
         captionPopupMenu!!.show()
         isSomePopupMenuVisible = true
         showControls(DEFAULT_CONTROLS_DURATION.toLong())
@@ -700,31 +674,31 @@ abstract class VideoPlayer(
     ///////////////////////////////////////////////////////////////////////////
 
     override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        if (DEBUG && fromUser) Log.d(TAG, "onProgressChanged() called with: seekBar = [$seekBar], progress = [$progress]")
+        if (fromUser) Log.d(TAG, "onProgressChanged() called with: seekBar = [$seekBar], progress = [$progress]")
         //if (fromUser) playbackCurrentTime.setText(getTimeString(progress));
         if (fromUser) currentDisplaySeek!!.text = getTimeString(progress)
     }
 
     override fun onStartTrackingTouch(seekBar: SeekBar) {
-        if (DEBUG) Log.d(TAG, "onStartTrackingTouch() called with: seekBar = [$seekBar]")
+        Log.d(TAG, "onStartTrackingTouch() called with: seekBar = [$seekBar]")
         if (currentState != BasePlayer.STATE_PAUSED_SEEK) changeState(BasePlayer.STATE_PAUSED_SEEK)
 
-        wasPlaying = player!!.playWhenReady
-        if (isPlaying) player!!.playWhenReady = false
+        wasPlaying = simpleExoPlayer!!.playWhenReady
+        if (isPlaying) simpleExoPlayer!!.playWhenReady = false
 
         showControls(0)
-        animateView(currentDisplaySeek, AnimationUtils.Type.SCALE_AND_ALPHA, true,
+        animateView(currentDisplaySeek!!, AnimationUtils.Type.SCALE_AND_ALPHA, true,
                 DEFAULT_CONTROLS_DURATION.toLong())
     }
 
     override fun onStopTrackingTouch(seekBar: SeekBar) {
-        if (DEBUG) Log.d(TAG, "onStopTrackingTouch() called with: seekBar = [$seekBar]")
+        Log.d(TAG, "onStopTrackingTouch() called with: seekBar = [$seekBar]")
 
         seekTo(seekBar.progress.toLong())
-        if (wasPlaying || player!!.duration == seekBar.progress.toLong()) player!!.playWhenReady = true
+        if (wasPlaying || simpleExoPlayer!!.duration == seekBar.progress.toLong()) simpleExoPlayer!!.playWhenReady = true
 
         playbackCurrentTime!!.text = getTimeString(seekBar.progress)
-        animateView(currentDisplaySeek, AnimationUtils.Type.SCALE_AND_ALPHA, false, 200)
+        animateView(currentDisplaySeek!!, AnimationUtils.Type.SCALE_AND_ALPHA, false, 200)
 
         if (currentState == BasePlayer.STATE_PAUSED_SEEK) changeState(BasePlayer.STATE_BUFFERING)
         if (!isProgressLoopRunning) startProgressLoop()
@@ -735,10 +709,10 @@ abstract class VideoPlayer(
     ///////////////////////////////////////////////////////////////////////////
 
     fun getRendererIndex(trackIndex: Int): Int {
-        if (player == null) return RENDERER_UNAVAILABLE
+        if (simpleExoPlayer == null) return RENDERER_UNAVAILABLE
 
-        for (t in 0 until player!!.rendererCount) {
-            if (player!!.getRendererType(t) == trackIndex) {
+        for (t in 0 until simpleExoPlayer!!.rendererCount) {
+            if (simpleExoPlayer!!.getRendererType(t) == trackIndex) {
                 return t
             }
         }
@@ -753,9 +727,9 @@ abstract class VideoPlayer(
      * @param goneOnEnd  will set the animation view to GONE on the end of the animation
      */
     fun showAndAnimateControl(drawableId: Int, goneOnEnd: Boolean) {
-        if (DEBUG) Log.d(TAG, "showAndAnimateControl() called with: drawableId = [$drawableId], goneOnEnd = [$goneOnEnd]")
+        Log.d(TAG, "showAndAnimateControl() called with: drawableId = [$drawableId], goneOnEnd = [$goneOnEnd]")
         if (controlViewAnimator != null && controlViewAnimator!!.isRunning) {
-            if (DEBUG) Log.d(TAG, "showAndAnimateControl: controlViewAnimator.isRunning")
+            Log.d(TAG, "showAndAnimateControl: controlViewAnimator.isRunning")
             controlViewAnimator!!.end()
         }
 
@@ -804,41 +778,42 @@ abstract class VideoPlayer(
     }
 
     open fun showControlsThenHide() {
-        if (DEBUG) Log.d(TAG, "showControlsThenHide() called")
-        animateView(controlsRoot, true, DEFAULT_CONTROLS_DURATION.toLong(), 0
-        ) { hideControls(DEFAULT_CONTROLS_DURATION.toLong(), DEFAULT_CONTROLS_HIDE_TIME.toLong()) }
+        Log.d(TAG, "showControlsThenHide() called")
+        animateView(controlsRoot!!, true, DEFAULT_CONTROLS_DURATION.toLong(), 0,
+                Runnable {
+                    hideControls(DEFAULT_CONTROLS_DURATION.toLong(), DEFAULT_CONTROLS_HIDE_TIME.toLong())
+                }
+        )
     }
 
     open fun showControls(duration: Long) {
-        if (DEBUG) Log.d(TAG, "showControls() called")
+        Log.d(TAG, "showControls() called")
         controlsVisibilityHandler.removeCallbacksAndMessages(null)
-        animateView(controlsRoot, true, duration)
+        animateView(controlsRoot!!, true, duration)
     }
 
     open fun hideControls(duration: Long, delay: Long) {
-        if (DEBUG) Log.d(TAG, "hideControls() called with: delay = [$delay]")
+        Log.d(TAG, "hideControls() called with: delay = [$delay]")
         controlsVisibilityHandler.removeCallbacksAndMessages(null)
         controlsVisibilityHandler.postDelayed(
-                { animateView(controlsRoot, false, duration) }, delay)
+                { animateView(controlsRoot!!, false, duration) }, delay)
     }
 
     fun hideControlsAndButton(duration: Long, delay: Long, button: View?) {
-        if (DEBUG) Log.d(TAG, "hideControls() called with: delay = [$delay]")
+        Log.d(TAG, "hideControls() called with: delay = [$delay]")
         controlsVisibilityHandler.removeCallbacksAndMessages(null)
         controlsVisibilityHandler.postDelayed(hideControlsAndButtonHandler(duration, button), delay)
     }
 
     private fun hideControlsAndButtonHandler(duration: Long, videoPlayPause: View?): Runnable = Runnable {
         videoPlayPause?.visibility = View.INVISIBLE
-        animateView(controlsRoot, false, duration)
+        animateView(controlsRoot!!, false, duration)
     }
 
-    fun wasPlaying(): Boolean {
-        return wasPlaying
-    }
+    fun wasPlaying(): Boolean = wasPlaying
+
 
     companion object {
-        val DEBUG = BasePlayer.DEBUG
 
         ///////////////////////////////////////////////////////////////////////////
         // Player
@@ -847,5 +822,6 @@ abstract class VideoPlayer(
         const val RENDERER_UNAVAILABLE = -1
         const val DEFAULT_CONTROLS_DURATION = 300 // 300 millis
         const val DEFAULT_CONTROLS_HIDE_TIME = 2000  // 2 Seconds
+        const val MAX_GESTURE_LENGTH = 0.75f
     }
 }

@@ -27,7 +27,7 @@
 -dontwarn android.arch.persistence.room.paging.LimitOffsetDataSource
 
 
-# Rules for icepick. Copy paste from https://github.com/frankiesardo/icepick
+# Rules for icepick. Copy paste getTabFrom https://github.com/frankiesardo/icepick
 -dontwarn icepick.**
 -keep class icepick.** { *; }
 -keep class **$$Icepick { *; }
@@ -36,7 +36,7 @@
 }
 -keepnames class * { @icepick.State *;}
 
-# Rules for OkHttp. Copy paste from https://github.com/square/okhttp
+# Rules for OkHttp. Copy paste getTabFrom https://github.com/square/okhttp
 -dontwarn okhttp3.**
 -dontwarn okio.**
 -dontwarn javax.annotation.**

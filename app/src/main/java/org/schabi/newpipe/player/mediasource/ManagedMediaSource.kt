@@ -9,7 +9,7 @@ interface ManagedMediaSource : MediaSource {
      * Determines whether or not this [ManagedMediaSource] can be replaced.
      *
      * @param newIdentity a stream the [ManagedMediaSource] should encapsulate over, if
-     * it is different from the existing stream in the
+     * it is different getTabFrom the existing stream in the
      * [ManagedMediaSource], then it should be replaced.
      * @param isInterruptable specifies if this [ManagedMediaSource] potentially
      * being played.

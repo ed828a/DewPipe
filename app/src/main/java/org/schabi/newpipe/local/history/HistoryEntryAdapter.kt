@@ -2,12 +2,9 @@ package org.schabi.newpipe.local.history
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
-
 import org.schabi.newpipe.util.Localization
-
 import java.text.DateFormat
-import java.util.ArrayList
-import java.util.Date
+import java.util.*
 
 // no usage of this class, Edward
 /**
@@ -17,8 +14,8 @@ import java.util.Date
 </VH></E> */
 abstract class HistoryEntryAdapter<E, VH : RecyclerView.ViewHolder>(private val mContext: Context) : RecyclerView.Adapter<VH>() {
 
-    private val mEntries: ArrayList<E>
-    private val mDateFormat: DateFormat
+    private val mEntries: ArrayList<E> = ArrayList()
+    private val mDateFormat: DateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM, Localization.getPreferredLocale(mContext))
     private var onHistoryItemClickListener: OnHistoryItemClickListener<E>? = null
 
     val items: Collection<E>
@@ -27,12 +24,6 @@ abstract class HistoryEntryAdapter<E, VH : RecyclerView.ViewHolder>(private val 
     val isEmpty: Boolean
         get() = mEntries.isEmpty()
 
-
-    init {
-        mEntries = ArrayList()
-        mDateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM,
-                Localization.getPreferredLocale(mContext))
-    }
 
     fun setEntries(historyEntries: Collection<E>) {
         mEntries.clear()
@@ -53,16 +44,13 @@ abstract class HistoryEntryAdapter<E, VH : RecyclerView.ViewHolder>(private val 
         return Localization.shortViewCount(mContext, viewCount)
     }
 
-    override fun getItemCount(): Int {
-        return mEntries.size
-    }
+    override fun getItemCount(): Int = mEntries.size
+
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         val entry = mEntries[position]
         holder.itemView.setOnClickListener { v ->
-            if (onHistoryItemClickListener != null) {
-                onHistoryItemClickListener!!.onHistoryItemClick(entry)
-            }
+                onHistoryItemClickListener?.onHistoryItemClick(entry)
         }
 
         holder.itemView.setOnLongClickListener { view ->

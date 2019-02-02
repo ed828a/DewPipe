@@ -11,18 +11,16 @@ class PlayerState(
         val playbackPitch: Float,
         val playbackQuality: String?,
         val isPlaybackSkipSilence: Boolean,
-        private val wasPlaying: Boolean) : Serializable {
+        val wasPlaying: Boolean) : Serializable {
 
     internal constructor(playQueue: PlayQueue,
                          repeatMode: Int,
                          playbackSpeed: Float,
                          playbackPitch: Float,
-                         playbackSkipSilence:
-                         Boolean, wasPlaying: Boolean) : this(playQueue, repeatMode, playbackSpeed, playbackPitch, null,
-            playbackSkipSilence, wasPlaying) {
-    }
+                         playbackSkipSilence: Boolean,
+                         wasPlaying: Boolean
+    ) : this(playQueue, repeatMode, playbackSpeed, playbackPitch, null, playbackSkipSilence, wasPlaying)
 
-    fun wasPlaying(): Boolean {
-        return wasPlaying
-    }
+//    fun wasPlaying(): Boolean = wasPlaying
+
 }

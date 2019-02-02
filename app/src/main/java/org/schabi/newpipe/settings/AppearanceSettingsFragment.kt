@@ -18,12 +18,16 @@ class AppearanceSettingsFragment : BasePreferenceFragment() {
     private var captionSettingsKey: String? = null
 
     private val themePreferenceChange = Preference.OnPreferenceChangeListener { preference, newValue ->
-        defaultPreferences.edit().putBoolean(Constants.KEY_THEME_CHANGE, true).apply()
-        defaultPreferences.edit().putString(getString(R.string.theme_key), newValue.toString()).apply()
+        defaultPreferences
+                .edit()
+                .putBoolean(Constants.KEY_THEME_CHANGE, true)
+                .putString(getString(R.string.theme_key), newValue.toString())
+                .apply()
+//        defaultPreferences.edit().putString(getString(R.string.theme_key), newValue.toString()).apply()
 
         if (newValue != startThemeKey && activity != null) {
             // If it's not the current theme
-            activity!!.recreate()
+            activity?.recreate()
         }
 
         false
@@ -32,6 +36,7 @@ class AppearanceSettingsFragment : BasePreferenceFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val themeKey = getString(R.string.theme_key)
+
         startThemeKey = defaultPreferences.getString(themeKey, getString(R.string.default_theme_value))
         findPreference(themeKey).onPreferenceChangeListener = themePreferenceChange
 

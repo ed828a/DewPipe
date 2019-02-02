@@ -71,10 +71,11 @@ class LicenseFragmentHelper(activity: Activity?) : AsyncTask<Any, Void, Int>() {
             val licenseContent = StringBuilder()
             val webViewData: String
             try {
-                val `in` = BufferedReader(InputStreamReader(context.assets.open(license.filename), "UTF-8"))
-                var str: String = `in`.readLine()
+                val `in` = BufferedReader(InputStreamReader(context.assets.open(license.filename!!), "UTF-8"))
+                var str: String? = `in`.readLine()
                 while (str != null) {
                     licenseContent.append(str)
+                    str = `in`.readLine()
                 }
                 `in`.close()
 
@@ -84,7 +85,7 @@ class LicenseFragmentHelper(activity: Activity?) : AsyncTask<Any, Void, Int>() {
                         + getLicenseStylesheet(context) + "</style></head>"
                         + insert[1])
             } catch (e: Exception) {
-                throw NullPointerException("could not get license file:" + getLicenseStylesheet(context))
+                throw NullPointerException("could not get license file: ${e.message}, " + getLicenseStylesheet(context))
             }
 
             return webViewData
@@ -118,7 +119,7 @@ class LicenseFragmentHelper(activity: Activity?) : AsyncTask<Any, Void, Int>() {
         /**
          * Cast R.color to a hexadecimal color value
          * @param context the context to use
-         * @param color the color number from R.color
+         * @param color the color number getTabFrom R.color
          * @return a six characters long String with hexadecimal RGB values
          */
         fun getHexRGBColor(context: Context, color: Int): String {

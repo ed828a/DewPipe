@@ -13,7 +13,7 @@ import com.google.android.exoplayer2.util.Assertions
 
 /**
  * This class allows irregular text language labels for use when selecting text captions and
- * is mostly a copy-paste from [DefaultTrackSelector].
+ * is mostly a copy-paste getTabFrom [DefaultTrackSelector].
  *
  * This is a hack and should be removed once ExoPlayer fixes language normalization to accept
  * a broader set of languages.
@@ -31,7 +31,8 @@ class CustomTrackSelector(adaptiveTrackSelectionFactory: TrackSelection.Factory)
 
     /** @see DefaultTrackSelector.selectTextTrack
      */
-    override fun selectTextTrack(groups: TrackGroupArray, formatSupport: Array<IntArray>,
+    override fun selectTextTrack(groups: TrackGroupArray,
+                                 formatSupport: Array<IntArray>,
                                  params: DefaultTrackSelector.Parameters): TrackSelection? {
         var selectedGroup: TrackGroup? = null
         var selectedTrackIndex = 0
@@ -49,25 +50,20 @@ class CustomTrackSelector(adaptiveTrackSelectionFactory: TrackSelection.Factory)
                     var trackScore: Int
                     val preferredLanguageFound = formatHasLanguage(format, this.preferredTextLanguage)
                     if (preferredLanguageFound || params.selectUndeterminedTextLanguage && formatHasNoLanguage(format)) {
-                        if (isDefault) {
-                            trackScore = 8
-                        } else if (!isForced) {
-                            // Prefer non-forced to forced if a preferred text language has been specified. Where
-                            // both are provided the non-forced track will usually contain the forced subtitles as
-                            // a subset.
-                            trackScore = 6
-                        } else {
-                            trackScore = 4
+                        trackScore = when {
+                            isDefault -> 8
+                            !isForced -> // Prefer non-forced to forced if a preferred text language has been specified. Where
+                                // both are provided the non-forced track will usually contain the forced subtitles as
+                                // a subset.
+                                6
+                            else -> 4
                         }
                         trackScore += if (preferredLanguageFound) 1 else 0
                     } else if (isDefault) {
                         trackScore = 3
                     } else if (isForced) {
-                        if (formatHasLanguage(format, params.preferredAudioLanguage)) {
-                            trackScore = 2
-                        } else {
-                            trackScore = 1
-                        }
+                        trackScore = if (formatHasLanguage(format, params.preferredAudioLanguage)) 2 else 1
+
                     } else {
                         // Track should not be selected.
                         continue
@@ -94,13 +90,13 @@ class CustomTrackSelector(adaptiveTrackSelectionFactory: TrackSelection.Factory)
 
         /** @see DefaultTrackSelector.formatHasLanguage
          */
-        protected fun formatHasLanguage(format: Format, language: String?): Boolean {
+        private fun formatHasLanguage(format: Format, language: String?): Boolean {
             return language != null && TextUtils.equals(language, format.language)
         }
 
         /** @see DefaultTrackSelector.formatHasNoLanguage
          */
-        protected fun formatHasNoLanguage(format: Format): Boolean {
+        private fun formatHasNoLanguage(format: Format): Boolean {
             return TextUtils.isEmpty(format.language) || formatHasLanguage(format, C.LANGUAGE_UNDETERMINED)
         }
     }

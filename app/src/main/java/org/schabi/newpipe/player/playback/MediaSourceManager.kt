@@ -2,23 +2,6 @@ package org.schabi.newpipe.player.playback
 
 import android.support.v4.util.ArraySet
 import android.util.Log
-
-import com.google.android.exoplayer2.source.MediaSource
-
-import org.reactivestreams.Subscriber
-import org.reactivestreams.Subscription
-import org.schabi.newpipe.player.mediasource.FailedMediaSource
-import org.schabi.newpipe.player.mediasource.LoadedMediaSource
-import org.schabi.newpipe.player.mediasource.ManagedMediaSource
-import org.schabi.newpipe.player.mediasource.ManagedMediaSourcePlaylist
-import org.schabi.newpipe.player.mediasource.PlaceholderMediaSource
-import org.schabi.newpipe.player.playqueue.PlayQueue
-import org.schabi.newpipe.player.playqueue.PlayQueueItem
-import org.schabi.newpipe.util.ServiceHelper
-import java.util.Collections
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
-
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -27,37 +10,47 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.internal.subscriptions.EmptySubscription
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
+import org.reactivestreams.Subscriber
+import org.reactivestreams.Subscription
 import org.schabi.newpipe.BuildConfig.DEBUG
+import org.schabi.newpipe.player.mediasource.*
 import org.schabi.newpipe.player.mediasource.FailedMediaSource.MediaSourceResolutionException
 import org.schabi.newpipe.player.mediasource.FailedMediaSource.StreamInfoLoadException
+import org.schabi.newpipe.player.playqueue.PlayQueue
+import org.schabi.newpipe.player.playqueue.PlayQueueItem
 import org.schabi.newpipe.player.playqueue.events.*
+import org.schabi.newpipe.util.ServiceHelper
+import java.util.*
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
-class MediaSourceManager private constructor(private val playbackListener: PlaybackListener,
-                                             private val playQueue: PlayQueue,
-                                             /**
-                                              * Process only the last load order when receiving a stream of load orders (lessens I/O).
-                                              * <br></br><br></br>
-                                              * The higher it is, the less loading occurs during rapid noncritical timeline changes.
-                                              * <br></br><br></br>
-                                              * Not recommended to go below 100ms.
-                                              *
-                                              * @see .loadDebounced
-                                              */
-                                             private val loadDebounceMillis: Long,
-                                             /**
-                                              * Determines the gap time between the playback position and the playback duration which
-                                              * the [.getEdgeIntervalSignal] begins to request loading.
-                                              *
-                                              * @see .progressUpdateIntervalMillis
-                                              *
-                                              */
-                                             private val playbackNearEndGapMillis: Long,
-                                             /**
-                                              * Determines the interval which the [.getEdgeIntervalSignal] waits for between
-                                              * each request for loading, once [.playbackNearEndGapMillis] has reached.
-                                              */
-                                             private val progressUpdateIntervalMillis: Long) {
-    private val TAG = "MediaSourceManager@" + hashCode()
+class MediaSourceManager private constructor(
+        private val playbackListener: PlaybackListener,
+        private val playQueue: PlayQueue,
+        /**
+         * Process only the last load order when receiving a stream of load orders (lessens I/O).
+         * <br></br><br></br>
+         * The higher it is, the less loading occurs during rapid noncritical timeline changes.
+         * <br></br><br></br>
+         * Not recommended to go below 100ms.
+         *
+         * @see .loadDebounced
+         */
+        private val loadDebounceMillis: Long,
+        /**
+         * Determines the gap time between the playback position and the playback duration which
+         * the [.getEdgeIntervalSignal] begins to request loading.
+         *
+         * @see .progressUpdateIntervalMillis
+         *
+         */
+        private val playbackNearEndGapMillis: Long,
+        /**
+         * Determines the interval which the [.getEdgeIntervalSignal] waits for between
+         * each request for loading, once [.playbackNearEndGapMillis] has reached.
+         */
+        private val progressUpdateIntervalMillis: Long) {
+
     private val nearEndIntervalSignal: Observable<Long>
     private val debouncedLoader: Disposable
     private val debouncedSignal: PublishSubject<Long>
@@ -86,13 +79,17 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
                 onPlayQueueChanged(playQueueMessage)
             }
 
-            override fun onError(e: Throwable) {}
+            override fun onError(e: Throwable) {
+                Log.d(TAG, "reactor: PlayQueueEvent error: ${e.message}")
+            }
 
-            override fun onComplete() {}
+            override fun onComplete() {
+                Log.d(TAG, "reactor: PlayQueueEvent onComplete()")
+            }
         }
 
     ///////////////////////////////////////////////////////////////////////////
-    // Playback Locking
+    // Playback Locking variables
     ///////////////////////////////////////////////////////////////////////////
 
     private val isPlayQueueReady: Boolean
@@ -105,14 +102,14 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
         get() {
             if (playlist.size() != playQueue.size()) return false
 
-            val mediaSource = playlist.get(playQueue.index) ?: return false
+            val mediaSource = playlist[playQueue.index] ?: return false
 
             val playQueueItem = playQueue.item
             return mediaSource.isStreamEqual(playQueueItem!!)
         }
 
     ///////////////////////////////////////////////////////////////////////////
-    // MediaSource Loading
+    // MediaSource Loading variable
     ///////////////////////////////////////////////////////////////////////////
 
     private val edgeIntervalSignal: Observable<Long>
@@ -122,16 +119,15 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
     constructor(listener: PlaybackListener,
                 playQueue: PlayQueue) : this(listener, playQueue, /*loadDebounceMillis=*/400L,
             /*playbackNearEndGapMillis=*/TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS),
-            /*progressUpdateIntervalMillis*/TimeUnit.MILLISECONDS.convert(2, TimeUnit.SECONDS)) {}
+            /*progressUpdateIntervalMillis*/TimeUnit.MILLISECONDS.convert(2, TimeUnit.SECONDS)) {
+    }
 
     init {
         if (playQueue.broadcastReceiver == null) {
             throw IllegalArgumentException("Play Queue has not been initialized.")
         }
         if (playbackNearEndGapMillis < progressUpdateIntervalMillis) {
-            throw IllegalArgumentException("Playback end gap=[" + playbackNearEndGapMillis +
-                    " ms] must be longer than update interval=[ " + progressUpdateIntervalMillis +
-                    " ms] for them to be useful.")
+            throw IllegalArgumentException("Playback end gap=[$playbackNearEndGapMillis ms] must be longer than update interval=[ $progressUpdateIntervalMillis ms] for them to be useful.")
         }
         this.nearEndIntervalSignal = edgeIntervalSignal
         this.debouncedSignal = PublishSubject.create()
@@ -158,7 +154,7 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
      * Dispose the manager and releases all message buses and loaders.
      */
     fun dispose() {
-        if (DEBUG) Log.d(TAG, "dispose() called.")
+        Log.d(TAG, "dispose() called.")
 
         debouncedSignal.onComplete()
         debouncedLoader.dispose()
@@ -167,6 +163,9 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
         loaderReactor.dispose()
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Event Reactor support function
+    ///////////////////////////////////////////////////////////////////////////
     private fun onPlayQueueChanged(event: PlayQueueEvent) {
         if (playQueue.isEmpty && playQueue.isComplete) {
             playbackListener.onPlaybackShutdown()
@@ -175,10 +174,12 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
 
         // Event specific action
         when (event.type()) {
-            PlayQueueEventType.INIT, PlayQueueEventType.ERROR -> {
+            PlayQueueEventType.INIT,
+            PlayQueueEventType.ERROR -> {
                 maybeBlock()
                 populateSources()
             }
+
             PlayQueueEventType.APPEND -> populateSources()
             PlayQueueEventType.SELECT -> maybeRenewCurrentIndex()
             PlayQueueEventType.REMOVE -> {
@@ -190,23 +191,27 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
                 playlist.move(moveEvent.fromIndex, moveEvent.toIndex)
             }
             PlayQueueEventType.REORDER -> {
-                // Need to move to ensure the playing index from play queue matches that of
+                // Need to move to ensure the playing index getTabFrom play queue matches that of
                 // the source timeline, and then window correction can take care of the rest
                 val reorderEvent = event as ReorderEvent
-                playlist.move(reorderEvent.fromSelectedIndex,
-                        reorderEvent.toSelectedIndex)
+                playlist.move(reorderEvent.fromSelectedIndex, reorderEvent.toSelectedIndex)
             }
             PlayQueueEventType.RECOVERY -> {
             }
-            else -> {
-            }
+
         }
 
         // Loading and Syncing
         when (event.type()) {
-            PlayQueueEventType.INIT, PlayQueueEventType.REORDER, PlayQueueEventType.ERROR, PlayQueueEventType.SELECT -> loadImmediate() // low frequency, critical events
-            PlayQueueEventType.APPEND, PlayQueueEventType.REMOVE, PlayQueueEventType.MOVE, PlayQueueEventType.RECOVERY -> loadDebounced() // high frequency or noncritical events
-            else -> loadDebounced()
+            PlayQueueEventType.INIT,
+            PlayQueueEventType.REORDER,
+            PlayQueueEventType.ERROR,
+            PlayQueueEventType.SELECT -> loadImmediate() // low frequency, critical events
+
+            PlayQueueEventType.APPEND,
+            PlayQueueEventType.REMOVE,
+            PlayQueueEventType.MOVE,
+            PlayQueueEventType.RECOVERY -> loadDebounced() // high frequency or noncritical events
         }
 
         if (!isPlayQueueReady) {
@@ -216,8 +221,11 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
         playQueueReactor.request(1)
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Playback Locking functions
+    ///////////////////////////////////////////////////////////////////////////
     private fun maybeBlock() {
-        if (DEBUG) Log.d(TAG, "maybeBlock() called.")
+        Log.d(TAG, "maybeBlock() called.")
 
         if (isBlocked.get()) return
 
@@ -228,7 +236,7 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
     }
 
     private fun maybeUnblock() {
-        if (DEBUG) Log.d(TAG, "maybeUnblock() called.")
+        Log.d(TAG, "maybeUnblock() called.")
 
         if (isBlocked.get()) {
             isBlocked.set(false)
@@ -241,7 +249,7 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
     ///////////////////////////////////////////////////////////////////////////
 
     private fun maybeSync() {
-        if (DEBUG) Log.d(TAG, "maybeSync() called.")
+        Log.d(TAG, "maybeSync() called.")
 
         val currentItem = playQueue.item
         if (isBlocked.get() || currentItem == null) return
@@ -270,7 +278,7 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
     }
 
     private fun loadImmediate() {
-        if (DEBUG) Log.d(TAG, "MediaSource - loadImmediate() called")
+        Log.d(TAG, "MediaSource - loadImmediate() called")
         val itemsToLoad = getItemsToLoad(playQueue) ?: return
 
         // Evict the previous items being loaded to free up memory, before start loading new ones
@@ -283,13 +291,11 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
     }
 
     private fun maybeLoadItem(item: PlayQueueItem) {
-        if (DEBUG) Log.d(TAG, "maybeLoadItem() called.")
+        Log.d(TAG, "maybeLoadItem() called.")
         if (playQueue.indexOf(item) >= playlist.size()) return
 
         if (!loadingItems.contains(item) && isCorrectionNeeded(item)) {
-            if (DEBUG)
-                Log.d(TAG, "MediaSource - Loading=[" + item.title +
-                        "] with url=[" + item.url + "]")
+            Log.d(TAG, "MediaSource: maybeLoadItem(): item.title=[${item.title}] with url=[${item.url}]")
 
             loadingItems.add(item)
             val loader = getLoadedMediaSource(item)
@@ -300,41 +306,37 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
         }
     }
 
-    private fun getLoadedMediaSource(stream: PlayQueueItem): Single<ManagedMediaSource> {
-        return stream.stream.map<ManagedMediaSource> { streamInfo ->
-            val source = playbackListener.sourceOf(stream, streamInfo)
-            if (source == null) {
-                val message = "Unable to resolve source from stream info." +
-                        " URL: " + stream.url +
-                        ", audio count: " + streamInfo.audioStreams.size +
-                        ", video count: " + streamInfo.videoOnlyStreams.size +
-                        streamInfo.videoStreams.size
-                return@map FailedMediaSource(stream, MediaSourceResolutionException(message))
+    private fun getLoadedMediaSource(stream: PlayQueueItem): Single<ManagedMediaSource> =
+            stream.stream.map<ManagedMediaSource> { streamInfo ->
+                val source = playbackListener.sourceOf(stream, streamInfo)
+                if (source == null) {
+                    val message = "Unable to resolve source getTabFrom stream info." +
+                            " URL: " + stream.url +
+                            ", audio count: " + streamInfo.audioStreams.size +
+                            ", video count: " + streamInfo.videoOnlyStreams.size +
+                            streamInfo.videoStreams.size
+                    Log.d(TAG, "getLoadedMediaSource error: $message")
+                    return@map FailedMediaSource(stream, MediaSourceResolutionException(message))
+                }
+
+                val expiration = System.currentTimeMillis() + ServiceHelper.getCacheExpirationMillis(streamInfo.serviceId)
+                LoadedMediaSource(source, stream, expiration)
+            }.onErrorReturn { throwable ->
+                FailedMediaSource(stream, StreamInfoLoadException(throwable))
             }
 
-            val expiration = System.currentTimeMillis() + ServiceHelper.getCacheExpirationMillis(streamInfo.serviceId)
-            LoadedMediaSource(source, stream, expiration)
-        }.onErrorReturn { throwable ->
-            FailedMediaSource(stream,
-                    StreamInfoLoadException(throwable))
-        }
-    }
 
     private fun onMediaSourceReceived(item: PlayQueueItem,
                                       mediaSource: ManagedMediaSource) {
-        if (DEBUG)
-            Log.d(TAG, "MediaSource - Loaded=[" + item.title +
-                    "] with url=[" + item.url + "]")
+        Log.d(TAG, "MediaSource - Loaded=[${item.title}] with url=[${item.url}]")
 
         loadingItems.remove(item)
 
         val itemIndex = playQueue.indexOf(item)
         // Only update the playlist timeline for items at the current index or after.
         if (isCorrectionNeeded(item)) {
-            if (DEBUG)
-                Log.d(TAG, "MediaSource - Updating index=[" + itemIndex + "] with " +
-                        "title=[" + item.title + "] at url=[" + item.url + "]")
-            playlist.update(itemIndex, mediaSource, Runnable{ this.maybeSynchronizePlayer() })
+            Log.d(TAG, "MediaSource - Updating index=[$itemIndex] with title=[${item.title}] at url=[${item.url}]")
+            playlist.update(itemIndex, mediaSource, Runnable { this.maybeSynchronizePlayer() })
 
         }
     }
@@ -352,7 +354,7 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
      */
     private fun isCorrectionNeeded(item: PlayQueueItem): Boolean {
         val index = playQueue.indexOf(item)
-        val mediaSource = playlist.get(index)
+        val mediaSource = playlist[index]
         return mediaSource != null && mediaSource.shouldBeReplacedWith(item,
                 /*mightBeInProgress=*/index != playQueue.index)
     }
@@ -370,22 +372,20 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
      */
     private fun maybeRenewCurrentIndex() {
         val currentIndex = playQueue.index
-        val currentSource = playlist.get(currentIndex) ?: return
+        val currentSource = playlist[currentIndex] ?: return
 
         val currentItem = playQueue.item
-        if (!/*canInterruptOnRenew=*/currentSource.shouldBeReplacedWith(currentItem!!, true)) {
+        if (!currentSource.shouldBeReplacedWith(currentItem!!, /*canInterruptOnRenew=*/true)) {
             maybeSynchronizePlayer()
             return
         }
 
-        if (DEBUG)
-            Log.d(TAG, "MediaSource - Reloading currently playing, " +
-                    "index=[" + currentIndex + "], item=[" + currentItem.title + "]")
+        Log.d(TAG, "MediaSource - Reloading currently playing, index=[$currentIndex], item=[${currentItem.title}]")
         playlist.invalidate(currentIndex, Runnable { this.loadImmediate() })
     }
 
     private fun maybeClearLoaders() {
-        if (DEBUG) Log.d(TAG, "MediaSource - maybeClearLoaders() called.")
+        Log.d(TAG, "MediaSource - maybeClearLoaders() called.")
         if (!loadingItems.contains(playQueue.item) && loaderReactor.size() > MAXIMUM_LOADER_SIZE) {
             loaderReactor.clear()
             loadingItems.clear()
@@ -396,21 +396,22 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
     ///////////////////////////////////////////////////////////////////////////
 
     private fun resetSources() {
-        if (DEBUG) Log.d(TAG, "resetSources() called.")
+        Log.d(TAG, "resetSources() called.")
         playlist = ManagedMediaSourcePlaylist()
     }
 
     private fun populateSources() {
-        if (DEBUG) Log.d(TAG, "populateSources() called.")
+        Log.d(TAG, "populateSources() called.")
         while (playlist.size() < playQueue.size()) {
             playlist.expand()
         }
     }
 
-    private class ItemsToLoad internal constructor(val center: PlayQueueItem,
-                                                   val neighbors: Collection<PlayQueueItem>)
+    private data class ItemsToLoad internal constructor(val center: PlayQueueItem,
+                                                        val neighbors: Collection<PlayQueueItem>)
 
     companion object {
+        private val TAG = "MediaSourceManager@" + hashCode()
 
         /**
          * Determines how many streams before and after the current stream should be loaded.
@@ -421,7 +422,7 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
          *
          * @see .onMediaSourceReceived
          */
-        private val WINDOW_SIZE = 1
+        private const val WINDOW_SIZE = 1
 
         /**
          * Determines the maximum number of disposables allowed in the [.loaderReactor].
@@ -431,7 +432,7 @@ class MediaSourceManager private constructor(private val playbackListener: Playb
          * @see .loadImmediate
          * @see .maybeLoadItem
          */
-        private val MAXIMUM_LOADER_SIZE = WINDOW_SIZE * 2 + 1
+        private const val MAXIMUM_LOADER_SIZE = WINDOW_SIZE * 2 + 1
 
         ///////////////////////////////////////////////////////////////////////////
         // Manager Helpers

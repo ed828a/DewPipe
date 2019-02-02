@@ -4,10 +4,10 @@ package org.schabi.newpipe.player.playqueue
 import org.schabi.newpipe.extractor.channel.ChannelInfo
 import org.schabi.newpipe.extractor.channel.ChannelInfoItem
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
+import org.schabi.newpipe.util.ExtractorHelper
 
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import org.schabi.newpipe.util.ExtractorHelper
 
 class ChannelPlayQueue : AbstractInfoPlayQueue<ChannelInfo, ChannelInfoItem> {
 
@@ -22,7 +22,8 @@ class ChannelPlayQueue : AbstractInfoPlayQueue<ChannelInfo, ChannelInfoItem> {
                 url: String,
                 nextPageUrl: String,
                 streams: List<StreamInfoItem>,
-                index: Int) : super(serviceId, url, nextPageUrl, streams, index) { }
+                index: Int) : super(serviceId, url, nextPageUrl, streams, index) {
+    }
 
     override fun fetch() {
         if (this.isInitial) {
@@ -31,7 +32,7 @@ class ChannelPlayQueue : AbstractInfoPlayQueue<ChannelInfo, ChannelInfoItem> {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(headListObserver)
         } else {
-            ExtractorHelper.getMoreChannelItems(this.serviceId, this.baseUrl, this.nextUrl)
+            ExtractorHelper.getMoreChannelItems(this.serviceId, this.baseUrl, this.nextUrl!!)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(nextPageObserver)

@@ -44,7 +44,7 @@ class SoftwareComponent : Parcelable {
     }
 
     companion object {
-
+        @JvmField
         val CREATOR: Parcelable.Creator<SoftwareComponent> = object : Parcelable.Creator<SoftwareComponent> {
             override fun createFromParcel(source: Parcel): SoftwareComponent {
                 return SoftwareComponent(source)

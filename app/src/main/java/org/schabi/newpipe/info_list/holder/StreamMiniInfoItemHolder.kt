@@ -14,20 +14,12 @@ import org.schabi.newpipe.info_list.InfoItemBuilder
 import org.schabi.newpipe.util.ImageDisplayConstants
 import org.schabi.newpipe.util.Localization
 
-open class StreamMiniInfoItemHolder internal constructor(infoItemBuilder: InfoItemBuilder, layoutId: Int, parent: ViewGroup) : InfoItemHolder(infoItemBuilder, layoutId, parent) {
+open class StreamMiniInfoItemHolder (infoItemBuilder: InfoItemBuilder, layoutId: Int, parent: ViewGroup) : InfoItemHolder(infoItemBuilder, layoutId, parent) {
 
-    val itemThumbnailView: ImageView
-    val itemVideoTitleView: TextView
-    val itemUploaderView: TextView
-    val itemDurationView: TextView
-
-    init {
-
-        itemThumbnailView = itemView.findViewById(R.id.itemThumbnailView)
-        itemVideoTitleView = itemView.findViewById(R.id.itemVideoTitleView)
-        itemUploaderView = itemView.findViewById(R.id.itemUploaderView)
-        itemDurationView = itemView.findViewById(R.id.itemDurationView)
-    }
+    val itemThumbnailView: ImageView = itemView.findViewById(R.id.itemThumbnailView)
+    val itemVideoTitleView: TextView = itemView.findViewById(R.id.itemVideoTitleView)
+    val itemUploaderView: TextView = itemView.findViewById(R.id.itemUploaderView)
+    val itemDurationView: TextView = itemView.findViewById(R.id.itemDurationView)
 
     constructor(infoItemBuilder: InfoItemBuilder, parent: ViewGroup) : this(infoItemBuilder, R.layout.list_stream_mini_item, parent) {}
 
@@ -37,18 +29,20 @@ open class StreamMiniInfoItemHolder internal constructor(infoItemBuilder: InfoIt
         itemVideoTitleView.text = infoItem.name
         itemUploaderView.text = infoItem.uploaderName
 
-        if (infoItem.duration > 0) {
-            itemDurationView.text = Localization.getDurationString(infoItem.duration)
-            itemDurationView.setBackgroundColor(ContextCompat.getColor(itemBuilder.context,
-                    R.color.duration_background_color))
-            itemDurationView.visibility = View.VISIBLE
-        } else if (infoItem.streamType == StreamType.LIVE_STREAM) {
-            itemDurationView.setText(R.string.duration_live)
-            itemDurationView.setBackgroundColor(ContextCompat.getColor(itemBuilder.context,
-                    R.color.live_duration_background_color))
-            itemDurationView.visibility = View.VISIBLE
-        } else {
-            itemDurationView.visibility = View.GONE
+        when {
+            infoItem.duration > 0 -> {
+                itemDurationView.text = Localization.getDurationString(infoItem.duration)
+                itemDurationView.setBackgroundColor(ContextCompat.getColor(itemBuilder.context,
+                        R.color.duration_background_color))
+                itemDurationView.visibility = View.VISIBLE
+            }
+            infoItem.streamType == StreamType.LIVE_STREAM -> {
+                itemDurationView.setText(R.string.duration_live)
+                itemDurationView.setBackgroundColor(ContextCompat.getColor(itemBuilder.context,
+                        R.color.live_duration_background_color))
+                itemDurationView.visibility = View.VISIBLE
+            }
+            else -> itemDurationView.visibility = View.GONE
         }
 
         // Default thumbnail is shown on error, while loading and if the url is empty
@@ -59,7 +53,7 @@ open class StreamMiniInfoItemHolder internal constructor(infoItemBuilder: InfoIt
 
         itemView.setOnClickListener { view ->
             if (itemBuilder.onStreamSelectedListener != null) {
-                itemBuilder.onStreamSelectedListener!!.selected(infoItem)
+                itemBuilder.onStreamSelectedListener?.selected(infoItem)
             }
         }
 
@@ -74,7 +68,7 @@ open class StreamMiniInfoItemHolder internal constructor(infoItemBuilder: InfoIt
         itemView.isLongClickable = true
         itemView.setOnLongClickListener { view ->
             if (itemBuilder.onStreamSelectedListener != null) {
-                itemBuilder.onStreamSelectedListener!!.held(item)
+                itemBuilder.onStreamSelectedListener?.held(item)
             }
             true
         }

@@ -52,7 +52,7 @@ class ManagedMediaSourcePlaylist {
     }
 
     /**
-     * Removes a [ManagedMediaSource] from [ConcatenatingMediaSource]
+     * Removes a [ManagedMediaSource] getTabFrom [ConcatenatingMediaSource]
      * at the given index. If this index is out of bound, then the removal is ignored.
      * @see ConcatenatingMediaSource.removeMediaSource
      */
@@ -65,7 +65,7 @@ class ManagedMediaSourcePlaylist {
 
     /**
      * Moves a [ManagedMediaSource] in [ConcatenatingMediaSource]
-     * from the given source index to the target index. If either index is out of bound,
+     * getTabFrom the given source index to the target index. If either index is out of bound,
      * then the call is ignored.
      * @see ConcatenatingMediaSource.moveMediaSource
      */
@@ -122,7 +122,7 @@ class ManagedMediaSourcePlaylist {
         // it unsafe to call remove as the finalizing action of add.
         parentMediaSource.addMediaSource(index + 1, source)
 
-        // Because of the above race condition, it is thus only safe to synchronize the player
+        // Because of the above race condition, it is thus only safe to synchronize the simpleExoPlayer
         // in the finalizing action AFTER the removal is complete and the timeline has changed.
         parentMediaSource.removeMediaSource(index, finalizingAction)
     }

@@ -14,11 +14,11 @@ import icepick.Icepick
 import icepick.State
 
 class ImportConfirmationDialog : DialogFragment() {
-    @State
+    @State @JvmField
     var resultServiceIntent: Intent? = null
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return AlertDialog.Builder(context, ThemeHelper.getDialogTheme(context))
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
+        AlertDialog.Builder(context, ThemeHelper.getDialogTheme(context!!))
                 .setMessage(R.string.import_network_expensive_warning)
                 .setCancelable(true)
                 .setNegativeButton(R.string.cancel, null)
@@ -29,7 +29,7 @@ class ImportConfirmationDialog : DialogFragment() {
                     dismiss()
                 }
                 .create()
-    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

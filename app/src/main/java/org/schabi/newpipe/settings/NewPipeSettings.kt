@@ -32,25 +32,6 @@ import java.io.File
 /**
  * Helper for global settings
  */
-
-/*
- * Copyright (C) Christian Schabesberger 2016 <chris.schabesberger@mailbox.org>
- * NewPipeSettings.java is part of NewPipe.
- *
- * NewPipe is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * NewPipe is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with NewPipe.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 object NewPipeSettings {
 
     fun initSettings(context: Context) {
@@ -66,24 +47,20 @@ object NewPipeSettings {
         getAudioDownloadFolder(context)
     }
 
-    fun getVideoDownloadFolder(context: Context): File {
-        return getDir(context, R.string.download_path_key, Environment.DIRECTORY_MOVIES)
-    }
+    private fun getVideoDownloadFolder(context: Context): File = getDir(context, R.string.download_path_key, Environment.DIRECTORY_MOVIES)
 
     fun getVideoDownloadPath(context: Context): String {
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
         val key = context.getString(R.string.download_path_key)
-        return prefs.getString(key, Environment.DIRECTORY_MOVIES)
+        return prefs.getString(key, Environment.DIRECTORY_MOVIES) ?: ""
     }
 
-    fun getAudioDownloadFolder(context: Context): File {
-        return getDir(context, R.string.download_path_audio_key, Environment.DIRECTORY_MUSIC)
-    }
+    private fun getAudioDownloadFolder(context: Context): File = getDir(context, R.string.download_path_audio_key, Environment.DIRECTORY_MUSIC)
 
     fun getAudioDownloadPath(context: Context): String {
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
         val key = context.getString(R.string.download_path_audio_key)
-        return prefs.getString(key, Environment.DIRECTORY_MUSIC)
+        return prefs.getString(key, Environment.DIRECTORY_MUSIC) ?: ""
     }
 
     private fun getDir(context: Context, keyID: Int, defaultDirectoryName: String): File {
@@ -93,15 +70,15 @@ object NewPipeSettings {
         if (downloadPath != null && !downloadPath.isEmpty()) return File(downloadPath.trim { it <= ' ' })
 
         val dir = getDir(defaultDirectoryName)
-        val spEditor = prefs.edit()
-        spEditor.putString(key, getNewPipeChildFolderPathForDir(dir))
-        spEditor.apply()
+        prefs.edit()
+                .putString(key, getNewPipeChildFolderPathForDir(dir))
+                .apply()
+
         return dir
     }
 
-    private fun getDir(defaultDirectoryName: String): File {
-        return File(Environment.getExternalStorageDirectory(), defaultDirectoryName)
-    }
+    private fun getDir(defaultDirectoryName: String): File = File(Environment.getExternalStorageDirectory(), defaultDirectoryName)
+
 
     fun resetDownloadFolders(context: Context) {
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
@@ -109,13 +86,12 @@ object NewPipeSettings {
         resetDownloadFolder(prefs, context.getString(R.string.download_path_key), Environment.DIRECTORY_MOVIES)
     }
 
-    private fun resetDownloadFolder(prefs: SharedPreferences, key: String, defaultDirectoryName: String) {
-        val spEditor = prefs.edit()
-        spEditor.putString(key, getNewPipeChildFolderPathForDir(getDir(defaultDirectoryName)))
-        spEditor.apply()
-    }
+    private fun resetDownloadFolder(prefs: SharedPreferences, key: String, defaultDirectoryName: String) =
+            prefs.edit()
+                    .putString(key, getNewPipeChildFolderPathForDir(getDir(defaultDirectoryName)))
+                    .apply()
 
-    private fun getNewPipeChildFolderPathForDir(dir: File): String {
-        return File(dir, "NewPipe").absolutePath
-    }
+
+    private fun getNewPipeChildFolderPathForDir(dir: File): String = File(dir, "DewTube").absolutePath
+
 }

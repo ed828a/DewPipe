@@ -4,48 +4,39 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v7.preference.Preference
 import android.util.Log
 import android.widget.Toast
-
+import com.nononsenseapps.filepicker.FilePickerActivity.*
 import com.nononsenseapps.filepicker.Utils
 import com.nostra13.universalimageloader.core.ImageLoader
-
 import org.schabi.newpipe.R
-import org.schabi.newpipe.extractor.NewPipe
-import org.schabi.newpipe.extractor.utils.Localization
+import org.schabi.newpipe.database.AppDatabase.Companion.DATABASE_NAME
 import org.schabi.newpipe.report.ErrorActivity
+import org.schabi.newpipe.report.ErrorInfo
 import org.schabi.newpipe.report.UserAction
 import org.schabi.newpipe.util.FilePickerActivityHelper
 import org.schabi.newpipe.util.ZipHelper
-
-import java.io.BufferedOutputStream
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
+import java.io.*
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 
 class ContentSettingsFragment : BasePreferenceFragment() {
+    private val TAG = this::class.java.simpleName + "@" + Integer.toHexString(hashCode())
 
-    private var databasesDir: File? = null
-    private var newpipe_db: File? = null
-    private var newpipe_db_journal: File? = null
-    private var newpipe_db_shm: File? = null
-    private var newpipe_db_wal: File? = null
-    private var newpipe_settings: File? = null
+    private lateinit var homeDir: String
+    private lateinit var databasesDir: File
+    private lateinit var newpipeDb: File
+    private lateinit var newpipeDbJournal: File
+    private lateinit var newpipeDbShm: File
+    private lateinit var newpipeDbWal: File
+    private lateinit var newpipeSettings: File
 
-    private var thumbnailLoadToggleKey: String? = null
+    private lateinit var thumbnailLoadToggleKey: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,12 +46,13 @@ class ContentSettingsFragment : BasePreferenceFragment() {
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
         if (preference.key == thumbnailLoadToggleKey) {
             val imageLoader = ImageLoader.getInstance()
-            imageLoader.stop()
-            imageLoader.clearDiskCache()
-            imageLoader.clearMemoryCache()
-            imageLoader.resume()
-            Toast.makeText(preference.context, R.string.thumbnail_cache_wipe_complete_notice,
-                    Toast.LENGTH_SHORT).show()
+            with(imageLoader) {
+                stop()
+                clearDiskCache()
+                clearMemoryCache()
+                resume()
+            }
+            Toast.makeText(preference.context, R.string.thumbnail_cache_wipe_complete_notice, Toast.LENGTH_SHORT).show()
         }
 
         return super.onPreferenceTreeClick(preference)
@@ -68,92 +60,75 @@ class ContentSettingsFragment : BasePreferenceFragment() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
 
-        val homeDir = activity!!.applicationInfo.dataDir
-        databasesDir = File("$homeDir/databases")
-        newpipe_db = File("$homeDir/databases/newpipe.db")
-        newpipe_db_journal = File("$homeDir/databases/newpipe.db-journal")
-        newpipe_db_shm = File("$homeDir/databases/newpipe.db-shm")
-        newpipe_db_wal = File("$homeDir/databases/newpipe.db-wal")
+        homeDir = activity!!.applicationInfo.dataDir
+        Log.d(TAG, "homeDir = $homeDir")
 
-        newpipe_settings = File("$homeDir/databases/newpipe.settings")
-        newpipe_settings!!.delete()
+        databasesDir = File("$homeDir/databases")
+        newpipeDb = File("$homeDir/databases/$DATABASE_NAME")
+        newpipeDbJournal = File("$homeDir/databases/$DB_JOURNAL")
+        newpipeDbShm = File("$homeDir/databases/$DB_SHM")
+        newpipeDbWal = File("$homeDir/databases/$DB_WAL")
+
+        newpipeSettings = File("$homeDir/databases/$SETTINGS_FILE_NAME")
+        newpipeSettings.delete()
 
         addPreferencesFromResource(R.xml.content_settings)
 
         val importDataPreference = findPreference(getString(R.string.import_data))
         importDataPreference.setOnPreferenceClickListener { p: Preference ->
-            val i = Intent(activity, FilePickerActivityHelper::class.java)
-                    .putExtra(FilePickerActivityHelper.EXTRA_ALLOW_MULTIPLE, false)
-                    .putExtra(FilePickerActivityHelper.EXTRA_ALLOW_CREATE_DIR, false)
-                    .putExtra(FilePickerActivityHelper.EXTRA_MODE, FilePickerActivityHelper.MODE_FILE)
-            startActivityForResult(i, REQUEST_IMPORT_PATH)
+            val intent = Intent(activity, FilePickerActivityHelper::class.java)
+                    .putExtra(EXTRA_ALLOW_MULTIPLE, false)
+                    .putExtra(EXTRA_ALLOW_CREATE_DIR, false)
+                    .putExtra(EXTRA_MODE, MODE_FILE)
+            startActivityForResult(intent, REQUEST_IMPORT_PATH)
             true
         }
 
         val exportDataPreference = findPreference(getString(R.string.export_data))
         exportDataPreference.setOnPreferenceClickListener { p: Preference ->
             val i = Intent(activity, FilePickerActivityHelper::class.java)
-                    .putExtra(FilePickerActivityHelper.EXTRA_ALLOW_MULTIPLE, false)
-                    .putExtra(FilePickerActivityHelper.EXTRA_ALLOW_CREATE_DIR, true)
-                    .putExtra(FilePickerActivityHelper.EXTRA_MODE, FilePickerActivityHelper.MODE_DIR)
+                    .putExtra(EXTRA_ALLOW_MULTIPLE, false)
+                    .putExtra(EXTRA_ALLOW_CREATE_DIR, true)
+                    .putExtra(EXTRA_MODE, MODE_DIR)
             startActivityForResult(i, REQUEST_EXPORT_PATH)
-            true
-        }
-
-        val setPreferredLanguage = findPreference(getString(R.string.content_language_key))
-        setPreferredLanguage.setOnPreferenceChangeListener { p: Preference, newLanguage: Any ->
-            val oldLocal = org.schabi.newpipe.util.Localization.getPreferredExtractorLocal(activity)
-            NewPipe.setLocalization(Localization(oldLocal.country, newLanguage as String))
-            true
-        }
-
-        val setPreferredCountry = findPreference(getString(R.string.content_country_key))
-        setPreferredCountry.setOnPreferenceChangeListener { p: Preference, newCountry: Any ->
-            val oldLocal = org.schabi.newpipe.util.Localization.getPreferredExtractorLocal(activity)
-            NewPipe.setLocalization(Localization(newCountry as String, oldLocal.language))
             true
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (DEBUG) {
-            Log.d(TAG, "onActivityResult() called with: requestCode = [$requestCode], resultCode = [$resultCode], data = [$data]")
-        }
+
+        Log.d(TAG, "onActivityResult() called with: requestCode = [$requestCode], resultCode = [$resultCode], data = [$data]")
+
 
         if ((requestCode == REQUEST_IMPORT_PATH || requestCode == REQUEST_EXPORT_PATH)
-                && resultCode == Activity.RESULT_OK && data.data !=
-                null) {
+                && resultCode == Activity.RESULT_OK && data?.data != null) {
             val path = Utils.getFileForUri(data.data!!).absolutePath
             if (requestCode == REQUEST_EXPORT_PATH) {
-                val sdf = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US)
-                exportDatabase(path + "/NewPipeData-" + sdf.format(Date()) + ".zip")
+                val sdf = SimpleDateFormat("ddMMyyyy_HHmmss", Locale.US)
+                exportDatabase("$path/ExportData-${sdf.format(Date())}.zip")
             } else {
-                val builder = AlertDialog.Builder(activity)
-                builder.setMessage(R.string.override_current_data)
-                        .setPositiveButton(android.R.string.ok
-                        ) { d: DialogInterface, id: Int -> importDatabase(path) }
-                        .setNegativeButton(android.R.string.cancel
-                        ) { d: DialogInterface, id: Int -> d.cancel() }
-                builder.create().show()
+                AlertDialog.Builder(activity)
+                        .setMessage(R.string.override_current_data)
+                        .setPositiveButton(android.R.string.ok) { d: DialogInterface, id: Int -> importDatabase(path) }
+                        .setNegativeButton(android.R.string.cancel) { d: DialogInterface, id: Int -> d.cancel() }
+                        .create()
+                        .show()
             }
         }
     }
 
     private fun exportDatabase(path: String) {
         try {
-            val outZip = ZipOutputStream(
-                    BufferedOutputStream(
-                            FileOutputStream(path)))
-            ZipHelper.addFileToZip(outZip, newpipe_db!!.path, "newpipe.db")
+            val outZip = ZipOutputStream(BufferedOutputStream(FileOutputStream(path)))
+            ZipHelper.addFileToZip(outZip, newpipeDb.path, DATABASE_NAME)
 
-            saveSharedPreferencesToFile(newpipe_settings)
-            ZipHelper.addFileToZip(outZip, newpipe_settings!!.path, "newpipe.settings")
+            saveSharedPreferencesToFile(newpipeSettings)
+            ZipHelper.addFileToZip(outZip, newpipeSettings.path, SETTINGS_FILE_NAME)
 
             outZip.close()
 
-            Toast.makeText(context, R.string.export_complete_toast, Toast.LENGTH_SHORT)
-                    .show()
+            Toast.makeText(context, R.string.export_complete_toast, Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             onError(e)
         }
@@ -173,10 +148,8 @@ class ContentSettingsFragment : BasePreferenceFragment() {
             e.printStackTrace()
         } finally {
             try {
-                if (output != null) {
-                    output.flush()
-                    output.close()
-                }
+                output?.flush()
+                output?.close()
             } catch (ex: IOException) {
                 ex.printStackTrace()
             }
@@ -190,53 +163,47 @@ class ContentSettingsFragment : BasePreferenceFragment() {
         try {
             zipFile = ZipFile(filePath)
         } catch (ioe: IOException) {
-            Toast.makeText(context, R.string.no_valid_zip_file, Toast.LENGTH_SHORT)
-                    .show()
+            Toast.makeText(context, R.string.no_valid_zip_file, Toast.LENGTH_SHORT).show()
             return
         } finally {
             try {
-                zipFile!!.close()
+                zipFile?.close()
             } catch (ignored: Exception) {
+                Log.d(TAG, "ignored exception: ${ignored.message}")
             }
-
         }
 
         try {
-            if (!databasesDir!!.exists() && !databasesDir!!.mkdir()) {
+            if (!databasesDir.exists() && !databasesDir.mkdir()) {
                 throw Exception("Could not create databases dir")
             }
 
-            val isDbFileExtracted = ZipHelper.extractFileFromZip(filePath,
-                    newpipe_db!!.path, "newpipe.db")
-
+            val isDbFileExtracted = ZipHelper.extractFileFromZip(filePath, newpipeDb.path, DATABASE_NAME)
             if (isDbFileExtracted) {
-                newpipe_db_journal!!.delete()
-                newpipe_db_wal!!.delete()
-                newpipe_db_shm!!.delete()
+                newpipeDbJournal.delete()
+                newpipeDbWal.delete()
+                newpipeDbShm.delete()
 
             } else {
-
-                Toast.makeText(context, R.string.could_not_import_all_files, Toast.LENGTH_LONG)
-                        .show()
+                Toast.makeText(context, R.string.could_not_import_all_files, Toast.LENGTH_LONG).show()
             }
 
             //If settings file exist, ask if it should be imported.
-            if (ZipHelper.extractFileFromZip(filePath, newpipe_settings!!.path, "newpipe.settings")) {
-                val alert = AlertDialog.Builder(context)
-                alert.setTitle(R.string.import_settings)
-
-                alert.setNegativeButton(android.R.string.no) { dialog, which ->
-                    dialog.dismiss()
-                    // restart app to properly load db
-                    System.exit(0)
-                }
-                alert.setPositiveButton(android.R.string.yes) { dialog, which ->
-                    dialog.dismiss()
-                    loadSharedPreferences(newpipe_settings!!)
-                    // restart app to properly load db
-                    System.exit(0)
-                }
-                alert.show()
+            if (ZipHelper.extractFileFromZip(filePath, newpipeSettings.path, SETTINGS_FILE_NAME)) {
+                AlertDialog.Builder(context)
+                        .setTitle(R.string.import_settings)
+                        .setNegativeButton(android.R.string.no) { dialog, which ->
+                            dialog.dismiss()
+                            // restart app to properly load db
+                            System.exit(0)
+                        }
+                        .setPositiveButton(android.R.string.yes) { dialog, which ->
+                            dialog.dismiss()
+                            loadSharedPreferences(newpipeSettings)
+                            // restart app to properly load db
+                            System.exit(0)
+                        }
+                        .show()
             } else {
                 // restart app to properly load db
                 System.exit(0)
@@ -255,18 +222,14 @@ class ContentSettingsFragment : BasePreferenceFragment() {
             val prefEdit = PreferenceManager.getDefaultSharedPreferences(context).edit()
             prefEdit.clear()
             val entries = input.readObject() as Map<String, *>
-            for ((key, v) in entries) {
-
-                if (v is Boolean)
-                    prefEdit.putBoolean(key, v)
-                else if (v is Float)
-                    prefEdit.putFloat(key, v)
-                else if (v is Int)
-                    prefEdit.putInt(key, v)
-                else if (v is Long)
-                    prefEdit.putLong(key, v)
-                else if (v is String)
-                    prefEdit.putString(key, v)
+            for ((key, value) in entries) {
+                when (value) {
+                    is Boolean -> prefEdit.putBoolean(key, value)
+                    is Float -> prefEdit.putFloat(key, value)
+                    is Int -> prefEdit.putInt(key, value)
+                    is Long -> prefEdit.putLong(key, value)
+                    is String -> prefEdit.putString(key, value)
+                }
             }
             prefEdit.apply()
         } catch (e: FileNotFoundException) {
@@ -288,18 +251,26 @@ class ContentSettingsFragment : BasePreferenceFragment() {
     ///////////////////////////////////////////////////////////////////////////
     // Error
     ///////////////////////////////////////////////////////////////////////////
-
-    protected fun onError(e: Throwable) {
+    private fun onError(exception: Throwable): Boolean {
         val activity = activity
-        ErrorActivity.reportError(activity!!, e,
-                activity.javaClass, null,
-                ErrorActivity.ErrorInfo.make(UserAction.UI_ERROR,
-                        "none", "", R.string.app_ui_crash))
+        activity?.let { fragmentActivity ->
+            ErrorActivity.reportError(activity,
+                    exception,
+                    fragmentActivity.javaClass,
+                    null,
+                    ErrorInfo.make(UserAction.UI_ERROR, "none", "", R.string.app_ui_crash))
+        }
+
+        return true
     }
 
     companion object {
-
+        //        private val TAG = ContentSettingsFragment::class.simpleName
         private const val REQUEST_IMPORT_PATH = 8945
         private const val REQUEST_EXPORT_PATH = 30945
+        private const val SETTINGS_FILE_NAME = "newpipe.settings"
+        private const val DB_JOURNAL = "newpipe.db-journal"
+        private const val DB_SHM = "newpipe.db-shm"
+        private const val DB_WAL = "newpipe.db-wal"
     }
 }

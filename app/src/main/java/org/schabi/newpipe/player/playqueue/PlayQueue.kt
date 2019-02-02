@@ -25,6 +25,7 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.BehaviorSubject
+import org.schabi.newpipe.BuildConfig.DEBUG
 
 /**
  * PlayQueue is responsible for keeping track of a list of streams and the index of
@@ -182,7 +183,7 @@ abstract class PlayQueue internal constructor(index: Int, startWith: List<PlayQu
      * May throw [IndexOutOfBoundsException].
      */
     fun getItem(index: Int): PlayQueueItem? {
-        return if (index < 0 || index >= streams!!.size || streams!![index] == null) null else streams!![index]
+        return if (index < 0 || index >= streams!!.size) null else streams!![index]
     }
 
     /**
@@ -251,7 +252,7 @@ abstract class PlayQueue internal constructor(index: Int, startWith: List<PlayQu
     }
 
     /**
-     * Removes the item at the given index from the play queue.
+     * Removes the item at the given index getTabFrom the play queue.
      *
      * The current playing index will decrement if it is greater than the index being removed.
      * On cases where the current playing index exceeds the playlist range, it is set to 0.
@@ -421,9 +422,5 @@ abstract class PlayQueue internal constructor(index: Int, startWith: List<PlayQu
         }
     }
 
-    companion object {
-
-        val DEBUG = BuildConfig.BUILD_TYPE != "release"
-    }
 }
 

@@ -10,31 +10,29 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-
 import com.jakewharton.rxbinding2.view.RxView
-
+import icepick.State
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import org.schabi.newpipe.BaseFragment
 import org.schabi.newpipe.MainActivity
 import org.schabi.newpipe.R
 import org.schabi.newpipe.ReCaptchaActivity
 import org.schabi.newpipe.extractor.exceptions.ReCaptchaException
 import org.schabi.newpipe.report.ErrorActivity
+import org.schabi.newpipe.report.ErrorInfo
 import org.schabi.newpipe.report.UserAction
+import org.schabi.newpipe.util.AnimationUtils.animateView
+import org.schabi.newpipe.util.ExtractorHelper
 import org.schabi.newpipe.util.InfoCache
-
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
-import icepick.State
-import io.reactivex.android.schedulers.AndroidSchedulers
-
-import org.schabi.newpipe.util.AnimationUtils.animateView
-import org.schabi.newpipe.util.ExtractorHelper
-
 abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
 
     @State
+    @JvmField
     var wasLoading = AtomicBoolean()
     protected var isLoading = AtomicBoolean()
 
@@ -44,6 +42,8 @@ abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
     protected lateinit var errorPanelRoot: View
     protected lateinit var errorButtonRetry: Button
     protected lateinit var errorTextView: TextView
+
+    protected val compositeDisposable = CompositeDisposable()
 
     override fun onViewCreated(rootView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(rootView, savedInstanceState)
@@ -55,6 +55,15 @@ abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
         wasLoading.set(isLoading.get())
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        compositeDisposable.clear()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (!compositeDisposable.isDisposed) compositeDisposable.dispose()
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Init
@@ -74,10 +83,12 @@ abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
 
     override fun initListeners() {
         super.initListeners()
-        RxView.clicks(errorButtonRetry)
+        val d = RxView.clicks(errorButtonRetry)
                 .debounce(300, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { o -> onRetryButtonClicked() }
+
+        compositeDisposable.add(d)
     }
 
     protected fun onRetryButtonClicked() {
@@ -107,28 +118,28 @@ abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
     ///////////////////////////////////////////////////////////////////////////
 
     override fun showLoading() {
-        if (emptyStateView != null) animateView(emptyStateView, false, 150)
-        if (loadingProgressBar != null) animateView(loadingProgressBar, true, 400)
+        if (emptyStateView != null) animateView(emptyStateView!!, false, 150)
+        if (loadingProgressBar != null) animateView(loadingProgressBar!!, true, 400)
         animateView(errorPanelRoot, false, 150)
     }
 
     override fun hideLoading() {
-        if (emptyStateView != null) animateView(emptyStateView, false, 150)
-        if (loadingProgressBar != null) animateView(loadingProgressBar, false, 0)
+        if (emptyStateView != null) animateView(emptyStateView!!, false, 150)
+        if (loadingProgressBar != null) animateView(loadingProgressBar!!, false, 0)
         animateView(errorPanelRoot, false, 150)
     }
 
     override fun showEmptyState() {
         isLoading.set(false)
-        if (emptyStateView != null) animateView(emptyStateView, true, 200)
-        if (loadingProgressBar != null) animateView(loadingProgressBar, false, 0)
+        if (emptyStateView != null) animateView(emptyStateView!!, true, 200)
+        if (loadingProgressBar != null) animateView(loadingProgressBar!!, false, 0)
         animateView(errorPanelRoot, false, 150)
     }
 
     override fun showError(message: String, showRetryButton: Boolean) {
         if (DEBUG) Log.d(TAG, "showError() called with: message = [$message], showRetryButton = [$showRetryButton]")
         isLoading.set(false)
-        InfoCache.getInstance().clearCache()
+        InfoCache.instance.clearCache()
         hideLoading()
 
         errorTextView.text = message
@@ -188,6 +199,9 @@ abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
     }
 
     fun onUnrecoverableError(exception: Throwable, userAction: UserAction, serviceName: String, request: String, @StringRes errorId: Int) {
+        // if the exception like "ParsingException: Malformed unacceptable url: https://www.youtube.com/channel/UC4ZLnCS3X8CI4RppOXTmT4g"
+        // the link is a channel, still recoverable.
+        // todo: recover this kind of parsing exceptions.
         onUnrecoverableError(listOf(exception), userAction, serviceName, request, errorId)
     }
 
@@ -199,7 +213,7 @@ abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
         if (serviceName == null) serviceName = "none"
         if (request == null) request = "none"
 
-        ErrorActivity.reportError(context!!, exception, MainActivity::class.java, null, ErrorActivity.ErrorInfo.make(userAction, serviceName, request, errorId))
+        ErrorActivity.reportError(context!!, exception, MainActivity::class.java, null, ErrorInfo.make(userAction, serviceName, request, errorId))
     }
 
     fun showSnackBarError(exception: Throwable, userAction: UserAction, serviceName: String, request: String, @StringRes errorId: Int) {
@@ -210,15 +224,14 @@ abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
      * Show a SnackBar and only call ErrorActivity#reportError IF we a find a valid view (otherwise the error screen appears)
      */
     fun showSnackBarError(exception: List<Throwable>, userAction: UserAction, serviceName: String, request: String, @StringRes errorId: Int) {
-        if (DEBUG) {
-            Log.d(TAG, "showSnackBarError() called with: exception = [$exception], userAction = [$userAction], request = [$request], errorId = [$errorId]")
-        }
+        Log.d(TAG, "showSnackBarError() called with: exception = [$exception], userAction = [$userAction], request = [$request], errorId = [$errorId]")
+
         var rootView: View? = if (activity != null) activity!!.findViewById(android.R.id.content) else null
         if (rootView == null && view != null) rootView = view
         if (rootView == null) return
 
         ErrorActivity.reportError(context!!, exception, MainActivity::class.java, rootView,
-                ErrorActivity.ErrorInfo.make(userAction, serviceName, request, errorId))
+                ErrorInfo.make(userAction, serviceName, request, errorId))
     }
 
     ///////////////////////////////////////////////////////////////////////////

@@ -1,13 +1,11 @@
 package org.schabi.newpipe.fragments.list.kiosk
 
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.View
-import android.view.ViewGroup
-
+import android.view.*
+import icepick.State
+import io.reactivex.Single
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.ListExtractor
 import org.schabi.newpipe.extractor.NewPipe
@@ -15,40 +13,17 @@ import org.schabi.newpipe.extractor.exceptions.ExtractionException
 import org.schabi.newpipe.extractor.kiosk.KioskInfo
 import org.schabi.newpipe.fragments.list.BaseListInfoFragment
 import org.schabi.newpipe.report.UserAction
+import org.schabi.newpipe.util.AnimationUtils.animateView
+import org.schabi.newpipe.util.Constants.NO_SERVICE_ID
+import org.schabi.newpipe.util.ExtractorHelper
 import org.schabi.newpipe.util.KioskTranslator
 
-import icepick.State
-import io.reactivex.Single
-
-import org.schabi.newpipe.util.AnimationUtils.animateView
-import org.schabi.newpipe.util.ExtractorHelper
-
-/**
- * Created by Christian Schabesberger on 23.09.17.
- *
- * Copyright (C) Christian Schabesberger 2017 <chris.schabesberger></chris.schabesberger>@mailbox.org>
- * KioskFragment.java is part of NewPipe.
- *
- * NewPipe is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * NewPipe is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with NewPipe.  If not, see <http:></http:>//www.gnu.org/licenses/>.
- */
 
 class KioskFragment : BaseListInfoFragment<KioskInfo>() {
 
-    @State
-    var kioskId = ""
-
-    lateinit var kioskTranslatedName: String
+    @State @JvmField
+    protected var kioskId = ""
+    protected lateinit var kioskTranslatedName: String
 
     ///////////////////////////////////////////////////////////////////////////
     // LifeCycle
@@ -57,9 +32,8 @@ class KioskFragment : BaseListInfoFragment<KioskInfo>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        kioskTranslatedName = KioskTranslator.getTranslatedKioskName(kioskId, activity)
+        kioskTranslatedName = KioskTranslator.getTranslatedKioskName(kioskId, activity!!)
         name = kioskTranslatedName
-        Log.d(TAG, "KioskFragment::onCreate(), kioskTranslatedName = $kioskTranslatedName")
     }
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
@@ -97,16 +71,32 @@ class KioskFragment : BaseListInfoFragment<KioskInfo>() {
     ///////////////////////////////////////////////////////////////////////////
 
     public override fun loadResult(forceReload: Boolean): Single<KioskInfo> {
-        Log.d(TAG, "loadResult(): serviceId=$serviceId")
+        val contentCountry = PreferenceManager
+                .getDefaultSharedPreferences(activity)
+                .getString(getString(R.string.content_country_key),
+                        getString(R.string.default_country_value))
+
+        Log.d(TAG, "loadResult(forceReload=$forceReload), serviceId = $serviceId, url = $url")
+        // temporary solution to fix resume NO_SERVICE_ID bug
+//        if (serviceId == NO_SERVICE_ID) {
+//            serviceId = 0
+//            url = "https://www.youtube.com/feed/trending"
+//        }
         return ExtractorHelper.getKioskInfo(serviceId,
                 url,
+                contentCountry!!,
                 forceReload)
     }
 
     public override fun loadMoreItemsLogic(): Single<ListExtractor.InfoItemsPage<*>> {
+        val contentCountry = PreferenceManager
+                .getDefaultSharedPreferences(activity)
+                .getString(getString(R.string.content_country_key),
+                        getString(R.string.default_country_value))
         return ExtractorHelper.getMoreKioskItems(serviceId,
                 url,
-                currentNextPageUrl)
+                currentNextPageUrl,
+                contentCountry!!)
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -115,7 +105,7 @@ class KioskFragment : BaseListInfoFragment<KioskInfo>() {
 
     override fun showLoading() {
         super.showLoading()
-        animateView(itemsList, false, 100)
+        animateView(itemsList!!, false, 100)
     }
 
     override fun handleResult(result: KioskInfo) {
@@ -146,22 +136,19 @@ class KioskFragment : BaseListInfoFragment<KioskInfo>() {
 
         @Throws(ExtractionException::class)
         @JvmOverloads
-        fun getInstance(serviceId: Int,
-                        kioskId: String = NewPipe.getService(serviceId)
-                                .kioskList
-                                .defaultKioskId): KioskFragment {
-            Log.d("KioskFragment", "KioskFragment::getInstance() called")
+        fun getInstance(serviceId: Int, kioskId: String = NewPipe.getService(serviceId)
+                .kioskList
+                .defaultKioskId): KioskFragment {
             val instance = KioskFragment()
             val service = NewPipe.getService(serviceId)
             val kioskLinkHandlerFactory = service.kioskList
                     .getListLinkHandlerFactoryByType(kioskId)
-
             instance.setInitialData(serviceId,
                     kioskLinkHandlerFactory.fromId(kioskId).url, kioskId)
-
             instance.kioskId = kioskId
-
             return instance
         }
     }
-}
+}///////////////////////////////////////////////////////////////////////////
+// Views
+///////////////////////////////////////////////////////////////////////////

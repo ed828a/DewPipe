@@ -30,12 +30,12 @@ class MediaSessionManager(context: Context,
         this.sessionConnector.setPlayer(player, null)
     }
 
-    fun handleMediaButtonIntent(intent: Intent): KeyEvent? {
-        return MediaButtonReceiver.handleIntent(mediaSession, intent)
-    }
+    fun handleMediaButtonIntent(intent: Intent): KeyEvent? =
+            MediaButtonReceiver.handleIntent(mediaSession, intent)
+
 
     /**
-     * Should be called on player destruction to prevent leakage.
+     * Should be called on simpleExoPlayer destruction to prevent leakage.
      */
     fun dispose() {
         this.sessionConnector.setPlayer(null, null)

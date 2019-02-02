@@ -11,12 +11,11 @@ import icepick.State
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
-import org.schabi.newpipe.NewPipeDatabase
 import org.schabi.newpipe.R
+import org.schabi.newpipe.database.AppDatabase
 import org.schabi.newpipe.database.LocalItem
 import org.schabi.newpipe.database.playlist.PlaylistLocalItem
 import org.schabi.newpipe.database.playlist.PlaylistMetadataEntry
@@ -32,37 +31,14 @@ import java.util.*
 class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() {
 
     @State
+    @JvmField
     var itemsListState: Parcelable? = null
 
     private var databaseSubscription: Subscription? = null
-    private var disposables: CompositeDisposable? = CompositeDisposable()
+    //    private var disposables: CompositeDisposable = CompositeDisposable()
     private var localPlaylistManager: LocalPlaylistManager? = null
     private var remotePlaylistManager: RemotePlaylistManager? = null
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Subscriptions Loader
-    ///////////////////////////////////////////////////////////////////////////
-
-    private val playlistsSubscriber: Subscriber<List<PlaylistLocalItem>>
-        get() = object : Subscriber<List<PlaylistLocalItem>> {
-            override fun onSubscribe(s: Subscription) {
-                showLoading()
-                if (databaseSubscription != null) databaseSubscription!!.cancel()
-                databaseSubscription = s
-                databaseSubscription!!.request(1)
-            }
-
-            override fun onNext(subscriptions: List<PlaylistLocalItem>) {
-                handleResult(subscriptions)
-                if (databaseSubscription != null) databaseSubscription!!.request(1)
-            }
-
-            override fun onError(exception: Throwable) {
-                this@BookmarkFragment.onError(exception)
-            }
-
-            override fun onComplete() {}
-        }
 
     ///////////////////////////////////////////////////////////////////////////
     // Fragment LifeCycle - Creation
@@ -70,23 +46,18 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (activity == null) return
-        val database = NewPipeDatabase.getInstance(activity!!)
-        localPlaylistManager = LocalPlaylistManager(database)
-        remotePlaylistManager = RemotePlaylistManager(database)
-        disposables = CompositeDisposable()
+
+        context?.let {
+            val database = AppDatabase.getDatabase(context!!)
+            localPlaylistManager = LocalPlaylistManager(database)
+            remotePlaylistManager = RemotePlaylistManager(database)
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-
-        if (!useAsFrontPage) {
-            setTitle(activity!!.getString(R.string.tab_bookmarks))
-        }
-        return inflater.inflate(R.layout.fragment_bookmarks, container, false)
-    }
-
+                              savedInstanceState: Bundle?): View? =
+            inflater.inflate(R.layout.fragment_bookmarks, container, false)
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
@@ -102,21 +73,26 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
     override fun initViews(rootView: View, savedInstanceState: Bundle?) {
         super.initViews(rootView, savedInstanceState)
         Log.d("BookmarkFragment", "BookmarkFragment::initViews() called.")
+
+        if (!useAsFrontPage) {
+            setTitle(activity!!.getString(R.string.tab_bookmarks))
+        }
     }
 
     override fun initListeners() {
         super.initListeners()
 
-        itemListAdapter!!.setSelectedListener(object : OnClickGesture<LocalItem>() {
+        itemListAdapter?.setSelectedListener(object : OnClickGesture<LocalItem>() {
             override fun selected(selectedItem: LocalItem) {
                 val fragmentManager = getFM()
 
-                if (selectedItem is PlaylistMetadataEntry) {
-                    NavigationHelper.openLocalPlaylistFragment(fragmentManager, selectedItem.uid,
+                when (selectedItem) {
+                    is PlaylistMetadataEntry -> NavigationHelper.openLocalPlaylistFragment(
+                            fragmentManager,
+                            selectedItem.uid,
                             selectedItem.name)
 
-                } else if (selectedItem is PlaylistRemoteEntity) {
-                    NavigationHelper.openPlaylistFragment(
+                    is PlaylistRemoteEntity -> NavigationHelper.openPlaylistFragment(
                             fragmentManager,
                             selectedItem.serviceId,
                             selectedItem.url!!,
@@ -125,11 +101,9 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
             }
 
             override fun held(selectedItem: LocalItem) {
-                if (selectedItem is PlaylistMetadataEntry) {
-                    showLocalDeleteDialog(selectedItem)
-
-                } else if (selectedItem is PlaylistRemoteEntity) {
-                    showRemoteDeleteDialog(selectedItem)
+                when (selectedItem) {
+                    is PlaylistMetadataEntry -> showLocalDeleteDialog(selectedItem)
+                    is PlaylistRemoteEntity -> showRemoteDeleteDialog(selectedItem)
                 }
             }
         })
@@ -145,10 +119,13 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
         Flowable.combineLatest<List<PlaylistMetadataEntry>, List<PlaylistRemoteEntity>, List<PlaylistLocalItem>>(
                 localPlaylistManager!!.playlists,
                 remotePlaylistManager!!.playlists,
-                BiFunction<List<PlaylistMetadataEntry>, List<PlaylistRemoteEntity>, List<PlaylistLocalItem>> { localPlaylists, remotePlaylists -> merge(localPlaylists, remotePlaylists) }
-        ).onBackpressureLatest()
+                BiFunction<List<PlaylistMetadataEntry>, List<PlaylistRemoteEntity>, List<PlaylistLocalItem>> { localPlaylists, remotePlaylists ->
+                    merge(localPlaylists, remotePlaylists)
+                }
+        )
+                .onBackpressureLatest()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(playlistsSubscriber)
+                .subscribe(getPlaylistsSubscriber())
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -157,45 +134,71 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
 
     override fun onPause() {
         super.onPause()
-        itemsListState = itemsList!!.layoutManager!!.onSaveInstanceState()
+        itemsListState = itemsList?.layoutManager?.onSaveInstanceState()
+        Log.d(TAG, "itemsListState = $itemsListState")
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
 
-        if (disposables != null) disposables!!.clear()
-        if (databaseSubscription != null) databaseSubscription!!.cancel()
-
+        compositeDisposable.clear()
+        databaseSubscription?.cancel()
         databaseSubscription = null
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        if (disposables != null) disposables!!.dispose()
+        if (!compositeDisposable.isDisposed)
+            compositeDisposable.dispose()
 
-        disposables = null
         localPlaylistManager = null
         remotePlaylistManager = null
         itemsListState = null
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Subscriptions Loader
+    ///////////////////////////////////////////////////////////////////////////
+
+    private fun getPlaylistsSubscriber(): Subscriber<List<PlaylistLocalItem>> =
+            object : Subscriber<List<PlaylistLocalItem>> {
+                override fun onSubscribe(subscription: Subscription) {
+                    showLoading()
+                    databaseSubscription?.cancel()
+                    databaseSubscription = subscription
+                    databaseSubscription?.request(1)
+                }
+
+                override fun onNext(subscriptions: List<PlaylistLocalItem>) {
+                    handleResult(subscriptions)
+                    databaseSubscription?.request(1)
+                }
+
+                override fun onError(exception: Throwable) {
+                    this@BookmarkFragment.onError(exception)
+                }
+
+                override fun onComplete() {}
+            }
+
     override fun handleResult(result: List<PlaylistLocalItem>) {
         super.handleResult(result)
 
-        itemListAdapter!!.clearStreamItemList()
+        itemListAdapter?.clearStreamItemList()
 
         if (result.isEmpty()) {
             showEmptyState()
             return
         }
 
-        itemListAdapter!!.addItems(result)
+        itemListAdapter?.addItems(result)  // also notify that dataset changed.
         if (itemsListState != null) {
-            itemsList!!.layoutManager!!.onRestoreInstanceState(itemsListState)
+            itemsList?.layoutManager?.onRestoreInstanceState(itemsListState)
             itemsListState = null
         }
         hideLoading()
     }
+
     ///////////////////////////////////////////////////////////////////////////
     // Fragment Error Handling
     ///////////////////////////////////////////////////////////////////////////
@@ -210,7 +213,7 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
 
     override fun resetFragment() {
         super.resetFragment()
-        if (disposables != null) disposables!!.clear()
+        compositeDisposable.clear()
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -226,7 +229,7 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
     }
 
     private fun showDeleteDialog(name: String, deleteReactor: Single<Int>) {
-        if (activity == null || disposables == null) return
+        if (activity == null) return
 
         AlertDialog.Builder(activity)
                 .setTitle(name)
@@ -234,9 +237,10 @@ class BookmarkFragment : BaseLocalListFragment<List<PlaylistLocalItem>, Void>() 
                 .setCancelable(true)
                 .setPositiveButton(R.string.delete
                 ) { dialog, i ->
-                    disposables!!.add(deleteReactor
+                    val d = deleteReactor
                             .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe({/*Do nothing on success*/ ignored -> }, { this.onError(it) }))
+                            .subscribe({/*Do nothing on success*/ ignored -> }, { this.onError(it) })
+                    compositeDisposable.add(d)
                 }
                 .setNegativeButton(R.string.cancel, null)
                 .show()

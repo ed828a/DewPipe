@@ -19,8 +19,7 @@
     <string name="autoplay_through_intent_key" translatable="false">autoplay_through_intent</string>
     <string name="use_old_player_key" translatable="false">use_oldplayer</string>
 
-    <string name="volume_gesture_control_key" translatable="false">volume_gesture_control</string>
-    <string name="brightness_gesture_control_key" translatable="false">brightness_gesture_control</string>
+    <string name="player_gesture_controls_key" translatable="false">player_gesture_controls</string>
     <string name="resume_on_audio_focus_gain_key" translatable="false">resume_on_audio_focus_gain</string>
     <string name="popup_remember_size_pos_key" translatable="false">popup_remember_size_pos_key</string>
     <string name="use_inexact_seek_key" translatable="false">use_inexact_seek_key</string>
@@ -106,8 +105,6 @@
 
     <string name="last_orientation_landscape_key" translatable="false">last_orientation_landscape_key</string>
 
-    <string name="last_resize_mode" translatable="false">last_resize_mode</string>
-
     <!-- DEBUG ONLY -->
     <string name="debug_pref_screen_key" translatable="false">debug_pref_screen_key</string>
     <string name="allow_heap_dumping_key" translatable="false">allow_heap_dumping_key</string>
@@ -139,18 +136,22 @@
     <string name="show_play_with_kodi_key" translatable="false">show_play_with_kodi</string>
     <string name="show_next_video_key" translatable="false">show_next_video</string>
     <string name="show_hold_to_append_key" translatable="false">show_hold_to_append</string>
-    <string name="default_language_value">en</string>
-    <string name="default_country_value">GB</string>
-    <string name="content_language_key" translatable="false">content_language</string>
+    <string name="default_language_value" translatable="false">en</string>
+    <string name="default_country_value" translatable="false">GB</string>
+    <string name="search_language_key" translatable="false">search_language</string>
     <string name="content_country_key" translatable="false">content_country</string>
     <string name="show_age_restricted_content" translatable="false">show_age_restricted_content</string>
     <string name="use_tor_key" translatable="false">use_tor</string>
     <string name="enable_search_history_key" translatable="false">enable_search_history</string>
     <string name="enable_watch_history_key" translatable="false">enable_watch_history</string>
     <string name="main_page_content_key" translatable="false">main_page_content</string>
+    <string name="content_language_key" translatable="false">content_language</string>
+    <string name="volume_gesture_control_key" translatable="false">volume_gesture_control</string>
+    <string name="brightness_gesture_control_key" translatable="false">brightness_gesture_control</string>
+    <string name="last_resize_mode" translatable="false">last_resize_mode</string>
 
-    <string name="import_data">import_data</string>
-    <string name="export_data">export_data</string>
+    <string name="import_data" translatable="false">import_data</string>
+    <string name="export_data" translatable="false">export_data</string>
 
     <string name="download_thumbnail_key" translatable="false">download_thumbnail_key</string>
 
@@ -880,6 +881,7 @@
         <item>240p</item>
         <item>144p</item>
     </string-array>
+
 
     <string name="list_view_mode_key" translatable="false">list_view_mode</string>
     <string name="list_view_mode_value" translatable="false">auto</string>

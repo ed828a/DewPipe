@@ -23,6 +23,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.*
+import kotlinx.android.synthetic.main.activity_play_video.*
 
 import org.schabi.newpipe.R
 
@@ -49,10 +50,10 @@ class PlayVideoActivity : AppCompatActivity() {
     private var videoUrl = ""
 
     private var actionBar: ActionBar? = null
-    private var videoView: VideoView? = null
+//    private var videoView: VideoView? = null
     private var position: Int = 0
     private var mediaController: MediaController? = null
-    private var progressBar: ProgressBar? = null
+//    private var playVideoProgressBar: ProgressBar? = null
     private var decorView: View? = null
     private var uiIsHidden: Boolean = false
     private var isLandscape = true
@@ -136,32 +137,32 @@ class PlayVideoActivity : AppCompatActivity() {
             }
         }
 
-        position = intent.getIntExtra(START_POSITION, 0) * 1000//convert from seconds to milliseconds
+        position = intent.getIntExtra(START_POSITION, 0) * 1000//convert getTabFrom seconds to milliseconds
 
-        videoView = findViewById(R.id.video_view)
-        progressBar = findViewById(R.id.play_video_progress_bar)
+//        videoView = findViewById(R.id.videoView)
+//        playVideoProgressBar = findViewById(R.id.playVideoProgressBar)
         try {
-            videoView!!.setMediaController(mediaController)
-            videoView!!.setVideoURI(Uri.parse(intent.getStringExtra(STREAM_URL)))
+            videoView.setMediaController(mediaController)
+            videoView.setVideoURI(Uri.parse(intent.getStringExtra(STREAM_URL)))
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
-        videoView!!.requestFocus()
-        videoView!!.setOnPreparedListener {
-            progressBar!!.visibility = View.GONE
-            videoView!!.seekTo(position)
+        videoView.requestFocus()
+        videoView.setOnPreparedListener {
+            playVideoProgressBar.visibility = View.GONE
+            videoView.seekTo(position)
             if (position <= 0) {
-                videoView!!.start()
+                videoView.start()
                 showUi()
             } else {
-                videoView!!.pause()
+                videoView.pause()
             }
         }
         videoUrl = intent.getStringExtra(VIDEO_URL)
 
-        val button = findViewById<Button>(R.id.content_button)
-        button.setOnClickListener {
+//        val button = findViewById<Button>(R.id.contentButton)
+        contentButton.setOnClickListener {
             if (uiIsHidden) {
                 showUi()
             } else {
@@ -197,7 +198,7 @@ class PlayVideoActivity : AppCompatActivity() {
 
     public override fun onPause() {
         super.onPause()
-        videoView!!.pause()
+        videoView.pause()
     }
 
     public override fun onResume() {

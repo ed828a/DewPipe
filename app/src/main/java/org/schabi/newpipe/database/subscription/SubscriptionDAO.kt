@@ -19,18 +19,14 @@ abstract class SubscriptionDAO : BasicDAO<SubscriptionEntity> {
     @Query("SELECT * FROM $SUBSCRIPTION_TABLE WHERE $SUBSCRIPTION_SERVICE_ID = :serviceId")
     abstract override fun listByService(serviceId: Int): Flowable<List<SubscriptionEntity>>
 
-    @Query("SELECT * FROM " + SUBSCRIPTION_TABLE + " WHERE " +
-            SUBSCRIPTION_URL + " LIKE :url AND " +
-            SUBSCRIPTION_SERVICE_ID + " = :serviceId")
+    @Query("SELECT * FROM $SUBSCRIPTION_TABLE WHERE $SUBSCRIPTION_URL LIKE :url AND $SUBSCRIPTION_SERVICE_ID = :serviceId")
     abstract fun getSubscription(serviceId: Int, url: String): Flowable<List<SubscriptionEntity>>
 
-    @Query("SELECT " + SUBSCRIPTION_UID + " FROM " + SUBSCRIPTION_TABLE + " WHERE " +
-            SUBSCRIPTION_URL + " LIKE :url AND " +
-            SUBSCRIPTION_SERVICE_ID + " = :serviceId")
-    internal abstract fun getSubscriptionIdInternal(serviceId: Int, url: String): Long?
+    @Query("SELECT $SUBSCRIPTION_UID FROM $SUBSCRIPTION_TABLE WHERE $SUBSCRIPTION_URL LIKE :url AND $SUBSCRIPTION_SERVICE_ID = :serviceId")
+    abstract fun getSubscriptionIdInternal(serviceId: Int, url: String): Long?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    internal abstract fun insertInternal(entities: SubscriptionEntity): Long?
+    abstract fun insertInternal(entities: SubscriptionEntity): Long?
 
     @Transaction
     open fun upsertAll(entities: List<SubscriptionEntity>): List<SubscriptionEntity> {

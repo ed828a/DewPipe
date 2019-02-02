@@ -14,23 +14,20 @@ abstract class OnScrollBelowItemsListener : RecyclerView.OnScrollListener() {
         super.onScrolled(recyclerView, dx, dy)
         if (dy > 0) {
             var pastVisibleItems = 0
-            val visibleItemCount: Int
-            val totalItemCount: Int
             val layoutManager = recyclerView.layoutManager
-
-            visibleItemCount = layoutManager!!.childCount
-            totalItemCount = layoutManager.itemCount
+            val visibleItemCount: Int = layoutManager!!.childCount
+            val totalItemCount: Int = layoutManager.itemCount
 
             // Already covers the GridLayoutManager case
             if (layoutManager is LinearLayoutManager) {
                 pastVisibleItems = layoutManager.findFirstVisibleItemPosition()
             } else if (layoutManager is StaggeredGridLayoutManager) {
                 val positions = layoutManager.findFirstVisibleItemPositions(null)
-                if (positions != null && positions.size > 0) pastVisibleItems = positions[0]
+                if (positions != null && positions.isNotEmpty()) pastVisibleItems = positions[0]
             }
 
             if (visibleItemCount + pastVisibleItems >= totalItemCount) {
-                onScrolledDown(recyclerView)
+                onScrolledDown(recyclerView) // load more items in this function
             }
         }
     }

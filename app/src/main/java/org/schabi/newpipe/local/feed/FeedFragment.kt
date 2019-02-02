@@ -7,7 +7,6 @@ import android.view.*
 import io.reactivex.Flowable
 import io.reactivex.MaybeObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
@@ -31,11 +30,11 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
 
     private var subscriptionService: SubscriptionService? = null
 
-    private var allItemsLoaded = AtomicBoolean(false)
-    private var itemsLoaded = HashSet<String>()
+    private var allItemsLoaded = AtomicBoolean(false)  // StateSaver take care this
+    private var itemsLoaded = HashSet<String>()  // StateSaver take care this
     private val requestLoadedAtomic = AtomicInteger()
 
-    private var compositeDisposable: CompositeDisposable? = CompositeDisposable()
+//    private var compositeDisposable: CompositeDisposable? = CompositeDisposable()
     private var subscriptionObserver: Disposable? = null
     private var feedSubscriber: Subscription? = null
 
@@ -75,7 +74,7 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
 
         disposeEverything()
         subscriptionService = null
-        compositeDisposable = null
+        if (!compositeDisposable.isDisposed) compositeDisposable.dispose()
         subscriptionObserver = null
         feedSubscriber = null
     }
@@ -100,8 +99,8 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
         val supportActionBar = activity!!.supportActionBar
 
         if (useAsFrontPage) {
-            supportActionBar!!.setDisplayShowTitleEnabled(true)
-            //supportActionBar.setDisplayShowTitleEnabled(false);
+            supportActionBar?.setDisplayShowTitleEnabled(true)
+//            supportActionBar?.setDisplayShowTitleEnabled(false)
         }
     }
 
@@ -132,8 +131,8 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
     ///////////////////////////////////////////////////////////////////////////
 
     public override fun startLoading(forceLoad: Boolean) {
-        if (DEBUG) Log.d(TAG, "startLoading() called with: forceLoad = [$forceLoad]")
-        if (subscriptionObserver != null) subscriptionObserver!!.dispose()
+        Log.d(TAG, "startLoading() called with: forceLoad = [$forceLoad]")
+        subscriptionObserver?.dispose()
 
         if (allItemsLoaded.get()) {
             if (infoListAdapter!!.itemsList.size == 0) {
@@ -153,7 +152,8 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
         subscriptionObserver = subscriptionService!!.subscription
                 .onErrorReturnItem(emptyList())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ this.handleResult(it) }, { this.onError(it) })
+                .subscribe({list -> this.handleResult(list) },
+                        {error -> this.onError(error) })
     }
 
     override fun handleResult(result: List<SubscriptionEntity>) {
@@ -174,19 +174,17 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
     /**
      * Responsible for reacting to user pulling request and starting a request for new feed stream.
      *
-     *
      * On initialization, it automatically requests the amount of feed needed to display
      * a minimum amount required (FEED_LOAD_SIZE).
-     *
      *
      * Upon receiving a user pull, it creates a Single Observer to fetch the ChannelInfo
      * containing the feed streams.
      */
     private fun getSubscriptionObserver(): Subscriber<SubscriptionEntity> {
         return object : Subscriber<SubscriptionEntity> {
-            override fun onSubscribe(s: Subscription) {
-                if (feedSubscriber != null) feedSubscriber!!.cancel()
-                feedSubscriber = s
+            override fun onSubscribe(subscription: Subscription) {
+                feedSubscriber?.cancel()
+                feedSubscriber = subscription
 
                 var requestSize = FEED_LOAD_COUNT - infoListAdapter!!.itemsList.size
                 if (wasLoading.getAndSet(false)) requestSize = FEED_LOAD_COUNT
@@ -200,13 +198,13 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
             }
 
             override fun onNext(subscriptionEntity: SubscriptionEntity) {
+                Log.d(TAG, "subscriptionEntity.serviceId.toString() + subscriptionEntity.url = ${subscriptionEntity.serviceId.toString() + subscriptionEntity.url}")
                 if (!itemsLoaded.contains(subscriptionEntity.serviceId.toString() + subscriptionEntity.url)) {
                     subscriptionService!!.getChannelInfo(subscriptionEntity)
                             .observeOn(AndroidSchedulers.mainThread())
                             .onErrorComplete { throwable: Throwable -> super@FeedFragment.onError(throwable) }
-                            .subscribe(
-                                    getChannelInfoObserver(subscriptionEntity.serviceId,
-                                            subscriptionEntity.url!!))
+                            .subscribe(getChannelInfoObserver(subscriptionEntity.serviceId, subscriptionEntity.url!!))
+
                 } else {
                     requestFeed(1)
                 }
@@ -223,14 +221,14 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
     }
 
     /**
-     * On each request, a subscription item from the updated table is transformed
-     * into a ChannelInfo, containing the latest streams from the channel.
+     * On each request, a subscription item getTabFrom the updated table is transformed
+     * into a ChannelInfo, containing the latest streams getTabFrom the channel.
      *
      *
-     * Currently, the feed uses the first into from the list of streams.
+     * Currently, the feed uses the first into getTabFrom the list of streams.
      *
      *
-     * If chosen feed already displayed, then we request another feed from another
+     * If chosen feed already displayed, then we request another feed getTabFrom another
      * subscription, until the subscription table runs out of new items.
      *
      *
@@ -252,25 +250,27 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
 
             override fun onSubscribe(d: Disposable) {
                 observer = d
-                compositeDisposable!!.add(d)
+                compositeDisposable.add(d)
                 isLoading.set(true)
             }
 
             // Called only when response is non-empty
             override fun onSuccess(channelInfo: ChannelInfo) {
-                if (infoListAdapter == null || channelInfo.relatedItems.isEmpty()) {
-                    onDone()
-                    return
-                }
-
-                val item = channelInfo.relatedItems[0]
-                // Keep requesting new items if the current one already exists
-                val itemExists = doesItemExist(infoListAdapter!!.itemsList, item)
-                if (!itemExists) {
-                    infoListAdapter!!.addInfoItem(item)
-                    //updateSubscription(channelInfo);
-                } else {
-                    requestFeed(1)
+//                if (infoListAdapter == null || channelInfo.relatedItems.isEmpty()) {
+//                    onDone()
+//                    return
+//                }
+                if (infoListAdapter != null && channelInfo.relatedItems.isNotEmpty()) {
+                    // the feed uses the first into getTabFrom the list of streams.
+                    val item = channelInfo.relatedItems[0]
+                    // Keep requesting new items if the current one already exists
+                    val itemExists = doesItemExist(infoListAdapter!!.itemsList, item)
+                    if (!itemExists) {
+                        infoListAdapter!!.addInfoItem(item)
+                        //updateSubscription(channelInfo);
+                    } else {
+                        requestFeed(1)
+                    }
                 }
                 onDone()
             }
@@ -295,7 +295,7 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
                 }
 
                 itemsLoaded.add(serviceId.toString() + url)
-                compositeDisposable!!.remove(observer!!)
+                compositeDisposable.remove(observer!!)
 
                 val loaded = requestLoadedAtomic.incrementAndGet()
                 if (loaded >= Math.min(FEED_LOAD_COUNT, subscriptionPoolSize)) {
@@ -304,7 +304,7 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
                 }
 
                 if (itemsLoaded.size == subscriptionPoolSize) {
-                    if (DEBUG) Log.d(TAG, "getChannelInfoObserver > All Items Loaded")
+                    Log.d(TAG, "getChannelInfoObserver > All Items Loaded")
                     allItemsLoaded.set(true)
                     showListFooter(false)
                     isLoading.set(false)
@@ -325,12 +325,11 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
         delayHandler.postDelayed({ requestFeed(FEED_LOAD_COUNT) }, 300)
     }
 
-    override fun hasMoreItems(): Boolean {
-        return !allItemsLoaded.get()
-    }
+    override fun hasMoreItems(): Boolean = !allItemsLoaded.get()
+
 
     private fun requestFeed(count: Int) {
-        if (DEBUG) Log.d(TAG, "requestFeed() called with: count = [$count], feedSubscriber = [$feedSubscriber]")
+        Log.d(TAG, "requestFeed() called with: count = [$count], feedSubscriber = [$feedSubscriber]")
         if (feedSubscriber == null) return
 
         isLoading.set(true)
@@ -343,10 +342,10 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
     ///////////////////////////////////////////////////////////////////////////
 
     private fun resetFragment() {
-        if (DEBUG) Log.d(TAG, "resetFragment() called")
-        if (subscriptionObserver != null) subscriptionObserver!!.dispose()
-        if (compositeDisposable != null) compositeDisposable!!.clear()
-        if (infoListAdapter != null) infoListAdapter!!.clearStreamItemList()
+        Log.d(TAG, "resetFragment() called")
+        subscriptionObserver?.dispose()
+        compositeDisposable.clear()
+        infoListAdapter?.clearStreamItemList()
 
         delayHandler.removeCallbacksAndMessages(null)
         requestLoadedAtomic.set(0)
@@ -356,9 +355,9 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
     }
 
     private fun disposeEverything() {
-        if (subscriptionObserver != null) subscriptionObserver!!.dispose()
-        if (compositeDisposable != null) compositeDisposable!!.clear()
-        if (feedSubscriber != null) feedSubscriber!!.cancel()
+        subscriptionObserver?.dispose()
+        compositeDisposable.clear()
+        feedSubscriber?.cancel()
         delayHandler.removeCallbacksAndMessages(null)
     }
 

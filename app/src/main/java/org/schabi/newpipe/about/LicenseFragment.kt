@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.*
 import android.widget.TextView
+import kotlinx.android.synthetic.main.fragment_licenses.view.*
+import kotlinx.android.synthetic.main.item_software_component.view.*
 import org.schabi.newpipe.R
 import java.util.*
 
@@ -28,17 +30,14 @@ class LicenseFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.fragment_licenses, container, false)
-        val softwareComponentsView = rootView.findViewById<ViewGroup>(R.id.software_components)
 
-        val licenseLink = rootView.findViewById<View>(R.id.app_read_license)
-        licenseLink.setOnClickListener(OnReadFullLicenseClickListener())
+        rootView.appReadLicenseLink.setOnClickListener(OnReadFullLicenseClickListener())
 
         for (component in softwareComponents!!) {
             val componentView = inflater.inflate(R.layout.item_software_component, container, false)
-            val softwareName = componentView.findViewById<TextView>(R.id.name)
-            val copyright = componentView.findViewById<TextView>(R.id.copyright)
-            softwareName.text = component.name
-            copyright.text = context!!.getString(R.string.copyright,
+
+            componentView.softwareName.text = component.name
+            componentView.copyright.text = context!!.getString(R.string.copyright,
                     component.years,
                     component.copyrightOwner,
                     component.license?.abbreviation)
@@ -47,10 +46,10 @@ class LicenseFragment : Fragment() {
             componentView.setOnClickListener { v ->
                 val context = v.context
                 if (context != null) {
-                    showLicense(context, component.license)
+                    showLicense(context, component.license!!)
                 }
             }
-            softwareComponentsView.addView(componentView)
+            rootView.softwareComponentsView.addView(componentView)
             registerForContextMenu(componentView)
         }
         return rootView
@@ -73,7 +72,7 @@ class LicenseFragment : Fragment() {
                 openWebsite(component.link!!)
                 return true
             }
-            R.id.action_show_license -> showLicense(context, component.license)
+            R.id.action_show_license -> showLicense(context, component.license!!)
         }
         return false
     }
@@ -109,7 +108,7 @@ class LicenseFragment : Fragment() {
          * @param context the context to use
          * @param license the license to show
          */
-        fun showLicense(context: Context?, license: License?) {
+        fun showLicense(context: Context?, license: License) {
             LicenseFragmentHelper(context as Activity?).execute(license)
         }
     }

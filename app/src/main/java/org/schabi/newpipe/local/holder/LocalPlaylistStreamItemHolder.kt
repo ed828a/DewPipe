@@ -1,5 +1,6 @@
 package org.schabi.newpipe.local.holder
 
+import android.annotation.SuppressLint
 import android.support.v4.content.ContextCompat
 import android.view.MotionEvent
 import android.view.View
@@ -19,68 +20,51 @@ import java.text.DateFormat
 
 open class LocalPlaylistStreamItemHolder internal constructor(infoItemBuilder: LocalItemBuilder, layoutId: Int, parent: ViewGroup) : LocalItemHolder(infoItemBuilder, layoutId, parent) {
 
-    val itemThumbnailView: ImageView
-    val itemVideoTitleView: TextView
-    val itemAdditionalDetailsView: TextView
-    val itemDurationView: TextView
-    val itemHandleView: View
-
-    init {
-
-        itemThumbnailView = itemView.findViewById(R.id.itemThumbnailView)
-        itemVideoTitleView = itemView.findViewById(R.id.itemVideoTitleView)
-        itemAdditionalDetailsView = itemView.findViewById(R.id.itemAdditionalDetails)
-        itemDurationView = itemView.findViewById(R.id.itemDurationView)
-        itemHandleView = itemView.findViewById(R.id.itemHandle)
-    }
+    val itemThumbnailView: ImageView = itemView.findViewById(R.id.itemThumbnailView)
+    val itemVideoTitleView: TextView = itemView.findViewById(R.id.itemVideoTitleView)
+    val itemAdditionalDetailsView: TextView = itemView.findViewById(R.id.itemAdditionalDetails)
+    val itemDurationView: TextView = itemView.findViewById(R.id.itemDurationView)
+    val itemHandleView: View = itemView.findViewById(R.id.itemHandle)
 
     constructor(infoItemBuilder: LocalItemBuilder, parent: ViewGroup) : this(infoItemBuilder, R.layout.list_stream_playlist_item, parent) {}
 
-    override fun updateFromItem(localItem: LocalItem, dateFormat: DateFormat) {
-        if (localItem !is PlaylistStreamEntry) return
+    @SuppressLint("ClickableViewAccessibility")
+    override fun updateFromItem(item: LocalItem, dateFormat: DateFormat) {
+        if (item !is PlaylistStreamEntry) return
 
-        itemVideoTitleView.text = localItem.title
-        itemAdditionalDetailsView.text = Localization.concatenateStrings(localItem.uploader,
-                NewPipe.getNameOfService(localItem.serviceId))
+        itemVideoTitleView.text = item.title
+        itemAdditionalDetailsView.text = Localization.concatenateStrings(item.uploader, NewPipe.getNameOfService(item.serviceId))
 
-        if (localItem.duration > 0) {
-            itemDurationView.text = Localization.getDurationString(localItem.duration)
-            itemDurationView.setBackgroundColor(ContextCompat.getColor(itemBuilder.context!!,
-                    R.color.duration_background_color))
+        if (item.duration > 0) {
+            itemDurationView.text = Localization.getDurationString(item.duration)
+            itemDurationView.setBackgroundColor(ContextCompat.getColor(itemBuilder.context!!, R.color.duration_background_color))
             itemDurationView.visibility = View.VISIBLE
         } else {
             itemDurationView.visibility = View.GONE
         }
 
         // Default thumbnail is shown on error, while loading and if the url is empty
-        itemBuilder.displayImage(localItem.thumbnailUrl, itemThumbnailView,
-                ImageDisplayConstants.DISPLAY_THUMBNAIL_OPTIONS)
+        itemBuilder.displayImage(item.thumbnailUrl, itemThumbnailView, ImageDisplayConstants.DISPLAY_THUMBNAIL_OPTIONS)
 
         itemView.setOnClickListener { view ->
-            if (itemBuilder.onItemSelectedListener != null) {
-                itemBuilder.onItemSelectedListener!!.selected(localItem)
-            }
+            itemBuilder.onItemSelectedListener?.selected(item)
         }
 
         itemView.isLongClickable = true
         itemView.setOnLongClickListener { view ->
-            if (itemBuilder.onItemSelectedListener != null) {
-                itemBuilder.onItemSelectedListener!!.held(localItem)
-            }
+            itemBuilder.onItemSelectedListener?.held(item)
             true
         }
 
-        itemThumbnailView.setOnTouchListener(getOnTouchListener(localItem))
-        itemHandleView.setOnTouchListener(getOnTouchListener(localItem))
+        itemThumbnailView.setOnTouchListener(getOnTouchListener(item))
+        itemHandleView.setOnTouchListener(getOnTouchListener(item))
     }
 
     private fun getOnTouchListener(item: PlaylistStreamEntry): View.OnTouchListener =
-        View.OnTouchListener() { view, motionEvent ->
+        View.OnTouchListener { view, motionEvent ->
             view.performClick()
-            if (itemBuilder != null && itemBuilder.onItemSelectedListener != null &&
-                    motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                itemBuilder.onItemSelectedListener!!.drag(item,
-                        this@LocalPlaylistStreamItemHolder)
+            if (motionEvent.actionMasked == MotionEvent.ACTION_DOWN) {
+                itemBuilder.onItemSelectedListener?.drag(item, this@LocalPlaylistStreamItemHolder)
             }
             false
         }

@@ -22,16 +22,20 @@ class TabsManager private constructor(private val context: Context) {
 
         }
 
-    fun getDefaultTabs(): List<Tab> = TabsJsonHelper.FALLBACK_INITIAL_TABS_LIST
+    private fun getDefaultTabs(): List<Tab> = TabsJsonHelper.FALLBACK_INITIAL_TABS_LIST
 
     private var savedTabsChangeListener: SavedTabsChangeListener? = null
     private var preferenceChangeListener: SharedPreferences.OnSharedPreferenceChangeListener? = null
 
     fun saveTabs(tabList: List<Tab>) {
-        val jsonToSave = TabsJsonHelper.getJsonToSave(tabList)
+        val jsonToSave = TabsJsonHelper.getJsonToSave(tabList)  // convert a List<Tab> to Json
         sharedPreferences.edit().putString(savedTabsKey, jsonToSave).apply()
     }
 
+    /**
+     * the working metaphor is after saveTabs removed getTabFrom SharedPreference, next time to retrieve saveTabs will get null,
+     *  and to retrieve tabs with null will get the default tabs
+     */
     fun resetTabs() {
         sharedPreferences.edit().remove(savedTabsKey).apply()
     }
@@ -44,7 +48,7 @@ class TabsManager private constructor(private val context: Context) {
         fun onTabsChanged()
     }
 
-    fun setSavedTabsListener(listener: SavedTabsChangeListener) {
+    fun setSavedTabsChangeListener(listener: SavedTabsChangeListener) {
         if (preferenceChangeListener != null) {
             sharedPreferences.unregisterOnSharedPreferenceChangeListener(preferenceChangeListener)
         }
@@ -63,15 +67,15 @@ class TabsManager private constructor(private val context: Context) {
 
     private fun getPreferenceChangeListener(): SharedPreferences.OnSharedPreferenceChangeListener =
             SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
-                if (key == savedTabsKey) {
-                    if (savedTabsChangeListener != null) savedTabsChangeListener!!.onTabsChanged()
+                if (key == savedTabsKey && savedTabsChangeListener != null) {
+                    savedTabsChangeListener!!.onTabsChanged()
                 }
             }
 
 
     companion object {
 
-        fun getManager(context: Context): TabsManager {
+        fun getTabsManager(context: Context): TabsManager {
             return TabsManager(context)
         }
     }

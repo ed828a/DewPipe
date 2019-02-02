@@ -10,35 +10,38 @@ import org.schabi.newpipe.local.LocalItemBuilder
 
 import java.text.DateFormat
 
+/**
+ * Todo: this class should be open class, not abstract class, and should be named PlaylistMiniItemHolder
+ * But the author don't want this class to be instantiated, so name as abstract class.
+ * In that case, the second construct is redundant, because this constructor is for instantiation purpose
+ */
+//
+
 abstract class PlaylistItemHolder(infoItemBuilder: LocalItemBuilder,
-                                  layoutId: Int, parent: ViewGroup) : LocalItemHolder(infoItemBuilder, layoutId, parent) {
-    val itemThumbnailView: ImageView
-    val itemStreamCountView: TextView
-    val itemTitleView: TextView
-    val itemUploaderView: TextView
+                                  layoutId: Int,
+                                  parent: ViewGroup) : LocalItemHolder(infoItemBuilder, layoutId, parent) {
 
-    init {
+    val itemThumbnailView: ImageView = itemView.findViewById(R.id.itemThumbnailView)
+    val itemTitleView: TextView = itemView.findViewById(R.id.itemTitleView)
+    val itemUploaderView: TextView = itemView.findViewById(R.id.itemUploaderView)
+    val itemStreamCountView: TextView = itemView.findViewById(R.id.itemStreamCountView)
 
-        itemThumbnailView = itemView.findViewById(R.id.itemThumbnailView)
-        itemTitleView = itemView.findViewById(R.id.itemTitleView)
-        itemStreamCountView = itemView.findViewById(R.id.itemStreamCountView)
-        itemUploaderView = itemView.findViewById(R.id.itemUploaderView)
-    }
+    constructor(infoItemBuilder: LocalItemBuilder, parent: ViewGroup) : this(infoItemBuilder, R.layout.list_playlist_mini_item, parent)
 
-    constructor(infoItemBuilder: LocalItemBuilder, parent: ViewGroup) : this(infoItemBuilder, R.layout.list_playlist_mini_item, parent) {}
-
-    override fun updateFromItem(localItem: LocalItem, dateFormat: DateFormat) {
+    override fun updateFromItem(item: LocalItem, dateFormat: DateFormat) {
         itemView.setOnClickListener { view ->
-            if (itemBuilder.onItemSelectedListener != null) {
-                itemBuilder.onItemSelectedListener!!.selected(localItem)
-            }
+//            if (itemBuilder.onItemSelectedListener != null) {
+//                itemBuilder.onItemSelectedListener!!.selected(item)
+//            }
+            itemBuilder.onItemSelectedListener?.selected(item)
         }
 
         itemView.isLongClickable = true
         itemView.setOnLongClickListener { view ->
-            if (itemBuilder.onItemSelectedListener != null) {
-                itemBuilder.onItemSelectedListener!!.held(localItem)
-            }
+//            if (itemBuilder.onItemSelectedListener != null) {
+//                itemBuilder.onItemSelectedListener!!.held(item)
+//            }
+            itemBuilder.onItemSelectedListener?.held(item)
             true
         }
     }
