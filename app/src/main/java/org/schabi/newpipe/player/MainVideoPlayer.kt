@@ -48,6 +48,7 @@ import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.text.CaptionStyleCompat
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.SubtitleView
+import org.schabi.newpipe.BuildConfig.DEBUG
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.stream.VideoStream
 import org.schabi.newpipe.fragments.OnScrollBelowItemsListener
@@ -73,7 +74,6 @@ import java.util.*
 /**
  * Activity Player implementing VideoPlayer
  *
- * @author mauriciocolli
  */
 class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParameterDialog.Callback {
 
@@ -89,8 +89,8 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
 
     private var isLandscape: Boolean
         get() = resources.displayMetrics.heightPixels < resources.displayMetrics.widthPixels
-        set(v) {
-            requestedOrientation = if (v)
+        set(value) {
+            requestedOrientation = if (value)
                 ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
             else
                 ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
@@ -102,11 +102,12 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (DEBUG) Log.d(TAG, "onCreate() called with: savedInstanceState = [$savedInstanceState]")
+        Log.d(TAG, "onCreate() called with: savedInstanceState = [$savedInstanceState]")
+
         defaultPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         ThemeHelper.setTheme(this)
         window.setBackgroundDrawable(ColorDrawable(Color.BLACK))
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) window.statusBarColor = Color.BLACK
+        window.statusBarColor = Color.BLACK
         volumeControlStream = AudioManager.STREAM_MUSIC
 
         val lp = window.attributes
@@ -119,6 +120,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         playerImpl!!.setup(findViewById(android.R.id.content))
 
         if (savedInstanceState != null && savedInstanceState.get(KEY_SAVED_STATE) != null) {
+            // this means this activity is restored from the previous instance. no intent data passing from other components.
             return  // We have saved states, stop here to restore it
         }
 
@@ -132,13 +134,13 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
     }
 
     override fun onRestoreInstanceState(bundle: Bundle) {
-        if (DEBUG) Log.d(TAG, "onRestoreInstanceState() called")
+        Log.d(TAG, "onRestoreInstanceState() called")
         super.onRestoreInstanceState(bundle)
         StateSaver.tryToRestore(bundle, this)
     }
 
     override fun onNewIntent(intent: Intent?) {
-        if (DEBUG) Log.d(TAG, "onNewIntent() called with: intent = [$intent]")
+        Log.d(TAG, "onNewIntent() called with: intent = [$intent]")
         super.onNewIntent(intent)
         if (intent != null) {
             playerState = null
@@ -147,31 +149,33 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
     }
 
     override fun onResume() {
-        if (DEBUG) Log.d(TAG, "onResume() called")
+        Log.d(TAG, "onResume() called")
         super.onResume()
 
         if (globalScreenOrientationLocked()) {
-            val lastOrientationWasLandscape = defaultPreferences!!.getBoolean(
-                    getString(R.string.last_orientation_landscape_key), false)
+            val lastOrientationWasLandscape = defaultPreferences!!.getBoolean(getString(R.string.last_orientation_landscape_key), false)
             isLandscape = lastOrientationWasLandscape
         }
 
-        val lastResizeMode = defaultPreferences!!.getInt(
-                getString(R.string.last_resize_mode), AspectRatioFrameLayout.RESIZE_MODE_FIT)
+        val lastResizeMode = defaultPreferences!!.getInt(getString(R.string.last_resize_mode), AspectRatioFrameLayout.RESIZE_MODE_FIT)
         playerImpl!!.setResizeMode(lastResizeMode)
 
         // Upon going in or out of multiwindow mode, isInMultiWindow will always be false,
-        // since the first onResume needs to restore the player.
-        // Subsequent onResume calls while multiwindow mode remains the same and the player is
+        // since the first onResume needs to restore the simpleExoPlayer.
+        // Subsequent onResume calls while multiwindow mode remains the same and the simpleExoPlayer is
         // prepared should be ignored.
         if (isInMultiWindow) return
         isInMultiWindow = isInMultiWindow()
 
         if (playerState != null) {
             playerImpl!!.playbackQuality = playerState!!.playbackQuality
-            playerImpl!!.initPlayback(playerState!!.playQueue, playerState!!.repeatMode,
-                    playerState!!.playbackSpeed, playerState!!.playbackPitch,
-                    playerState!!.isPlaybackSkipSilence, playerState!!.wasPlaying())
+            playerImpl!!.initPlayback(
+                    playerState!!.playQueue,
+                    playerState!!.repeatMode,
+                    playerState!!.playbackSpeed,
+                    playerState!!.playbackPitch,
+                    playerState!!.isPlaybackSkipSilence,
+                    playerState!!.wasPlaying)
         }
     }
 
@@ -190,23 +194,27 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        if (DEBUG) Log.d(TAG, "onSaveInstanceState() called")
+        Log.d(TAG, "onSaveInstanceState() called")
         super.onSaveInstanceState(outState)
         if (playerImpl == null) return
 
         playerImpl!!.setRecovery()
-        playerState = PlayerState(playerImpl!!.playQueue!!, playerImpl!!.repeatMode,
-                playerImpl!!.playbackSpeed, playerImpl!!.playbackPitch,
-                playerImpl!!.playbackQuality, playerImpl!!.playbackSkipSilence,
+        playerState = PlayerState(
+                playerImpl!!.playQueue!!,
+                playerImpl!!.repeatMode,
+                playerImpl!!.playbackSpeed,
+                playerImpl!!.playbackPitch,
+                playerImpl!!.playbackQuality,
+                playerImpl!!.playbackSkipSilence,
                 playerImpl!!.isPlaying)
+
         StateSaver.tryToSave(isChangingConfigurations, null, outState, this)
     }
 
     override fun onStop() {
-        if (DEBUG) Log.d(TAG, "onStop() called")
+        Log.d(TAG, "onStop() called")
         super.onStop()
-        PlayerHelper.setScreenBrightness(applicationContext,
-                window.attributes.screenBrightness)
+        PlayerHelper.setScreenBrightness(applicationContext, window.attributes.screenBrightness)
 
         if (playerImpl == null) return
         if (!isBackPressed) {
@@ -223,11 +231,11 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
     ///////////////////////////////////////////////////////////////////////////
 
     override fun generateSuffix(): String {
-        return "." + UUID.randomUUID().toString() + ".player"
+        return "." + UUID.randomUUID().toString() + ".simpleExoPlayer"
     }
 
     override fun writeTo(objectsToSave: Queue<Any>) {
-        if (objectsToSave == null) return
+//        if (objectsToSave == null) return
         objectsToSave.add(playerState)
     }
 
@@ -240,43 +248,47 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
     ///////////////////////////////////////////////////////////////////////////
 
     private fun showSystemUi() {
-        if (DEBUG) Log.d(TAG, "showSystemUi() called")
+        Log.d(TAG, "showSystemUi() called")
         if (playerImpl != null && playerImpl!!.queueVisible) return
 
-        val visibility: Int
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            visibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        val visibility: Int = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                     or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                     or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
         } else {
-            visibility = View.STATUS_BAR_VISIBLE
+            View.STATUS_BAR_VISIBLE
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            @ColorInt val systenUiColor = ActivityCompat.getColor(applicationContext, R.color.video_overlay_color)
-            window.statusBarColor = systenUiColor
-            window.navigationBarColor = systenUiColor
+            @ColorInt val systemUiColor = ActivityCompat.getColor(applicationContext, R.color.video_overlay_color)
+            window.statusBarColor = systemUiColor
+            window.navigationBarColor = systemUiColor
         }
 
         window.decorView.systemUiVisibility = visibility
-        window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        if (Build.VERSION.SDK_INT < 16) {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        }
     }
 
     private fun hideSystemUi() {
-        if (DEBUG) Log.d(TAG, "hideSystemUi() called")
+        Log.d(TAG, "hideSystemUi() called")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             var visibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                     or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                     or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                     or View.SYSTEM_UI_FLAG_FULLSCREEN
                     or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 visibility = visibility or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
             }
             window.decorView.systemUiVisibility = visibility
         }
-        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN)
+
+        if (Build.VERSION.SDK_INT < 16) {
+            window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        }
     }
 
     private fun toggleOrientation() {
@@ -288,11 +300,11 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
 
     private fun globalScreenOrientationLocked(): Boolean {
         // 1: Screen orientation changes using acelerometer
-        // 0: Screen orientatino is locked
+        // 0: Screen orientation is locked
         return android.provider.Settings.System.getInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, 0) != 1
     }
 
-    protected fun setRepeatModeButton(imageButton: ImageButton, repeatMode: Int) {
+    private fun setRepeatModeButton(imageButton: ImageButton, repeatMode: Int) {
         when (repeatMode) {
             Player.REPEAT_MODE_OFF -> imageButton.setImageResource(R.drawable.exo_controls_repeat_off)
             Player.REPEAT_MODE_ONE -> imageButton.setImageResource(R.drawable.exo_controls_repeat_one)
@@ -300,12 +312,12 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         }
     }
 
-    protected fun setShuffleButton(shuffleButton: ImageButton, shuffled: Boolean) {
+    private fun setShuffleButton(shuffleButton: ImageButton, shuffled: Boolean) {
         val shuffleAlpha = if (shuffled) 255 else 77
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             shuffleButton.imageAlpha = shuffleAlpha
         } else {
-            shuffleButton.setAlpha(shuffleAlpha)
+            shuffleButton.imageAlpha = shuffleAlpha
         }
     }
 
@@ -317,17 +329,15 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
     // Playback Parameters Listener
     ////////////////////////////////////////////////////////////////////////////
 
-    override fun onPlaybackParameterChanged(playbackTempo: Float, playbackPitch: Float,
+    override fun onPlaybackParameterChanged(playbackTempo: Float,
+                                            playbackPitch: Float,
                                             playbackSkipSilence: Boolean) {
-        if (playerImpl != null) {
-            playerImpl!!.setPlaybackParameters(playbackTempo, playbackPitch, playbackSkipSilence)
-        }
+        playerImpl?.setPlaybackParameters(playbackTempo, playbackPitch, playbackSkipSilence)
     }
 
     ///////////////////////////////////////////////////////////////////////////
 
     private inner class VideoPlayerImpl internal constructor(context: Context) : VideoPlayer("VideoPlayerImpl" + MainVideoPlayer.TAG, context) {
-        private val MAX_GESTURE_LENGTH = 0.75f
 
         ///////////////////////////////////////////////////////////////////////////
         // Getters
@@ -350,6 +360,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         var brightnessImageView: ImageView? = null
             private set
         private var queueButton: ImageButton? = null
+
         var repeatButton: ImageButton? = null
             private set
         private var shuffleButton: ImageButton? = null
@@ -439,8 +450,8 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             this.itemsListCloseButton = findViewById(R.id.playQueueClose)
             this.itemsList = findViewById(R.id.playQueue)
 
-            titleTextView!!.isSelected = true
-            channelTextView!!.isSelected = true
+            titleTextView?.isSelected = true
+            channelTextView?.isSelected = true
 
             rootView.keepScreenOn = true
         }
@@ -480,13 +491,12 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
 
             rootView!!.addOnLayoutChangeListener { view, l, t, r, b, ol, ot, or, ob ->
                 if (l != ol || t != ot || r != or || b != ob) {
-                    // Use smaller value to be consistent between screen orientations
-                    // (and to make usage easier)
+                    // Use smaller value to be consistent between screen orientations (and to make usage easier)
                     val width = r - l
                     val height = b - t
                     maxGestureLength = (Math.min(width, height) * MAX_GESTURE_LENGTH).toInt()
 
-                    if (VideoPlayer.DEBUG) Log.d(TAG, "maxGestureLength = $maxGestureLength")
+                    Log.d(TAG, "maxGestureLength = $maxGestureLength")
 
                     volumeProgressBar!!.max = maxGestureLength
                     brightnessProgressBar!!.max = maxGestureLength
@@ -500,11 +510,11 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             when (PlayerHelper.getMinimizeOnExitAction(context)) {
                 PlayerHelper.MinimizeMode.MINIMIZE_ON_EXIT_MODE_BACKGROUND -> onPlayBackgroundButtonClicked()
                 PlayerHelper.MinimizeMode.MINIMIZE_ON_EXIT_MODE_POPUP -> onFullScreenButtonClicked()
-                PlayerHelper.MinimizeMode.MINIMIZE_ON_EXIT_MODE_NONE -> {
+                PlayerHelper.MinimizeMode.MINIMIZE_ON_EXIT_MODE_NONE -> { /* no-op */
                 }
-                else -> {
+                else -> { /* no-op */
                 }
-            }// No action
+            }
         }
 
         ///////////////////////////////////////////////////////////////////////////
@@ -544,8 +554,8 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         public override fun onFullScreenButtonClicked() {
             super.onFullScreenButtonClicked()
 
-            if (VideoPlayer.DEBUG) Log.d(TAG, "onFullScreenButtonClicked() called")
-            if (player == null) return
+            Log.d(TAG, "onFullScreenButtonClicked() called")
+            if (simpleExoPlayer == null) return
 
             if (!PermissionHelper.isPopupEnabled(context)) {
                 PermissionHelper.showPopupEnablementToast(context)
@@ -571,8 +581,8 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         }
 
         fun onPlayBackgroundButtonClicked() {
-            if (VideoPlayer.DEBUG) Log.d(TAG, "onPlayBackgroundButtonClicked() called")
-            if (playerImpl!!.player == null) return
+            Log.d(TAG, "onPlayBackgroundButtonClicked() called")
+            if (playerImpl!!.simpleExoPlayer == null) return
 
             setRecovery()
             val intent = NavigationHelper.getPlayerIntent(
@@ -593,38 +603,28 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         }
 
 
-        override fun onClick(v: View) {
-            super.onClick(v)
-            if (v.id == playPauseButton!!.id) {
-                onPlayPause()
-
-            } else if (v.id == playPreviousButton!!.id) {
-                onPlayPrevious()
-
-            } else if (v.id == playNextButton!!.id) {
-                onPlayNext()
-
-            } else if (v.id == queueButton!!.id) {
-                onQueueClicked()
-                return
-            } else if (v.id == repeatButton!!.id) {
-                onRepeatClicked()
-                return
-            } else if (v.id == shuffleButton!!.id) {
-                onShuffleClicked()
-                return
-            } else if (v.id == moreOptionsButton!!.id) {
-                onMoreOptionsClicked()
-
-            } else if (v.id == toggleOrientationButton!!.id) {
-                onScreenRotationClicked()
-
-            } else if (v.id == switchPopupButton!!.id) {
-                onFullScreenButtonClicked()
-
-            } else if (v.id == switchBackgroundButton!!.id) {
-                onPlayBackgroundButtonClicked()
-
+        override fun onClick(view: View) {
+            super.onClick(view)
+            when (view.id) {
+                playPauseButton!!.id -> onPlayPause()
+                playPreviousButton!!.id -> onPlayPrevious()
+                playNextButton!!.id -> onPlayNext()
+                queueButton!!.id -> {
+                    onQueueClicked()
+                    return
+                }
+                repeatButton!!.id -> {
+                    onRepeatClicked()
+                    return
+                }
+                shuffleButton!!.id -> {
+                    onShuffleClicked()
+                    return
+                }
+                moreOptionsButton!!.id -> onMoreOptionsClicked()
+                toggleOrientationButton!!.id -> onScreenRotationClicked()
+                switchPopupButton!!.id -> onFullScreenButtonClicked()
+                switchBackgroundButton!!.id -> onPlayBackgroundButtonClicked()
             }
 
             if (currentState != BasePlayer.STATE_COMPLETED) {
@@ -662,7 +662,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         }
 
         private fun onMoreOptionsClicked() {
-            if (VideoPlayer.DEBUG) Log.d(TAG, "onMoreOptionsClicked() called")
+            Log.d(TAG, "onMoreOptionsClicked() called")
 
             val isMoreControlsVisible = secondaryControls!!.visibility == View.VISIBLE
 
@@ -674,7 +674,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         }
 
         private fun onScreenRotationClicked() {
-            if (VideoPlayer.DEBUG) Log.d(TAG, "onScreenRotationClicked() called")
+            Log.d(TAG, "onScreenRotationClicked() called")
             toggleOrientation()
             showControlsThenHide()
         }
@@ -697,11 +697,14 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         }
 
         override fun nextResizeMode(currentResizeMode: Int): Int {
-            val newResizeMode: Int
-            when (currentResizeMode) {
-                AspectRatioFrameLayout.RESIZE_MODE_FIT -> newResizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
-                AspectRatioFrameLayout.RESIZE_MODE_FILL -> newResizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
-                else -> newResizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+            val newResizeMode: Int = when (currentResizeMode) {
+                AspectRatioFrameLayout.RESIZE_MODE_FIT -> AspectRatioFrameLayout.RESIZE_MODE_FILL
+                AspectRatioFrameLayout.RESIZE_MODE_FILL -> AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+
+                AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH,
+                AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT,
+                AspectRatioFrameLayout.RESIZE_MODE_ZOOM -> AspectRatioFrameLayout.RESIZE_MODE_FIT
+                else -> AspectRatioFrameLayout.RESIZE_MODE_FIT
             }
 
             storeResizeMode(newResizeMode)
@@ -715,17 +718,13 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         }
 
         override val qualityResolver: VideoPlaybackResolver.QualityResolver
-            get() {
-                return object : VideoPlaybackResolver.QualityResolver {
-                    override fun getDefaultResolutionIndex(sortedVideos: List<VideoStream>): Int {
-                        return ListHelper.getDefaultResolutionIndex(context, sortedVideos)
-                    }
+            get() = object : VideoPlaybackResolver.QualityResolver {
+                override fun getDefaultResolutionIndex(sortedVideos: List<VideoStream>): Int =
+                        ListHelper.getDefaultResolutionIndex(context, sortedVideos)
 
-                    override fun getOverrideResolutionIndex(sortedVideos: List<VideoStream>,
-                                                            playbackQuality: String?): Int {
-                        return ListHelper.getResolutionIndex(context, sortedVideos, playbackQuality!!)
-                    }
-                }
+                override fun getOverrideResolutionIndex(sortedVideos: List<VideoStream>,
+                                                        playbackQuality: String?): Int =
+                        ListHelper.getResolutionIndex(context, sortedVideos, playbackQuality!!)
             }
 
         ///////////////////////////////////////////////////////////////////////////
@@ -781,7 +780,6 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             rootView!!.keepScreenOn = true
         }
 
-
         override fun onCompleted() {
             animateView(playPauseButton!!, AnimationUtils.Type.SCALE_AND_ALPHA, false, 0, 0,
                     Runnable {
@@ -817,7 +815,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         }
 
         override fun hideControls(duration: Long, delay: Long) {
-            if (VideoPlayer.DEBUG) Log.d(TAG, "hideControls() called with: delay = [$delay]")
+            Log.d(TAG, "hideControls() called with: delay = [$delay]")
             controlsVisibilityHandler.removeCallbacksAndMessages(null)
             controlsVisibilityHandler.postDelayed({
                 animateView(controlsRoot!!, false, duration, 0,
@@ -830,7 +828,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
 
         private fun updatePlaybackButtons() {
             if (repeatButton == null || shuffleButton == null ||
-                    player == null || playQueue == null)
+                    simpleExoPlayer == null || playQueue == null)
                 return
 
             setRepeatModeButton(repeatButton!!, repeatMode)
@@ -862,16 +860,29 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
 
         private val maxVolume = playerImpl!!.audioReactor!!.maxVolume
 
-        override fun onDoubleTap(e: MotionEvent): Boolean {
-            if (DEBUG) Log.d(TAG, "onDoubleTap() called with: e = [" + e + "]" + "rawXy = " + e.rawX + ", " + e.rawY + ", xy = " + e.x + ", " + e.y)
+        override fun onDoubleTap(event: MotionEvent): Boolean {
+            Log.d(TAG, "onDoubleTap() called with: event = [$event]rawXy = ${event.rawX}, ${event.rawY}, xy = ${event.x}, ${event.y}")
 
             when {
-                e.x > playerImpl!!.rootView!!.width * 2 / 3 -> playerImpl!!.onFastForward()
-                e.x < playerImpl!!.rootView!!.width / 3 -> playerImpl!!.onFastRewind()
+                event.x > playerImpl!!.rootView!!.width * 2 / 3 -> playerImpl!!.onFastForward()
+                event.x < playerImpl!!.rootView!!.width / 3 -> playerImpl!!.onFastRewind()
                 else -> playerImpl!!.playPauseButton!!.performClick()
             }
 
             return true
+        }
+
+        override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
+
+            if (e1 != null && e2 != null)
+                when {
+                    ((e2.x - e1.x) > 0 && Math.abs(e1.x - e2.x) > Math.abs(e1.y - e2.y)) -> playerImpl!!.onFastForward()
+                    ((e2.x - e1.x) < 0 && Math.abs(e1.x - e2.x) > Math.abs(e1.y - e2.y)) -> playerImpl!!.onFastRewind()
+                    ((e2.y - e1.y) > 0 && Math.abs(e1.y - e2.y) > Math.abs(e1.x - e2.x)) -> "up to down fling"
+                    ((e2.y - e1.y) < 0 && Math.abs(e1.y - e2.y) > Math.abs(e1.x - e2.x)) -> "down to up fling"
+                }
+
+            return super.onFling(e1, e2, velocityX, velocityY)
         }
 
         override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
@@ -888,7 +899,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         }
 
         override fun onDown(e: MotionEvent): Boolean {
-            if (DEBUG) Log.d(TAG, "onDown() called with: e = [$e]")
+            Log.d(TAG, "onDown() called with: e = [$e]")
 
             return super.onDown(e)
         }
@@ -896,12 +907,10 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         override fun onScroll(initialEvent: MotionEvent, movingEvent: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
             if (!isVolumeGestureEnabled && !isBrightnessGestureEnabled) return false
 
-
-            if (DEBUG && false)
-                Log.d(TAG, "MainVideoPlayer.onScroll = " +
-                        ", e1.getRaw = [" + initialEvent.rawX + ", " + initialEvent.rawY + "]" +
-                        ", e2.getRaw = [" + movingEvent.rawX + ", " + movingEvent.rawY + "]" +
-                        ", distanceXy = [" + distanceX + ", " + distanceY + "]")
+            Log.d(TAG, "MainVideoPlayer.onScroll = " +
+                    ", e1.getRaw = [" + initialEvent.rawX + ", " + initialEvent.rawY + "]" +
+                    ", e2.getRaw = [" + movingEvent.rawX + ", " + movingEvent.rawY + "]" +
+                    ", distanceXy = [" + distanceX + ", " + distanceY + "]")
 
             val insideThreshold = Math.abs(movingEvent.y - initialEvent.y) <= MOVEMENT_THRESHOLD
             if (!isMoving && (insideThreshold || Math.abs(distanceX) > Math.abs(distanceY)) || playerImpl!!.currentState == BasePlayer.STATE_COMPLETED) {
@@ -920,16 +929,14 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
                 val currentVolume = (maxVolume * currentProgressPercent).toInt()
                 playerImpl!!.audioReactor!!.volume = currentVolume
 
-                if (DEBUG) Log.d(TAG, "onScroll().volumeControl, currentVolume = $currentVolume")
+                Log.d(TAG, "onScroll().volumeControl, currentVolume = $currentVolume")
 
-                val resId = if (currentProgressPercent <= 0)
-                    R.drawable.ic_volume_off_white_72dp
-                else if (currentProgressPercent < 0.25)
-                    R.drawable.ic_volume_mute_white_72dp
-                else if (currentProgressPercent < 0.75)
-                    R.drawable.ic_volume_down_white_72dp
-                else
-                    R.drawable.ic_volume_up_white_72dp
+                val resId = when {
+                    currentProgressPercent <= 0 -> R.drawable.ic_volume_off_white_72dp
+                    currentProgressPercent < 0.25 -> R.drawable.ic_volume_mute_white_72dp
+                    currentProgressPercent < 0.75 -> R.drawable.ic_volume_down_white_72dp
+                    else -> R.drawable.ic_volume_up_white_72dp
+                }
 
                 playerImpl!!.volumeImageView!!.setImageDrawable(
                         AppCompatResources.getDrawable(applicationContext, resId)
@@ -948,7 +955,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
                 layoutParams.screenBrightness = currentProgressPercent
                 window.attributes = layoutParams
 
-                if (DEBUG) Log.d(TAG, "onScroll().brightnessControl, currentBrightness = $currentProgressPercent")
+                Log.d(TAG, "onScroll().brightnessControl, currentBrightness = $currentProgressPercent")
 
                 val resId = when {
                     currentProgressPercent < 0.25 -> R.drawable.ic_brightness_low_white_72dp
@@ -971,7 +978,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         }
 
         private fun onScrollEnd() {
-            if (DEBUG) Log.d(TAG, "onScrollEnd() called")
+            Log.d(TAG, "onScrollEnd() called")
 
             if (playerImpl!!.volumeRelativeLayout!!.visibility == View.VISIBLE) {
                 animateView(playerImpl!!.volumeRelativeLayout!!, SCALE_AND_ALPHA, false, 200, 200)
@@ -987,7 +994,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
 
         override fun onTouch(v: View, event: MotionEvent): Boolean {
 
-            if (DEBUG && false) Log.d(TAG, "onTouch() called with: v = [$v], event = [$event]")
+            Log.d(TAG, "onTouch() called with: v = [$v], event = [$event]")
             gestureDetector!!.onTouchEvent(event)
             if (event.action == MotionEvent.ACTION_UP && isMoving) {
                 isMoving = false
@@ -1001,6 +1008,5 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
     companion object {
         const val MOVEMENT_THRESHOLD = 40
         private const val TAG = ".MainVideoPlayer"
-        private val DEBUG = BasePlayer.DEBUG
     }
 }

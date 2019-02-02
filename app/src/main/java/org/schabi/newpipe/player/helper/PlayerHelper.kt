@@ -200,14 +200,14 @@ object PlayerHelper {
     }
 
     /**
-     * Returns the number of milliseconds the player buffers for before starting playback.
+     * Returns the number of milliseconds the simpleExoPlayer buffers for before starting playback.
      */
     fun getPlaybackStartBufferMs(context: Context): Int {
         return 500
     }
 
     /**
-     * Returns the minimum number of milliseconds the player always buffers to after starting
+     * Returns the minimum number of milliseconds the simpleExoPlayer always buffers to after starting
      * playback.
      */
     fun getPlaybackMinimumBufferMs(context: Context): Int {
@@ -215,7 +215,7 @@ object PlayerHelper {
     }
 
     /**
-     * Returns the maximum/optimal number of milliseconds the player will buffer to once the buffer
+     * Returns the maximum/optimal number of milliseconds the simpleExoPlayer will buffer to once the buffer
      * hits the point of [.getPlaybackMinimumBufferMs].
      */
     fun getPlaybackOptimalBufferMs(context: Context): Int {
@@ -223,13 +223,13 @@ object PlayerHelper {
     }
 
     fun getQualitySelector(context: Context,
-                           meter: BandwidthMeter): TrackSelection.Factory {
-        return AdaptiveTrackSelection.Factory(meter,
+                           meter: BandwidthMeter): TrackSelection.Factory =
+        AdaptiveTrackSelection.Factory(meter,
                 /*bufferDurationRequiredForQualityIncrease=*/1000,
                 AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
                 AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
                 AdaptiveTrackSelection.DEFAULT_BANDWIDTH_FRACTION)
-    }
+
 
     fun isUsingDSP(context: Context): Boolean {
         return true
@@ -240,13 +240,8 @@ object PlayerHelper {
     }
 
     fun getCaptionStyle(context: Context): CaptionStyleCompat {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) return CaptionStyleCompat.DEFAULT
-
         val captioningManager = context.getSystemService(Context.CAPTIONING_SERVICE) as CaptioningManager
-        return if (captioningManager == null || !captioningManager.isEnabled) {
-            CaptionStyleCompat.DEFAULT
-        } else CaptionStyleCompat.createFromCaptionStyle(captioningManager.userStyle)
-
+        return if (captioningManager.isEnabled) CaptionStyleCompat.createFromCaptionStyle(captioningManager.userStyle) else CaptionStyleCompat.DEFAULT
     }
 
     /**
@@ -254,13 +249,8 @@ object PlayerHelper {
      * Very small - 0.25f, Small - 0.5f, Normal - 1.0f, Large - 1.5f, Very Large - 2.0f
      */
     fun getCaptionScale(context: Context): Float {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) return 1f
-
         val captioningManager = context.getSystemService(Context.CAPTIONING_SERVICE) as CaptioningManager
-        return if (captioningManager == null || !captioningManager.isEnabled) {
-            1f
-        } else captioningManager.fontScale
-
+        return if (captioningManager.isEnabled) captioningManager.fontScale else 1f
     }
 
     fun getScreenBrightness(context: Context): Float {

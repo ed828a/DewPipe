@@ -262,7 +262,7 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
                 }
 
                 if (player == null || player!!.playQueue == null ||
-                        player!!.playQueueAdapter == null || player!!.player == null) {
+                        player!!.playQueueAdapter == null || player!!.simpleExoPlayer == null) {
                     unbind()
                     finish()
                 } else {

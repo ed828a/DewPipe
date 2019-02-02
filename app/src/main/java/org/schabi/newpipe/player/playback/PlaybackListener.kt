@@ -18,8 +18,8 @@ interface PlaybackListener {
 
     /**
      * Called when the stream at the current queue index is not ready yet.
-     * Signals to the listener to block the player getTabFrom playing anything and notify the source
-     * is now invalid.
+     * Signals to the listener to block the simpleExoPlayer getTabFrom playing anything
+     * and notify the source is now invalid.
      *
      * May be called at any time.
      */
@@ -27,15 +27,15 @@ interface PlaybackListener {
 
     /**
      * Called when the stream at the current queue index is ready.
-     * Signals to the listener to resume the player by preparing a new source.
+     * Signals to the listener to resume the simpleExoPlayer by preparing a new source.
      *
-     * May be called only when the player is blocked.
+     * May be called only when the simpleExoPlayer is blocked.
      */
     fun onPlaybackUnblock(mediaSource: MediaSource)
 
     /**
      * Called when the queue index is refreshed.
-     * Signals to the listener to synchronize the player's window to the manager's
+     * Signals to the listener to synchronize the simpleExoPlayer's window to the manager's
      * window.
      *
      * May be called anytime at any amount once unblock is called.
@@ -44,7 +44,8 @@ interface PlaybackListener {
 
     /**
      * Requests the listener to resolve a stream info into a media source
-     * according to the listener's implementation (background, popup or main video player).
+     * according to the listener's implementation (background, popup or main video simpleExoPlayer).
+     * so this function will be implemented in those components
      *
      * May be called at any time.
      */

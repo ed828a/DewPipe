@@ -49,6 +49,7 @@ import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.SubtitleView
 import com.nostra13.universalimageloader.core.assist.FailReason
 import org.schabi.newpipe.BuildConfig
+import org.schabi.newpipe.BuildConfig.DEBUG
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.stream.VideoStream
 import org.schabi.newpipe.player.BasePlayer.Companion.STATE_PLAYING
@@ -125,11 +126,11 @@ class PopupVideoPlayer : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         if (DEBUG)
             Log.d(TAG, "onStartCommand() called with: intent = [$intent], flags = [$flags], startId = [$startId]")
-        if (playerImpl!!.player == null) {
+        if (playerImpl!!.simpleExoPlayer == null) {
             initPopup()
             initPopupCloseOverlay()
         }
-        if (!playerImpl!!.isPlaying) playerImpl!!.player!!.playWhenReady = true
+        if (!playerImpl!!.isPlaying) playerImpl!!.simpleExoPlayer!!.playWhenReady = true
 
         playerImpl!!.handleIntent(intent)
 
@@ -247,7 +248,7 @@ class PopupVideoPlayer : Service() {
         notRemoteView!!.setOnClickPendingIntent(R.id.notificationRepeat,
                 PendingIntent.getBroadcast(this, NOTIFICATION_ID, Intent(ACTION_REPEAT), PendingIntent.FLAG_UPDATE_CURRENT))
 
-        // Starts popup player activity -- attempts to unlock lockscreen
+        // Starts popup simpleExoPlayer activity -- attempts to unlock lockscreen
         val intent = NavigationHelper.getPopupPlayerActivityIntent(this)
         notRemoteView!!.setOnClickPendingIntent(R.id.notificationContent,
                 PendingIntent.getActivity(this, NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT))
@@ -508,7 +509,7 @@ class PopupVideoPlayer : Service() {
         public override fun onFullScreenButtonClicked() {
             super.onFullScreenButtonClicked()
 
-            if (VideoPlayer.DEBUG) Log.d(TAG, "onFullScreenButtonClicked() called")
+            Log.d(TAG, "onFullScreenButtonClicked() called")
 
             setRecovery()
             val intent: Intent
@@ -529,7 +530,7 @@ class PopupVideoPlayer : Service() {
                         .putExtra(PlayVideoActivity.VIDEO_TITLE, videoTitle)
                         .putExtra(PlayVideoActivity.STREAM_URL, selectedVideoStream!!.getUrl())
                         .putExtra(PlayVideoActivity.VIDEO_URL, videoUrl)
-                        .putExtra(PlayVideoActivity.START_POSITION, Math.round(player!!.currentPosition / 1000f))
+                        .putExtra(PlayVideoActivity.START_POSITION, Math.round(simpleExoPlayer!!.currentPosition / 1000f))
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             context.startActivity(intent)
@@ -629,9 +630,9 @@ class PopupVideoPlayer : Service() {
         }
 
         private fun updatePlayback() {
-            if (activityListener != null && player != null && playQueue != null) {
+            if (activityListener != null && simpleExoPlayer != null && playQueue != null) {
                 activityListener!!.onPlaybackUpdate(currentState, repeatMode,
-                        playQueue!!.isShuffled, player!!.playbackParameters)
+                        playQueue!!.isShuffled, simpleExoPlayer!!.playbackParameters)
             }
         }
 
@@ -687,7 +688,7 @@ class PopupVideoPlayer : Service() {
 
         override fun setupBroadcastReceiver(intentFilter: IntentFilter) {
             super.setupBroadcastReceiver(intentFilter)
-            if (VideoPlayer.DEBUG) Log.d(TAG, "setupBroadcastReceiver() called with: intentFilter = [$intentFilter]")
+            Log.d(TAG, "setupBroadcastReceiver() called with: intentFilter = [$intentFilter]")
             intentFilter.addAction(ACTION_CLOSE)
             intentFilter.addAction(ACTION_PLAY_PAUSE)
             intentFilter.addAction(ACTION_REPEAT)
@@ -699,7 +700,7 @@ class PopupVideoPlayer : Service() {
         override fun onBroadcastReceived(intent: Intent?) {
             super.onBroadcastReceived(intent)
             if (intent == null || intent.action == null) return
-            if (VideoPlayer.DEBUG) Log.d(TAG, "onBroadcastReceived() called with: intent = [$intent]")
+            Log.d(TAG, "onBroadcastReceived() called with: intent = [$intent]")
             when (intent.action) {
                 ACTION_CLOSE -> closePopup()
                 ACTION_PLAY_PAUSE -> onPlayPause()
@@ -839,7 +840,7 @@ class PopupVideoPlayer : Service() {
 
         override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
             if (DEBUG) Log.d(TAG, "onSingleTapConfirmed() called with: e = [$e]")
-            if (playerImpl == null || playerImpl!!.player == null) return false
+            if (playerImpl == null || playerImpl!!.simpleExoPlayer == null) return false
             if (playerImpl!!.isControlsVisible) {
                 playerImpl!!.hideControls(100, 100)
             } else {
@@ -1040,12 +1041,11 @@ class PopupVideoPlayer : Service() {
 
     companion object {
         private const val TAG = ".PopupVideoPlayer"
-        private val DEBUG = BasePlayer.DEBUG
 
         private const val NOTIFICATION_ID = 40028922
-        const val ACTION_CLOSE = "org.schabi.newpipe.player.PopupVideoPlayer.CLOSE"
-        const val ACTION_PLAY_PAUSE = "org.schabi.newpipe.player.PopupVideoPlayer.PLAY_PAUSE"
-        const val ACTION_REPEAT = "org.schabi.newpipe.player.PopupVideoPlayer.REPEAT"
+        const val ACTION_CLOSE = "org.schabi.newpipe.simpleExoPlayer.PopupVideoPlayer.CLOSE"
+        const val ACTION_PLAY_PAUSE = "org.schabi.newpipe.simpleExoPlayer.PopupVideoPlayer.PLAY_PAUSE"
+        const val ACTION_REPEAT = "org.schabi.newpipe.simpleExoPlayer.PopupVideoPlayer.REPEAT"
 
         private const val POPUP_SAVED_WIDTH = "popup_saved_width"
         private const val POPUP_SAVED_X = "popup_saved_x"

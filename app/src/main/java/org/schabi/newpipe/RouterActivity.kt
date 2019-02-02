@@ -53,7 +53,7 @@ import java.io.Serializable
 import java.util.*
 
 /**
- * Get the url getTabFrom the intent and open it in the chosen preferred player
+ * Get the url getTabFrom the intent and open it in the chosen preferred simpleExoPlayer
  */
 class RouterActivity : AppCompatActivity() {
 

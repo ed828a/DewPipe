@@ -91,7 +91,7 @@ object NavigationHelper {
                     .putExtra(BasePlayer.PLAYBACK_SKIP_SILENCE, playbackSkipSilence)
 
 
-    // main video player is ExoPlayer
+    // main video simpleExoPlayer is ExoPlayer
     fun playOnMainPlayer(context: Context?, queue: PlayQueue) {
         val playerIntent = getPlayerIntent(context, MainVideoPlayer::class.java, queue)
         playerIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

@@ -16,36 +16,11 @@ import okhttp3.Response
 import okhttp3.ResponseBody
 
 
-/*
- * Created by Christian Schabesberger on 28.01.16.
- *
- * Copyright (C) Christian Schabesberger 2016 <chris.schabesberger@mailbox.org>
- * Downloader.java is part of NewPipe.
- *
- * NewPipe is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * NewPipe is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with NewPipe.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 class Downloader private constructor(builder: OkHttpClient.Builder) : org.schabi.newpipe.extractor.Downloader {
     var cookies: String? = null
-    private val client: OkHttpClient
-
-    init {
-        this.client = builder
-                .readTimeout(30, TimeUnit.SECONDS)
-                //.cache(new Cache(new File(context.getExternalCacheDir(), "okhttp"), 16 * 1024 * 1024))
-                .build()
-    }
+    private val client: OkHttpClient = builder.readTimeout(30, TimeUnit.SECONDS)
+            //.cache(new Cache(new File(context.getExternalCacheDir(), "okhttp"), 16 * 1024 * 1024))
+            .build()
 
     /**
      * Get the size of the content that the url is pointing by firing a HEAD request.
@@ -153,7 +128,7 @@ class Downloader private constructor(builder: OkHttpClient.Builder) : org.schabi
     }
 
     companion object {
-        val USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+        const val USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
 
         var instance: Downloader? = null
             private set

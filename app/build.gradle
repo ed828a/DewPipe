@@ -72,6 +72,7 @@ dependencies {
 //    implementation 'com.github.TeamNewPipe.NewPipeExtractor:NewPipeExtractor:v0.14.1'
 //    implementation 'com.github.TeamNewPipe:NewPipeExtractor:91b1efc97e'  // the newest
     implementation 'com.github.TeamNewPipe:NewPipeExtractor:66c3c3f45241d4b0c909'
+//    implementation 'com.github.TeamNewPipe:NewPipeExtractor:f7c7b9df1a'
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:2.23.0'

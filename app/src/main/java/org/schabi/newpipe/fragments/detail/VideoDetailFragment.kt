@@ -799,7 +799,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         val useExternalAudioPlayer = PreferenceManager.getDefaultSharedPreferences(activity)
                 .getBoolean(activity!!.getString(R.string.use_external_audio_player_key), false)
 
-        if (!useExternalAudioPlayer) { // not using external audio player
+        if (!useExternalAudioPlayer) { // not using external audio simpleExoPlayer
             openNormalBackgroundPlayer(append)
         } else {
             startOnExternalPlayer(activity!!, currentInfo!!, audioStream)

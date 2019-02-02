@@ -18,7 +18,7 @@ import com.google.android.exoplayer2.decoder.DecoderCounters
 
 class AudioReactor(private val context: Context,
                    private val player: SimpleExoPlayer) : AudioManager.OnAudioFocusChangeListener, AudioRendererEventListener {
-    private val audioManager: AudioManager
+    private val audioManager: AudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
     private val request: AudioFocusRequest?
 
@@ -30,7 +30,6 @@ class AudioReactor(private val context: Context,
         get() = audioManager.getStreamMaxVolume(STREAM_TYPE)
 
     init {
-        this.audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         player.addAudioDebugListener(this)
 
         request = if (SHOULD_BUILD_FOCUS_REQUEST) {
@@ -78,7 +77,8 @@ class AudioReactor(private val context: Context,
         when (focusChange) {
             AudioManager.AUDIOFOCUS_GAIN -> onAudioFocusGain()
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> onAudioFocusLossCanDuck()
-            AudioManager.AUDIOFOCUS_LOSS, AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> onAudioFocusLoss()
+            AudioManager.AUDIOFOCUS_LOSS,
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> onAudioFocusLoss()
         }
     }
 
@@ -99,7 +99,7 @@ class AudioReactor(private val context: Context,
 
     private fun onAudioFocusLossCanDuck() {
         Log.d(TAG, "onAudioFocusLossCanDuck() called")
-        // Set the volume to 1/10 on ducking
+        // Set the volume to 2/10 on ducking
         animateAudio(player.volume, DUCK_AUDIO_TO)
     }
 
@@ -145,8 +145,7 @@ class AudioReactor(private val context: Context,
 
     override fun onAudioSinkUnderrun(bufferSize: Int,
                                      bufferSizeMs: Long,
-                                     elapsedSinceLastFeedMs: Long) {
-    }
+                                     elapsedSinceLastFeedMs: Long) {}
 
     override fun onAudioDisabled(decoderCounters: DecoderCounters) {}
 

@@ -18,7 +18,7 @@ class LoadController private constructor(initialPlaybackBufferMs: Int,
                                          minimumPlaybackbufferMs: Int,
                                          optimalPlaybackBufferMs: Int) : LoadControl {
 
-    private val initialPlaybackBufferUs: Long
+    private val initialPlaybackBufferUs: Long = (initialPlaybackBufferMs * 1000).toLong()
     private val internalLoadControl: LoadControl
 
     ///////////////////////////////////////////////////////////////////////////
@@ -27,21 +27,28 @@ class LoadController private constructor(initialPlaybackBufferMs: Int,
 
     constructor(context: Context) : this(PlayerHelper.getPlaybackStartBufferMs(context),
             PlayerHelper.getPlaybackMinimumBufferMs(context),
-            PlayerHelper.getPlaybackOptimalBufferMs(context)) {
-    }
+            PlayerHelper.getPlaybackOptimalBufferMs(context)) {}
 
     init {
-        this.initialPlaybackBufferUs = (initialPlaybackBufferMs * 1000).toLong()
+        // this is a default one in DefaultLoadControl
+        val allocator = DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE)
 
-        val allocator = DefaultAllocator(true,
-                C.DEFAULT_BUFFER_SEGMENT_SIZE)
+//        internalLoadControl = DefaultLoadControl(allocator,
+//                /*minBufferMs=*/minimumPlaybackbufferMs,
+//                /*maxBufferMs=*/optimalPlaybackBufferMs,
+//                /*bufferForPlaybackMs=*/initialPlaybackBufferMs,
+//                /*bufferForPlaybackAfterRebufferMs=*/initialPlaybackBufferMs,
+//                DEFAULT_TARGET_BUFFER_BYTES,
+//                DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS)
 
-        internalLoadControl = DefaultLoadControl(allocator,
-                /*minBufferMs=*/minimumPlaybackbufferMs,
-                /*maxBufferMs=*/optimalPlaybackBufferMs,
-                /*bufferForPlaybackMs=*/initialPlaybackBufferMs,
-                /*bufferForPlaybackAfterRebufferMs=*/initialPlaybackBufferMs,
-                DEFAULT_TARGET_BUFFER_BYTES, DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS)
+        internalLoadControl = DefaultLoadControl.Builder()
+                .setBufferDurationsMs(
+                        /*minBufferMs=*/minimumPlaybackbufferMs,
+                        /*maxBufferMs=*/optimalPlaybackBufferMs,
+                        /*bufferForPlaybackMs=*/initialPlaybackBufferMs,
+                        /*bufferForPlaybackAfterRebufferMs=*/initialPlaybackBufferMs
+                )
+                .createDefaultLoadControl()
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -81,8 +88,7 @@ class LoadController private constructor(initialPlaybackBufferMs: Int,
         return internalLoadControl.shouldContinueLoading(bufferedDurationUs, playbackSpeed)
     }
 
-    override fun shouldStartPlayback(bufferedDurationUs: Long, playbackSpeed: Float,
-                                     rebuffering: Boolean): Boolean {
+    override fun shouldStartPlayback(bufferedDurationUs: Long, playbackSpeed: Float, rebuffering: Boolean): Boolean {
         val isInitialPlaybackBufferFilled = bufferedDurationUs >= this.initialPlaybackBufferUs * playbackSpeed
         val isInternalStartingPlayback = internalLoadControl.shouldStartPlayback(
                 bufferedDurationUs, playbackSpeed, rebuffering)
@@ -91,6 +97,6 @@ class LoadController private constructor(initialPlaybackBufferMs: Int,
 
     companion object {
 
-        val TAG = "LoadController"
+        const val TAG = "LoadController"
     }
 }

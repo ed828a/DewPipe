@@ -122,7 +122,7 @@ class ManagedMediaSourcePlaylist {
         // it unsafe to call remove as the finalizing action of add.
         parentMediaSource.addMediaSource(index + 1, source)
 
-        // Because of the above race condition, it is thus only safe to synchronize the player
+        // Because of the above race condition, it is thus only safe to synchronize the simpleExoPlayer
         // in the finalizing action AFTER the removal is complete and the timeline has changed.
         parentMediaSource.removeMediaSource(index, finalizingAction)
     }
