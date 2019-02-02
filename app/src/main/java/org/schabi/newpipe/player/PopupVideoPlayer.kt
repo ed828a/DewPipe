@@ -508,7 +508,7 @@ class PopupVideoPlayer : Service() {
         public override fun onFullScreenButtonClicked() {
             super.onFullScreenButtonClicked()
 
-            if (VideoPlayer.DEBUG) Log.d(TAG, "onFullScreenButtonClicked() called")
+            Log.d(TAG, "onFullScreenButtonClicked() called")
 
             setRecovery()
             val intent: Intent
@@ -687,7 +687,7 @@ class PopupVideoPlayer : Service() {
 
         override fun setupBroadcastReceiver(intentFilter: IntentFilter) {
             super.setupBroadcastReceiver(intentFilter)
-            if (VideoPlayer.DEBUG) Log.d(TAG, "setupBroadcastReceiver() called with: intentFilter = [$intentFilter]")
+            Log.d(TAG, "setupBroadcastReceiver() called with: intentFilter = [$intentFilter]")
             intentFilter.addAction(ACTION_CLOSE)
             intentFilter.addAction(ACTION_PLAY_PAUSE)
             intentFilter.addAction(ACTION_REPEAT)
@@ -699,7 +699,7 @@ class PopupVideoPlayer : Service() {
         override fun onBroadcastReceived(intent: Intent?) {
             super.onBroadcastReceived(intent)
             if (intent == null || intent.action == null) return
-            if (VideoPlayer.DEBUG) Log.d(TAG, "onBroadcastReceived() called with: intent = [$intent]")
+            Log.d(TAG, "onBroadcastReceived() called with: intent = [$intent]")
             when (intent.action) {
                 ACTION_CLOSE -> closePopup()
                 ACTION_PLAY_PAUSE -> onPlayPause()

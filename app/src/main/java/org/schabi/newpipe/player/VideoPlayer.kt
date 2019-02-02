@@ -1,29 +1,6 @@
-/*
- * Copyright 2017 Mauricio Colli <mauriciocolli@outlook.com>
- * VideoPlayer.java is part of NewPipe
- *
- * License: GPL-3.0+
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
 package org.schabi.newpipe.player
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.ObjectAnimator
-import android.animation.PropertyValuesHolder
-import android.animation.ValueAnimator
+import android.animation.*
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -37,46 +14,35 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.SurfaceView
 import android.view.View
-import android.widget.ImageView
-import android.widget.PopupMenu
-import android.widget.ProgressBar
-import android.widget.SeekBar
-import android.widget.TextView
-
+import android.widget.*
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.PlaybackParameters
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.source.MediaSource
-import com.google.android.exoplayer2.source.TrackGroup
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.text.CaptionStyleCompat
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.SubtitleView
 import com.google.android.exoplayer2.video.VideoListener
-import org.jsoup.Connection
-
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.MediaFormat
 import org.schabi.newpipe.extractor.stream.StreamInfo
 import org.schabi.newpipe.extractor.stream.StreamType
 import org.schabi.newpipe.extractor.stream.VideoStream
 import org.schabi.newpipe.player.helper.PlayerHelper
+import org.schabi.newpipe.player.helper.PlayerHelper.formatSpeed
+import org.schabi.newpipe.player.helper.PlayerHelper.getTimeString
 import org.schabi.newpipe.player.playqueue.PlayQueueItem
 import org.schabi.newpipe.player.resolver.MediaSourceTag
 import org.schabi.newpipe.player.resolver.VideoPlaybackResolver
 import org.schabi.newpipe.util.AnimationUtils
-
-import java.util.ArrayList
-
-import org.schabi.newpipe.player.helper.PlayerHelper.formatSpeed
-import org.schabi.newpipe.player.helper.PlayerHelper.getTimeString
 import org.schabi.newpipe.util.AnimationUtils.animateView
+import java.util.*
 
 /**
  * Base for **video** players
  *
- * @author mauriciocolli
  */
 abstract class VideoPlayer(val TAG: String,
                            context: Context
@@ -840,7 +806,6 @@ abstract class VideoPlayer(val TAG: String,
     }
 
     companion object {
-        val DEBUG = BasePlayer.DEBUG
 
         ///////////////////////////////////////////////////////////////////////////
         // Player

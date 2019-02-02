@@ -171,7 +171,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             playerImpl!!.playbackQuality = playerState!!.playbackQuality
             playerImpl!!.initPlayback(playerState!!.playQueue, playerState!!.repeatMode,
                     playerState!!.playbackSpeed, playerState!!.playbackPitch,
-                    playerState!!.isPlaybackSkipSilence, playerState!!.wasPlaying())
+                    playerState!!.isPlaybackSkipSilence, playerState!!.wasPlaying)
         }
     }
 
@@ -486,7 +486,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
                     val height = b - t
                     maxGestureLength = (Math.min(width, height) * MAX_GESTURE_LENGTH).toInt()
 
-                    if (VideoPlayer.DEBUG) Log.d(TAG, "maxGestureLength = $maxGestureLength")
+                     Log.d(TAG, "maxGestureLength = $maxGestureLength")
 
                     volumeProgressBar!!.max = maxGestureLength
                     brightnessProgressBar!!.max = maxGestureLength
@@ -544,7 +544,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         public override fun onFullScreenButtonClicked() {
             super.onFullScreenButtonClicked()
 
-            if (VideoPlayer.DEBUG) Log.d(TAG, "onFullScreenButtonClicked() called")
+             Log.d(TAG, "onFullScreenButtonClicked() called")
             if (player == null) return
 
             if (!PermissionHelper.isPopupEnabled(context)) {
@@ -571,7 +571,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         }
 
         fun onPlayBackgroundButtonClicked() {
-            if (VideoPlayer.DEBUG) Log.d(TAG, "onPlayBackgroundButtonClicked() called")
+             Log.d(TAG, "onPlayBackgroundButtonClicked() called")
             if (playerImpl!!.player == null) return
 
             setRecovery()
@@ -662,7 +662,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         }
 
         private fun onMoreOptionsClicked() {
-            if (VideoPlayer.DEBUG) Log.d(TAG, "onMoreOptionsClicked() called")
+             Log.d(TAG, "onMoreOptionsClicked() called")
 
             val isMoreControlsVisible = secondaryControls!!.visibility == View.VISIBLE
 
@@ -674,7 +674,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         }
 
         private fun onScreenRotationClicked() {
-            if (VideoPlayer.DEBUG) Log.d(TAG, "onScreenRotationClicked() called")
+             Log.d(TAG, "onScreenRotationClicked() called")
             toggleOrientation()
             showControlsThenHide()
         }
@@ -817,7 +817,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         }
 
         override fun hideControls(duration: Long, delay: Long) {
-            if (VideoPlayer.DEBUG) Log.d(TAG, "hideControls() called with: delay = [$delay]")
+             Log.d(TAG, "hideControls() called with: delay = [$delay]")
             controlsVisibilityHandler.removeCallbacksAndMessages(null)
             controlsVisibilityHandler.postDelayed({
                 animateView(controlsRoot!!, false, duration, 0,

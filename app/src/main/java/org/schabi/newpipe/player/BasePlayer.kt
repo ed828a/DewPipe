@@ -90,15 +90,14 @@ import com.google.android.exoplayer2.Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT
 /**
  * Base for the players, joining the common properties
  *
- * @author mauriciocolli
  */
 abstract class BasePlayer(protected val context: Context) : Player.EventListener, PlaybackListener, ImageLoadingListener {
 
-    protected val broadcastReceiver: BroadcastReceiver
+    private val broadcastReceiver: BroadcastReceiver
 
-    protected val intentFilter: IntentFilter
+    private val intentFilter: IntentFilter
 
-    protected val recordManager: HistoryRecordManager
+    private val recordManager: HistoryRecordManager
 
     private val progressUpdateReactor: SerialDisposable
     private val databaseUpdateReactor: CompositeDisposable
@@ -115,14 +114,14 @@ abstract class BasePlayer(protected val context: Context) : Player.EventListener
     var playQueueAdapter: PlayQueueAdapter? = null
         protected set
 
-    var playbackManager: MediaSourceManager? = null
+    private var playbackManager: MediaSourceManager? = null
 
     private var currentItem: PlayQueueItem? = null
     var currentMetadata: MediaSourceTag? = null
         private set
     private var currentThumbnail: Bitmap? = null
 
-    protected var errorToast: Toast? = null
+    private var errorToast: Toast? = null
 
     ///////////////////////////////////////////////////////////////////////////
     // Getters and Setters
@@ -146,9 +145,8 @@ abstract class BasePlayer(protected val context: Context) : Player.EventListener
                 .subscribe({ ignored -> triggerProgressUpdate() },
                         { error -> Log.e(TAG, "Progress update failure: ", error) })
 
-    val isCurrentWindowValid: Boolean
-        get() = (player != null && player!!.duration >= 0
-                && player!!.currentPosition >= 0)
+    private val isCurrentWindowValid: Boolean
+        get() = (player != null && player!!.duration >= 0 && player!!.currentPosition >= 0)
 
     val videoUrl: String
         get() = if (currentMetadata == null) context.getString(R.string.unknown_content) else currentMetadata!!.metadata.url
@@ -172,7 +170,8 @@ abstract class BasePlayer(protected val context: Context) : Player.EventListener
 
             val currentTimeline = player!!.currentTimeline
             val currentWindowIndex = player!!.currentWindowIndex
-            if (currentTimeline.isEmpty || currentWindowIndex < 0 ||
+            if (currentTimeline.isEmpty ||
+                    currentWindowIndex < 0 ||
                     currentWindowIndex >= currentTimeline.windowCount) {
                 return false
             }
@@ -182,14 +181,15 @@ abstract class BasePlayer(protected val context: Context) : Player.EventListener
             return timelineWindow.defaultPositionMs <= player!!.currentPosition
         }
 
-    // Why would this even happen =(
-    // But lets log it anyway. Save is save
-    val isLive: Boolean
+
+    private val isLive: Boolean
         get() {
             if (player == null) return false
             try {
                 return player!!.isCurrentWindowDynamic
             } catch (ignored: IndexOutOfBoundsException) {
+                // Why would this even happen =(
+                // But lets log it anyway. Save is save
                 if (DEBUG) Log.d(TAG, "Could not update metadata: " + ignored.message)
                 if (DEBUG) ignored.printStackTrace()
                 return false
@@ -1098,7 +1098,7 @@ abstract class BasePlayer(protected val context: Context) : Player.EventListener
 
         protected val FAST_FORWARD_REWIND_AMOUNT_MILLIS = 10000 // 10 Seconds
         protected val PLAY_PREV_ACTIVATION_LIMIT_MILLIS = 5000 // 5 seconds
-        protected val PROGRESS_LOOP_INTERVAL_MILLIS = 500
+        protected const val PROGRESS_LOOP_INTERVAL_MILLIS = 500
         protected val RECOVERY_SKIP_THRESHOLD_MILLIS = 3000 // 3 seconds
 
         ///////////////////////////////////////////////////////////////////////////
