@@ -14,6 +14,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody
+import org.schabi.newpipe.extractor.utils.Localization
 
 
 class Downloader private constructor(builder: OkHttpClient.Builder) : org.schabi.newpipe.extractor.Downloader {
@@ -55,9 +56,9 @@ class Downloader private constructor(builder: OkHttpClient.Builder) : org.schabi
      * @return the contents of the specified text file
      */
     @Throws(IOException::class, ReCaptchaException::class)
-    override fun download(siteUrl: String, language: String): String {
+    override fun download(siteUrl: String, localization: Localization): String {
         val requestProperties = HashMap<String, String>()
-        requestProperties["Accept-Language"] = language
+        requestProperties["Accept-Language"] = localization.language
         return download(siteUrl, requestProperties)
     }
 

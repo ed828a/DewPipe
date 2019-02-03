@@ -87,7 +87,7 @@ open class App : Application() {
         // Initialize settings first because others inits can use its values
         SettingsActivity.initSettings(this)
 
-        NewPipe.init(downloader)
+        NewPipe.init(downloader, org.schabi.newpipe.util.Localization.getPreferredExtractorLocal(this))
         StateSaver.init(this)
         initNotificationChannel()
 
@@ -95,6 +95,9 @@ open class App : Application() {
         ImageLoader.getInstance().init(getImageLoaderConfigurations(10, 50))
 
         configureRxJavaErrorHandler()
+
+        // Check for new version
+//        CheckForNewAppVersionTask().execute()
     }
 
     private fun configureRxJavaErrorHandler() {
@@ -214,5 +217,12 @@ open class App : Application() {
             val application = context.applicationContext as App
             return application.refWatcher
         }
+
+        @Volatile
+        private var INSTANCE: App? = null
+        fun getApp(): App =
+                INSTANCE ?: synchronized(App::class.java){
+                    INSTANCE ?: App().also { INSTANCE = it }
+                }
     }
 }

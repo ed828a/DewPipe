@@ -5,7 +5,6 @@ import android.preference.PreferenceManager
 import android.support.annotation.PluralsRes
 import android.support.annotation.StringRes
 import android.text.TextUtils
-
 import org.schabi.newpipe.R
 
 import java.text.DateFormat
@@ -16,25 +15,6 @@ import java.util.Arrays
 import java.util.Date
 import java.util.Locale
 
-/*
- * Created by chschtsch on 12/29/15.
- *
- * Copyright (C) Gregory Arkhipov 2015
- * Localization.java is part of NewPipe.
- *
- * NewPipe is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * NewPipe is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with NewPipe.  If not, see <http://www.gnu.org/licenses/>.
- */
 
 object Localization {
 
@@ -58,6 +38,18 @@ object Localization {
         }
 
         return stringBuilder.toString()
+    }
+
+    fun getPreferredExtractorLocal(context: Context): org.schabi.newpipe.extractor.utils.Localization {
+        val sp = PreferenceManager.getDefaultSharedPreferences(context)
+
+        val languageCode = sp.getString(context.getString(R.string.content_language_key),
+                context.getString(R.string.default_language_value))
+
+        val countryCode = sp.getString(context.getString(R.string.content_country_key),
+                context.getString(R.string.default_country_value))
+
+        return org.schabi.newpipe.extractor.utils.Localization(countryCode, languageCode)
     }
 
     fun getPreferredLocale(context: Context): Locale {

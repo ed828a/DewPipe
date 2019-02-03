@@ -63,8 +63,7 @@ object ExtractorHelper {
     fun searchFor(serviceId: Int,
                   searchString: String,
                   contentFilter: List<String>,
-                  sortFilter: String,
-                  contentCountry: String
+                  sortFilter: String
     ): Single<SearchInfo> {
         checkServiceId(serviceId)
         val searchQueryHandler = NewPipe.getService(serviceId)
@@ -72,11 +71,7 @@ object ExtractorHelper {
                 .fromQuery(searchString, contentFilter, sortFilter)
 
         return Single.fromCallable {
-            SearchInfo.getInfo(NewPipe.getService(serviceId),
-                    NewPipe.getService(serviceId)
-                            .searchQHFactory
-                            .fromQuery(searchString, contentFilter, sortFilter),
-                    contentCountry)
+            SearchInfo.getInfo(NewPipe.getService(serviceId), searchQueryHandler)
         }
     }
 
@@ -84,8 +79,7 @@ object ExtractorHelper {
                            searchString: String,
                            contentFilter: List<String>,
                            sortFilter: String,
-                           pageUrl: String,
-                           contentCountry: String): Single<InfoItemsPage<*>> {
+                           pageUrl: String): Single<InfoItemsPage<*>> {
         Log.d(TAG, "getMoreSearchItems(): serviceId = $serviceId, searchString = $searchString, pageUrl = $pageUrl")
         checkServiceId(serviceId)
         return Single.fromCallable {
@@ -93,21 +87,19 @@ object ExtractorHelper {
                     NewPipe.getService(serviceId)
                             .searchQHFactory
                             .fromQuery(searchString, contentFilter, sortFilter),
-                    contentCountry,
                     pageUrl)
         }
 
     }
 
     fun suggestionsFor(serviceId: Int,
-                       query: String,
-                       contentCountry: String): Single<List<String>> {
-        Log.d(TAG, "suggestionsFor(serviceId = $serviceId, query = $query, contentCountry = $contentCountry)")
+                       query: String): Single<List<String>> {
+        Log.d(TAG, "suggestionsFor(serviceId = $serviceId, query = $query")
         checkServiceId(serviceId)
         return Single.fromCallable {
             NewPipe.getService(serviceId)
                     .suggestionExtractor
-                    .suggestionList(query, contentCountry)
+                    .suggestionList(query)
         }
     }
 
@@ -158,19 +150,17 @@ object ExtractorHelper {
 
     fun getKioskInfo(serviceId: Int,
                      url: String,
-                     contentCountry: String,
                      forceLoad: Boolean): Single<KioskInfo> {
         return checkCache(forceLoad, serviceId, url,
                 Single.fromCallable {
-                    KioskInfo.getInfo(NewPipe.getService(serviceId), url, contentCountry)
+                    KioskInfo.getInfo(NewPipe.getService(serviceId), url)
                 })
     }
 
     fun getMoreKioskItems(serviceId: Int,
                           url: String,
-                          nextStreamsUrl: String,
-                          contentCountry: String): Single<InfoItemsPage<*>> {
-        return Single.fromCallable { KioskInfo.getMoreItems(NewPipe.getService(serviceId), url, nextStreamsUrl, contentCountry) }
+                          nextStreamsUrl: String): Single<InfoItemsPage<*>> {
+        return Single.fromCallable { KioskInfo.getMoreItems(NewPipe.getService(serviceId), url, nextStreamsUrl) }
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -293,7 +283,7 @@ object ExtractorHelper {
         }
 
         val cause: Throwable? = throwable.cause
-        if (cause != null ) {
+        if (cause != null) {
             for (causesEl in causesToCheck) {
                 if (cause.javaClass == causesEl) {
                     return true

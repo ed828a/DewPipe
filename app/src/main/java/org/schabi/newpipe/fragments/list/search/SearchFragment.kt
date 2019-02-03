@@ -570,7 +570,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
 
                     }
 
-                    val network = ExtractorHelper.suggestionsFor(serviceId, query, contentCountry)
+                    val network = ExtractorHelper.suggestionsFor(serviceId, query)
                             .toObservable()
                             .map<List<SuggestionItem>> { strings ->
                                 val result = ArrayList<SuggestionItem>()
@@ -684,8 +684,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
         searchDisposable = ExtractorHelper.searchFor(serviceId,
                 searchString!!,
                 Arrays.asList(*contentFilter),
-                sortFilter!!,
-                contentCountry)
+                sortFilter!!)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnEvent { searchResult, throwable -> isLoading.set(false) }
@@ -703,8 +702,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
                 searchString!!,
                 asList(*contentFilter),
                 sortFilter!!,
-                nextPageUrl!!,
-                contentCountry)
+                nextPageUrl!!)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnEvent { nextItemsResult, throwable -> isLoading.set(false) }

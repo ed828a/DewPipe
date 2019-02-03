@@ -73,12 +73,12 @@ class VideoPlaybackResolver(private val context: Context,
 
         // Create subtitle sources
         for (subtitle in info.subtitles) {
-            val mimeType = PlayerHelper.mimeTypesOf(subtitle.fileType) ?: continue
+            val mimeType = PlayerHelper.subtitleMimeTypesOf(subtitle.format)
 
             val textFormat = Format.createTextSampleFormat(null, mimeType,
                     SELECTION_FLAG_AUTOSELECT, PlayerHelper.captionLanguageOf(context, subtitle))
             val textSource = dataSource.sampleMediaSourceFactory
-                    .createMediaSource(Uri.parse(subtitle.url), textFormat, TIME_UNSET)
+                    .createMediaSource(Uri.parse(subtitle.getURL()), textFormat, TIME_UNSET)
             mediaSources.add(textSource)
         }
 

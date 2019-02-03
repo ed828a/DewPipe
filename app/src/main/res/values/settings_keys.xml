@@ -131,6 +131,10 @@
     <!-- Caption Size -->
     <string name="caption_settings_key" translatable="false">caption_settings_key</string>
 
+    <!-- Updates -->
+    <string name="update_app_key" translatable="false">update_app_key</string>
+    <string name="update_pref_screen_key" translatable="false">update_pref_screen_key</string>
+
     <!-- Content & History -->
     <string name="show_search_suggestions_key" translatable="false">show_search_suggestions</string>
     <string name="show_play_with_kodi_key" translatable="false">show_play_with_kodi</string>

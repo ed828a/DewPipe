@@ -529,4 +529,11 @@
     <string name="size_100_00mb">100.00MB</string>
     <string name="xxx_xx">XXX.xx</string>
     <string name="download_service_disconnected">Download Service disconnected</string>
+
+    <!-- App update notification -->
+    <string name="app_update_notification_content_title">NewPipe Update Available!</string>
+    <string name="app_update_notification_content_text">Tap to download</string>
+    <string name="app_update_notification_channel_id" translatable="false">newpipeAppUpdate</string>
+    <string name="app_update_notification_channel_name">App Update Notification</string>
+    <string name="app_update_notification_channel_description">Notifications for new NewPipe version</string>
 </resources>
