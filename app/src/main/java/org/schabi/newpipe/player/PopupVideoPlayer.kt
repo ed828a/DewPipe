@@ -70,7 +70,6 @@ import org.schabi.newpipe.util.ThemeHelper
 /**
  * Service Popup Player implementing VideoPlayer
  *
- * @author mauriciocolli
  */
 class PopupVideoPlayer : Service() {
 
@@ -94,8 +93,8 @@ class PopupVideoPlayer : Service() {
     private var maximumHeight: Float = 0.toFloat()
 
     private var notificationManager: NotificationManager? = null
-    private var notBuilder: NotificationCompat.Builder? = null
-    private var notRemoteView: RemoteViews? = null
+    private var notificationBuilder: NotificationCompat.Builder? = null
+    private var notificationRemoteView: RemoteViews? = null
 
     private var playerImpl: VideoPlayerImpl? = null
     private var lockManager: LockManager? = null
@@ -231,35 +230,35 @@ class PopupVideoPlayer : Service() {
     ///////////////////////////////////////////////////////////////////////////
 
     private fun resetNotification() {
-        notBuilder = createNotification()
+        notificationBuilder = createNotification()
     }
 
     private fun createNotification(): NotificationCompat.Builder {
-        notRemoteView = RemoteViews(BuildConfig.APPLICATION_ID, R.layout.player_popup_notification)
+        notificationRemoteView = RemoteViews(BuildConfig.APPLICATION_ID, R.layout.player_popup_notification)
 
-        notRemoteView!!.setTextViewText(R.id.notificationSongName, playerImpl!!.videoTitle)
-        notRemoteView!!.setTextViewText(R.id.notificationArtist, playerImpl!!.uploaderName)
-        notRemoteView!!.setImageViewBitmap(R.id.notificationCover, playerImpl!!.thumbnail)
+        notificationRemoteView!!.setTextViewText(R.id.notificationSongName, playerImpl!!.videoTitle)
+        notificationRemoteView!!.setTextViewText(R.id.notificationArtist, playerImpl!!.uploaderName)
+        notificationRemoteView!!.setImageViewBitmap(R.id.notificationCover, playerImpl!!.thumbnail)
 
-        notRemoteView!!.setOnClickPendingIntent(R.id.notificationPlayPause,
+        notificationRemoteView!!.setOnClickPendingIntent(R.id.notificationPlayPause,
                 PendingIntent.getBroadcast(this, NOTIFICATION_ID, Intent(ACTION_PLAY_PAUSE), PendingIntent.FLAG_UPDATE_CURRENT))
-        notRemoteView!!.setOnClickPendingIntent(R.id.notificationStop,
+        notificationRemoteView!!.setOnClickPendingIntent(R.id.notificationStop,
                 PendingIntent.getBroadcast(this, NOTIFICATION_ID, Intent(ACTION_CLOSE), PendingIntent.FLAG_UPDATE_CURRENT))
-        notRemoteView!!.setOnClickPendingIntent(R.id.notificationRepeat,
+        notificationRemoteView!!.setOnClickPendingIntent(R.id.notificationRepeat,
                 PendingIntent.getBroadcast(this, NOTIFICATION_ID, Intent(ACTION_REPEAT), PendingIntent.FLAG_UPDATE_CURRENT))
 
         // Starts popup simpleExoPlayer activity -- attempts to unlock lockscreen
         val intent = NavigationHelper.getPopupPlayerActivityIntent(this)
-        notRemoteView!!.setOnClickPendingIntent(R.id.notificationContent,
+        notificationRemoteView!!.setOnClickPendingIntent(R.id.notificationContent,
                 PendingIntent.getActivity(this, NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT))
 
-        setRepeatModeRemote(notRemoteView, playerImpl!!.repeatMode)
+        setRepeatModeRemote(notificationRemoteView, playerImpl!!.repeatMode)
 
         val builder = NotificationCompat.Builder(this, getString(R.string.notification_channel_id))
                 .setOngoing(true)
                 .setSmallIcon(R.drawable.ic_newpipe_triangle_white)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setContent(notRemoteView)
+                .setContent(notificationRemoteView)
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
             builder.priority = NotificationCompat.PRIORITY_MAX
         }
@@ -274,9 +273,9 @@ class PopupVideoPlayer : Service() {
      */
     private fun updateNotification(drawableId: Int) {
         if (DEBUG) Log.d(TAG, "updateNotification() called with: drawableId = [$drawableId]")
-        if (notBuilder == null || notRemoteView == null) return
-        if (drawableId != -1) notRemoteView!!.setImageViewResource(R.id.notificationPlayPause, drawableId)
-        notificationManager!!.notify(NOTIFICATION_ID, notBuilder!!.build())
+        if (notificationBuilder == null || notificationRemoteView == null) return
+        if (drawableId != -1) notificationRemoteView!!.setImageViewResource(R.id.notificationPlayPause, drawableId)
+        notificationManager!!.notify(NOTIFICATION_ID, notificationBuilder!!.build())
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -465,7 +464,7 @@ class PopupVideoPlayer : Service() {
             super.handleIntent(intent)
 
             resetNotification()
-            startForeground(NOTIFICATION_ID, notBuilder!!.build())
+            startForeground(NOTIFICATION_ID, notificationBuilder!!.build())
         }
 
         override fun initViews(rootView: View) {
@@ -502,7 +501,7 @@ class PopupVideoPlayer : Service() {
         }
 
         override fun destroy() {
-            if (notRemoteView != null) notRemoteView!!.setImageViewBitmap(R.id.notificationCover, null)
+            if (notificationRemoteView != null) notificationRemoteView!!.setImageViewBitmap(R.id.notificationCover, null)
             super.destroy()
         }
 
@@ -655,7 +654,7 @@ class PopupVideoPlayer : Service() {
 
         override fun onRepeatModeChanged(i: Int) {
             super.onRepeatModeChanged(i)
-            setRepeatModeRemote(notRemoteView, i)
+            setRepeatModeRemote(notificationRemoteView, i)
             updatePlayback()
             resetNotification()
             updateNotification(-1)
@@ -736,7 +735,7 @@ class PopupVideoPlayer : Service() {
             videoPlayPause!!.setBackgroundResource(R.drawable.ic_pause_white)
             hideControls(DEFAULT_CONTROLS_DURATION.toLong(), DEFAULT_CONTROLS_HIDE_TIME.toLong())
 
-            startForeground(NOTIFICATION_ID, notBuilder!!.build())
+            startForeground(NOTIFICATION_ID, notificationBuilder!!.build())
             lockManager!!.acquireWifiAndCpu()
         }
 

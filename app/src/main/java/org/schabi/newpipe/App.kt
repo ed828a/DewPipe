@@ -96,7 +96,7 @@ open class App : Application() {
 
         configureRxJavaErrorHandler()
 
-        // Check for new version
+        // Check for new version, v0.15.1 feature, but not completed yet, as not set on SharedPreference side yet.
 //        CheckForNewAppVersionTask().execute()
     }
 

@@ -667,7 +667,7 @@ abstract class VideoPlayer(val TAG: String,
         resizeView!!.text = PlayerHelper.resizeTypeOf(context, resizeMode)
     }
 
-    protected abstract fun nextResizeMode(@AspectRatioFrameLayout.ResizeMode resizeMode: Int): Int
+    protected abstract fun nextResizeMode(@AspectRatioFrameLayout.ResizeMode currentResizeMode: Int): Int
 
     ///////////////////////////////////////////////////////////////////////////
     // SeekBar Listener

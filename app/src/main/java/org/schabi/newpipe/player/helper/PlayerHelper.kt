@@ -125,7 +125,7 @@ object PlayerHelper {
 
         val nextVideo = info.nextVideo
         if (nextVideo != null && !urls.contains(nextVideo.url)) {
-            return SinglePlayQueue(nextVideo)
+            return getAutoQueuedSinglePlayQueue(nextVideo)
         }
 
         val relatedItems = info.relatedStreams ?: return null
@@ -137,7 +137,7 @@ object PlayerHelper {
             }
         }
         Collections.shuffle(autoQueueItems)
-        return if (autoQueueItems.isEmpty()) null else SinglePlayQueue(autoQueueItems[0])
+        return if (autoQueueItems.isEmpty()) null else getAutoQueuedSinglePlayQueue(autoQueueItems[0])
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -175,12 +175,10 @@ object PlayerHelper {
         val backgroundAction = context.getString(R.string.minimize_on_exit_background_key)
 
         val action = getMinimizeOnExitAction(context, defaultAction)
-        return if (action == popupAction) {
-            MINIMIZE_ON_EXIT_MODE_POPUP
-        } else if (action == backgroundAction) {
-            MINIMIZE_ON_EXIT_MODE_BACKGROUND
-        } else {
-            MINIMIZE_ON_EXIT_MODE_NONE
+        return when (action) {
+            popupAction -> MINIMIZE_ON_EXIT_MODE_POPUP
+            backgroundAction -> MINIMIZE_ON_EXIT_MODE_BACKGROUND
+            else -> MINIMIZE_ON_EXIT_MODE_NONE
         }
     }
 
@@ -322,4 +320,11 @@ object PlayerHelper {
         return getPreferences(context).getString(context.getString(R.string.minimize_on_exit_key),
                 key)
     }
+
+    private fun getAutoQueuedSinglePlayQueue(streamInfoItem: StreamInfoItem): SinglePlayQueue {
+        val singlePlayQueue = SinglePlayQueue(streamInfoItem)
+        singlePlayQueue.item!!.isAutoQueued = true
+        return singlePlayQueue
+    }
+
 }
