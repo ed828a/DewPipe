@@ -55,7 +55,6 @@ import org.schabi.newpipe.player.helper.PlayerHelper.getTimeString
 /**
  * Base players joining the common properties
  *
- * @author mauriciocolli
  */
 class BackgroundPlayer : Service() {
 
@@ -69,9 +68,9 @@ class BackgroundPlayer : Service() {
     private var activityListener: PlayerEventListener? = null
     private var mBinder: IBinder? = null
     private var notificationManager: NotificationManager? = null
-    private var notBuilder: NotificationCompat.Builder? = null
-    private var notRemoteView: RemoteViews? = null
-    private var bigNotRemoteView: RemoteViews? = null
+    private var notificationBuilder: NotificationCompat.Builder? = null
+    private var notificationRemoteView: RemoteViews? = null
+    private var bigNotificationRemoteView: RemoteViews? = null
 
     private var shouldUpdateOnProgress: Boolean = false
 
@@ -93,10 +92,10 @@ class BackgroundPlayer : Service() {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        Log.d(TAG, "onStartCommand() called with: intent = [$intent], flags = [$flags], startId = [$startId]")
 
-            Log.d(TAG, "onStartCommand() called with: intent = [" + intent +
-                    "], flags = [" + flags + "], startId = [" + startId + "]")
         basePlayerImpl!!.handleIntent(intent)
+
         if (basePlayerImpl!!.mediaSessionManager != null) {
             basePlayerImpl!!.mediaSessionManager!!.handleMediaButtonIntent(intent)
         }
@@ -118,14 +117,11 @@ class BackgroundPlayer : Service() {
     private fun onClose() {
         Log.d(TAG, "onClose() called")
 
-        if (lockManager != null) {
-            lockManager!!.releaseWifiAndCpu()
-        }
-        if (basePlayerImpl != null) {
-            basePlayerImpl!!.stopActivityBinding()
-            basePlayerImpl!!.destroy()
-        }
-        if (notificationManager != null) notificationManager!!.cancel(NOTIFICATION_ID)
+        lockManager?.releaseWifiAndCpu()
+        basePlayerImpl?.stopActivityBinding()
+        basePlayerImpl?.destroy()
+        notificationManager?.cancel(NOTIFICATION_ID)
+
         mBinder = null
         basePlayerImpl = null
         lockManager = null
@@ -150,22 +146,22 @@ class BackgroundPlayer : Service() {
     ///////////////////////////////////////////////////////////////////////////
 
     private fun resetNotification() {
-        notBuilder = createNotification()
+        notificationBuilder = createNotification()
     }
 
     private fun createNotification(): NotificationCompat.Builder {
-        notRemoteView = RemoteViews(BuildConfig.APPLICATION_ID, R.layout.player_notification)
-        bigNotRemoteView = RemoteViews(BuildConfig.APPLICATION_ID, R.layout.player_notification_expanded)
+        notificationRemoteView = RemoteViews(BuildConfig.APPLICATION_ID, R.layout.player_notification)
+        bigNotificationRemoteView = RemoteViews(BuildConfig.APPLICATION_ID, R.layout.player_notification_expanded)
 
-        setupNotification(notRemoteView!!)
-        setupNotification(bigNotRemoteView!!)
+        setupNotification(notificationRemoteView!!)
+        setupNotification(bigNotificationRemoteView!!)
 
         val builder = NotificationCompat.Builder(this, getString(R.string.notification_channel_id))
                 .setOngoing(true)
                 .setSmallIcon(R.drawable.ic_newpipe_triangle_white)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setCustomContentView(notRemoteView)
-                .setCustomBigContentView(bigNotRemoteView)
+                .setCustomContentView(notificationRemoteView)
+                .setCustomBigContentView(bigNotificationRemoteView)
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
             builder.priority = NotificationCompat.PRIORITY_MAX
         }
@@ -218,12 +214,12 @@ class BackgroundPlayer : Service() {
     @Synchronized
     private fun updateNotification(drawableId: Int) {
         //Log.d(TAG, "updateNotification() called with: drawableId = [" + drawableId + "]");
-        if (notBuilder == null) return
+        if (notificationBuilder == null) return
         if (drawableId != -1) {
-            if (notRemoteView != null) notRemoteView!!.setImageViewResource(R.id.notificationPlayPause, drawableId)
-            if (bigNotRemoteView != null) bigNotRemoteView!!.setImageViewResource(R.id.notificationPlayPause, drawableId)
+            notificationRemoteView?.setImageViewResource(R.id.notificationPlayPause, drawableId)
+            bigNotificationRemoteView?.setImageViewResource(R.id.notificationPlayPause, drawableId)
         }
-        notificationManager!!.notify(NOTIFICATION_ID, notBuilder!!.build())
+        notificationManager!!.notify(NOTIFICATION_ID, notificationBuilder!!.build())
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -241,11 +237,7 @@ class BackgroundPlayer : Service() {
 
     inner class BasePlayerImpl internal constructor(context: Context) : BasePlayer(context) {
 
-        private val resolver: AudioPlaybackResolver
-
-        init {
-            this.resolver = AudioPlaybackResolver(context, dataSource)
-        }
+        private val resolver: AudioPlaybackResolver = AudioPlaybackResolver(context, dataSource)
 
         override fun initPlayer(playOnReady: Boolean) {
             super.initPlayer(playOnReady)
@@ -255,9 +247,9 @@ class BackgroundPlayer : Service() {
             super.handleIntent(intent)
 
             resetNotification()
-            if (bigNotRemoteView != null) bigNotRemoteView!!.setProgressBar(R.id.notificationProgressBar, 100, 0, false)
-            if (notRemoteView != null) notRemoteView!!.setProgressBar(R.id.notificationProgressBar, 100, 0, false)
-            startForeground(NOTIFICATION_ID, notBuilder!!.build())
+            bigNotificationRemoteView?.setProgressBar(R.id.notificationProgressBar, 100, 0, false)
+            notificationRemoteView?.setProgressBar(R.id.notificationProgressBar, 100, 0, false)
+            startForeground(NOTIFICATION_ID, notificationBuilder!!.build())
         }
 
         ///////////////////////////////////////////////////////////////////////////
@@ -266,14 +258,9 @@ class BackgroundPlayer : Service() {
 
         private fun updateNotificationThumbnail() {
             if (basePlayerImpl == null) return
-            if (notRemoteView != null) {
-                notRemoteView!!.setImageViewBitmap(R.id.notificationCover,
-                        basePlayerImpl!!.thumbnail)
-            }
-            if (bigNotRemoteView != null) {
-                bigNotRemoteView!!.setImageViewBitmap(R.id.notificationCover,
-                        basePlayerImpl!!.thumbnail)
-            }
+
+            notificationRemoteView?.setImageViewBitmap(R.id.notificationCover, basePlayerImpl!!.thumbnail)
+            bigNotificationRemoteView?.setImageViewBitmap(R.id.notificationCover, basePlayerImpl!!.thumbnail)
         }
 
         override fun onLoadingComplete(imageUri: String, view: View?, loadedImage: Bitmap?) {
@@ -309,13 +296,12 @@ class BackgroundPlayer : Service() {
             if (!shouldUpdateOnProgress) return
             resetNotification()
             if (Build.VERSION.SDK_INT >= 26 /*Oreo*/) updateNotificationThumbnail()
-            if (bigNotRemoteView != null) {
-                bigNotRemoteView!!.setProgressBar(R.id.notificationProgressBar, duration, currentProgress, false)
-                bigNotRemoteView!!.setTextViewText(R.id.notificationTime, getTimeString(currentProgress) + " / " + getTimeString(duration))
-            }
-            if (notRemoteView != null) {
-                notRemoteView!!.setProgressBar(R.id.notificationProgressBar, duration, currentProgress, false)
-            }
+
+            bigNotificationRemoteView?.setProgressBar(R.id.notificationProgressBar, duration, currentProgress, false)
+            bigNotificationRemoteView?.setTextViewText(R.id.notificationTime, getTimeString(currentProgress) + " / " + getTimeString(duration))
+
+            notificationRemoteView?.setProgressBar(R.id.notificationProgressBar, duration, currentProgress, false)
+
             updateNotification(-1)
         }
 
@@ -331,8 +317,8 @@ class BackgroundPlayer : Service() {
 
         override fun destroy() {
             super.destroy()
-            if (notRemoteView != null) notRemoteView!!.setImageViewBitmap(R.id.notificationCover, null)
-            if (bigNotRemoteView != null) bigNotRemoteView!!.setImageViewBitmap(R.id.notificationCover, null)
+            notificationRemoteView?.setImageViewBitmap(R.id.notificationCover, null)
+            bigNotificationRemoteView?.setImageViewBitmap(R.id.notificationCover, null)
         }
 
         ///////////////////////////////////////////////////////////////////////////
@@ -379,14 +365,14 @@ class BackgroundPlayer : Service() {
         // Activity Event Listener
         ///////////////////////////////////////////////////////////////////////////
 
-        /*package-private*/ internal fun setActivityListener(listener: PlayerEventListener) {
+        internal fun setActivityListener(listener: PlayerEventListener) {
             activityListener = listener
             updateMetadata()
             updatePlayback()
             triggerProgressUpdate()
         }
 
-        /*package-private*/ internal fun removeActivityListener(listener: PlayerEventListener) {
+        internal fun removeActivityListener(listener: PlayerEventListener) {
             if (activityListener === listener) {
                 activityListener = null
             }
@@ -406,16 +392,12 @@ class BackgroundPlayer : Service() {
         }
 
         private fun updateProgress(currentProgress: Int, duration: Int, bufferPercent: Int) {
-            if (activityListener != null) {
-                activityListener!!.onProgressUpdate(currentProgress, duration, bufferPercent)
-            }
+            activityListener?.onProgressUpdate(currentProgress, duration, bufferPercent)
         }
 
         fun stopActivityBinding() {
-            if (activityListener != null) {
-                activityListener!!.onServiceStopped()
-                activityListener = null
-            }
+            activityListener?.onServiceStopped()
+            activityListener = null
         }
 
         ///////////////////////////////////////////////////////////////////////////
@@ -483,12 +465,10 @@ class BackgroundPlayer : Service() {
         override fun onCompleted() {
             super.onCompleted()
             resetNotification()
-            if (bigNotRemoteView != null) {
-                bigNotRemoteView!!.setProgressBar(R.id.notificationProgressBar, 100, 100, false)
-            }
-            if (notRemoteView != null) {
-                notRemoteView!!.setProgressBar(R.id.notificationProgressBar, 100, 100, false)
-            }
+
+            bigNotificationRemoteView?.setProgressBar(R.id.notificationProgressBar, 100, 100, false)
+            notificationRemoteView?.setProgressBar(R.id.notificationProgressBar, 100, 100, false)
+
             updateNotificationThumbnail()
             updateNotification(R.drawable.ic_replay_white)
             lockManager!!.releaseWifiAndCpu()

@@ -150,6 +150,9 @@ object Localization {
         return context.resources.getQuantityString(pluralId, safeCount, formattedCount)
     }
 
+    /**
+     * @param duration in seconds
+     */
     fun getDurationString(duration: Long): String {
         var locDuration = if (duration < 0) 0L else duration
 
