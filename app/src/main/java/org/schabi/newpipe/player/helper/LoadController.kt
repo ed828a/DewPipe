@@ -27,11 +27,11 @@ class LoadController private constructor(initialPlaybackBufferMs: Int,
 
     constructor(context: Context) : this(PlayerHelper.getPlaybackStartBufferMs(context),
             PlayerHelper.getPlaybackMinimumBufferMs(context),
-            PlayerHelper.getPlaybackOptimalBufferMs(context)) {}
+            PlayerHelper.getPlaybackOptimalBufferMs(context))
 
     init {
         // this is a default one in DefaultLoadControl
-        val allocator = DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE)
+//        val allocator = DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE)
 
 //        internalLoadControl = DefaultLoadControl(allocator,
 //                /*minBufferMs=*/minimumPlaybackbufferMs,
@@ -59,7 +59,8 @@ class LoadController private constructor(initialPlaybackBufferMs: Int,
         internalLoadControl.onPrepared()
     }
 
-    override fun onTracksSelected(renderers: Array<Renderer>, trackGroupArray: TrackGroupArray,
+    override fun onTracksSelected(renderers: Array<Renderer>,
+                                  trackGroupArray: TrackGroupArray,
                                   trackSelectionArray: TrackSelectionArray) {
         internalLoadControl.onTracksSelected(renderers, trackGroupArray, trackSelectionArray)
     }
@@ -72,26 +73,20 @@ class LoadController private constructor(initialPlaybackBufferMs: Int,
         internalLoadControl.onReleased()
     }
 
-    override fun getAllocator(): Allocator {
-        return internalLoadControl.allocator
-    }
+    override fun getAllocator(): Allocator = internalLoadControl.allocator
 
-    override fun getBackBufferDurationUs(): Long {
-        return internalLoadControl.backBufferDurationUs
-    }
 
-    override fun retainBackBufferFromKeyframe(): Boolean {
-        return internalLoadControl.retainBackBufferFromKeyframe()
-    }
+    override fun getBackBufferDurationUs(): Long = internalLoadControl.backBufferDurationUs
 
-    override fun shouldContinueLoading(bufferedDurationUs: Long, playbackSpeed: Float): Boolean {
-        return internalLoadControl.shouldContinueLoading(bufferedDurationUs, playbackSpeed)
-    }
+    override fun retainBackBufferFromKeyframe(): Boolean = internalLoadControl.retainBackBufferFromKeyframe()
+
+    override fun shouldContinueLoading(bufferedDurationUs: Long, playbackSpeed: Float): Boolean =
+            internalLoadControl.shouldContinueLoading(bufferedDurationUs, playbackSpeed)
 
     override fun shouldStartPlayback(bufferedDurationUs: Long, playbackSpeed: Float, rebuffering: Boolean): Boolean {
         val isInitialPlaybackBufferFilled = bufferedDurationUs >= this.initialPlaybackBufferUs * playbackSpeed
-        val isInternalStartingPlayback = internalLoadControl.shouldStartPlayback(
-                bufferedDurationUs, playbackSpeed, rebuffering)
+        val isInternalStartingPlayback = internalLoadControl.shouldStartPlayback(bufferedDurationUs, playbackSpeed, rebuffering)
+
         return isInitialPlaybackBufferFilled || isInternalStartingPlayback
     }
 

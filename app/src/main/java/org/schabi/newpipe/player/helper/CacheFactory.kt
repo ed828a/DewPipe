@@ -21,15 +21,13 @@ internal class CacheFactory private constructor(context: Context,
                                                 maxCacheSize: Long,
                                                 private val maxFileSize: Long) : DataSource.Factory {
 
-    private val dataSourceFactory: DefaultDataSourceFactory
-    private val cacheDir: File
+    private val dataSourceFactory: DefaultDataSourceFactory = DefaultDataSourceFactory(context, userAgent, transferListener)
+    private var cacheDir: File
 
     init {
 
-        dataSourceFactory = DefaultDataSourceFactory(context, userAgent, transferListener)
         cacheDir = File(context.externalCacheDir, CACHE_FOLDER_NAME)
         if (!cacheDir.exists()) {
-
             cacheDir.mkdir()
         }
 
@@ -45,7 +43,7 @@ internal class CacheFactory private constructor(context: Context,
             PlayerHelper.getPreferredFileSize(context)) {}
 
     override fun createDataSource(): DataSource {
-        Log.d(TAG, "initExoPlayerCache: cacheDir = " + cacheDir.absolutePath)
+        Log.d(TAG, "initExoPlayerCache: cacheDir = ${cacheDir.absolutePath}")
 
         val dataSource = dataSourceFactory.createDataSource()
         val fileSource = FileDataSource()
@@ -71,14 +69,15 @@ internal class CacheFactory private constructor(context: Context,
     }
 
     companion object {
-        private val TAG = "CacheFactory"
-        private val CACHE_FOLDER_NAME = "exoplayer"
-        private val CACHE_FLAGS = CacheDataSource.FLAG_BLOCK_ON_CACHE or CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR
+        private const val TAG = "CacheFactory"
+        private const val CACHE_FOLDER_NAME = "exoplayer"
+        private const val CACHE_FLAGS = CacheDataSource.FLAG_BLOCK_ON_CACHE or CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR
 
         // Creating cache on every instance may cause problems with multiple players when
         // sources are not ExtractorMediaSource
         // see: https://stackoverflow.com/questions/28700391/using-cache-in-exoplayer
         // todo: make this a singleton?
         private var cache: SimpleCache? = null
+
     }
 }

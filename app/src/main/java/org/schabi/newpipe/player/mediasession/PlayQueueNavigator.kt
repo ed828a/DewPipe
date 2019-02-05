@@ -17,15 +17,9 @@ import android.support.v4.media.session.PlaybackStateCompat.ACTION_SKIP_TO_QUEUE
 
 class PlayQueueNavigator(private val mediaSession: MediaSessionCompat,
                          private val callback: MediaSessionCallback) : MediaSessionConnector.QueueNavigator {
-    private val maxQueueSize: Int
+    private val maxQueueSize: Int = DEFAULT_MAX_QUEUE_SIZE
 
-    private var activeQueueItemId: Long = 0
-
-    init {
-        this.maxQueueSize = DEFAULT_MAX_QUEUE_SIZE
-
-        this.activeQueueItemId = MediaSessionCompat.QueueItem.UNKNOWN_ID.toLong()
-    }
+    private var activeQueueItemId: Long = MediaSessionCompat.QueueItem.UNKNOWN_ID.toLong()
 
     override fun getSupportedQueueNavigatorActions(player: Player?): Long {
         return ACTION_SKIP_TO_NEXT or ACTION_SKIP_TO_PREVIOUS or ACTION_SKIP_TO_QUEUE_ITEM
@@ -66,7 +60,6 @@ class PlayQueueNavigator(private val mediaSession: MediaSessionCompat,
             return
         }
 
-        // Yes this is almost a copypasta, got a problem with that? =\
         val windowCount = callback.getQueueSize()
         val currentWindowIndex = callback.getCurrentPlayingIndex()
         val queueSize = Math.min(maxQueueSize, windowCount)
@@ -82,11 +75,11 @@ class PlayQueueNavigator(private val mediaSession: MediaSessionCompat,
     }
 
     override fun getCommands(): Array<String?> {
-        return arrayOfNulls(0)
+        return arrayOf()
     }
 
     override fun onCommand(player: Player, command: String, extras: Bundle, cb: ResultReceiver) {
-
+        // no-op yet
     }
 
     companion object {

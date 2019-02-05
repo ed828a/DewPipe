@@ -24,8 +24,7 @@ class MediaSessionManager(context: Context,
         this.mediaSession = MediaSessionCompat(context, TAG)
         this.mediaSession.isActive = true
 
-        this.sessionConnector = MediaSessionConnector(mediaSession,
-                PlayQueuePlaybackController(callback))
+        this.sessionConnector = MediaSessionConnector(mediaSession, PlayQueuePlaybackController(callback))
         this.sessionConnector.setQueueNavigator(PlayQueueNavigator(mediaSession, callback))
         this.sessionConnector.setPlayer(player, null)
     }

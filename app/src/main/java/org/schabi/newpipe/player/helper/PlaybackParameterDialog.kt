@@ -19,9 +19,12 @@ class PlaybackParameterDialog : DialogFragment() {
 
     private var callback: Callback? = null
 
-    private val strategy = SliderStrategy.Quadratic(
-            MINIMUM_PLAYBACK_VALUE, MAXIMUM_PLAYBACK_VALUE,
-            /*centerAt=*/1.00, /*sliderGranularity=*/10000)
+    private val strategy =
+            SliderStrategy.Quadratic(
+                    MINIMUM_PLAYBACK_VALUE,
+                    MAXIMUM_PLAYBACK_VALUE,
+                    /*centerAt=*/1.00,
+                    /*sliderGranularity=*/10000)
 
     private var initialTempo = DEFAULT_TEMPO
     private var initialPitch = DEFAULT_PITCH
@@ -48,9 +51,7 @@ class PlaybackParameterDialog : DialogFragment() {
     // Sliders
     ///////////////////////////////////////////////////////////////////////////
 
-    private// Do Nothing.
-    // Do Nothing.
-    val onTempoChangedListener: SeekBar.OnSeekBarChangeListener
+    private val onTempoChangedListener: SeekBar.OnSeekBarChangeListener
         get() = object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 val currentTempo = strategy.valueOf(progress)
@@ -60,48 +61,41 @@ class PlaybackParameterDialog : DialogFragment() {
                 }
             }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}  // Do Nothing.
 
-            override fun onStopTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {}  // Do Nothing.
         }
 
-    private// this change is first in chain
-    // Do Nothing.
-    // Do Nothing.
-    val onPitchChangedListener: SeekBar.OnSeekBarChangeListener
+    private val onPitchChangedListener: SeekBar.OnSeekBarChangeListener
         get() = object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 val currentPitch = strategy.valueOf(progress)
-                if (fromUser) {
+                if (fromUser) { // this change is first in chain
                     onPitchSliderUpdated(currentPitch)
                     setCurrentPlaybackParameters()
                 }
             }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStartTrackingTouch(seekBar: SeekBar) {} // Do Nothing.
 
-            override fun onStopTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {}  // Do Nothing.
         }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Helper
+    ///////////////////////////////////////////////////////////////////////////
     private val currentTempo: Double
-        get() = if (tempoSlider == null)
-            tempo
-        else
-            strategy.valueOf(
-                    tempoSlider!!.progress)
+        get() = if (tempoSlider == null) tempo else strategy.valueOf(tempoSlider!!.progress)
 
     private val currentPitch: Double
-        get() = if (pitchSlider == null)
-            pitch
-        else
-            strategy.valueOf(
-                    pitchSlider!!.progress)
+        get() = if (pitchSlider == null) pitch else strategy.valueOf(pitchSlider!!.progress)
 
     private val currentSkipSilence: Boolean
         get() = skipSilenceCheckbox != null && skipSilenceCheckbox!!.isChecked
 
     interface Callback {
-        fun onPlaybackParameterChanged(playbackTempo: Float, playbackPitch: Float,
+        fun onPlaybackParameterChanged(playbackTempo: Float,
+                                       playbackPitch: Float,
                                        playbackSkipSilence: Boolean)
     }
 
@@ -174,55 +168,11 @@ class PlaybackParameterDialog : DialogFragment() {
         setupStepSizeSelector(rootView)
     }
 
-    private fun setupTempoControl(rootView: View) {
-        tempoSlider = rootView.findViewById(R.id.tempoSeekbar)
-        val tempoMinimumText = rootView.findViewById<TextView>(R.id.tempoMinimumText)
-        val tempoMaximumText = rootView.findViewById<TextView>(R.id.tempoMaximumText)
-        tempoCurrentText = rootView.findViewById(R.id.tempoCurrentText)
-        tempoStepUpText = rootView.findViewById(R.id.tempoStepUp)
-        tempoStepDownText = rootView.findViewById(R.id.tempoStepDown)
-
-        if (tempoCurrentText != null)
-            tempoCurrentText!!.text = PlayerHelper.formatSpeed(tempo)
-        if (tempoMaximumText != null)
-            tempoMaximumText.text = PlayerHelper.formatSpeed(MAXIMUM_PLAYBACK_VALUE)
-        if (tempoMinimumText != null)
-            tempoMinimumText.text = PlayerHelper.formatSpeed(MINIMUM_PLAYBACK_VALUE)
-
-        if (tempoSlider != null) {
-            tempoSlider!!.max = strategy.progressOf(MAXIMUM_PLAYBACK_VALUE)
-            tempoSlider!!.progress = strategy.progressOf(tempo)
-            tempoSlider!!.setOnSeekBarChangeListener(onTempoChangedListener)
-        }
-    }
-
-    private fun setupPitchControl(rootView: View) {
-        pitchSlider = rootView.findViewById(R.id.pitchSeekbar)
-        val pitchMinimumText = rootView.findViewById<TextView>(R.id.pitchMinimumText)
-        val pitchMaximumText = rootView.findViewById<TextView>(R.id.pitchMaximumText)
-        pitchCurrentText = rootView.findViewById(R.id.pitchCurrentText)
-        pitchStepDownText = rootView.findViewById(R.id.pitchStepDown)
-        pitchStepUpText = rootView.findViewById(R.id.pitchStepUp)
-
-        if (pitchCurrentText != null)
-            pitchCurrentText!!.text = PlayerHelper.formatPitch(pitch)
-        if (pitchMaximumText != null)
-            pitchMaximumText.text = PlayerHelper.formatPitch(MAXIMUM_PLAYBACK_VALUE)
-        if (pitchMinimumText != null)
-            pitchMinimumText.text = PlayerHelper.formatPitch(MINIMUM_PLAYBACK_VALUE)
-
-        if (pitchSlider != null) {
-            pitchSlider!!.max = strategy.progressOf(MAXIMUM_PLAYBACK_VALUE)
-            pitchSlider!!.progress = strategy.progressOf(pitch)
-            pitchSlider!!.setOnSeekBarChangeListener(onPitchChangedListener)
-        }
-    }
-
     private fun setupHookingControl(rootView: View) {
         unhookingCheckbox = rootView.findViewById(R.id.unhookCheckbox)
-        if (unhookingCheckbox != null) {
-            unhookingCheckbox!!.isChecked = pitch != tempo
-            unhookingCheckbox!!.setOnCheckedChangeListener { compoundButton, isChecked ->
+        unhookingCheckbox?.let {
+            it.isChecked = pitch != tempo
+            it.setOnCheckedChangeListener { compoundButton, isChecked ->
                 if (isChecked) return@setOnCheckedChangeListener
                 // When unchecked, slide back to the minimum of current tempo or pitch
                 val minimum = Math.min(currentPitch, currentTempo)
@@ -234,9 +184,48 @@ class PlaybackParameterDialog : DialogFragment() {
 
     private fun setupSkipSilenceControl(rootView: View) {
         skipSilenceCheckbox = rootView.findViewById(R.id.skipSilenceCheckbox)
-        if (skipSilenceCheckbox != null) {
-            skipSilenceCheckbox!!.isChecked = initialSkipSilence
-            skipSilenceCheckbox!!.setOnCheckedChangeListener { compoundButton, isChecked -> setCurrentPlaybackParameters() }
+        skipSilenceCheckbox?.let {
+            it.isChecked = initialSkipSilence
+            it.setOnCheckedChangeListener { compoundButton, isChecked -> setCurrentPlaybackParameters() }
+        }
+    }
+
+    private fun setupTempoControl(rootView: View) {
+        tempoSlider = rootView.findViewById(R.id.tempoSeekbar)
+        val tempoMinimumText = rootView.findViewById<TextView>(R.id.tempoMinimumText)
+        val tempoMaximumText = rootView.findViewById<TextView>(R.id.tempoMaximumText)
+        tempoCurrentText = rootView.findViewById(R.id.tempoCurrentText)
+        tempoStepUpText = rootView.findViewById(R.id.tempoStepUp)
+        tempoStepDownText = rootView.findViewById(R.id.tempoStepDown)
+
+        tempoCurrentText?.text = PlayerHelper.formatSpeed(tempo)
+        tempoMaximumText?.text = PlayerHelper.formatSpeed(MAXIMUM_PLAYBACK_VALUE)
+        tempoMinimumText?.text = PlayerHelper.formatSpeed(MINIMUM_PLAYBACK_VALUE)
+
+        tempoSlider?.let {
+            it.max = strategy.progressOf(MAXIMUM_PLAYBACK_VALUE)
+            it.progress = strategy.progressOf(tempo)
+            it.setOnSeekBarChangeListener(onTempoChangedListener)
+        }
+    }
+
+    private fun setupPitchControl(rootView: View) {
+        pitchSlider = rootView.findViewById(R.id.pitchSeekbar)
+        val pitchMinimumText = rootView.findViewById<TextView>(R.id.pitchMinimumText)
+        val pitchMaximumText = rootView.findViewById<TextView>(R.id.pitchMaximumText)
+        pitchCurrentText = rootView.findViewById(R.id.pitchCurrentText)
+        pitchStepDownText = rootView.findViewById(R.id.pitchStepDown)
+        pitchStepUpText = rootView.findViewById(R.id.pitchStepUp)
+
+        pitchCurrentText?.text = PlayerHelper.formatPitch(pitch)
+        pitchMaximumText?.text = PlayerHelper.formatPitch(MAXIMUM_PLAYBACK_VALUE)
+        pitchMinimumText?.text = PlayerHelper.formatPitch(MINIMUM_PLAYBACK_VALUE)
+
+        pitchSlider?.let {
+            it.max = strategy.progressOf(MAXIMUM_PLAYBACK_VALUE)
+            it.progress = strategy.progressOf(pitch)
+            it.setOnSeekBarChangeListener(onPitchChangedListener)
+
         }
     }
 
@@ -309,6 +298,9 @@ class PlaybackParameterDialog : DialogFragment() {
         }
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Sliders
+    ///////////////////////////////////////////////////////////////////////////
     private fun onTempoSliderUpdated(newTempo: Double) {
         if (unhookingCheckbox == null) return
         if (!unhookingCheckbox!!.isChecked) {
@@ -353,10 +345,7 @@ class PlaybackParameterDialog : DialogFragment() {
     private fun setPlaybackParameters(tempo: Double, pitch: Double,
                                       skipSilence: Boolean) {
         if (callback != null && tempoCurrentText != null && pitchCurrentText != null) {
-            if (DEBUG)
-                Log.d(TAG, "Setting playback parameters to " +
-                        "tempo=[" + tempo + "], " +
-                        "pitch=[" + pitch + "]")
+            Log.d(TAG, "Setting playback parameters to tempo=[$tempo], pitch=[$pitch]")
 
             tempoCurrentText!!.text = PlayerHelper.formatSpeed(tempo)
             pitchCurrentText!!.text = PlayerHelper.formatPitch(pitch)
@@ -371,8 +360,8 @@ class PlaybackParameterDialog : DialogFragment() {
         const val MINIMUM_PLAYBACK_VALUE = 0.10
         const val MAXIMUM_PLAYBACK_VALUE = 3.00
 
-        const val STEP_UP_SIGN = '+'
-        const val STEP_DOWN_SIGN = '-'
+        private const val STEP_UP_SIGN = '+'
+        private const val STEP_DOWN_SIGN = '-'
 
         const val STEP_ONE_PERCENT_VALUE = 0.01
         const val STEP_FIVE_PERCENT_VALUE = 0.05
