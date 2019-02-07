@@ -6,35 +6,17 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.NavUtils
-import android.support.v7.app.ActionBar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.MenuItem
 import android.webkit.CookieManager
-import android.webkit.ValueCallback
-import android.webkit.WebSettings
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 
-/*
- * Created by beneth <bmauduit@beneth.fr> on 06.12.16.
- *
- * Copyright (C) Christian Schabesberger 2015 <chris.schabesberger@mailbox.org>
- * ReCaptchaActivity.java is part of NewPipe.
- *
- * NewPipe is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * NewPipe is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with NewPipe.  If not, see <http://www.gnu.org/licenses/>.
+/**
+ * this is just verify if Youtube web is still functioning
  */
 class ReCaptchaActivity : AppCompatActivity() {
 
@@ -49,10 +31,10 @@ class ReCaptchaActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         val actionBar = supportActionBar
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true)
-            actionBar.setTitle(R.string.reCaptcha_title)
-            actionBar.setDisplayShowTitleEnabled(true)
+        actionBar?.let {
+            it.setDisplayHomeAsUpEnabled(true)
+            it.setTitle(R.string.reCaptcha_title)
+            it.setDisplayShowTitleEnabled(true)
         }
 
         val myWebView = findViewById<WebView>(R.id.reCaptchaWebView)
@@ -69,7 +51,7 @@ class ReCaptchaActivity : AppCompatActivity() {
         myWebView.clearHistory()
         val cookieManager = CookieManager.getInstance()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            cookieManager.removeAllCookies { }
+            cookieManager.removeAllCookies(null)
         } else {
             cookieManager.removeAllCookie()
         }
@@ -79,7 +61,6 @@ class ReCaptchaActivity : AppCompatActivity() {
 
     private inner class ReCaptchaWebViewClient internal constructor(private val context: Activity) : WebViewClient() {
         private var mCookies: String? = null
-
 
         override fun onPageStarted(view: WebView, url: String, favicon: Bitmap) {
             // TODO: Start Loader
@@ -93,7 +74,7 @@ class ReCaptchaActivity : AppCompatActivity() {
             // TODO: Stop Loader
 
             // find cookies : s_gl & goojf and Add cookies to Downloader
-            if (find_access_cookies(cookies)) {
+            if (findAccessCookies(cookies)) {
                 // Give cookies to Downloader class
                 Downloader.instance!!.cookies = mCookies
 
@@ -103,21 +84,21 @@ class ReCaptchaActivity : AppCompatActivity() {
             }
         }
 
-        private fun find_access_cookies(cookies: String): Boolean {
+        private fun findAccessCookies(cookies: String): Boolean {
             var ret = false
-            var c_s_gl = ""
-            var c_goojf = ""
+            var cookieSGL = ""     // s_gl
+            var cookieGOOJF = ""   // goojf
 
-            val parts = cookies.split("; ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            val parts = (cookies as CharSequence).split("; ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             for (part in parts) {
                 if (part.trim { it <= ' ' }.startsWith("s_gl")) {
-                    c_s_gl = part.trim { it <= ' ' }
+                    cookieSGL = part.trim { it <= ' ' }
                 }
                 if (part.trim { it <= ' ' }.startsWith("goojf")) {
-                    c_goojf = part.trim { it <= ' ' }
+                    cookieGOOJF = part.trim { it <= ' ' }
                 }
             }
-            if (c_s_gl.length > 0 && c_goojf.length > 0) {
+            if (cookieSGL.isNotEmpty() && cookieGOOJF.isNotEmpty()) {
                 ret = true
                 //mCookies = c_s_gl + "; " + c_goojf;
                 // Youtube seems to also need the other cookies:
@@ -130,21 +111,24 @@ class ReCaptchaActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
-        when (id) {
+        return when (id) {
             android.R.id.home -> {
                 val intent = Intent(this, org.schabi.newpipe.MainActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 NavUtils.navigateUpTo(this, intent)
-                return true
+                true
             }
-            else -> return false
+            else -> false
         }
     }
 
+
+
     companion object {
+        const val TAG = "ReCaptchaActivity"
+
         const val RECAPTCHA_REQUEST = 10
 
-        val TAG = ReCaptchaActivity::class.java.toString()
         const val YT_URL = "https://www.youtube.com"
     }
 }

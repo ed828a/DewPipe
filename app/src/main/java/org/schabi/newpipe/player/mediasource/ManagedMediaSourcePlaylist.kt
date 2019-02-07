@@ -4,7 +4,7 @@ import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.ShuffleOrder
 
 class ManagedMediaSourcePlaylist {
-    val parentMediaSource: ConcatenatingMediaSource = ConcatenatingMediaSource(false, /*isPlaylistAtomic=*/
+    val internalMediaSource: ConcatenatingMediaSource = ConcatenatingMediaSource(false, /*isPlaylistAtomic=*/
             ShuffleOrder.UnshuffledShuffleOrder(0))
 
     ///////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@ class ManagedMediaSourcePlaylist {
     ///////////////////////////////////////////////////////////////////////////
 
     fun size(): Int {
-        return parentMediaSource.size
+        return internalMediaSource.size
     }
 
     /**
@@ -23,7 +23,7 @@ class ManagedMediaSourcePlaylist {
         return if (index < 0 || index >= size())
         /*doNothing=*/ null
         else
-            parentMediaSource.getMediaSource(index) as ManagedMediaSource
+            internalMediaSource.getMediaSource(index) as ManagedMediaSource
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ class ManagedMediaSourcePlaylist {
      */
     @Synchronized
     fun append(source: ManagedMediaSource) {
-        parentMediaSource.addMediaSource(source)
+        internalMediaSource.addMediaSource(source)
     }
 
     /**
@@ -58,9 +58,9 @@ class ManagedMediaSourcePlaylist {
      */
     @Synchronized
     fun remove(index: Int) {
-        if (index < 0 || index > parentMediaSource.size) return
+        if (index < 0 || index > internalMediaSource.size) return
 
-        parentMediaSource.removeMediaSource(index)
+        internalMediaSource.removeMediaSource(index)
     }
 
     /**
@@ -71,10 +71,9 @@ class ManagedMediaSourcePlaylist {
      */
     @Synchronized
     fun move(source: Int, target: Int) {
-        if (source < 0 || target < 0) return
-        if (source >= parentMediaSource.size || target >= parentMediaSource.size) return
+        if (source < 0 || target < 0 || source >= internalMediaSource.size || target >= internalMediaSource.size) return
 
-        parentMediaSource.moveMediaSource(source, target)
+        internalMediaSource.moveMediaSource(source, target)
     }
 
     /**
@@ -110,7 +109,7 @@ class ManagedMediaSourcePlaylist {
     @Synchronized
     fun update(index: Int, source: ManagedMediaSource,
                finalizingAction: Runnable?) {
-        if (index < 0 || index >= parentMediaSource.size) return
+        if (index < 0 || index >= internalMediaSource.size) return
 
         // Add and remove are sequential on the same thread, therefore here, the exoplayer
         // message queue must receive and process add before remove, effectively treating them
@@ -120,10 +119,10 @@ class ManagedMediaSourcePlaylist {
         // all its changes on the playback thread, thus, it is possible, in the meantime,
         // other calls that modifies the playlist media source occur in between. This makes
         // it unsafe to call remove as the finalizing action of add.
-        parentMediaSource.addMediaSource(index + 1, source)
+        internalMediaSource.addMediaSource(index + 1, source)
 
         // Because of the above race condition, it is thus only safe to synchronize the simpleExoPlayer
         // in the finalizing action AFTER the removal is complete and the timeline has changed.
-        parentMediaSource.removeMediaSource(index, finalizingAction)
+        internalMediaSource.removeMediaSource(index, finalizingAction)
     }
 }

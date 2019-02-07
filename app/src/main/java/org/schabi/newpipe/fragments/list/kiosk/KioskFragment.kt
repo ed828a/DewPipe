@@ -84,7 +84,6 @@ class KioskFragment : BaseListInfoFragment<KioskInfo>() {
 //        }
         return ExtractorHelper.getKioskInfo(serviceId,
                 url,
-                contentCountry!!,
                 forceReload)
     }
 
@@ -95,8 +94,7 @@ class KioskFragment : BaseListInfoFragment<KioskInfo>() {
                         getString(R.string.default_country_value))
         return ExtractorHelper.getMoreKioskItems(serviceId,
                 url,
-                currentNextPageUrl,
-                contentCountry!!)
+                currentNextPageUrl)
     }
 
     ///////////////////////////////////////////////////////////////////////////

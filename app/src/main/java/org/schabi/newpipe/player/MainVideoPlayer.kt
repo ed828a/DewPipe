@@ -33,6 +33,7 @@ import android.preference.PreferenceManager
 import android.provider.Settings
 import android.support.annotation.ColorInt
 import android.support.v4.app.ActivityCompat
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.content.res.AppCompatResources
 import android.support.v7.widget.RecyclerView
@@ -88,7 +89,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
     private var isBackPressed: Boolean = false
 
     private var isLandscape: Boolean
-        get() = resources.displayMetrics.heightPixels < resources.displayMetrics.widthPixels
+        get() = resources.displayMetrics.heightPixels < resources.displayMetrics.widthPixels  // not the best way
         set(value) {
             requestedOrientation = if (value)
                 ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
@@ -256,7 +257,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
                     or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                     or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
         } else {
-            View.STATUS_BAR_VISIBLE
+            View.SYSTEM_UI_FLAG_VISIBLE
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -337,11 +338,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
 
     ///////////////////////////////////////////////////////////////////////////
 
-    private inner class VideoPlayerImpl internal constructor(context: Context) : VideoPlayer("VideoPlayerImpl" + MainVideoPlayer.TAG, context) {
-
-        ///////////////////////////////////////////////////////////////////////////
-        // Getters
-        ///////////////////////////////////////////////////////////////////////////
+    private inner class VideoPlayerImpl internal constructor(context: Context) : VideoPlayer("${MainVideoPlayer.TAG}.VideoPlayerImpl", context) {
 
         var titleTextView: TextView? = null
             private set
@@ -388,6 +385,9 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         var maxGestureLength: Int = 0
             private set
 
+        ///////////////////////////////////////////////////////////////////////////
+        // Getters
+        ///////////////////////////////////////////////////////////////////////////
         private val queueScrollListener: OnScrollBelowItemsListener
             get() = object : OnScrollBelowItemsListener() {
                 override fun onScrolledDown(recyclerView: RecyclerView) {
@@ -414,7 +414,18 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
 
                 override fun held(item: PlayQueueItem, view: View) {
                     val index = playQueue!!.indexOf(item)
-                    if (index != -1) playQueue!!.remove(index)
+                    if (index != -1) {
+                        // remove the item in playQueue
+                        AlertDialog.Builder(context)
+                                .setTitle("Alert")
+                                .setMessage("Are you sure that you want to remove this item")
+                                .setPositiveButton("Yes"){dialog, which ->
+                                    playQueue!!.remove(index)
+                                }
+                                .setNegativeButton("No"){dialog, which ->  }
+                                .show()
+                    }
+
                 }
 
                 override fun onStartDrag(viewHolder: PlayQueueItemHolder) {
@@ -489,11 +500,11 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             switchBackgroundButton!!.setOnClickListener(this)
             switchPopupButton!!.setOnClickListener(this)
 
-            rootView!!.addOnLayoutChangeListener { view, l, t, r, b, ol, ot, or, ob ->
-                if (l != ol || t != ot || r != or || b != ob) {
+            rootView!!.addOnLayoutChangeListener { view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+                if (left != oldLeft || top != oldTop || right != oldRight || bottom != oldBottom) {
                     // Use smaller value to be consistent between screen orientations (and to make usage easier)
-                    val width = r - l
-                    val height = b - t
+                    val width = right - left
+                    val height = bottom - top
                     maxGestureLength = (Math.min(width, height) * MAX_GESTURE_LENGTH).toInt()
 
                     Log.d(TAG, "maxGestureLength = $maxGestureLength")
@@ -642,6 +653,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         }
 
         private fun onQueueClicked() {
+            Log.d(TAG, "onQueueClicked() called")
             queueVisible = true
             hideSystemUi()
 
@@ -656,6 +668,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         }
 
         private fun onQueueClosed() {
+            Log.d(TAG, "onQueueClosed() called")
             animateView(queueLayout!!, SLIDE_AND_ALPHA, /*visible=*/false,
                     DEFAULT_CONTROLS_DURATION.toLong())
             queueVisible = false
@@ -836,12 +849,13 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         }
 
         private fun buildQueue() {
-            itemsList!!.adapter = playQueueAdapter
-            itemsList!!.isClickable = true
-            itemsList!!.isLongClickable = true
-
-            itemsList!!.clearOnScrollListeners()
-            itemsList!!.addOnScrollListener(queueScrollListener)
+            with(itemsList!!){
+                adapter = playQueueAdapter
+                isClickable = true
+                isLongClickable = true
+                clearOnScrollListeners()
+                addOnScrollListener(queueScrollListener)
+            }
 
             itemTouchHelper = ItemTouchHelper(itemTouchCallback)
             itemTouchHelper!!.attachToRecyclerView(itemsList)
@@ -861,7 +875,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         private val maxVolume = playerImpl!!.audioReactor!!.maxVolume
 
         override fun onDoubleTap(event: MotionEvent): Boolean {
-            Log.d(TAG, "onDoubleTap() called with: event = [$event]rawXy = ${event.rawX}, ${event.rawY}, xy = ${event.x}, ${event.y}")
+            Log.d(TAG, "onDoubleTap() called with: event = [$event]rawXy = ${event.rawX}, ${event.rawY}, [x,y] = [${event.x}, ${event.y}]")
 
             when {
                 event.x > playerImpl!!.rootView!!.width * 2 / 3 -> playerImpl!!.onFastForward()
@@ -886,7 +900,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         }
 
         override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-            if (DEBUG) Log.d(TAG, "onSingleTapConfirmed() called with: e = [$e]")
+            Log.d(TAG, "onSingleTapConfirmed() called with: event = [$e]")
             if (playerImpl!!.currentState == BasePlayer.STATE_BLOCKED) return true
 
             if (playerImpl!!.isControlsVisible) {
@@ -899,7 +913,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         }
 
         override fun onDown(e: MotionEvent): Boolean {
-            Log.d(TAG, "onDown() called with: e = [$e]")
+            Log.d(TAG, "onDown() called with: event = [$e]")
 
             return super.onDown(e)
         }
@@ -1007,6 +1021,6 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
 
     companion object {
         const val MOVEMENT_THRESHOLD = 40
-        private const val TAG = ".MainVideoPlayer"
+        private const val TAG = "MainVideoPlayer"
     }
 }

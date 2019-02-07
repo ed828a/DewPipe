@@ -13,6 +13,7 @@ import android.support.v4.app.NotificationCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.text.TextUtils
+import android.util.Log
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
@@ -57,20 +58,27 @@ import java.util.*
  */
 class RouterActivity : AppCompatActivity() {
 
-    @State @JvmField
+    @State
+    @JvmField
     protected var currentServiceId = -1
-    private var currentService: StreamingService? = null
-    @State @JvmField
-    protected var currentLinkType: LinkType? = null
-    @State @JvmField
-    protected var selectedRadioPosition = -1
-    protected var selectedPreviously = -1
 
-    protected var currentUrl: String? = null
-    protected var disposables = CompositeDisposable()
+    @State
+    @JvmField
+    protected var currentLinkType: LinkType? = null
+
+    @State
+    @JvmField
+    protected var selectedRadioPosition = -1
+
+    private var currentService: StreamingService? = null
+    private var selectedPreviously = -1
+
+    private var currentUrl: String? = null
+    private var disposables = CompositeDisposable()
 
     private var selectionIsDownload = false
 
+    // ContextThemeWrapper: A context wrapper that allows you to modify or replace the theme of the wrapped context
     private val themeWrapperContext: Context
         get() = ContextThemeWrapper(this,
                 if (ThemeHelper.isLightThemeSelected(this)) R.style.LightTheme else R.style.DarkTheme)
@@ -92,6 +100,8 @@ class RouterActivity : AppCompatActivity() {
             R.style.RouterActivityThemeLight
         else
             R.style.RouterActivityThemeDark)
+
+        Log.d(TAG, "RouterActivity: onCreate() called.")
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -108,32 +118,35 @@ class RouterActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
 
-        disposables.clear()
+        disposables.dispose()
     }
 
     private fun handleUrl(url: String) {
-        disposables.add(Observable
-                .fromCallable {
-                    if (currentServiceId == -1) {
-                        currentService = NewPipe.getServiceByUrl(url)
-                        currentServiceId = currentService!!.serviceId
-                        currentLinkType = currentService!!.getLinkTypeByUrl(url)
-                        currentUrl = url
-                    } else {
-                        currentService = NewPipe.getService(currentServiceId)
-                    }
+        val d = Observable.fromCallable {
+            if (currentServiceId == -1) {
+                currentService = NewPipe.getServiceByUrl(url)
+                currentServiceId = currentService!!.serviceId
+                currentLinkType = currentService!!.getLinkTypeByUrl(url)
+                currentUrl = url
+            } else {
+                currentService = NewPipe.getService(currentServiceId)
+            }
 
-                    LinkType.NONE != currentLinkType
-                }
+            LinkType.NONE != currentLinkType
+        }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ result ->
-                    if (result!!) {
-                        onSuccess()
-                    } else {
-                        onError()
-                    }
-                }, { this.handleError(it) }))
+                .subscribe(
+                        { result ->
+                            if (result!!) {
+                                onSuccess()
+                            } else {
+                                onError()
+                            }
+                        },
+                        { this.handleError(it) })
+
+        disposables.add(d)
     }
 
     private fun handleError(error: Throwable) {
@@ -153,7 +166,7 @@ class RouterActivity : AppCompatActivity() {
         finish()
     }
 
-    protected fun onSuccess() {
+    private fun onSuccess() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         val selectedChoiceKey = preferences.getString(getString(R.string.preferred_open_action_key), getString(R.string.preferred_open_action_default))
 
@@ -164,47 +177,48 @@ class RouterActivity : AppCompatActivity() {
         val downloadKey = getString(R.string.download_key)
         val alwaysAskKey = getString(R.string.always_ask_open_action_key)
 
-        if (selectedChoiceKey == alwaysAskKey) {
-            val choices = getChoicesForService(currentService!!, currentLinkType!!)
+        when (selectedChoiceKey) {
+            alwaysAskKey -> {
+                val choices = getChoicesForService(currentService!!, currentLinkType!!)
 
-            if (choices.size == 1) {
-                handleChoice(choices[0].key)
-            } else if (choices.size == 0) {
-                handleChoice(showInfoKey)
-            } else {
-                showDialog(choices)
+                when {
+                    choices.size == 1 -> handleChoice(choices[0].key)
+                    choices.isEmpty() -> handleChoice(showInfoKey)
+                    else -> showDialog(choices)
+                }
+
             }
-        } else if (selectedChoiceKey == showInfoKey) {
-            handleChoice(showInfoKey)
-        } else if (selectedChoiceKey == downloadKey) {
-            handleChoice(downloadKey)
-        } else {
-            val isExtVideoEnabled = preferences.getBoolean(getString(R.string.use_external_video_player_key), false)
-            val isExtAudioEnabled = preferences.getBoolean(getString(R.string.use_external_audio_player_key), false)
-            val isVideoPlayerSelected = selectedChoiceKey == videoPlayerKey || selectedChoiceKey == popupPlayerKey
-            val isAudioPlayerSelected = selectedChoiceKey == backgroundPlayerKey
 
-            if (LinkType.STREAM != currentLinkType) {
-                if (isExtAudioEnabled && isAudioPlayerSelected || isExtVideoEnabled && isVideoPlayerSelected) {
+            showInfoKey -> handleChoice(showInfoKey)
+            downloadKey -> handleChoice(downloadKey)
+
+            else -> {
+                val isExtVideoEnabled = preferences.getBoolean(getString(R.string.use_external_video_player_key), false)
+                val isExtAudioEnabled = preferences.getBoolean(getString(R.string.use_external_audio_player_key), false)
+                val isVideoPlayerSelected = selectedChoiceKey == videoPlayerKey || selectedChoiceKey == popupPlayerKey
+                val isAudioPlayerSelected = selectedChoiceKey == backgroundPlayerKey
+
+                if (LinkType.STREAM != currentLinkType && (isExtAudioEnabled && isAudioPlayerSelected || isExtVideoEnabled && isVideoPlayerSelected)) {
+
                     Toast.makeText(this, R.string.external_player_unsupported_link_type, Toast.LENGTH_LONG).show()
                     handleChoice(showInfoKey)
                     return
                 }
-            }
 
-            val capabilities = currentService!!.serviceInfo.mediaCapabilities
+                val capabilities = currentService!!.serviceInfo.mediaCapabilities
 
-            var serviceSupportsChoice = false
-            if (isVideoPlayerSelected) {
-                serviceSupportsChoice = capabilities.contains(VIDEO)
-            } else if (selectedChoiceKey == backgroundPlayerKey) {
-                serviceSupportsChoice = capabilities.contains(AUDIO)
-            }
+                val serviceSupportsChoice =
+                        when {
+                            isVideoPlayerSelected -> capabilities.contains(VIDEO)
+                            selectedChoiceKey == backgroundPlayerKey -> capabilities.contains(AUDIO)
+                            else -> false
+                        }
 
-            if (serviceSupportsChoice) {
-                handleChoice(selectedChoiceKey)
-            } else {
-                handleChoice(showInfoKey)
+                if (serviceSupportsChoice) {
+                    handleChoice(selectedChoiceKey)
+                } else {
+                    handleChoice(showInfoKey)
+                }
             }
         }
     }
@@ -213,11 +227,11 @@ class RouterActivity : AppCompatActivity() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         val themeWrapperContext = themeWrapperContext
 
-        val inflater = LayoutInflater.from(themeWrapperContext)
+        val inflater = LayoutInflater.from(themeWrapperContext)  // the view this inflater inflates comes with the theme.
         val rootLayout = inflater.inflate(R.layout.preferred_player_dialog_view, null, false) as LinearLayout
         val radioGroup = rootLayout.findViewById<RadioGroup>(android.R.id.list)
 
-        val dialogButtonsClickListener = DialogInterface.OnClickListener{ dialog, which ->
+        val dialogButtonsClickListener = DialogInterface.OnClickListener { dialog, which ->
             val indexOfChild = radioGroup.indexOfChild(
                     radioGroup.findViewById(radioGroup.checkedRadioButtonId))
             val choice = choices[indexOfChild]
@@ -242,8 +256,9 @@ class RouterActivity : AppCompatActivity() {
         alertDialog.setOnShowListener { dialog -> setDialogButtonsState(alertDialog, radioGroup.checkedRadioButtonId != -1) }
 
         radioGroup.setOnCheckedChangeListener { group, checkedId -> setDialogButtonsState(alertDialog, true) }
-        val radioButtonsClickListener = View.OnClickListener { v ->
-            val indexOfChild = radioGroup.indexOfChild(v)
+
+        val radioButtonsClickListener = View.OnClickListener { view ->
+            val indexOfChild = radioGroup.indexOfChild(view)
             if (indexOfChild == -1) return@OnClickListener
 
             selectedPreviously = selectedRadioPosition
@@ -381,23 +396,25 @@ class RouterActivity : AppCompatActivity() {
         ExtractorHelper.getStreamInfo(currentServiceId, currentUrl!!, true)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ result: StreamInfo ->
-                    val sortedVideoStreams = ListHelper.getSortedStreamVideosList(this,
-                            result.videoStreams,
-                            result.videoOnlyStreams,
-                            false)
-                    val selectedVideoStreamIndex = ListHelper.getDefaultResolutionIndex(this,
-                            sortedVideoStreams)
+                .subscribe(
+                        { result: StreamInfo ->
+                            val sortedVideoStreams = ListHelper.getSortedStreamVideosList(this,
+                                    result.videoStreams,
+                                    result.videoOnlyStreams,
+                                    false)
+                            val selectedVideoStreamIndex = ListHelper.getDefaultResolutionIndex(this,
+                                    sortedVideoStreams)
 
-                    val fm = supportFragmentManager
-                    val downloadDialog = DownloadDialog.newInstance(result)
-                    downloadDialog.setVideoStreams(sortedVideoStreams)
-                    downloadDialog.setAudioStreams(result.audioStreams)
-                    downloadDialog.setSelectedVideoStream(selectedVideoStreamIndex)
-                    downloadDialog.show(fm, "downloadDialog")
-                    fm.executePendingTransactions()
-                    downloadDialog.getDialog().setOnDismissListener({ dialog -> finish() })
-                }, { throwable: Throwable -> onError() })
+                            val fm = supportFragmentManager
+                            val downloadDialog = DownloadDialog.newInstance(result)
+                            downloadDialog.setVideoStreams(sortedVideoStreams)
+                            downloadDialog.setAudioStreams(result.audioStreams)
+                            downloadDialog.setSelectedVideoStream(selectedVideoStreamIndex)
+                            downloadDialog.show(fm, "downloadDialog")
+                            fm.executePendingTransactions()
+                            downloadDialog.dialog.setOnDismissListener { dialog -> finish() }
+                        },
+                        { throwable: Throwable -> onError() })
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -417,7 +434,7 @@ class RouterActivity : AppCompatActivity() {
     class Choice internal constructor(internal val serviceId: Int, internal val linkType: LinkType, internal val url: String, internal val playerChoice: String) : Serializable {
 
         override fun toString(): String {
-            return serviceId.toString() + ":" + url + " > " + linkType + " ::: " + playerChoice
+            return "serviceId:$serviceId, url:$url, linkType:$linkType, playerChoice:$playerChoice"
         }
     }
 
@@ -430,7 +447,7 @@ class RouterActivity : AppCompatActivity() {
 
         override fun onCreate() {
             super.onCreate()
-            startForeground(ID, createNotification().build())
+            startForeground(FETCH_NOTIFICATION_ID, createNotification().build())
         }
 
         override fun onHandleIntent(intent: Intent?) {
@@ -440,7 +457,7 @@ class RouterActivity : AppCompatActivity() {
             handleChoice(serializable)
         }
 
-        fun handleChoice(choice: Choice) {
+        private fun handleChoice(choice: Choice) {
             var single: Single<out Info>? = null
             var userAction = UserAction.SOMETHING_ELSE
 
@@ -456,6 +473,9 @@ class RouterActivity : AppCompatActivity() {
                 StreamingService.LinkType.PLAYLIST -> {
                     single = ExtractorHelper.getPlaylistInfo(choice.serviceId, choice.url, false)
                     userAction = UserAction.REQUESTED_PLAYLIST
+                }
+                StreamingService.LinkType.NONE -> {
+                    Log.d(TAG, "handleChoice(): LinkType error: LinkType.NONE")
                 }
             }
 
@@ -475,56 +495,85 @@ class RouterActivity : AppCompatActivity() {
             }
         }
 
-        fun getResultHandler(choice: Choice): Consumer<Info> {
-            return Consumer{ info ->
-                val videoPlayerKey = getString(R.string.video_player_key)
-                val backgroundPlayerKey = getString(R.string.background_player_key)
-                val popupPlayerKey = getString(R.string.popup_player_key)
+        private fun getResultHandler(choice: Choice): Consumer<Info> =
+                Consumer { info ->
+                    val videoPlayerKey = getString(R.string.video_player_key)
+                    val backgroundPlayerKey = getString(R.string.background_player_key)
+                    val popupPlayerKey = getString(R.string.popup_player_key)
 
-                val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-                val isExtVideoEnabled = preferences.getBoolean(getString(R.string.use_external_video_player_key), false)
-                val isExtAudioEnabled = preferences.getBoolean(getString(R.string.use_external_audio_player_key), false)
-                val useOldVideoPlayer = PlayerHelper.isUsingOldPlayer(this)
+                    val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+                    val isExtVideoEnabled = preferences.getBoolean(getString(R.string.use_external_video_player_key), false)
+                    val isExtAudioEnabled = preferences.getBoolean(getString(R.string.use_external_audio_player_key), false)
+                    val useOldVideoPlayer = PlayerHelper.isUsingOldPlayer(this)
 
-                var playQueue: PlayQueue
-                val playerChoice = choice.playerChoice
+                    val playQueue: PlayQueue
+                    val playerChoice = choice.playerChoice
+                    when (info) {
+                        is StreamInfo -> {
+                            when {
+                                playerChoice == backgroundPlayerKey && isExtAudioEnabled -> NavigationHelper.playOnExternalAudioPlayer(this, info as StreamInfo)
+                                playerChoice == videoPlayerKey && isExtVideoEnabled -> NavigationHelper.playOnExternalVideoPlayer(this, info as StreamInfo)
+                                playerChoice == videoPlayerKey && useOldVideoPlayer -> NavigationHelper.playOnOldVideoPlayer(this, info as StreamInfo)
+                                else -> {
+                                    playQueue = SinglePlayQueue(info as StreamInfo)
 
-                if (info is StreamInfo) {
-                    if (playerChoice == backgroundPlayerKey && isExtAudioEnabled) {
-                        NavigationHelper.playOnExternalAudioPlayer(this, info as StreamInfo)
+                                    when (playerChoice) {
+                                        videoPlayerKey -> NavigationHelper.playOnMainPlayer(this, playQueue)
+                                        backgroundPlayerKey -> NavigationHelper.enqueueOnBackgroundPlayer(this, playQueue, true)
+                                        popupPlayerKey -> NavigationHelper.enqueueOnPopupPlayer(this, playQueue, true)
+                                    }
+                                }
+                            }
+                        }
 
-                    } else if (playerChoice == videoPlayerKey && isExtVideoEnabled) {
-                        NavigationHelper.playOnExternalVideoPlayer(this, info as StreamInfo)
+                        is ChannelInfo -> {
+                            playQueue = ChannelPlayQueue(info)
 
-                    } else if (playerChoice == videoPlayerKey && useOldVideoPlayer) {
-                        NavigationHelper.playOnOldVideoPlayer(this, info as StreamInfo)
+                            when (playerChoice) {
+                                videoPlayerKey -> NavigationHelper.playOnMainPlayer(this, playQueue)
+                                backgroundPlayerKey -> NavigationHelper.enqueueOnBackgroundPlayer(this, playQueue, true)
+                                popupPlayerKey -> NavigationHelper.enqueueOnPopupPlayer(this, playQueue, true)
+                            }
+                        }
 
-                    } else {
-                        playQueue = SinglePlayQueue(info as StreamInfo)
+                        is PlaylistInfo -> {
+                            playQueue = PlaylistPlayQueue(info)
 
-                        if (playerChoice == videoPlayerKey) {
-                            NavigationHelper.playOnMainPlayer(this, playQueue)
-                        } else if (playerChoice == backgroundPlayerKey) {
-                            NavigationHelper.enqueueOnBackgroundPlayer(this, playQueue, true)
-                        } else if (playerChoice == popupPlayerKey) {
-                            NavigationHelper.enqueueOnPopupPlayer(this, playQueue, true)
+                            when (playerChoice) {
+                                videoPlayerKey -> NavigationHelper.playOnMainPlayer(this, playQueue)
+                                backgroundPlayerKey -> NavigationHelper.enqueueOnBackgroundPlayer(this, playQueue, true)
+                                popupPlayerKey -> NavigationHelper.enqueueOnPopupPlayer(this, playQueue, true)
+                            }
                         }
                     }
+//                if (info is StreamInfo) {
+//                    when {
+//                        playerChoice == backgroundPlayerKey && isExtAudioEnabled -> NavigationHelper.playOnExternalAudioPlayer(this, info as StreamInfo)
+//                        playerChoice == videoPlayerKey && isExtVideoEnabled -> NavigationHelper.playOnExternalVideoPlayer(this, info as StreamInfo)
+//                        playerChoice == videoPlayerKey && useOldVideoPlayer -> NavigationHelper.playOnOldVideoPlayer(this, info as StreamInfo)
+//                        else -> {
+//                            playQueue = SinglePlayQueue(info as StreamInfo)
+//
+//                            when (playerChoice) {
+//                                videoPlayerKey -> NavigationHelper.playOnMainPlayer(this, playQueue)
+//                                backgroundPlayerKey -> NavigationHelper.enqueueOnBackgroundPlayer(this, playQueue, true)
+//                                popupPlayerKey -> NavigationHelper.enqueueOnPopupPlayer(this, playQueue, true)
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                if (info is ChannelInfo || info is PlaylistInfo) {
+//                    playQueue = if (info is ChannelInfo) ChannelPlayQueue(info as ChannelInfo) else PlaylistPlayQueue(info as PlaylistInfo)
+//
+//                    when (playerChoice) {
+//                        videoPlayerKey -> NavigationHelper.playOnMainPlayer(this, playQueue)
+//                        backgroundPlayerKey -> NavigationHelper.playOnBackgroundPlayer(this, playQueue)
+//                        popupPlayerKey -> NavigationHelper.playOnPopupPlayer(this, playQueue)
+//                    }
+//                }
                 }
 
-                if (info is ChannelInfo || info is PlaylistInfo) {
-                    playQueue = if (info is ChannelInfo) ChannelPlayQueue(info as ChannelInfo) else PlaylistPlayQueue(info as PlaylistInfo)
-
-                    if (playerChoice == videoPlayerKey) {
-                        NavigationHelper.playOnMainPlayer(this, playQueue)
-                    } else if (playerChoice == backgroundPlayerKey) {
-                        NavigationHelper.playOnBackgroundPlayer(this, playQueue)
-                    } else if (playerChoice == popupPlayerKey) {
-                        NavigationHelper.playOnPopupPlayer(this, playQueue)
-                    }
-                }
-            }
-        }
 
         override fun onDestroy() {
             super.onDestroy()
@@ -532,21 +581,26 @@ class RouterActivity : AppCompatActivity() {
             if (fetcher != null) fetcher!!.dispose()
         }
 
-        private fun createNotification(): NotificationCompat.Builder {
-            return NotificationCompat.Builder(this, getString(R.string.notification_channel_id))
-                    .setOngoing(true)
-                    .setSmallIcon(R.drawable.ic_newpipe_triangle_white)
-                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                    .setContentTitle(getString(R.string.preferred_player_fetcher_notification_title))
-                    .setContentText(getString(R.string.preferred_player_fetcher_notification_message))
-        }
+        private fun createNotification(): NotificationCompat.Builder =
+                NotificationCompat.Builder(this, getString(R.string.notification_channel_id))
+                        .setOngoing(true)
+                        .setSmallIcon(R.drawable.ic_newpipe_triangle_white)
+                        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                        .setContentTitle(getString(R.string.preferred_player_fetcher_notification_title))
+                        .setContentText(getString(R.string.preferred_player_fetcher_notification_message))
+
 
         companion object {
 
-            private val ID = 456
-            val KEY_CHOICE = "key_choice"
+            private const val FETCH_NOTIFICATION_ID = 456
+            const val KEY_CHOICE = "key_choice"
         }
     }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Utils
+    ///////////////////////////////////////////////////////////////////////////
 
     private fun getUrl(intent: Intent): String? {
         // first gather data and find service
@@ -555,10 +609,10 @@ class RouterActivity : AppCompatActivity() {
             // this means the video was called though another app
             videoUrl = intent.data!!.toString()
         } else if (intent.getStringExtra(Intent.EXTRA_TEXT) != null) {
-            //this means that vidoe was called through share menu
+            //this means that video was called through share menu
             val extraText = intent.getStringExtra(Intent.EXTRA_TEXT)
             val uris = getUris(extraText)
-            videoUrl = if (uris.size > 0) uris[0] else null
+            videoUrl = if (uris.isNotEmpty()) uris[0] else null
         }
 
         return videoUrl
@@ -576,14 +630,14 @@ class RouterActivity : AppCompatActivity() {
     }
 
     private fun trim(input: String?): String? {
-        if (input == null || input.length < 1) {
+        if (input == null || input.isEmpty()) {
             return input
         } else {
             var output: String = input
-            while (output.length > 0 && output.substring(0, 1).matches(REGEX_REMOVE_FROM_URL.toRegex())) {
+            while (output.isNotEmpty() && output.substring(0, 1).matches(REGEX_REMOVE_FROM_URL.toRegex())) {
                 output = output.substring(1)
             }
-            while (output.length > 0 && output.substring(output.length - 1, output.length).matches(REGEX_REMOVE_FROM_URL.toRegex())) {
+            while (output.isNotEmpty() && output.substring(output.length - 1, output.length).matches(REGEX_REMOVE_FROM_URL.toRegex())) {
                 output = output.substring(0, output.length - 1)
             }
             return output
@@ -597,17 +651,16 @@ class RouterActivity : AppCompatActivity() {
      * @param sharedText text to scan for URLs.
      * @return potential URLs
      */
-    protected fun getUris(sharedText: String?): Array<String> {
+    private fun getUris(sharedText: String?): Array<String> {
         val result = HashSet<String>()
         if (sharedText != null) {
             val array = sharedText.split("\\p{Space}".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             for (s in array) {
                 val string = trim(s)!!
-                if (string.length != 0) {
-                    if (string.matches(".+://.+".toRegex())) {
-                        result.add(removeHeadingGibberish(string))
-                    } else if (string.matches(".+\\..+".toRegex())) {
-                        result.add("http://$string")
+                if (string.isNotEmpty()) {
+                    when {
+                        string.matches(".+://.+".toRegex()) -> result.add(removeHeadingGibberish(string))
+                        string.matches(".+\\..+".toRegex()) -> result.add("http://$string")
                     }
                 }
             }
@@ -616,16 +669,12 @@ class RouterActivity : AppCompatActivity() {
     }
 
     companion object {
-
-        ///////////////////////////////////////////////////////////////////////////
-        // Utils
-        ///////////////////////////////////////////////////////////////////////////
-
+        private val TAG = this::class.java.simpleName
         /**
          * Removes invisible separators (\p{Z}) and punctuation characters including
          * brackets (\p{P}). See http://www.regular-expressions.info/unicode.html for
          * more details.
          */
-        private val REGEX_REMOVE_FROM_URL = "[\\p{Z}\\p{P}]"
+        private const val REGEX_REMOVE_FROM_URL = "[\\p{Z}\\p{P}]"
     }
 }

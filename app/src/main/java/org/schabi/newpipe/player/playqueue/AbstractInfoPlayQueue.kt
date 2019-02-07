@@ -16,8 +16,9 @@ abstract class AbstractInfoPlayQueue<T : ListInfo<*>, U : InfoItem>(
         var nextUrl: String?,
         streams: List<StreamInfoItem>,
         index: Int) : PlayQueue(index, extractListItems(streams)) {
-    var isInitial: Boolean = false
-    override var isComplete: Boolean = false
+
+    var isInitial: Boolean = streams.isEmpty()
+    override var isComplete: Boolean = !isInitial && (nextUrl == null || nextUrl!!.isEmpty())
 
     @Transient
     var fetchReactor: Disposable? = null
@@ -68,7 +69,7 @@ abstract class AbstractInfoPlayQueue<T : ListInfo<*>, U : InfoItem>(
                 if (!result.hasNextPage()) isComplete = true
                 nextUrl = result.nextPageUrl
 
-                append(extractListItems(result.getItems()))
+                append(extractListItems(result.items))
 
                 fetchReactor!!.dispose()
                 fetchReactor = null
@@ -81,17 +82,11 @@ abstract class AbstractInfoPlayQueue<T : ListInfo<*>, U : InfoItem>(
             }
         }
 
-    constructor(item: U) : this(item.serviceId, item.url, null, emptyList<StreamInfoItem>(), 0) {}
-
-    init {
-
-        this.isInitial = streams.isEmpty()
-        this.isComplete = !isInitial && (nextUrl == null || nextUrl!!.isEmpty())
-    }
+    constructor(item: U) : this(item.serviceId, item.url, null, emptyList<StreamInfoItem>(), 0)
 
     override fun dispose() {
         super.dispose()
-        if (fetchReactor != null) fetchReactor!!.dispose()
+        fetchReactor?.dispose()
         fetchReactor = null
     }
 

@@ -49,7 +49,6 @@ import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.SubtitleView
 import com.nostra13.universalimageloader.core.assist.FailReason
 import org.schabi.newpipe.BuildConfig
-import org.schabi.newpipe.BuildConfig.DEBUG
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.stream.VideoStream
 import org.schabi.newpipe.player.BasePlayer.Companion.STATE_PLAYING
@@ -58,8 +57,6 @@ import org.schabi.newpipe.player.VideoPlayer.Companion.DEFAULT_CONTROLS_HIDE_TIM
 import org.schabi.newpipe.player.event.PlayerEventListener
 import org.schabi.newpipe.player.helper.LockManager
 import org.schabi.newpipe.player.helper.PlayerHelper
-import org.schabi.newpipe.player.helper.PlayerHelper.isUsingOldPlayer
-import org.schabi.newpipe.player.old.PlayVideoActivity
 import org.schabi.newpipe.player.resolver.MediaSourceTag
 import org.schabi.newpipe.player.resolver.VideoPlaybackResolver
 import org.schabi.newpipe.util.AnimationUtils.animateView
@@ -70,7 +67,6 @@ import org.schabi.newpipe.util.ThemeHelper
 /**
  * Service Popup Player implementing VideoPlayer
  *
- * @author mauriciocolli
  */
 class PopupVideoPlayer : Service() {
 
@@ -94,8 +90,8 @@ class PopupVideoPlayer : Service() {
     private var maximumHeight: Float = 0.toFloat()
 
     private var notificationManager: NotificationManager? = null
-    private var notBuilder: NotificationCompat.Builder? = null
-    private var notRemoteView: RemoteViews? = null
+    private var notificationBuilder: NotificationCompat.Builder? = null
+    private var notificationRemoteView: RemoteViews? = null
 
     private var playerImpl: VideoPlayerImpl? = null
     private var lockManager: LockManager? = null
@@ -105,7 +101,7 @@ class PopupVideoPlayer : Service() {
     // Service-Activity Binder
     ///////////////////////////////////////////////////////////////////////////
 
-    private var activityListener: PlayerEventListener? = null
+    private var playerEventListener: PlayerEventListener? = null
     private var mBinder: IBinder? = null
 
     ///////////////////////////////////////////////////////////////////////////
@@ -124,8 +120,8 @@ class PopupVideoPlayer : Service() {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        if (DEBUG)
-            Log.d(TAG, "onStartCommand() called with: intent = [$intent], flags = [$flags], startId = [$startId]")
+        Log.d(TAG, "onStartCommand() called with: intent = [$intent], flags = [$flags], startId = [$startId]")
+
         if (playerImpl!!.simpleExoPlayer == null) {
             initPopup()
             initPopupCloseOverlay()
@@ -138,20 +134,19 @@ class PopupVideoPlayer : Service() {
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
-        if (DEBUG) Log.d(TAG, "onConfigurationChanged() called with: newConfig = [$newConfig]")
+        Log.d(TAG, "onConfigurationChanged() called with: newConfig = [$newConfig]")
         updateScreenSize()
         updatePopupSize(popupLayoutParams!!.width, -1)
         checkPopupPositionBounds()
     }
 
     override fun onDestroy() {
-        if (DEBUG) Log.d(TAG, "onDestroy() called")
+        Log.d(TAG, "onDestroy() called")
         closePopup()
     }
 
-    override fun onBind(intent: Intent): IBinder? {
-        return mBinder
-    }
+    override fun onBind(intent: Intent): IBinder? = mBinder
+
 
     ///////////////////////////////////////////////////////////////////////////
     // Init
@@ -159,7 +154,7 @@ class PopupVideoPlayer : Service() {
 
     @SuppressLint("RtlHardcoded")
     private fun initPopup() {
-        if (DEBUG) Log.d(TAG, "initPopup() called")
+        Log.d(TAG, "initPopup() called")
         val rootView = View.inflate(this, R.layout.player_popup, null)
         playerImpl!!.setup(rootView)
 
@@ -203,7 +198,7 @@ class PopupVideoPlayer : Service() {
 
     @SuppressLint("RtlHardcoded", "RestrictedApi")
     private fun initPopupCloseOverlay() {
-        if (DEBUG) Log.d(TAG, "initPopupCloseOverlay() called")
+        Log.d(TAG, "initPopupCloseOverlay() called")
         closeOverlayView = View.inflate(this, R.layout.player_popup_close_overlay, null)
         closeOverlayButton = closeOverlayView!!.findViewById(R.id.closeButton)
 
@@ -231,35 +226,35 @@ class PopupVideoPlayer : Service() {
     ///////////////////////////////////////////////////////////////////////////
 
     private fun resetNotification() {
-        notBuilder = createNotification()
+        notificationBuilder = createNotification()
     }
 
     private fun createNotification(): NotificationCompat.Builder {
-        notRemoteView = RemoteViews(BuildConfig.APPLICATION_ID, R.layout.player_popup_notification)
+        notificationRemoteView = RemoteViews(BuildConfig.APPLICATION_ID, R.layout.player_popup_notification)
 
-        notRemoteView!!.setTextViewText(R.id.notificationSongName, playerImpl!!.videoTitle)
-        notRemoteView!!.setTextViewText(R.id.notificationArtist, playerImpl!!.uploaderName)
-        notRemoteView!!.setImageViewBitmap(R.id.notificationCover, playerImpl!!.thumbnail)
+        notificationRemoteView!!.setTextViewText(R.id.notificationSongName, playerImpl!!.videoTitle)
+        notificationRemoteView!!.setTextViewText(R.id.notificationArtist, playerImpl!!.uploaderName)
+        notificationRemoteView!!.setImageViewBitmap(R.id.notificationCover, playerImpl!!.thumbnail)
 
-        notRemoteView!!.setOnClickPendingIntent(R.id.notificationPlayPause,
+        notificationRemoteView!!.setOnClickPendingIntent(R.id.notificationPlayPause,
                 PendingIntent.getBroadcast(this, NOTIFICATION_ID, Intent(ACTION_PLAY_PAUSE), PendingIntent.FLAG_UPDATE_CURRENT))
-        notRemoteView!!.setOnClickPendingIntent(R.id.notificationStop,
+        notificationRemoteView!!.setOnClickPendingIntent(R.id.notificationStop,
                 PendingIntent.getBroadcast(this, NOTIFICATION_ID, Intent(ACTION_CLOSE), PendingIntent.FLAG_UPDATE_CURRENT))
-        notRemoteView!!.setOnClickPendingIntent(R.id.notificationRepeat,
+        notificationRemoteView!!.setOnClickPendingIntent(R.id.notificationRepeat,
                 PendingIntent.getBroadcast(this, NOTIFICATION_ID, Intent(ACTION_REPEAT), PendingIntent.FLAG_UPDATE_CURRENT))
 
         // Starts popup simpleExoPlayer activity -- attempts to unlock lockscreen
         val intent = NavigationHelper.getPopupPlayerActivityIntent(this)
-        notRemoteView!!.setOnClickPendingIntent(R.id.notificationContent,
+        notificationRemoteView!!.setOnClickPendingIntent(R.id.notificationContent,
                 PendingIntent.getActivity(this, NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT))
 
-        setRepeatModeRemote(notRemoteView, playerImpl!!.repeatMode)
+        setRepeatModeRemote(notificationRemoteView, playerImpl!!.repeatMode)
 
         val builder = NotificationCompat.Builder(this, getString(R.string.notification_channel_id))
                 .setOngoing(true)
                 .setSmallIcon(R.drawable.ic_newpipe_triangle_white)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setContent(notRemoteView)
+                .setContent(notificationRemoteView)
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
             builder.priority = NotificationCompat.PRIORITY_MAX
         }
@@ -273,10 +268,10 @@ class PopupVideoPlayer : Service() {
      * @param drawableId if != -1, sets the drawable with that id on the play/pause button
      */
     private fun updateNotification(drawableId: Int) {
-        if (DEBUG) Log.d(TAG, "updateNotification() called with: drawableId = [$drawableId]")
-        if (notBuilder == null || notRemoteView == null) return
-        if (drawableId != -1) notRemoteView!!.setImageViewResource(R.id.notificationPlayPause, drawableId)
-        notificationManager!!.notify(NOTIFICATION_ID, notBuilder!!.build())
+        Log.d(TAG, "updateNotification() called with: drawableId = [$drawableId]")
+        if (notificationBuilder == null || notificationRemoteView == null) return
+        if (drawableId != -1) notificationRemoteView!!.setImageViewResource(R.id.notificationPlayPause, drawableId)
+        notificationManager!!.notify(NOTIFICATION_ID, notificationBuilder!!.build())
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -284,7 +279,7 @@ class PopupVideoPlayer : Service() {
     ///////////////////////////////////////////////////////////////////////////
 
     fun closePopup() {
-        if (DEBUG) Log.d(TAG, "closePopup() called, isPopupClosing = $isPopupClosing")
+        Log.d(TAG, "closePopup() called, isPopupClosing = $isPopupClosing")
         if (isPopupClosing) return
         isPopupClosing = true
 
@@ -352,27 +347,29 @@ class PopupVideoPlayer : Service() {
      * @return if the popup was out of bounds and have been moved back to it
      */
     private fun checkPopupPositionBounds(boundaryWidth: Float, boundaryHeight: Float): Boolean {
-        if (DEBUG) {
-            Log.d(TAG, "checkPopupPositionBounds() called with: boundaryWidth = [$boundaryWidth], boundaryHeight = [$boundaryHeight]")
+        Log.d(TAG, "checkPopupPositionBounds() called with: boundaryWidth = [$boundaryWidth], boundaryHeight = [$boundaryHeight]")
+
+
+        when {
+            popupLayoutParams!!.x < 0 -> {
+                popupLayoutParams!!.x = 0
+                return true
+            }
+            popupLayoutParams!!.x > boundaryWidth - popupLayoutParams!!.width -> {
+                popupLayoutParams!!.x = (boundaryWidth - popupLayoutParams!!.width).toInt()
+                return true
+            }
+            popupLayoutParams!!.y < 0 -> {
+                popupLayoutParams!!.y = 0
+                return true
+            }
+            popupLayoutParams!!.y > boundaryHeight - popupLayoutParams!!.height -> {
+                popupLayoutParams!!.y = (boundaryHeight - popupLayoutParams!!.height).toInt()
+                return true
+            }
+            else -> return false
         }
 
-        if (popupLayoutParams!!.x < 0) {
-            popupLayoutParams!!.x = 0
-            return true
-        } else if (popupLayoutParams!!.x > boundaryWidth - popupLayoutParams!!.width) {
-            popupLayoutParams!!.x = (boundaryWidth - popupLayoutParams!!.width).toInt()
-            return true
-        }
-
-        if (popupLayoutParams!!.y < 0) {
-            popupLayoutParams!!.y = 0
-            return true
-        } else if (popupLayoutParams!!.y > boundaryHeight - popupLayoutParams!!.height) {
-            popupLayoutParams!!.y = (boundaryHeight - popupLayoutParams!!.height).toInt()
-            return true
-        }
-
-        return false
     }
 
     private fun savePositionAndSize() {
@@ -383,7 +380,7 @@ class PopupVideoPlayer : Service() {
     }
 
     private fun getMinimumVideoHeight(width: Float): Float {
-        //if (DEBUG) Log.d(TAG, "getMinimumVideoHeight() called with: width = [" + width + "], returned: " + height);
+        Log.d(TAG, "getMinimumVideoHeight() called with: width = [$width]")
         return width / (16.0f / 9.0f) // Respect the 16:9 ratio that most videos have
     }
 
@@ -393,7 +390,8 @@ class PopupVideoPlayer : Service() {
 
         screenWidth = metrics.widthPixels.toFloat()
         screenHeight = metrics.heightPixels.toFloat()
-        if (DEBUG) Log.d(TAG, "updateScreenSize() called > screenWidth = $screenWidth, screenHeight = $screenHeight")
+
+        Log.d(TAG, "updateScreenSize() called > screenWidth = $screenWidth, screenHeight = $screenHeight")
 
         popupWidth = resources.getDimension(R.dimen.popup_default_width)
         popupHeight = getMinimumVideoHeight(popupWidth)
@@ -409,25 +407,32 @@ class PopupVideoPlayer : Service() {
         var width = width
         var height = height
         if (playerImpl == null) return
-        if (DEBUG) Log.d(TAG, "updatePopupSize() called with: width = [$width], height = [$height]")
 
-        width = (if (width > maximumWidth) maximumWidth.toInt() else if (width < minimumWidth) minimumWidth.toInt() else width)
+        Log.d(TAG, "updatePopupSize() called with: width = [$width], height = [$height]")
 
-        height = if (height == -1)
-            getMinimumVideoHeight(width.toFloat()).toInt()
-        else
-            (if (height > maximumHeight) maximumHeight.toInt() else if (height < minimumHeight) minimumHeight.toInt() else height)
+        width = (when {
+            width > maximumWidth -> maximumWidth.toInt()
+            width < minimumWidth -> minimumWidth.toInt()
+            else -> width
+        })
+
+        height = if (height == -1) getMinimumVideoHeight(width.toFloat()).toInt()
+        else when {
+            height > maximumHeight -> maximumHeight.toInt()
+            height < minimumHeight -> minimumHeight.toInt()
+            else -> height
+        }
 
         popupLayoutParams!!.width = width
         popupLayoutParams!!.height = height
         popupWidth = width.toFloat()
         popupHeight = height.toFloat()
 
-        if (DEBUG) Log.d(TAG, "updatePopupSize() updated values:  width = [$width], height = [$height]")
+        Log.d(TAG, "updatePopupSize() updated values:  width = [$width], height = [$height]")
         windowManager!!.updateViewLayout(playerImpl!!.rootView, popupLayoutParams)
     }
 
-    protected fun setRepeatModeRemote(remoteViews: RemoteViews?, repeatMode: Int) {
+    private fun setRepeatModeRemote(remoteViews: RemoteViews?, repeatMode: Int) {
         val methodName = "setImageResource"
 
         if (remoteViews == null) return
@@ -447,10 +452,8 @@ class PopupVideoPlayer : Service() {
     }
     ///////////////////////////////////////////////////////////////////////////
 
-    inner class VideoPlayerImpl internal constructor(context: Context) : VideoPlayer("VideoPlayerImpl" + PopupVideoPlayer.TAG, context), View.OnLayoutChangeListener {
-        ///////////////////////////////////////////////////////////////////////////
-        // Getters
-        ///////////////////////////////////////////////////////////////////////////
+    inner class VideoPlayerImpl internal constructor(context: Context) : VideoPlayer("${PopupVideoPlayer.TAG}.VideoPlayerImpl", context), View.OnLayoutChangeListener {
+
 
         var resizingIndicator: TextView? = null
             private set
@@ -465,7 +468,7 @@ class PopupVideoPlayer : Service() {
             super.handleIntent(intent)
 
             resetNotification()
-            startForeground(NOTIFICATION_ID, notBuilder!!.build())
+            startForeground(NOTIFICATION_ID, notificationBuilder!!.build())
         }
 
         override fun initViews(rootView: View) {
@@ -502,7 +505,7 @@ class PopupVideoPlayer : Service() {
         }
 
         override fun destroy() {
-            if (notRemoteView != null) notRemoteView!!.setImageViewBitmap(R.id.notificationCover, null)
+            if (notificationRemoteView != null) notificationRemoteView!!.setImageViewBitmap(R.id.notificationCover, null)
             super.destroy()
         }
 
@@ -512,27 +515,19 @@ class PopupVideoPlayer : Service() {
             Log.d(TAG, "onFullScreenButtonClicked() called")
 
             setRecovery()
-            val intent: Intent
-            if (!isUsingOldPlayer(applicationContext)) {
-                intent = NavigationHelper.getPlayerIntent(
-                        context,
-                        MainVideoPlayer::class.java,
-                        this.playQueue!!,
-                        this.repeatMode,
-                        this.playbackSpeed,
-                        this.playbackPitch,
-                        this.playbackSkipSilence,
-                        this.playbackQuality
-                )
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            } else {
-                intent = Intent(this@PopupVideoPlayer, PlayVideoActivity::class.java)
-                        .putExtra(PlayVideoActivity.VIDEO_TITLE, videoTitle)
-                        .putExtra(PlayVideoActivity.STREAM_URL, selectedVideoStream!!.getUrl())
-                        .putExtra(PlayVideoActivity.VIDEO_URL, videoUrl)
-                        .putExtra(PlayVideoActivity.START_POSITION, Math.round(simpleExoPlayer!!.currentPosition / 1000f))
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
+            // using only ExoPlayer
+            val intent = NavigationHelper.getPlayerIntent(
+                    context,
+                    MainVideoPlayer::class.java,
+                    this.playQueue!!,
+                    this.repeatMode,
+                    this.playbackSpeed,
+                    this.playbackPitch,
+                    this.playbackSkipSilence,
+                    this.playbackQuality
+            )
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
             context.startActivity(intent)
             closePopup()
         }
@@ -542,8 +537,8 @@ class PopupVideoPlayer : Service() {
             if (isPlaying) hideControls(500, 0)
         }
 
-        override fun nextResizeMode(resizeMode: Int): Int {
-            return if (resizeMode == AspectRatioFrameLayout.RESIZE_MODE_FILL) {
+        override fun nextResizeMode(currentResizeMode: Int): Int {
+            return if (currentResizeMode == AspectRatioFrameLayout.RESIZE_MODE_FILL) {
                 AspectRatioFrameLayout.RESIZE_MODE_FIT
             } else {
                 AspectRatioFrameLayout.RESIZE_MODE_FILL
@@ -567,20 +562,18 @@ class PopupVideoPlayer : Service() {
             super.onUpdateProgress(currentProgress, duration, bufferPercent)
         }
 
+        ///////////////////////////////////////////////////////////////////////////
+        // Getters
+        ///////////////////////////////////////////////////////////////////////////
         override val qualityResolver: VideoPlaybackResolver.QualityResolver
-            get () {
-                return object : VideoPlaybackResolver.QualityResolver {
-                    override fun getDefaultResolutionIndex(sortedVideos: List<VideoStream>): Int {
-                        return ListHelper.getPopupDefaultResolutionIndex(context, sortedVideos)
-                    }
+            get () = object : VideoPlaybackResolver.QualityResolver {
+                override fun getDefaultResolutionIndex(sortedVideos: List<VideoStream>): Int =
+                        ListHelper.getPopupDefaultResolutionIndex(context, sortedVideos)
 
-                    override fun getOverrideResolutionIndex(sortedVideos: List<VideoStream>,
-                                                            playbackQuality: String?): Int {
-                        return ListHelper.getPopupResolutionIndex(context, sortedVideos,
-                                playbackQuality!!)
-                    }
-                }
+                override fun getOverrideResolutionIndex(sortedVideos: List<VideoStream>, playbackQuality: String?): Int =
+                        ListHelper.getPopupResolutionIndex(context, sortedVideos, playbackQuality!!)
             }
+
 
         ///////////////////////////////////////////////////////////////////////////
         // Thumbnail Loading
@@ -610,42 +603,42 @@ class PopupVideoPlayer : Service() {
         // Activity Event Listener
         ///////////////////////////////////////////////////////////////////////////
 
-        /*package-private*/ internal fun setActivityListener(listener: PlayerEventListener) {
-            activityListener = listener
+        internal fun setActivityListener(listener: PlayerEventListener) {
+            playerEventListener = listener
             updateMetadata()
             updatePlayback()
             triggerProgressUpdate()
         }
 
-        /*package-private*/ internal fun removeActivityListener(listener: PlayerEventListener) {
-            if (activityListener === listener) {
-                activityListener = null
+        internal fun removeActivityListener(listener: PlayerEventListener) {
+            if (playerEventListener == listener) {
+                playerEventListener = null
             }
         }
 
         private fun updateMetadata() {
-            if (activityListener != null && currentMetadata != null) {
-                activityListener!!.onMetadataUpdate(currentMetadata!!.metadata)
+            if (playerEventListener != null && currentMetadata != null) {
+                playerEventListener!!.onMetadataUpdate(currentMetadata!!.metadata)
             }
         }
 
         private fun updatePlayback() {
-            if (activityListener != null && simpleExoPlayer != null && playQueue != null) {
-                activityListener!!.onPlaybackUpdate(currentState, repeatMode,
+            if (playerEventListener != null && simpleExoPlayer != null && playQueue != null) {
+                playerEventListener!!.onPlaybackUpdate(currentState, repeatMode,
                         playQueue!!.isShuffled, simpleExoPlayer!!.playbackParameters)
             }
         }
 
         private fun updateProgress(currentProgress: Int, duration: Int, bufferPercent: Int) {
-            if (activityListener != null) {
-                activityListener!!.onProgressUpdate(currentProgress, duration, bufferPercent)
+            if (playerEventListener != null) {
+                playerEventListener!!.onProgressUpdate(currentProgress, duration, bufferPercent)
             }
         }
 
         fun stopActivityBinding() {
-            if (activityListener != null) {
-                activityListener!!.onServiceStopped()
-                activityListener = null
+            if (playerEventListener != null) {
+                playerEventListener!!.onServiceStopped()
+                playerEventListener = null
             }
         }
 
@@ -653,9 +646,9 @@ class PopupVideoPlayer : Service() {
         // ExoPlayer Video Listener
         ///////////////////////////////////////////////////////////////////////////
 
-        override fun onRepeatModeChanged(i: Int) {
-            super.onRepeatModeChanged(i)
-            setRepeatModeRemote(notRemoteView, i)
+        override fun onRepeatModeChanged(reason: Int) {
+            super.onRepeatModeChanged(reason)
+            setRepeatModeRemote(notificationRemoteView, reason)
             updatePlayback()
             resetNotification()
             updateNotification(-1)
@@ -736,7 +729,7 @@ class PopupVideoPlayer : Service() {
             videoPlayPause!!.setBackgroundResource(R.drawable.ic_pause_white)
             hideControls(DEFAULT_CONTROLS_DURATION.toLong(), DEFAULT_CONTROLS_HIDE_TIME.toLong())
 
-            startForeground(NOTIFICATION_ID, notBuilder!!.build())
+            startForeground(NOTIFICATION_ID, notificationBuilder!!.build())
             lockManager!!.acquireWifiAndCpu()
         }
 
@@ -800,7 +793,7 @@ class PopupVideoPlayer : Service() {
         // Utils
         ///////////////////////////////////////////////////////////////////////////
 
-        /*package-private*/ internal fun enableVideoRenderer(enable: Boolean) {
+        private fun enableVideoRenderer(enable: Boolean) {
             val videoRendererIndex = getRendererIndex(C.TRACK_TYPE_VIDEO)
             if (videoRendererIndex != RENDERER_UNAVAILABLE) {
                 trackSelector.setParameters(trackSelector.buildUponParameters()
@@ -815,16 +808,14 @@ class PopupVideoPlayer : Service() {
         private var isMoving: Boolean = false
         private var isResizing: Boolean = false
 
-        private// 20% wider than the button itself
-        val closingRadius: Float
+        private val closingRadius: Float
             get() {
                 val buttonRadius = closeOverlayButton!!.width / 2
-                return buttonRadius * 1.2f
+                return buttonRadius * 1.2f    // 20% wider than the button itself
             }
 
         override fun onDoubleTap(e: MotionEvent): Boolean {
-            if (DEBUG)
-                Log.d(TAG, "onDoubleTap() called with: e = [" + e + "]" + "rawXy = " + e.rawX + ", " + e.rawY + ", xy = " + e.x + ", " + e.y)
+            Log.d(TAG, "onDoubleTap() called with: event = [$e] rawXy = ${e.rawX}, ${e.rawY}, xy = ${e.x}, ${e.y}")
             if (playerImpl == null || !playerImpl!!.isPlaying) return false
 
             playerImpl!!.hideControls(0, 0)
@@ -839,8 +830,9 @@ class PopupVideoPlayer : Service() {
         }
 
         override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-            if (DEBUG) Log.d(TAG, "onSingleTapConfirmed() called with: e = [$e]")
+            Log.d(TAG, "onSingleTapConfirmed() called with: e = [$e]")
             if (playerImpl == null || playerImpl!!.simpleExoPlayer == null) return false
+
             if (playerImpl!!.isControlsVisible) {
                 playerImpl!!.hideControls(100, 100)
             } else {
@@ -850,22 +842,23 @@ class PopupVideoPlayer : Service() {
             return true
         }
 
-        override fun onDown(e: MotionEvent): Boolean {
-            if (DEBUG) Log.d(TAG, "onDown() called with: e = [$e]")
+        override fun onDown(event: MotionEvent): Boolean {
+            Log.d(TAG, "onDown() called with: event = [$event]")
 
             // Fix popup position when the user touch it, it may have the wrong one
             // because the soft input is visible (the draggable area is currently resized).
-            checkPopupPositionBounds(closeOverlayView!!.width.toFloat(), closeOverlayView!!.height.toFloat())
+            if (event.pointerCount != 2)
+                checkPopupPositionBounds(closeOverlayView!!.width.toFloat(), closeOverlayView!!.height.toFloat())
 
             initialPopupX = popupLayoutParams!!.x
             initialPopupY = popupLayoutParams!!.y
             popupWidth = popupLayoutParams!!.width.toFloat()
             popupHeight = popupLayoutParams!!.height.toFloat()
-            return super.onDown(e)
+            return super.onDown(event)
         }
 
         override fun onLongPress(e: MotionEvent) {
-            if (DEBUG) Log.d(TAG, "onLongPress() called with: e = [$e]")
+            Log.d(TAG, "onLongPress() called with: e = [$e]")
             updateScreenSize()
             checkPopupPositionBounds()
             updatePopupSize(screenWidth.toInt(), -1)
@@ -908,20 +901,19 @@ class PopupVideoPlayer : Service() {
             }
 
 
-            if (DEBUG) {
-                Log.d(TAG, "PopupVideoPlayer.onScroll = " +
-                        ", e1.getRaw = [" + initialEvent.rawX + ", " + initialEvent.rawY + "]" + ", e1.getX,Y = [" + initialEvent.x + ", " + initialEvent.y + "]" +
-                        ", e2.getRaw = [" + movingEvent.rawX + ", " + movingEvent.rawY + "]" + ", e2.getX,Y = [" + movingEvent.x + ", " + movingEvent.y + "]" +
-                        ", distanceX,Y = [" + distanceX + ", " + distanceY + "]" +
-                        ", posX,Y = [" + posX + ", " + posY + "]" +
-                        ", popupW,H = [" + popupWidth + " x " + popupHeight + "]")
-            }
+            Log.d(TAG, "PopupVideoPlayer.onScroll = " +
+                    ", e1.getRaw = [" + initialEvent.rawX + ", " + initialEvent.rawY + "]" + ", e1.getX,Y = [" + initialEvent.x + ", " + initialEvent.y + "]" +
+                    ", e2.getRaw = [" + movingEvent.rawX + ", " + movingEvent.rawY + "]" + ", e2.getX,Y = [" + movingEvent.x + ", " + movingEvent.y + "]" +
+                    ", distanceX,Y = [" + distanceX + ", " + distanceY + "]" +
+                    ", posX,Y = [" + posX + ", " + posY + "]" +
+                    ", popupW,H = [" + popupWidth + " x " + popupHeight + "]")
+
             windowManager!!.updateViewLayout(playerImpl!!.rootView, popupLayoutParams)
             return true
         }
 
         private fun onScrollEnd(event: MotionEvent) {
-            if (DEBUG) Log.d(TAG, "onScrollEnd() called")
+            Log.d(TAG, "onScrollEnd() called")
             if (playerImpl == null) return
             if (playerImpl!!.isControlsVisible && playerImpl!!.currentState == STATE_PLAYING) {
                 playerImpl!!.hideControls(DEFAULT_CONTROLS_DURATION.toLong(), DEFAULT_CONTROLS_HIDE_TIME.toLong())
@@ -939,7 +931,7 @@ class PopupVideoPlayer : Service() {
         }
 
         override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
-            if (DEBUG) Log.d(TAG, "Fling velocity: dX=[$velocityX], dY=[$velocityY]")
+            Log.d(TAG, "Fling velocity: dX=[$velocityX], dY=[$velocityY]")
             if (playerImpl == null) return false
 
             val absVelocityX = Math.abs(velocityX)
@@ -954,11 +946,11 @@ class PopupVideoPlayer : Service() {
             return false
         }
 
-        override fun onTouch(v: View, event: MotionEvent): Boolean {
+        override fun onTouch(view: View, event: MotionEvent): Boolean {
             popupGestureDetector!!.onTouchEvent(event)
             if (playerImpl == null) return false
             if (event.pointerCount == 2 && !isResizing) {
-                if (DEBUG) Log.d(TAG, "onTouch() 2 finger pointer detected, enabling resizing.")
+                Log.d(TAG, "onTouch() 2 finger pointer detected, enabling resizing.")
                 playerImpl!!.showAndAnimateControl(-1, true)
                 playerImpl!!.loadingPanel!!.visibility = View.GONE
 
@@ -969,13 +961,12 @@ class PopupVideoPlayer : Service() {
             }
 
             if (event.action == MotionEvent.ACTION_MOVE && !isMoving && isResizing) {
-                if (DEBUG) Log.d(TAG, "onTouch() ACTION_MOVE > v = [" + v + "],  e1.getRaw = [" + event.rawX + ", " + event.rawY + "]")
+                Log.d(TAG, "onTouch() ACTION_MOVE > view = [$view],  e1.getRaw = [${event.rawX}, ${event.rawY}]")
                 return handleMultiDrag(event)
             }
 
             if (event.action == MotionEvent.ACTION_UP) {
-                if (DEBUG)
-                    Log.d(TAG, "onTouch() ACTION_UP > v = [" + v + "],  e1.getRaw = [" + event.rawX + ", " + event.rawY + "]")
+                Log.d(TAG, "onTouch() ACTION_UP > view = [$view],  e1.getRaw = [${event.rawX}, ${event.rawY}]")
                 if (isMoving) {
                     isMoving = false
                     onScrollEnd(event)
@@ -992,7 +983,7 @@ class PopupVideoPlayer : Service() {
                 }
             }
 
-            v.performClick()
+            view.performClick()
             return true
         }
 
@@ -1040,7 +1031,7 @@ class PopupVideoPlayer : Service() {
     }
 
     companion object {
-        private const val TAG = ".PopupVideoPlayer"
+        private const val TAG = "PopupVideoPlayer"
 
         private const val NOTIFICATION_ID = 40028922
         const val ACTION_CLOSE = "org.schabi.newpipe.simpleExoPlayer.PopupVideoPlayer.CLOSE"

@@ -20,6 +20,11 @@ class PlayerDataSource(context: Context,
     private val cacheDataSourceFactory: DataSource.Factory
     private val cachelessDataSourceFactory: DataSource.Factory
 
+    init {
+        cacheDataSourceFactory = CacheFactory(context, userAgent, transferListener)
+        cachelessDataSourceFactory = DefaultDataSourceFactory(context, userAgent, transferListener)
+    }
+
     val liveSsMediaSourceFactory: SsMediaSource.Factory
         get() = SsMediaSource.Factory(DefaultSsChunkSource.Factory(
                 cachelessDataSourceFactory), cachelessDataSourceFactory)
@@ -38,31 +43,24 @@ class PlayerDataSource(context: Context,
                 .setLivePresentationDelayMs(LIVE_STREAM_EDGE_GAP_MILLIS.toLong())
 
     val ssMediaSourceFactory: SsMediaSource.Factory
-        get() = SsMediaSource.Factory(DefaultSsChunkSource.Factory(
-                cacheDataSourceFactory), cacheDataSourceFactory)
+        get() = SsMediaSource.Factory(DefaultSsChunkSource.Factory(cacheDataSourceFactory), cacheDataSourceFactory)
 
     val hlsMediaSourceFactory: HlsMediaSource.Factory
         get() = HlsMediaSource.Factory(cacheDataSourceFactory)
 
     val dashMediaSourceFactory: DashMediaSource.Factory
-        get() = DashMediaSource.Factory(DefaultDashChunkSource.Factory(
-                cacheDataSourceFactory), cacheDataSourceFactory)
+        get() = DashMediaSource.Factory(DefaultDashChunkSource.Factory(cacheDataSourceFactory), cacheDataSourceFactory)
 
-    val extractorMediaSourceFactory: ExtractorMediaSource.Factory
+    private val extractorMediaSourceFactory: ExtractorMediaSource.Factory
         get() = ExtractorMediaSource.Factory(cacheDataSourceFactory)
                 .setMinLoadableRetryCount(EXTRACTOR_MINIMUM_RETRY)
 
     val sampleMediaSourceFactory: SingleSampleMediaSource.Factory
         get() = SingleSampleMediaSource.Factory(cacheDataSourceFactory)
 
-    init {
-        cacheDataSourceFactory = CacheFactory(context, userAgent, transferListener)
-        cachelessDataSourceFactory = DefaultDataSourceFactory(context, userAgent, transferListener)
-    }
 
-    fun getExtractorMediaSourceFactory(key: String): ExtractorMediaSource.Factory {
-        return extractorMediaSourceFactory.setCustomCacheKey(key)
-    }
+    fun getExtractorMediaSourceFactory(key: String): ExtractorMediaSource.Factory = extractorMediaSourceFactory.setCustomCacheKey(key)
+
 
     companion object {
         private const val MANIFEST_MINIMUM_RETRY = 5

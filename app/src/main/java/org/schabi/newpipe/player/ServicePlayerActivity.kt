@@ -103,39 +103,42 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
     // Component Helpers
     ////////////////////////////////////////////////////////////////////////////
 
-    private fun getQueueScrollListener(): OnScrollBelowItemsListener  = object : OnScrollBelowItemsListener() {
-            override fun onScrolledDown(recyclerView: RecyclerView) {
-                if (player != null && player!!.playQueue != null && !player!!.playQueue!!.isComplete) {
-                    player!!.playQueue!!.fetch()
-                } else if (itemsList != null) {
-                    itemsList!!.clearOnScrollListeners()
+    private fun getQueueScrollListener(): OnScrollBelowItemsListener =
+            object : OnScrollBelowItemsListener() {
+                override fun onScrolledDown(recyclerView: RecyclerView) {
+                    if (player != null && player!!.playQueue != null && !player!!.playQueue!!.isComplete) {
+                        player!!.playQueue!!.fetch()
+                    } else if (itemsList != null) {
+                        itemsList!!.clearOnScrollListeners()
+                    }
                 }
             }
-        }
 
 
-    private fun getItemTouchCallback(): ItemTouchHelper.SimpleCallback = object : PlayQueueItemTouchCallback() {
+    private fun getItemTouchCallback(): ItemTouchHelper.SimpleCallback =
+            object : PlayQueueItemTouchCallback() {
                 override fun onMove(sourceIndex: Int, targetIndex: Int) {
-                    if (player != null) player!!.playQueue!!.move(sourceIndex, targetIndex)
+                    player?.playQueue!!.move(sourceIndex, targetIndex)
                 }
             }
 
-    private fun getOnSelectedListener(): PlayQueueItemBuilder.OnSelectedListener = object : PlayQueueItemBuilder.OnSelectedListener {
-            override fun selected(item: PlayQueueItem, view: View) {
-                if (player != null) player!!.onSelected(item)
-            }
+    private fun getOnSelectedListener(): PlayQueueItemBuilder.OnSelectedListener =
+            object : PlayQueueItemBuilder.OnSelectedListener {
+                override fun selected(item: PlayQueueItem, view: View) {
+                    player?.onSelected(item)
+                }
 
-            override fun held(item: PlayQueueItem, view: View) {
-                if (player == null) return
+                override fun held(item: PlayQueueItem, view: View) {
+                    if (player == null) return
 
-                val index = player!!.playQueue!!.indexOf(item)
-                if (index != -1) buildItemPopupMenu(item, view)
-            }
+                    val index = player!!.playQueue!!.indexOf(item)
+                    if (index != -1) buildItemPopupMenu(item, view)
+                }
 
-            override fun onStartDrag(viewHolder: PlayQueueItemHolder) {
-                if (itemTouchHelper != null) itemTouchHelper!!.startDrag(viewHolder)
+                override fun onStartDrag(viewHolder: PlayQueueItemHolder) {
+                    itemTouchHelper?.startDrag(viewHolder)
+                }
             }
-        }
 
     ////////////////////////////////////////////////////////////////////////////
     // Activity Lifecycle
@@ -143,6 +146,7 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         ThemeHelper.setTheme(this)
         setContentView(R.layout.activity_player_queue_control)
         rootView = findViewById(R.id.main_content)
@@ -164,6 +168,8 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
             recreate()
             redraw = false
         }
+        // add it for testing
+        appendAllToPlaylist()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -198,6 +204,8 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
                 return true
             }
         }
+
+
         return onPlayerOptionSelected(item) || super.onOptionsItemSelected(item)
     }
 
@@ -206,17 +214,17 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
         unbind()
     }
 
-    protected fun getSwitchIntent(clazz: Class<*>): Intent {
-        return NavigationHelper.getPlayerIntent(
-                applicationContext,
-                clazz,
-                this.player!!.playQueue!!,
-                this.player!!.repeatMode,
-                this.player!!.playbackSpeed,
-                this.player!!.playbackPitch,
-                this.player!!.playbackSkipSilence, null
-        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    }
+    protected fun getSwitchIntent(clazz: Class<*>): Intent =
+            NavigationHelper.getPlayerIntent(
+                    applicationContext,
+                    clazz,
+                    this.player!!.playQueue!!,
+                    this.player!!.repeatMode,
+                    this.player!!.playbackSpeed,
+                    this.player!!.playbackPitch,
+                    this.player!!.playbackSkipSilence, null
+            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
 
     ////////////////////////////////////////////////////////////////////////////
     // Service Connection
@@ -344,11 +352,12 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
         val remove = menu.menu.add(RECYCLER_ITEM_POPUP_MENU_GROUP_ID, /*pos=*/0,
                 Menu.NONE, R.string.play_queue_remove)
         remove.setOnMenuItemClickListener { menuItem ->
-            if (player == null) return@setOnMenuItemClickListener false
-
-            val index = player!!.playQueue!!.indexOf(item)
-            if (index != -1) player!!.playQueue!!.remove(index)
-            true
+            if (player == null)  false
+            else {
+                val index = player!!.playQueue!!.indexOf(item)
+                if (index != -1) player!!.playQueue!!.remove(index)
+                true
+            }
         }
 
         val detail = menu.menu.add(RECYCLER_ITEM_POPUP_MENU_GROUP_ID, /*pos=*/1,
@@ -384,11 +393,11 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
 
         val currentPlayingIndex = player!!.playQueue!!.index
         val currentVisibleIndex: Int
-        if (itemsList!!.layoutManager is LinearLayoutManager) {
+        currentVisibleIndex = if (itemsList!!.layoutManager is LinearLayoutManager) {
             val layout = itemsList!!.layoutManager as LinearLayoutManager?
-            currentVisibleIndex = layout!!.findFirstVisibleItemPosition()
+            layout!!.findFirstVisibleItemPosition()
         } else {
-            currentVisibleIndex = 0
+            0
         }
 
         val distance = Math.abs(currentPlayingIndex - currentVisibleIndex)
@@ -406,33 +415,16 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
     override fun onClick(view: View) {
         if (player == null) return
 
-        if (view.id == repeatButton!!.id) {
-            player!!.onRepeatClicked()
-
-        } else if (view.id == backwardButton!!.id) {
-            player!!.onPlayPrevious()
-
-        } else if (view.id == playPauseButton!!.id) {
-            player!!.onPlayPause()
-
-        } else if (view.id == forwardButton!!.id) {
-            player!!.onPlayNext()
-
-        } else if (view.id == shuffleButton!!.id) {
-            player!!.onShuffleClicked()
-
-        } else if (view.id == playbackSpeedButton!!.id) {
-            openPlaybackParameterDialog()
-
-        } else if (view.id == playbackPitchButton!!.id) {
-            openPlaybackParameterDialog()
-
-        } else if (view.id == metadata!!.id) {
-            scrollToSelected()
-
-        } else if (view.id == progressLiveSync!!.id) {
-            player!!.seekToDefault()
-
+        when (view.id){
+            repeatButton!!.id -> player!!.onRepeatClicked()
+            backwardButton!!.id -> player!!.onPlayPrevious()
+            playPauseButton!!.id -> player!!.onPlayPause()
+            forwardButton!!.id -> player!!.onPlayNext()
+            shuffleButton!!.id -> player!!.onShuffleClicked()
+            playbackSpeedButton!!.id,
+            playbackPitchButton!!.id -> openPlaybackParameterDialog()
+            metadata!!.id -> scrollToSelected()
+            progressLiveSync!!.id -> player!!.seekToDefault()
         }
     }
 
@@ -487,8 +479,9 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
     }
 
     private fun openPlaylistAppendDialog(playlist: List<PlayQueueItem>) {
-        PlaylistAppendDialog.fromPlayQueueItems(playlist)
-                .show(supportFragmentManager, getTag())
+        Log.d(getTag(), "openPlaylistAppendDialog(playlist = $playlist)")
+        val temDialog =  PlaylistAppendDialog.fromPlayQueueItems(playlist)
+        temDialog.show(supportFragmentManager, getTag())
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -532,7 +525,7 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
             progressLiveSync!!.isClickable = !player!!.isLiveEdge
         }
 
-        // this will make shure progressCurrentTime has the same width as progressEndTime
+        // this will make sure progressCurrentTime has the same width as progressEndTime
         val endTimeParams = progressEndTime!!.layoutParams
         val currentTimeParams = progressCurrentTime!!.layoutParams
         currentTimeParams.width = progressEndTime!!.width

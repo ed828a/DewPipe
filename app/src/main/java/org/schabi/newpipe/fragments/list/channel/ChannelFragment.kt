@@ -18,6 +18,7 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
+import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
 import io.reactivex.functions.Function
 import io.reactivex.schedulers.Schedulers
@@ -128,7 +129,7 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
 
         val commands = arrayOf(context.resources.getString(R.string.enqueue_on_background), context.resources.getString(R.string.enqueue_on_popup), context.resources.getString(R.string.start_here_on_main), context.resources.getString(R.string.start_here_on_background), context.resources.getString(R.string.start_here_on_popup), context.resources.getString(R.string.append_playlist), context.resources.getString(R.string.share))
 
-        val actions = DialogInterface.OnClickListener{ dialogInterface: DialogInterface, i: Int ->
+        val actions = DialogInterface.OnClickListener { dialogInterface: DialogInterface, i: Int ->
             val index = Math.max(infoListAdapter!!.itemsList.indexOf(item), 0)
             when (i) {
                 0 -> NavigationHelper.enqueueOnBackgroundPlayer(context, SinglePlayQueue(item))
@@ -160,9 +161,7 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
         } else {
             inflater!!.inflate(R.menu.menu_channel, menu)
 
-            if (DEBUG)
-                Log.d(TAG, "onCreateOptionsMenu() called with: menu = [" + menu +
-                        "], inflater = [" + inflater + "]")
+            Log.d(TAG, "onCreateOptionsMenu() called with: menu = [$menu], inflater = [$inflater]")
             menuRssButton = menu!!.findItem(R.id.menu_item_rss)
         }
     }
@@ -186,7 +185,7 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
     }
 
     private fun monitorSubscription(info: ChannelInfo) {
-        val onError = Consumer<Throwable>{ throwable: Throwable ->
+        val onError = Consumer<Throwable> { throwable: Throwable ->
             animateView(headerSubscribeButton!!, false, 100)
             showSnackBarError(throwable, UserAction.SUBSCRIPTION,
                     NewPipe.getNameOfService(currentInfo!!.serviceId),
@@ -207,29 +206,29 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
                 // so only update the UI for the latest emission ("sync" the subscribe button's state)
                 .debounce(100, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(Consumer{ subscriptionEntities: List<SubscriptionEntity> -> updateSubscribeButton(!subscriptionEntities.isEmpty()) }, onError))
+                .subscribe(Consumer { subscriptionEntities: List<SubscriptionEntity> -> updateSubscribeButton(!subscriptionEntities.isEmpty()) }, onError))
 
     }
 
     private fun mapOnSubscribe(subscription: SubscriptionEntity): Function<Any, Any> {
-        return Function{ o: Any ->
+        return Function { o: Any ->
             subscriptionService!!.subscriptionTable().insert(subscription)
             o
         }
     }
 
     private fun mapOnUnsubscribe(subscription: SubscriptionEntity): Function<Any, Any> {
-        return Function{ o: Any ->
+        return Function { o: Any ->
             subscriptionService!!.subscriptionTable().delete(subscription)
             o
         }
     }
 
     private fun updateSubscription(info: ChannelInfo) {
-        if (DEBUG) Log.d(TAG, "updateSubscription() called with: info = [$info]")
-        val onComplete = { if (DEBUG) Log.d(TAG, "Updated subscription: " + info.url) }
+        Log.d(TAG, "updateSubscription() called with: info = [$info]")
+        val onComplete = Action { Log.d(TAG, "Updated subscription: " + info.url) }
 
-        val onError = { throwable: Throwable ->
+        val onError = Consumer<Throwable> { throwable: Throwable ->
             onUnrecoverableError(throwable,
                     UserAction.SUBSCRIPTION,
                     NewPipe.getNameOfService(info.serviceId),
@@ -244,9 +243,9 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
     }
 
     private fun monitorSubscribeButton(subscribeButton: Button?, action: Function<Any, Any>): Disposable {
-        val onNext = { o: Any -> if (DEBUG) Log.d(TAG, "Changed subscription status to this channel!") }
+        val onNext = Consumer<Any>{ o: Any -> Log.d(TAG, "Changed subscription status to this channel!") }
 
-        val onError = { throwable: Throwable ->
+        val onError = Consumer<Throwable>{ throwable: Throwable ->
             onUnrecoverableError(throwable,
                     UserAction.SUBSCRIPTION,
                     NewPipe.getNameOfService(currentInfo!!.serviceId),
@@ -264,17 +263,16 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
     }
 
     private fun getSubscribeUpdateMonitor(info: ChannelInfo): Consumer<List<SubscriptionEntity>> {
-        return Consumer{ subscriptionEntities: List<SubscriptionEntity> ->
-            if (DEBUG)
-                Log.d(TAG, "subscriptionService.subscriptionTable.doOnNext() called with: subscriptionEntities = [$subscriptionEntities]")
+        return Consumer { subscriptionEntities: List<SubscriptionEntity> ->
+            Log.d(TAG, "subscriptionService.subscriptionTable.doOnNext() called with: subscriptionEntities = [$subscriptionEntities]")
             if (subscribeButtonMonitor != null) subscribeButtonMonitor!!.dispose()
 
             if (subscriptionEntities.isEmpty()) {
-                if (DEBUG) Log.d(TAG, "No subscription to this channel!")
+                Log.d(TAG, "No subscription to this channel!")
                 val channel = SubscriptionEntity.from(info)
                 subscribeButtonMonitor = monitorSubscribeButton(headerSubscribeButton, mapOnSubscribe(channel))
             } else {
-                if (DEBUG) Log.d(TAG, "Found subscription to this channel!")
+                Log.d(TAG, "Found subscription to this channel!")
                 val subscription = subscriptionEntities[0]
                 subscribeButtonMonitor = monitorSubscribeButton(headerSubscribeButton, mapOnUnsubscribe(subscription))
             }
@@ -282,7 +280,7 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
     }
 
     private fun updateSubscribeButton(isSubscribed: Boolean) {
-        if (DEBUG) Log.d(TAG, "updateSubscribeButton() called with: isSubscribed = [$isSubscribed]")
+        Log.d(TAG, "updateSubscribeButton() called with: isSubscribed = [$isSubscribed]")
 
         val isButtonVisible = headerSubscribeButton!!.visibility == View.VISIBLE
         val backgroundDuration = if (isButtonVisible) 300 else 0

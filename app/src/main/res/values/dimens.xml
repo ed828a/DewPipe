@@ -25,7 +25,7 @@
     <dimen name="video_item_detail_description_to_details_margin">4dp</dimen>
     <dimen name="software_component_item_padding">8dp</dimen>
     <!-- Miscellaneous -->
-    <dimen name="popup_default_width">180dp</dimen>
+    <dimen name="popup_default_width">240dp</dimen>
     <dimen name="popup_minimum_width">240dp</dimen>
     <dimen name="popup_minimum_height">135dp</dimen>
 

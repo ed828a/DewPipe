@@ -11,16 +11,11 @@ import android.content.Context.WIFI_SERVICE
 class LockManager(context: Context) {
     private val TAG = "LockManager@" + hashCode()
 
-    private val powerManager: PowerManager
-    private val wifiManager: WifiManager
+    private val powerManager: PowerManager = context.applicationContext.getSystemService(POWER_SERVICE) as PowerManager
+    private val wifiManager: WifiManager = context.applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
 
     private var wakeLock: PowerManager.WakeLock? = null
     private var wifiLock: WifiManager.WifiLock? = null
-
-    init {
-        powerManager = context.applicationContext.getSystemService(POWER_SERVICE) as PowerManager
-        wifiManager = context.applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
-    }
 
     fun acquireWifiAndCpu() {
         Log.d(TAG, "acquireWifiAndCpu() called")
@@ -29,7 +24,7 @@ class LockManager(context: Context) {
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG)
         wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, TAG)
 
-        if (wakeLock != null) wakeLock!!.acquire()
+        if (wakeLock != null) wakeLock?.acquire(2 * 60 * 60 * 1000) // 2 hours
         if (wifiLock != null) wifiLock!!.acquire()
     }
 

@@ -12,7 +12,6 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
-import org.schabi.newpipe.BuildConfig.DEBUG
 import org.schabi.newpipe.player.mediasource.*
 import org.schabi.newpipe.player.mediasource.FailedMediaSource.MediaSourceResolutionException
 import org.schabi.newpipe.player.mediasource.FailedMediaSource.StreamInfoLoadException
@@ -51,17 +50,17 @@ class MediaSourceManager private constructor(
          */
         private val progressUpdateIntervalMillis: Long) {
 
-    private val nearEndIntervalSignal: Observable<Long>
+
     private val debouncedLoader: Disposable
-    private val debouncedSignal: PublishSubject<Long>
+    private val debouncedSignal: PublishSubject<Long> = PublishSubject.create()
 
-    private var playQueueReactor: Subscription
-    private val loaderReactor: CompositeDisposable
-    private val loadingItems: MutableSet<PlayQueueItem>
+    private var playQueueReactor: Subscription = EmptySubscription.INSTANCE
+    private val loaderReactor: CompositeDisposable = CompositeDisposable()
+    private val loadingItems: MutableSet<PlayQueueItem> = Collections.synchronizedSet(ArraySet())
 
-    private val isBlocked: AtomicBoolean
+    private val isBlocked: AtomicBoolean = AtomicBoolean(false)
 
-    private var playlist: ManagedMediaSourcePlaylist
+    private var playlist: ManagedMediaSourcePlaylist = ManagedMediaSourcePlaylist()
 
     ///////////////////////////////////////////////////////////////////////////
     // Event Reactor
@@ -104,8 +103,8 @@ class MediaSourceManager private constructor(
 
             val mediaSource = playlist[playQueue.index] ?: return false
 
-            val playQueueItem = playQueue.item
-            return mediaSource.isStreamEqual(playQueueItem!!)
+            val playQueueItem = playQueue.item ?: return false
+            return mediaSource.isStreamEqual(playQueueItem)
         }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -116,10 +115,12 @@ class MediaSourceManager private constructor(
         get() = Observable.interval(progressUpdateIntervalMillis, TimeUnit.MILLISECONDS)
                 .filter { ignored -> playbackListener.isApproachingPlaybackEdge(playbackNearEndGapMillis) }
 
+    private val nearEndIntervalSignal: Observable<Long>  = edgeIntervalSignal
+
     constructor(listener: PlaybackListener,
-                playQueue: PlayQueue) : this(listener, playQueue, /*loadDebounceMillis=*/400L,
-            /*playbackNearEndGapMillis=*/TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS),
-            /*progressUpdateIntervalMillis*/TimeUnit.MILLISECONDS.convert(2, TimeUnit.SECONDS)) {
+                playQueue: PlayQueue) : this(listener, playQueue, /*loadDebounceMillis=*/DEFAULT_LOAD_DEBOUNCE_MILLIS,
+            /*playbackNearEndGapMillis=*/DEFAULT_PLAYBACK_NEAR_END_GAP_MILLIS,
+            /*progressUpdateIntervalMillis*/DEFAULT_PROGRESS_UPDATE_INTERVAL_MILLIS) {
     }
 
     init {
@@ -129,18 +130,8 @@ class MediaSourceManager private constructor(
         if (playbackNearEndGapMillis < progressUpdateIntervalMillis) {
             throw IllegalArgumentException("Playback end gap=[$playbackNearEndGapMillis ms] must be longer than update interval=[ $progressUpdateIntervalMillis ms] for them to be useful.")
         }
-        this.nearEndIntervalSignal = edgeIntervalSignal
-        this.debouncedSignal = PublishSubject.create()
+
         this.debouncedLoader = getDebouncedLoader()
-
-        this.playQueueReactor = EmptySubscription.INSTANCE
-        this.loaderReactor = CompositeDisposable()
-
-        this.isBlocked = AtomicBoolean(false)
-
-        this.playlist = ManagedMediaSourcePlaylist()
-
-        this.loadingItems = Collections.synchronizedSet(ArraySet())
 
         playQueue.broadcastReceiver!!
                 .observeOn(AndroidSchedulers.mainThread())
@@ -240,7 +231,7 @@ class MediaSourceManager private constructor(
 
         if (isBlocked.get()) {
             isBlocked.set(false)
-            playbackListener.onPlaybackUnblock(playlist.parentMediaSource)
+            playbackListener.onPlaybackUnblock(playlist.internalMediaSource)
         }
     }
 
@@ -328,7 +319,7 @@ class MediaSourceManager private constructor(
 
     private fun onMediaSourceReceived(item: PlayQueueItem,
                                       mediaSource: ManagedMediaSource) {
-        Log.d(TAG, "MediaSource - Loaded=[${item.title}] with url=[${item.url}]")
+        Log.d(TAG, "onMediaSourceReceived(): Loaded=[${item.title}] with url=[${item.url}]")
 
         loadingItems.remove(item)
 
@@ -433,6 +424,9 @@ class MediaSourceManager private constructor(
          * @see .maybeLoadItem
          */
         private const val MAXIMUM_LOADER_SIZE = WINDOW_SIZE * 2 + 1
+        private const val DEFAULT_LOAD_DEBOUNCE_MILLIS = 400L
+        private const val DEFAULT_PLAYBACK_NEAR_END_GAP_MILLIS = 30 * 1000L
+        private const val DEFAULT_PROGRESS_UPDATE_INTERVAL_MILLIS = 2 * 1000L
 
         ///////////////////////////////////////////////////////////////////////////
         // Manager Helpers

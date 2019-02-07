@@ -44,6 +44,13 @@ abstract class PlayQueue internal constructor(index: Int, startWith: List<PlayQu
     var streams: ArrayList<PlayQueueItem>? = null
     private val queueIndex: AtomicInteger
 
+    init {
+        streams = ArrayList()
+        streams!!.addAll(startWith)
+
+        queueIndex = AtomicInteger(index)
+    }
+
     @Transient
     private var eventBroadcast: BehaviorSubject<PlayQueueEvent>? = null
     /**
@@ -64,27 +71,15 @@ abstract class PlayQueue internal constructor(index: Int, startWith: List<PlayQu
      */
     abstract val isComplete: Boolean
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Readonly ops
-    ///////////////////////////////////////////////////////////////////////////
 
-    /**
-     * Returns the current index that should be played.
-     */
     ///////////////////////////////////////////////////////////////////////////
-    // Write ops
+    // Read and Write ops
     ///////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Changes the current playing index to a new index.
-     *
-     * This method is guarded using in a circular manner for index exceeding the play queue size.
-     *
-     * Will emit a [SelectEvent] if the index is not the current playing index.
-     */
     var index: Int
-        get() = queueIndex.get()
-        @Synchronized set(index) {
+        get() = queueIndex.get()   // Returns the current index that should be played.
+        @Synchronized set(index) {  // Changes the current playing index to a new index.
+            // This method is guarded using in a circular manner for index exceeding the play queue size.
+            // Will emit a [SelectEvent] if the index is not the current playing index.
             val oldIndex = index
 
             var newIndex = index
@@ -122,7 +117,7 @@ abstract class PlayQueue internal constructor(index: Int, startWith: List<PlayQu
             }
 
             override fun onNext(event: PlayQueueEvent) {
-                Log.d(TAG, "Received broadcast: " + event.type().name + ". Current index: " + index + ", play queue length: " + size() + ".")
+                Log.d(TAG, "Received broadcast: ${event.type().name}. Current index: $index, play queue length: ${size()}.")
                 reportingReactor!!.request(1)
             }
 
@@ -135,12 +130,6 @@ abstract class PlayQueue internal constructor(index: Int, startWith: List<PlayQu
             }
         }
 
-    init {
-        streams = ArrayList()
-        streams!!.addAll(startWith)
-
-        queueIndex = AtomicInteger(index)
-    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Playlist actions
@@ -151,7 +140,7 @@ abstract class PlayQueue internal constructor(index: Int, startWith: List<PlayQu
      *
      * Also starts a self reporter for logging if debug mode is enabled.
      */
-    fun init() {
+    fun initialize() {
         eventBroadcast = BehaviorSubject.create()
 
         broadcastReceiver = eventBroadcast!!.toFlowable(BackpressureStrategy.BUFFER)
@@ -165,8 +154,8 @@ abstract class PlayQueue internal constructor(index: Int, startWith: List<PlayQu
      * Dispose the play queue by stopping all message buses.
      */
     open fun dispose() {
-        if (eventBroadcast != null) eventBroadcast!!.onComplete()
-        if (reportingReactor != null) reportingReactor!!.cancel()
+        eventBroadcast?.onComplete()
+        reportingReactor?.cancel()
 
         eventBroadcast = null
         broadcastReceiver = null
@@ -178,23 +167,21 @@ abstract class PlayQueue internal constructor(index: Int, startWith: List<PlayQu
      */
     abstract fun fetch()
 
+    //////////////////////////////////////////////////////////////////////////
+    // Readonly ops
+    //////////////////////////////////////////////////////////////////////////
     /**
      * Returns the item at the given index.
      * May throw [IndexOutOfBoundsException].
      */
-    fun getItem(index: Int): PlayQueueItem? {
-        return if (index < 0 || index >= streams!!.size) null else streams!![index]
-    }
+    fun getItem(index: Int): PlayQueueItem? =
+         if (index < 0 || index >= streams!!.size) null else streams!![index]
 
     /**
      * Returns the index of the given item using referential equality.
      * May be null despite play queue contains identical item.
      */
-    fun indexOf(item: PlayQueueItem): Int {
-        // referential equality, can't think of a better way to do this
-        // todo: better than this
-        return streams!!.indexOf(item)
-    }
+    fun indexOf(item: PlayQueueItem): Int = streams!!.indexOf(item)   // referential equality, can't think of a better way to do this
 
     /**
      * Returns the current size of play queue.
@@ -204,11 +191,10 @@ abstract class PlayQueue internal constructor(index: Int, startWith: List<PlayQu
     }
 
     /**
-     * Returns an immutable view of the play queue.
+     * Returns an immutable version of the play queue.
      */
-    fun getStreams(): List<PlayQueueItem> {
-        return Collections.unmodifiableList(streams)
-    }
+    fun getStreams(): List<PlayQueueItem> = Collections.unmodifiableList(streams)
+
 
     /**
      * Changes the current playing index by an offset amount.
@@ -217,7 +203,7 @@ abstract class PlayQueue internal constructor(index: Int, startWith: List<PlayQu
      */
     @Synchronized
     fun offsetIndex(offset: Int) {
-        index = index + offset
+        index += offset
     }
 
     /**
@@ -244,7 +230,7 @@ abstract class PlayQueue internal constructor(index: Int, startWith: List<PlayQu
 
         if (isShuffled) {
             backup!!.addAll(itemList)
-            Collections.shuffle(itemList)
+            itemList.shuffle()
         }
         streams!!.addAll(itemList)
 
@@ -252,7 +238,7 @@ abstract class PlayQueue internal constructor(index: Int, startWith: List<PlayQu
     }
 
     /**
-     * Removes the item at the given index getTabFrom the play queue.
+     * Removes the item at the given index from the play queue.
      *
      * The current playing index will decrement if it is greater than the index being removed.
      * On cases where the current playing index exceeds the playlist range, it is set to 0.
@@ -291,14 +277,10 @@ abstract class PlayQueue internal constructor(index: Int, startWith: List<PlayQu
         val currentIndex = queueIndex.get()
         val size = size()
 
-        if (currentIndex > removeIndex) {
-            queueIndex.decrementAndGet()
-
-        } else if (currentIndex >= size) {
-            queueIndex.set(currentIndex % (size - 1))
-
-        } else if (currentIndex == removeIndex && currentIndex == size - 1) {
-            queueIndex.set(0)
+        when {
+            currentIndex > removeIndex -> queueIndex.decrementAndGet()
+            currentIndex >= size -> queueIndex.set(currentIndex % (size - 1))
+            currentIndex == removeIndex && currentIndex == size - 1 -> queueIndex.set(0)
         }
 
         if (backup != null) {
@@ -323,12 +305,10 @@ abstract class PlayQueue internal constructor(index: Int, startWith: List<PlayQu
         if (source >= streams!!.size || target >= streams!!.size) return
 
         val current = index
-        if (source == current) {
-            queueIndex.set(target)
-        } else if (source < current && target >= current) {
-            queueIndex.decrementAndGet()
-        } else if (source > current && target <= current) {
-            queueIndex.incrementAndGet()
+        when {
+            source == current -> queueIndex.set(target)
+            current in (source + 1)..target -> queueIndex.decrementAndGet()
+            current in target..(source - 1) -> queueIndex.incrementAndGet()
         }
 
         streams!!.add(target, streams!!.removeAt(source))
@@ -373,7 +353,7 @@ abstract class PlayQueue internal constructor(index: Int, startWith: List<PlayQu
         }
         val originIndex = index
         val current = item
-        Collections.shuffle(streams)
+        streams!!.shuffle()
 
         val newIndex = streams!!.indexOf(current)
         if (newIndex != -1) {

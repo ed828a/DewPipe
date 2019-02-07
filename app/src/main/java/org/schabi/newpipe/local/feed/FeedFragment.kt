@@ -34,7 +34,7 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
     private var itemsLoaded = HashSet<String>()  // StateSaver take care this
     private val requestLoadedAtomic = AtomicInteger()
 
-//    private var compositeDisposable: CompositeDisposable? = CompositeDisposable()
+    //    private var compositeDisposable: CompositeDisposable? = CompositeDisposable()
     private var subscriptionObserver: Disposable? = null
     private var feedSubscriber: Subscription? = null
 
@@ -152,8 +152,8 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
         subscriptionObserver = subscriptionService!!.subscription
                 .onErrorReturnItem(emptyList())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({list -> this.handleResult(list) },
-                        {error -> this.onError(error) })
+                .subscribe({ list -> this.handleResult(list) },
+                        { error -> this.onError(error) })
     }
 
     override fun handleResult(result: List<SubscriptionEntity>) {
@@ -215,7 +215,7 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
             }
 
             override fun onComplete() {
-                if (DEBUG) Log.d(TAG, "getSubscriptionObserver > onComplete() called")
+                Log.d(TAG, "getSubscriptionObserver > onComplete() called")
             }
         }
     }

@@ -92,6 +92,7 @@
             android:name=".ExitActivity"
             android:label="@string/general_error"
             android:theme="@android:style/Theme.NoDisplay" />
+
         <activity android:name=".report.ErrorActivity" />
 
         <!-- giga get related -->
@@ -115,6 +116,7 @@
         <activity
             android:name=".ReCaptchaActivity"
             android:label="@string/reCaptchaActivity" />
+
         <activity android:name=".download.ui.ExtSDDownloadFailedActivity" />
 
         <provider

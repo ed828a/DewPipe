@@ -106,7 +106,10 @@ object ServiceHelper {
     }
 
     private fun setSelectedServicePreferences(context: Context, serviceName: String) {
-        PreferenceManager.getDefaultSharedPreferences(context).edit().putString(context.getString(R.string.current_service_key), serviceName).apply()
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putString(context.getString(R.string.current_service_key), serviceName)
+                .apply()
     }
 
     fun getCacheExpirationMillis(serviceId: Int): Long {

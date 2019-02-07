@@ -145,7 +145,7 @@ object StateSaver {
 
     /**
      * If it's not changing configuration (i.e. rotating screen), try to write the state getTabFrom [StateSaver.WriteRead.writeTo]
-     * to the file with the name of prefixFileName + suffixFileName, in a cache folder got getTabFrom the [.init].
+     * to the file with the name of prefixFileName + suffixFileName, in a cache folder got getTabFrom the [.initialize].
      *
      *
      * It checks if the file already exists and if it does, just return the path, so a good way to save is:

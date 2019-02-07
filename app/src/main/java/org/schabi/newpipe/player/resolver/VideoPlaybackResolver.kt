@@ -36,8 +36,8 @@ class VideoPlaybackResolver(private val context: Context,
         // Create video stream source
         val videos = ListHelper.getSortedStreamVideosList(context,
                 info.videoStreams, info.videoOnlyStreams, false)
-        val index: Int
-        index = when {
+
+        val index: Int  = when {
             videos.isEmpty() -> -1
             playbackQuality == null -> qualityResolver.getDefaultResolutionIndex(videos)
             else -> qualityResolver.getOverrideResolutionIndex(videos, playbackQuality)
@@ -58,6 +58,7 @@ class VideoPlaybackResolver(private val context: Context,
             null
         else
             audioStreams[ListHelper.getDefaultAudioFormat(context, audioStreams)]
+
         // Use the audio stream if there is no video stream, or
         // Merge with audio stream in case if video does not contain audio
         if (audio != null && (video != null && video.isVideoOnly || video == null)) {
@@ -73,12 +74,12 @@ class VideoPlaybackResolver(private val context: Context,
 
         // Create subtitle sources
         for (subtitle in info.subtitles) {
-            val mimeType = PlayerHelper.mimeTypesOf(subtitle.fileType) ?: continue
+            val mimeType = PlayerHelper.subtitleMimeTypesOf(subtitle.format)
 
             val textFormat = Format.createTextSampleFormat(null, mimeType,
                     SELECTION_FLAG_AUTOSELECT, PlayerHelper.captionLanguageOf(context, subtitle))
             val textSource = dataSource.sampleMediaSourceFactory
-                    .createMediaSource(Uri.parse(subtitle.url), textFormat, TIME_UNSET)
+                    .createMediaSource(Uri.parse(subtitle.getURL()), textFormat, TIME_UNSET)
             mediaSources.add(textSource)
         }
 

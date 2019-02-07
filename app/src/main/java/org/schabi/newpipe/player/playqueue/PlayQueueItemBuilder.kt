@@ -1,5 +1,6 @@
 package org.schabi.newpipe.player.playqueue
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.text.TextUtils
 import android.view.MotionEvent
@@ -25,6 +26,7 @@ class PlayQueueItemBuilder(context: Context) {
         this.onItemClickListener = listener
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     fun buildStreamInfoItem(holder: PlayQueueItemHolder, item: PlayQueueItem) {
         if (!TextUtils.isEmpty(item.title)) holder.itemVideoTitleView.text = item.title
         holder.itemAdditionalDetailsView.text = Localization.concatenateStrings(item.uploader,
@@ -57,8 +59,8 @@ class PlayQueueItemBuilder(context: Context) {
         holder.itemHandle.setOnTouchListener(getOnTouchListener(holder))
     }
 
-    private fun getOnTouchListener(holder: PlayQueueItemHolder): View.OnTouchListener = View.OnTouchListener()
-        { view, motionEvent ->
+    private fun getOnTouchListener(holder: PlayQueueItemHolder): View.OnTouchListener =
+            View.OnTouchListener { view, motionEvent ->
             view.performClick()
 
             if (motionEvent.actionMasked == MotionEvent.ACTION_DOWN && onItemClickListener != null) {

@@ -45,7 +45,7 @@ interface PlaybackListener {
     /**
      * Requests the listener to resolve a stream info into a media source
      * according to the listener's implementation (background, popup or main video simpleExoPlayer).
-     * so this function will be implemented in those components
+     * so this function will be implemented in each those components
      *
      * May be called at any time.
      */
