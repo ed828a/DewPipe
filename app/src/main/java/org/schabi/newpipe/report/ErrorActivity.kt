@@ -14,22 +14,19 @@ import android.support.design.widget.Snackbar
 import android.support.v4.app.NavUtils
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
-
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import kotlinx.android.synthetic.main.activity_error.*
-
 import org.acra.ReportField
 import org.acra.collector.CrashReportData
 import org.json.JSONArray
 import org.json.JSONObject
 import org.schabi.newpipe.BuildConfig
-import org.schabi.newpipe.MainActivity
 import org.schabi.newpipe.R
+import org.schabi.newpipe.ui.activity.MainActivity
 import org.schabi.newpipe.util.ThemeHelper
-
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.text.SimpleDateFormat

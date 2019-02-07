@@ -8,6 +8,7 @@ import com.facebook.stetho.Stetho
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import com.squareup.leakcanary.*
 import okhttp3.OkHttpClient
+import org.schabi.newpipe.util.Downloader
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -24,7 +25,7 @@ class DebugApp : App() {
     }
 
     override val downloader: Downloader
-        get() = org.schabi.newpipe.Downloader.getInstance(OkHttpClient.Builder()
+        get() = Downloader.getInstance(OkHttpClient.Builder()
                 .addNetworkInterceptor(StethoInterceptor()))
 
     private fun initStetho() {

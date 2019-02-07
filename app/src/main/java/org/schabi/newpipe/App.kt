@@ -30,6 +30,7 @@ import org.schabi.newpipe.report.ErrorInfo
 import org.schabi.newpipe.report.UserAction
 import org.schabi.newpipe.settings.SettingsActivity
 import org.schabi.newpipe.util.ExtractorHelper
+import org.schabi.newpipe.util.ImageDownloader
 import org.schabi.newpipe.util.StateSaver
 import java.io.IOException
 import java.io.InterruptedIOException
@@ -40,7 +41,7 @@ open class App : Application() {
     private var refWatcher: RefWatcher? = null
 
     protected open val downloader: Downloader
-        get() = org.schabi.newpipe.Downloader.getInstance(null)
+        get() = org.schabi.newpipe.util.Downloader.getInstance(null)
 
     protected open val isDisposedRxExceptionsReported: Boolean
         get() = false

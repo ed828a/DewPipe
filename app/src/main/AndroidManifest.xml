@@ -19,7 +19,7 @@
         android:theme="@style/OpeningTheme"
         tools:ignore="AllowBackup">
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.activity.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask">
             <intent-filter>
@@ -77,22 +77,6 @@
         <service android:name=".local.subscription.services.SubscriptionsImportService" />
         <service android:name=".local.subscription.services.SubscriptionsExportService" />
 
-        <activity
-            android:name=".PanicResponderActivity"
-            android:launchMode="singleInstance"
-            android:noHistory="true"
-            android:theme="@android:style/Theme.NoDisplay">
-            <intent-filter>
-                <action android:name="info.guardianproject.panic.action.TRIGGER" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".ExitActivity"
-            android:label="@string/general_error"
-            android:theme="@android:style/Theme.NoDisplay" />
-
         <activity android:name=".report.ErrorActivity" />
 
         <!-- giga get related -->
@@ -114,7 +98,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ReCaptchaActivity"
+            android:name=".ui.activity.ReCaptchaActivity"
             android:label="@string/reCaptchaActivity" />
 
         <activity android:name=".download.ui.ExtSDDownloadFailedActivity" />
@@ -130,7 +114,7 @@
         </provider>
 
         <activity
-            android:name=".RouterActivity"
+            android:name=".ui.activity.RouterActivity"
             android:excludeFromRecents="true"
             android:label="@string/preferred_open_action_share_menu_title"
             android:taskAffinity=""
@@ -236,7 +220,7 @@
         </activity>
 
         <service
-            android:name=".RouterActivity$FetcherService"
+            android:name=".ui.activity.RouterActivity$FetcherService"
             android:exported="false" />
 
     </application>

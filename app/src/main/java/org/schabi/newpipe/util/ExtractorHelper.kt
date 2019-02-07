@@ -24,10 +24,9 @@ import android.content.Intent
 import android.os.Handler
 import android.util.Log
 import android.widget.Toast
-
-import org.schabi.newpipe.MainActivity
+import io.reactivex.Maybe
+import io.reactivex.Single
 import org.schabi.newpipe.R
-import org.schabi.newpipe.ReCaptchaActivity
 import org.schabi.newpipe.extractor.Info
 import org.schabi.newpipe.extractor.ListExtractor.InfoItemsPage
 import org.schabi.newpipe.extractor.NewPipe
@@ -41,14 +40,12 @@ import org.schabi.newpipe.extractor.search.SearchInfo
 import org.schabi.newpipe.extractor.services.youtube.extractors.YoutubeStreamExtractor
 import org.schabi.newpipe.extractor.stream.StreamInfo
 import org.schabi.newpipe.report.ErrorActivity
+import org.schabi.newpipe.report.ErrorInfo
 import org.schabi.newpipe.report.UserAction
-
+import org.schabi.newpipe.ui.activity.MainActivity
+import org.schabi.newpipe.ui.activity.ReCaptchaActivity
 import java.io.IOException
 import java.io.InterruptedIOException
-
-import io.reactivex.Maybe
-import io.reactivex.Single
-import org.schabi.newpipe.report.ErrorInfo
 
 object ExtractorHelper {
     private val TAG = ExtractorHelper::class.java.simpleName

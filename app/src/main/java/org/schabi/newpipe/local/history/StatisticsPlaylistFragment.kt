@@ -16,7 +16,7 @@ import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import org.schabi.newpipe.R
 import org.schabi.newpipe.database.LocalItem
-import org.schabi.newpipe.database.stream.StreamStatisticsEntry
+import org.schabi.newpipe.database.stream.model.StreamStatisticsEntry
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
 import org.schabi.newpipe.info_list.InfoItemDialog
 import org.schabi.newpipe.local.BaseLocalListFragment

@@ -1,22 +1,20 @@
 package org.schabi.newpipe.local.playlist
 
-import org.schabi.newpipe.database.AppDatabase
-import org.schabi.newpipe.database.playlist.PlaylistMetadataEntry
-import org.schabi.newpipe.database.playlist.PlaylistStreamEntry
-import org.schabi.newpipe.database.playlist.dao.PlaylistDAO
-import org.schabi.newpipe.database.playlist.dao.PlaylistStreamDAO
-import org.schabi.newpipe.database.playlist.model.PlaylistEntity
-import org.schabi.newpipe.database.playlist.model.PlaylistStreamEntity
-import org.schabi.newpipe.database.stream.dao.StreamDAO
-import org.schabi.newpipe.database.stream.model.StreamEntity
-
-import java.util.ArrayList
-
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
+import org.schabi.newpipe.database.AppDatabase
+import org.schabi.newpipe.database.playlist.dao.PlaylistDAO
+import org.schabi.newpipe.database.playlist.dao.PlaylistStreamDAO
+import org.schabi.newpipe.database.playlist.model.PlaylistEntity
+import org.schabi.newpipe.database.playlist.model.PlaylistMetadataEntry
+import org.schabi.newpipe.database.playlist.model.PlaylistStreamEntity
+import org.schabi.newpipe.database.playlist.model.PlaylistStreamEntry
+import org.schabi.newpipe.database.stream.dao.StreamDAO
+import org.schabi.newpipe.database.stream.model.StreamEntity
+import java.util.*
 
 class LocalPlaylistManager(private val database: AppDatabase) {
     private val streamTable: StreamDAO = database.streamDAO()

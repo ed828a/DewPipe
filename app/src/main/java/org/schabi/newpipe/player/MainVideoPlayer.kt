@@ -49,10 +49,8 @@ import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.text.CaptionStyleCompat
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.SubtitleView
-import org.schabi.newpipe.BuildConfig.DEBUG
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.stream.VideoStream
-import org.schabi.newpipe.fragments.OnScrollBelowItemsListener
 import org.schabi.newpipe.player.BasePlayer.Companion.STATE_PLAYING
 import org.schabi.newpipe.player.VideoPlayer.Companion.DEFAULT_CONTROLS_DURATION
 import org.schabi.newpipe.player.VideoPlayer.Companion.DEFAULT_CONTROLS_HIDE_TIME
@@ -64,6 +62,7 @@ import org.schabi.newpipe.player.playqueue.PlayQueueItemHolder
 import org.schabi.newpipe.player.playqueue.PlayQueueItemTouchCallback
 import org.schabi.newpipe.player.resolver.MediaSourceTag
 import org.schabi.newpipe.player.resolver.VideoPlaybackResolver
+import org.schabi.newpipe.ui.fragments.OnScrollBelowItemsListener
 import org.schabi.newpipe.util.*
 import org.schabi.newpipe.util.AnimationUtils.Type.SCALE_AND_ALPHA
 import org.schabi.newpipe.util.AnimationUtils.Type.SLIDE_AND_ALPHA

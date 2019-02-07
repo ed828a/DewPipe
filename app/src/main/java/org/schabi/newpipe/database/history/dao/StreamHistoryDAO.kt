@@ -10,11 +10,11 @@ import org.schabi.newpipe.database.history.model.StreamHistoryEntity.Companion.S
 import org.schabi.newpipe.database.history.model.StreamHistoryEntity.Companion.STREAM_HISTORY_TABLE
 import org.schabi.newpipe.database.history.model.StreamHistoryEntity.Companion.STREAM_REPEAT_COUNT
 import org.schabi.newpipe.database.history.model.StreamHistoryEntry
-import org.schabi.newpipe.database.stream.StreamStatisticsEntry
-import org.schabi.newpipe.database.stream.StreamStatisticsEntry.Companion.STREAM_LATEST_DATE
-import org.schabi.newpipe.database.stream.StreamStatisticsEntry.Companion.STREAM_WATCH_COUNT
 import org.schabi.newpipe.database.stream.model.StreamEntity.Companion.STREAM_ID
 import org.schabi.newpipe.database.stream.model.StreamEntity.Companion.STREAM_TABLE
+import org.schabi.newpipe.database.stream.model.StreamStatisticsEntry
+import org.schabi.newpipe.database.stream.model.StreamStatisticsEntry.Companion.STREAM_LATEST_DATE
+import org.schabi.newpipe.database.stream.model.StreamStatisticsEntry.Companion.STREAM_WATCH_COUNT
 
 @Dao
 abstract class StreamHistoryDAO : HistoryDAO<StreamHistoryEntity> {

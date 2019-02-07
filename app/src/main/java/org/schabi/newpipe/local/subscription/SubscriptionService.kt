@@ -5,7 +5,6 @@ import android.util.Log
 import io.reactivex.*
 import io.reactivex.functions.Function
 import io.reactivex.schedulers.Schedulers
-import org.schabi.newpipe.MainActivity
 import org.schabi.newpipe.database.AppDatabase
 import org.schabi.newpipe.database.subscription.SubscriptionDAO
 import org.schabi.newpipe.database.subscription.SubscriptionEntity

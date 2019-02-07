@@ -16,9 +16,9 @@ import org.schabi.newpipe.extractor.InfoItem
 import org.schabi.newpipe.extractor.NewPipe
 import org.schabi.newpipe.extractor.channel.ChannelInfo
 import org.schabi.newpipe.extractor.exceptions.ExtractionException
-import org.schabi.newpipe.fragments.list.BaseListFragment
 import org.schabi.newpipe.local.subscription.SubscriptionService
 import org.schabi.newpipe.report.UserAction
+import org.schabi.newpipe.ui.fragments.list.BaseListFragment
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger

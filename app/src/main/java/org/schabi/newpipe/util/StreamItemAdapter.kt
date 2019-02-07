@@ -11,7 +11,6 @@ import android.widget.TextView
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import org.schabi.newpipe.Downloader
 import org.schabi.newpipe.R
 import org.schabi.newpipe.download.util.Utility
 import org.schabi.newpipe.extractor.stream.AudioStream

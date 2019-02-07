@@ -14,11 +14,11 @@ import org.schabi.newpipe.database.history.dao.StreamHistoryDAO
 import org.schabi.newpipe.database.history.model.SearchHistoryEntry
 import org.schabi.newpipe.database.history.model.StreamHistoryEntity
 import org.schabi.newpipe.database.history.model.StreamHistoryEntry
-import org.schabi.newpipe.database.stream.StreamStatisticsEntry
 import org.schabi.newpipe.database.stream.dao.StreamDAO
 import org.schabi.newpipe.database.stream.dao.StreamStateDAO
 import org.schabi.newpipe.database.stream.model.StreamEntity
 import org.schabi.newpipe.database.stream.model.StreamStateEntity
+import org.schabi.newpipe.database.stream.model.StreamStatisticsEntry
 import org.schabi.newpipe.extractor.stream.StreamInfo
 import java.util.*
 

@@ -16,33 +16,25 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.ImageButton
-import android.widget.LinearLayout
-import android.widget.PopupMenu
-import android.widget.ProgressBar
-import android.widget.SeekBar
-import android.widget.TextView
-
+import android.widget.*
 import com.google.android.exoplayer2.PlaybackParameters
 import com.google.android.exoplayer2.Player
-
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.stream.StreamInfo
 import org.schabi.newpipe.extractor.stream.StreamType
-import org.schabi.newpipe.fragments.OnScrollBelowItemsListener
 import org.schabi.newpipe.local.dialog.PlaylistAppendDialog
 import org.schabi.newpipe.player.event.PlayerEventListener
 import org.schabi.newpipe.player.helper.PlaybackParameterDialog
+import org.schabi.newpipe.player.helper.PlayerHelper.formatPitch
+import org.schabi.newpipe.player.helper.PlayerHelper.formatSpeed
 import org.schabi.newpipe.player.playqueue.PlayQueueItem
 import org.schabi.newpipe.player.playqueue.PlayQueueItemBuilder
 import org.schabi.newpipe.player.playqueue.PlayQueueItemHolder
 import org.schabi.newpipe.player.playqueue.PlayQueueItemTouchCallback
+import org.schabi.newpipe.ui.fragments.OnScrollBelowItemsListener
 import org.schabi.newpipe.util.Localization
 import org.schabi.newpipe.util.NavigationHelper
 import org.schabi.newpipe.util.ThemeHelper
-
-import org.schabi.newpipe.player.helper.PlayerHelper.formatPitch
-import org.schabi.newpipe.player.helper.PlayerHelper.formatSpeed
 
 abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener, PlaybackParameterDialog.Callback {
 

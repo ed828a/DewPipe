@@ -14,7 +14,6 @@ import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.widget.Toast
 import com.nostra13.universalimageloader.core.ImageLoader
-import org.schabi.newpipe.MainActivity
 import org.schabi.newpipe.R
 import org.schabi.newpipe.about.AboutActivity
 import org.schabi.newpipe.download.ui.DownloadActivity
@@ -23,12 +22,6 @@ import org.schabi.newpipe.extractor.StreamingService
 import org.schabi.newpipe.extractor.exceptions.ExtractionException
 import org.schabi.newpipe.extractor.stream.Stream
 import org.schabi.newpipe.extractor.stream.StreamInfo
-import org.schabi.newpipe.fragments.MainFragment
-import org.schabi.newpipe.fragments.detail.VideoDetailFragment
-import org.schabi.newpipe.fragments.list.channel.ChannelFragment
-import org.schabi.newpipe.fragments.list.kiosk.KioskFragment
-import org.schabi.newpipe.fragments.list.playlist.PlaylistFragment
-import org.schabi.newpipe.fragments.list.search.SearchFragment
 import org.schabi.newpipe.local.bookmark.BookmarkFragment
 import org.schabi.newpipe.local.feed.FeedFragment
 import org.schabi.newpipe.local.history.StatisticsPlaylistFragment
@@ -41,6 +34,13 @@ import org.schabi.newpipe.player.BasePlayer.Companion.PLAY_QUEUE_KEY
 import org.schabi.newpipe.player.old.PlayVideoActivity
 import org.schabi.newpipe.player.playqueue.PlayQueue
 import org.schabi.newpipe.settings.SettingsActivity
+import org.schabi.newpipe.ui.activity.MainActivity
+import org.schabi.newpipe.ui.fragments.MainFragment
+import org.schabi.newpipe.ui.fragments.detail.VideoDetailFragment
+import org.schabi.newpipe.ui.fragments.list.channel.ChannelFragment
+import org.schabi.newpipe.ui.fragments.list.kiosk.KioskFragment
+import org.schabi.newpipe.ui.fragments.list.playlist.PlaylistFragment
+import org.schabi.newpipe.ui.fragments.list.search.SearchFragment
 import java.util.*
 
 object NavigationHelper {

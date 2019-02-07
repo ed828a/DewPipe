@@ -4,15 +4,10 @@ import android.content.Context
 import android.support.annotation.DrawableRes
 import android.support.v4.app.Fragment
 import android.util.Log
-
 import com.grack.nanojson.JsonObject
 import com.grack.nanojson.JsonSink
-
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.exceptions.ExtractionException
-import org.schabi.newpipe.fragments.BlankFragment
-import org.schabi.newpipe.fragments.list.channel.ChannelFragment
-import org.schabi.newpipe.fragments.list.kiosk.KioskFragment
 import org.schabi.newpipe.local.bookmark.BookmarkFragment
 import org.schabi.newpipe.local.feed.FeedFragment
 import org.schabi.newpipe.local.history.StatisticsPlaylistFragment
@@ -24,6 +19,9 @@ import org.schabi.newpipe.settings.tabs.Tab.Type.Companion.FEED_TAB_ID
 import org.schabi.newpipe.settings.tabs.Tab.Type.Companion.HISTORY_TAB_ID
 import org.schabi.newpipe.settings.tabs.Tab.Type.Companion.KIOSK_TAB_ID
 import org.schabi.newpipe.settings.tabs.Tab.Type.Companion.SUBSCRIPTION_TAB_ID
+import org.schabi.newpipe.ui.fragments.BlankFragment
+import org.schabi.newpipe.ui.fragments.list.channel.ChannelFragment
+import org.schabi.newpipe.ui.fragments.list.kiosk.KioskFragment
 import org.schabi.newpipe.util.Constants.NO_ID_STRING
 import org.schabi.newpipe.util.Constants.NO_NAME_STRING
 import org.schabi.newpipe.util.Constants.NO_SERVICE_ID

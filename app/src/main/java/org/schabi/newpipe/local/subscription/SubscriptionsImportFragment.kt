@@ -16,14 +16,12 @@ import android.widget.EditText
 import android.widget.TextView
 import com.nononsenseapps.filepicker.Utils
 import icepick.State
-import org.schabi.newpipe.BaseFragment
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.NewPipe
 import org.schabi.newpipe.extractor.exceptions.ExtractionException
 import org.schabi.newpipe.extractor.subscription.SubscriptionExtractor
 import org.schabi.newpipe.extractor.subscription.SubscriptionExtractor.ContentSource.CHANNEL_URL
 import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService
-import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.*
 import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.Companion.CHANNEL_URL_MODE
 import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.Companion.INPUT_STREAM_MODE
 import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.Companion.KEY_MODE
@@ -31,6 +29,7 @@ import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService
 import org.schabi.newpipe.report.ErrorActivity
 import org.schabi.newpipe.report.ErrorInfo
 import org.schabi.newpipe.report.UserAction
+import org.schabi.newpipe.ui.fragments.BaseFragment
 import org.schabi.newpipe.util.Constants
 import org.schabi.newpipe.util.FilePickerActivityHelper
 import org.schabi.newpipe.util.ServiceHelper

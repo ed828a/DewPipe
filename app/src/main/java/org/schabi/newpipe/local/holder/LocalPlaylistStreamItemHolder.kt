@@ -10,7 +10,7 @@ import android.widget.TextView
 
 import org.schabi.newpipe.R
 import org.schabi.newpipe.database.LocalItem
-import org.schabi.newpipe.database.playlist.PlaylistStreamEntry
+import org.schabi.newpipe.database.playlist.model.PlaylistStreamEntry
 import org.schabi.newpipe.extractor.NewPipe
 import org.schabi.newpipe.local.LocalItemBuilder
 import org.schabi.newpipe.util.ImageDisplayConstants

@@ -14,8 +14,8 @@ import android.view.MenuInflater
 import android.view.View
 
 import org.schabi.newpipe.R
-import org.schabi.newpipe.fragments.BaseStateFragment
-import org.schabi.newpipe.fragments.list.ListViewContract
+import org.schabi.newpipe.ui.fragments.BaseStateFragment
+import org.schabi.newpipe.ui.fragments.list.ListViewContract
 
 import org.schabi.newpipe.util.AnimationUtils.animateView
 

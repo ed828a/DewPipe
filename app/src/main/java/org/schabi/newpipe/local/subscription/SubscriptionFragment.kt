@@ -32,7 +32,6 @@ import org.schabi.newpipe.extractor.InfoItem
 import org.schabi.newpipe.extractor.NewPipe
 import org.schabi.newpipe.extractor.channel.ChannelInfoItem
 import org.schabi.newpipe.extractor.exceptions.ExtractionException
-import org.schabi.newpipe.fragments.BaseStateFragment
 import org.schabi.newpipe.info_list.InfoListAdapter
 import org.schabi.newpipe.local.subscription.services.SubscriptionsExportService
 import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService
@@ -40,6 +39,7 @@ import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService
 import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.Companion.KEY_VALUE
 import org.schabi.newpipe.local.subscription.services.SubscriptionsImportService.Companion.PREVIOUS_EXPORT_MODE
 import org.schabi.newpipe.report.UserAction
+import org.schabi.newpipe.ui.fragments.BaseStateFragment
 import org.schabi.newpipe.util.*
 import org.schabi.newpipe.util.AnimationUtils.animateRotation
 import org.schabi.newpipe.util.AnimationUtils.animateView

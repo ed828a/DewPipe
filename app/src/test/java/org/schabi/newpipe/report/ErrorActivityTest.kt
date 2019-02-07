@@ -1,14 +1,12 @@
 package org.schabi.newpipe.report
 
 import android.app.Activity
-
-import org.junit.Test
-import org.schabi.newpipe.MainActivity
-import org.schabi.newpipe.RouterActivity
-import org.schabi.newpipe.fragments.detail.VideoDetailFragment
-
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Test
+import org.schabi.newpipe.ui.activity.MainActivity
+import org.schabi.newpipe.ui.activity.RouterActivity
+import org.schabi.newpipe.ui.fragments.detail.VideoDetailFragment
 
 /**
  * Unit tests for [ErrorActivity]

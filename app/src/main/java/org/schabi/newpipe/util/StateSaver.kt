@@ -7,8 +7,6 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.text.TextUtils
 import android.util.Log
-import org.schabi.newpipe.BuildConfig
-import org.schabi.newpipe.MainActivity
 import java.io.*
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap

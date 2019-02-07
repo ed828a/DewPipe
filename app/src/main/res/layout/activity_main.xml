@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:context="org.schabi.newpipe.MainActivity">
+        tools:context="org.schabi.newpipe.ui.activity.MainActivity">
 
         <FrameLayout
             android:id="@+id/fragment_holder"

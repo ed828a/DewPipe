@@ -9,35 +9,20 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.EditText
-import android.widget.RadioButton
-import android.widget.RadioGroup
-import android.widget.SeekBar
-import android.widget.Spinner
-import android.widget.TextView
-import android.widget.Toast
-
-import org.schabi.newpipe.MainActivity
+import android.widget.*
+import icepick.Icepick
+import icepick.State
+import io.reactivex.disposables.CompositeDisposable
 import org.schabi.newpipe.R
+import org.schabi.newpipe.download.service.DownloadManagerService
 import org.schabi.newpipe.extractor.stream.AudioStream
 import org.schabi.newpipe.extractor.stream.Stream
 import org.schabi.newpipe.extractor.stream.StreamInfo
 import org.schabi.newpipe.extractor.stream.VideoStream
 import org.schabi.newpipe.settings.NewPipeSettings
-import org.schabi.newpipe.util.FilenameUtils
-import org.schabi.newpipe.util.ListHelper
-import org.schabi.newpipe.util.PermissionHelper
-import org.schabi.newpipe.util.StreamItemAdapter
+import org.schabi.newpipe.util.*
 import org.schabi.newpipe.util.StreamItemAdapter.StreamSizeWrapper
-import org.schabi.newpipe.util.ThemeHelper
-
-import java.util.ArrayList
-
-import icepick.Icepick
-import icepick.State
-import io.reactivex.disposables.CompositeDisposable
-import org.schabi.newpipe.download.service.DownloadManagerService
+import java.util.*
 
 class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, AdapterView.OnItemSelectedListener {
 

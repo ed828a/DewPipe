@@ -14,7 +14,7 @@ import io.reactivex.disposables.Disposable
 import org.schabi.newpipe.R
 import org.schabi.newpipe.database.AppDatabase
 import org.schabi.newpipe.database.LocalItem
-import org.schabi.newpipe.database.playlist.PlaylistMetadataEntry
+import org.schabi.newpipe.database.playlist.model.PlaylistMetadataEntry
 import org.schabi.newpipe.database.stream.model.StreamEntity
 import org.schabi.newpipe.extractor.stream.StreamInfo
 import org.schabi.newpipe.extractor.stream.StreamInfoItem

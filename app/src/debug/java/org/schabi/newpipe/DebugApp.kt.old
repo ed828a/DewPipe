@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit
 class DebugApp : App() {
 
     override val downloader: Downloader
-        get() = org.schabi.newpipe.Downloader.init(OkHttpClient.Builder()
+        get() = org.schabi.newpipe.util.Downloader.init(OkHttpClient.Builder()
                 .addNetworkInterceptor(StethoInterceptor()))
 
     override val isDisposedRxExceptionsReported: Boolean
