@@ -21,13 +21,13 @@ interface PlaybackResolver : Resolver<StreamInfo, MediaSource> {
         }
 
         val tag = MediaSourceTag(info)
-        if (!info.hlsUrl.isEmpty()) {
-            return buildLiveMediaSource(dataSource, info.hlsUrl, C.TYPE_HLS, tag)
-        } else if (!info.dashMpdUrl.isEmpty()) {
-            return buildLiveMediaSource(dataSource, info.dashMpdUrl, C.TYPE_DASH, tag)
+
+        return when {
+            !info.hlsUrl.isEmpty() -> buildLiveMediaSource(dataSource, info.hlsUrl, C.TYPE_HLS, tag)
+            !info.dashMpdUrl.isEmpty() -> buildLiveMediaSource(dataSource, info.dashMpdUrl, C.TYPE_DASH, tag)
+            else -> null
         }
 
-        return null
     }
 
     fun buildLiveMediaSource(dataSource: PlayerDataSource,
@@ -42,6 +42,7 @@ interface PlaybackResolver : Resolver<StreamInfo, MediaSource> {
                     .createMediaSource(uri)
             C.TYPE_HLS -> return dataSource.liveHlsMediaSourceFactory.setTag(metadata)
                     .createMediaSource(uri)
+            C.TYPE_OTHER -> throw IllegalStateException("Unsupported type: $type")
             else -> throw IllegalStateException("Unsupported type: $type")
         }
     }

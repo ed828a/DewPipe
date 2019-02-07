@@ -36,8 +36,8 @@ class VideoPlaybackResolver(private val context: Context,
         // Create video stream source
         val videos = ListHelper.getSortedStreamVideosList(context,
                 info.videoStreams, info.videoOnlyStreams, false)
-        val index: Int
-        index = when {
+
+        val index: Int  = when {
             videos.isEmpty() -> -1
             playbackQuality == null -> qualityResolver.getDefaultResolutionIndex(videos)
             else -> qualityResolver.getOverrideResolutionIndex(videos, playbackQuality)
@@ -58,6 +58,7 @@ class VideoPlaybackResolver(private val context: Context,
             null
         else
             audioStreams[ListHelper.getDefaultAudioFormat(context, audioStreams)]
+
         // Use the audio stream if there is no video stream, or
         // Merge with audio stream in case if video does not contain audio
         if (audio != null && (video != null && video.isVideoOnly || video == null)) {

@@ -108,7 +108,7 @@ abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
     }
 
     protected open fun startLoading(forceLoad: Boolean) {
-        if (DEBUG) Log.d(TAG, "startLoading() called with: forceLoad = [$forceLoad]")
+        Log.d(TAG, "startLoading() called with: forceLoad = [$forceLoad]")
         showLoading()
         isLoading.set(true)
     }
@@ -137,7 +137,7 @@ abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
     }
 
     override fun showError(message: String, showRetryButton: Boolean) {
-        if (DEBUG) Log.d(TAG, "showError() called with: message = [$message], showRetryButton = [$showRetryButton]")
+        Log.d(TAG, "showError() called with: message = [$message], showRetryButton = [$showRetryButton]")
         isLoading.set(false)
         InfoCache.instance.clearCache()
         hideLoading()
@@ -151,7 +151,7 @@ abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
     }
 
     override fun handleResult(result: I) {
-        if (DEBUG) Log.d(TAG, "handleResult() called with: result = [$result]")
+        Log.d(TAG, "handleResult() called with: result = [$result]")
         hideLoading()
     }
 
@@ -165,16 +165,16 @@ abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
      * @return if the exception was handled
      */
     protected open fun onError(exception: Throwable): Boolean {
-        if (DEBUG) Log.d(TAG, "onError() called with: exception = [$exception]")
+        Log.d(TAG, "onError() called with: exception = [$exception]")
         isLoading.set(false)
 
         if (isDetached || isRemoving) {
-            if (DEBUG) Log.w(TAG, "onError() is detached or removing = [$exception]")
+            Log.w(TAG, "onError() is detached or removing = [$exception]")
             return true
         }
 
         if (ExtractorHelper.isInterruptedCaused(exception)) {
-            if (DEBUG) Log.w(TAG, "onError() isInterruptedCaused! = [$exception]")
+            Log.w(TAG, "onError() isInterruptedCaused! = [$exception]")
             return true
         }
 
@@ -189,8 +189,8 @@ abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
         return false
     }
 
-    fun onReCaptchaException() {
-        if (DEBUG) Log.d(TAG, "onReCaptchaException() called")
+    private fun onReCaptchaException() {
+        Log.d(TAG, "onReCaptchaException() called")
         Toast.makeText(activity, R.string.recaptcha_request_toast, Toast.LENGTH_LONG).show()
         // Starting ReCaptcha Challenge Activity
         startActivityForResult(Intent(activity, ReCaptchaActivity::class.java), ReCaptchaActivity.RECAPTCHA_REQUEST)
@@ -208,7 +208,7 @@ abstract class BaseStateFragment<I> : BaseFragment(), ViewContract<I> {
     fun onUnrecoverableError(exception: List<Throwable>, userAction: UserAction, serviceName: String?, request: String?, @StringRes errorId: Int) {
         var serviceName = serviceName
         var request = request
-        if (DEBUG) Log.d(TAG, "onUnrecoverableError() called with: exception = [$exception]")
+        Log.d(TAG, "onUnrecoverableError() called with: exception = [$exception]")
 
         if (serviceName == null) serviceName = "none"
         if (request == null) request = "none"

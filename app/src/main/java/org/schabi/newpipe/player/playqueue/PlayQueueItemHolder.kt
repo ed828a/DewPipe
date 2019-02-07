@@ -31,24 +31,15 @@ import org.schabi.newpipe.R
  * along with NewPipe.  If not, see <http:></http:>//www.gnu.org/licenses/>.
  */
 
-class PlayQueueItemHolder(v: View) : RecyclerView.ViewHolder(v) {
+class PlayQueueItemHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-    val itemVideoTitleView: TextView
-    val itemDurationView: TextView
-    val itemAdditionalDetailsView: TextView
-    val itemSelected: ImageView
-    val itemThumbnailView: ImageView
-    val itemHandle: ImageView
+    val itemVideoTitleView: TextView = view.findViewById(R.id.itemVideoTitleView)
+    val itemDurationView: TextView = view.findViewById(R.id.itemDurationView)
+    val itemAdditionalDetailsView: TextView = view.findViewById(R.id.itemAdditionalDetails)
+    val itemSelected: ImageView = view.findViewById(R.id.itemSelected)
+    val itemThumbnailView: ImageView = view.findViewById(R.id.itemThumbnailView)
+    val itemHandle: ImageView = view.findViewById(R.id.itemHandle)
 
-    val itemRoot: View
+    val itemRoot: View = view.findViewById(R.id.itemRoot)
 
-    init {
-        itemRoot = v.findViewById(R.id.itemRoot)
-        itemVideoTitleView = v.findViewById(R.id.itemVideoTitleView)
-        itemDurationView = v.findViewById(R.id.itemDurationView)
-        itemAdditionalDetailsView = v.findViewById(R.id.itemAdditionalDetails)
-        itemSelected = v.findViewById(R.id.itemSelected)
-        itemThumbnailView = v.findViewById(R.id.itemThumbnailView)
-        itemHandle = v.findViewById(R.id.itemHandle)
-    }
 }

@@ -52,7 +52,7 @@ class Downloader private constructor(builder: OkHttpClient.Builder) : org.schabi
      * but set the HTTP header field "Accept-Language" to the supplied string.
      *
      * @param siteUrl  the URL of the text file to return the contents of
-     * @param language the language (usually a 2-character code) to set as the preferred language
+     * @param localization the language and country (usually a 2-character code) to set
      * @return the contents of the specified text file
      */
     @Throws(IOException::class, ReCaptchaException::class)
@@ -131,17 +131,22 @@ class Downloader private constructor(builder: OkHttpClient.Builder) : org.schabi
     companion object {
         const val USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
 
-        var instance: Downloader? = null
-            private set
+
 
         /**
          * It's recommended to call exactly once in the entire lifetime of the application.
          *
          * @param builder if null, default builder will be used
          */
-        fun init(builder: OkHttpClient.Builder?): Downloader {
-            instance = Downloader(builder ?: OkHttpClient.Builder())
-            return instance!!
+        @Volatile
+        var instance: Downloader? = null
+            private set
+        fun getInstance(builder: OkHttpClient.Builder?): Downloader {
+            return instance ?: synchronized(Downloader::class.java) {
+                instance ?: Downloader(builder ?: OkHttpClient.Builder()).also {
+                    instance = it
+                }
+            }
         }
     }
 }

@@ -24,7 +24,7 @@ class DebugApp : App() {
     }
 
     override val downloader: Downloader
-        get() = org.schabi.newpipe.Downloader.init(OkHttpClient.Builder()
+        get() = org.schabi.newpipe.Downloader.getInstance(OkHttpClient.Builder()
                 .addNetworkInterceptor(StethoInterceptor()))
 
     private fun initStetho() {

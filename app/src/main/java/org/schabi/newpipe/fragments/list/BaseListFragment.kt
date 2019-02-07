@@ -157,7 +157,7 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
     }
 
     protected open fun onItemSelected(selectedItem: InfoItem) {
-        if (DEBUG) Log.d(TAG, "onItemSelected() called with: selectedItem = [$selectedItem]")
+        Log.d(TAG, "onItemSelected() called with: selectedItem = [$selectedItem]")
     }
 
     override fun initListeners() {
@@ -258,7 +258,7 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
     ///////////////////////////////////////////////////////////////////////////
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        if (DEBUG) Log.d(TAG, "onCreateOptionsMenu() called with: menu = [$menu], inflater = [$inflater]")
+        Log.d(TAG, "onCreateOptionsMenu() called with: menu = [$menu], inflater = [$inflater]")
         super.onCreateOptionsMenu(menu, inflater)
         val supportActionBar = activity!!.supportActionBar
         if (supportActionBar != null) {

@@ -7,17 +7,20 @@ abstract class PlayQueueItemTouchCallback : ItemTouchHelper.SimpleCallback(ItemT
 
     abstract fun onMove(sourceIndex: Int, targetIndex: Int)
 
-    override fun interpolateOutOfBoundsScroll(recyclerView: RecyclerView, viewSize: Int,
-                                              viewSizeOutOfBounds: Int, totalSize: Int,
+    override fun interpolateOutOfBoundsScroll(recyclerView: RecyclerView,
+                                              viewSize: Int,
+                                              viewSizeOutOfBounds: Int,
+                                              totalSize: Int,
                                               msSinceStartScroll: Long): Int {
-        val standardSpeed = super.interpolateOutOfBoundsScroll(recyclerView, viewSize,
-                viewSizeOutOfBounds, totalSize, msSinceStartScroll)
-        val clampedAbsVelocity = Math.max(MINIMUM_INITIAL_DRAG_VELOCITY,
-                Math.min(Math.abs(standardSpeed), MAXIMUM_INITIAL_DRAG_VELOCITY))
+        val standardSpeed = super.interpolateOutOfBoundsScroll(recyclerView, viewSize, viewSizeOutOfBounds, totalSize, msSinceStartScroll)
+
+        val clampedAbsVelocity = Math.max(MINIMUM_INITIAL_DRAG_VELOCITY, Math.min(Math.abs(standardSpeed), MAXIMUM_INITIAL_DRAG_VELOCITY))
+
         return clampedAbsVelocity * Math.signum(viewSizeOutOfBounds.toFloat()).toInt()
     }
 
-    override fun onMove(recyclerView: RecyclerView, source: RecyclerView.ViewHolder,
+    override fun onMove(recyclerView: RecyclerView,
+                        source: RecyclerView.ViewHolder,
                         target: RecyclerView.ViewHolder): Boolean {
         if (source.itemViewType != target.itemViewType) {
             return false

@@ -88,7 +88,10 @@ class MainActivity : AppCompatActivity() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val w = window
+            // When this flag is enabled for a window, it automatically sets the system UI visibility flags
+            //   View.SYSTEM_UI_FLAG_LAYOUT_STABLE and View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
             w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+            // same as w.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
         }
 
         if (supportFragmentManager != null && supportFragmentManager.backStackEntryCount == 0) {
@@ -114,13 +117,11 @@ class MainActivity : AppCompatActivity() {
         val currentServiceId = ServiceHelper.getSelectedServiceId(this)
         val service = NewPipe.getService(currentServiceId)
 
-        var kioskId = 0
-
-        for (ks in service.kioskList.availableKiosks) {
+        // so far, there is only one item in the service.kioskList.availableKiosks List: Trending
+        for ((kioskId, ks) in service.kioskList.availableKiosks.withIndex()) {
             drawerItems!!.menu
                     .add(R.id.menu_tabs_group, kioskId, 0, KioskTranslator.getTranslatedKioskName(ks, this))
                     .setIcon(KioskTranslator.getKioskIcons(ks, this))
-            kioskId++
         }
 
         drawerItems!!.menu
@@ -203,17 +204,15 @@ class MainActivity : AppCompatActivity() {
             ITEM_ID_BOOKMARKS -> NavigationHelper.openBookmarksFragment(supportFragmentManager)
             ITEM_ID_DOWNLOADS -> NavigationHelper.openDownloads(this)
             ITEM_ID_HISTORY -> NavigationHelper.openStatisticFragment(supportFragmentManager)
-            else -> {
+            else -> { // for Available Kiosk, actually only Trending from NewPipe extractor YouTube Service.
                 val currentServiceId = ServiceHelper.getSelectedServiceId(this)
                 val service = NewPipe.getService(currentServiceId)
                 var serviceName = ""
 
-                var kioskId = 0
-                for (ks in service.kioskList.availableKiosks) {
+                for ((kioskId, ks) in service.kioskList.availableKiosks.withIndex()) {
                     if (kioskId == item.itemId) {
                         serviceName = ks
                     }
-                    kioskId++
                 }
 
                 NavigationHelper.openKioskFragment(supportFragmentManager, currentServiceId, serviceName)
@@ -278,13 +277,10 @@ class MainActivity : AppCompatActivity() {
         val currentServiceId = ServiceHelper.getSelectedServiceId(this)
         val service = NewPipe.getService(currentServiceId)
 
-        var kioskId = 0
-
-        for (ks in service.kioskList.availableKiosks) {
+        for ((kioskId, ks) in service.kioskList.availableKiosks.withIndex()) {
             drawerItems!!.menu
                     .add(R.id.menu_tabs_group, kioskId, ORDER, KioskTranslator.getTranslatedKioskName(ks, this))
                     .setIcon(KioskTranslator.getKioskIcons(ks, this))
-            kioskId++
         }
 
         drawerItems!!.menu
@@ -334,8 +330,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+
         if (sharedPreferences.getBoolean(Constants.KEY_THEME_CHANGE, false)) {
-            if (DEBUG) Log.d(TAG, "Theme has changed, recreating activity...")
+            Log.d(TAG, "Theme has changed, recreating activity...")
             sharedPreferences.edit().putBoolean(Constants.KEY_THEME_CHANGE, false).apply()
             // https://stackoverflow.com/questions/10844112/runtimeexception-performing-pause-of-activity-that-is-not-resumed
             // Briefly, let the activity resume properly posting the recreate call to end of the message queue
@@ -343,14 +340,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (sharedPreferences.getBoolean(Constants.KEY_MAIN_PAGE_CHANGE, false)) {
-            if (DEBUG) Log.d(TAG, "main page has changed, recreating main fragment...")
+            Log.d(TAG, "main page has changed, recreating main fragment...")
             sharedPreferences.edit().putBoolean(Constants.KEY_MAIN_PAGE_CHANGE, false).apply()
             NavigationHelper.openMainActivity(this)
         }
     }
 
     override fun onNewIntent(intent: Intent?) {
-        if (DEBUG) Log.d(TAG, "onNewIntent() called with: intent = [$intent]")
+        Log.d(TAG, "onNewIntent() called with: intent = [$intent]")
         if (intent != null) {
             // Return if launched getTabFrom a launcher (e.g. Nova Launcher, Pixel Launcher ...)
             // to not destroy the already created backstack
@@ -364,12 +361,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (DEBUG) Log.d(TAG, "onBackPressed() called")
+        Log.d(TAG, "onBackPressed() called")
 
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_holder)
         // If current fragment implements BackPressable (i.e. can/wanna handle back press) delegate the back press to it
         if (fragment is BackPressable) {
-            if ((fragment as BackPressable).onBackPressed()) return
+            if (fragment.onBackPressed()) return
         }
 
 
@@ -433,7 +430,7 @@ class MainActivity : AppCompatActivity() {
     ///////////////////////////////////////////////////////////////////////////
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        if (DEBUG) Log.d(TAG, "onCreateOptionsMenu() called with: menu = [$menu]")
+        Log.d(TAG, "onCreateOptionsMenu() called with: menu = [$menu]")
         super.onCreateOptionsMenu(menu)
 
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_holder)
@@ -444,8 +441,7 @@ class MainActivity : AppCompatActivity() {
         if (fragment !is SearchFragment) {
             findViewById<View>(R.id.toolbar).findViewById<View>(R.id.toolbar_search_container).visibility = View.GONE
 
-            val inflater = menuInflater
-            inflater.inflate(R.menu.main_menu, menu)
+            menuInflater.inflate(R.menu.main_menu, menu)
         }
 
         val actionBar = supportActionBar
@@ -457,7 +453,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (DEBUG) Log.d(TAG, "onOptionsItemSelected() called with: item = [$item]")
+        Log.d(TAG, "onOptionsItemSelected() called with: item = [$item]")
         val id = item.itemId
 
         when (id) {
@@ -483,7 +479,7 @@ class MainActivity : AppCompatActivity() {
     ///////////////////////////////////////////////////////////////////////////
 
     private fun initFragments() {
-        if (DEBUG) Log.d(TAG, "initFragments() called")
+        Log.d(TAG, "initFragments() called")
         StateSaver.clearStateFiles()
         if (intent != null && intent.hasExtra(Constants.KEY_LINK_TYPE)) {
             handleIntent(intent)
@@ -518,37 +514,44 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleIntent(intent: Intent?) {
         try {
-            if (DEBUG) Log.d(TAG, "handleIntent() called with: intent = [$intent]")
+            Log.d(TAG, "handleIntent() called with: intent = [$intent]")
 
-            if (intent!!.hasExtra(Constants.KEY_LINK_TYPE)) {
-                val url = intent.getStringExtra(Constants.KEY_URL)
-                val serviceId = intent.getIntExtra(Constants.KEY_SERVICE_ID, 0)
-                val title = intent.getStringExtra(Constants.KEY_TITLE)
-                when (intent.getSerializableExtra(Constants.KEY_LINK_TYPE) as StreamingService.LinkType) {
-                    StreamingService.LinkType.STREAM -> {
-                        val autoPlay = intent.getBooleanExtra(VideoDetailFragment.AUTO_PLAY, false)
-                        NavigationHelper.openVideoDetailFragment(supportFragmentManager, serviceId, url, title, autoPlay)
+            when {
+                intent!!.hasExtra(Constants.KEY_LINK_TYPE) -> {
+                    val url = intent.getStringExtra(Constants.KEY_URL)
+                    val serviceId = intent.getIntExtra(Constants.KEY_SERVICE_ID, 0)
+                    val title = intent.getStringExtra(Constants.KEY_TITLE)
+                    when (intent.getSerializableExtra(Constants.KEY_LINK_TYPE) as StreamingService.LinkType) {
+                        StreamingService.LinkType.STREAM -> {
+                            val autoPlay = intent.getBooleanExtra(VideoDetailFragment.AUTO_PLAY, false)
+                            NavigationHelper.openVideoDetailFragment(supportFragmentManager, serviceId, url, title, autoPlay)
+                        }
+
+                        StreamingService.LinkType.CHANNEL -> {
+                            NavigationHelper.openChannelFragment(supportFragmentManager,
+                                    serviceId,
+                                    url,
+                                    title)
+                        }
+                        StreamingService.LinkType.PLAYLIST -> {
+                            NavigationHelper.openPlaylistFragment(supportFragmentManager,
+                                    serviceId,
+                                    url,
+                                    title)
+                        }
                     }
-                    StreamingService.LinkType.CHANNEL -> NavigationHelper.openChannelFragment(supportFragmentManager,
-                            serviceId,
-                            url,
-                            title)
-                    StreamingService.LinkType.PLAYLIST -> NavigationHelper.openPlaylistFragment(supportFragmentManager,
-                            serviceId,
-                            url,
-                            title)
                 }
-            } else if (intent.hasExtra(Constants.KEY_OPEN_SEARCH)) {
-                var searchString: String? = intent.getStringExtra(Constants.KEY_SEARCH_STRING)
-                if (searchString == null) searchString = ""
-                val serviceId = intent.getIntExtra(Constants.KEY_SERVICE_ID, 0)
-                NavigationHelper.openSearchFragment(
-                        supportFragmentManager,
-                        serviceId,
-                        searchString)
 
-            } else {
-                NavigationHelper.gotoMainFragment(supportFragmentManager)
+                intent.hasExtra(Constants.KEY_OPEN_SEARCH) -> {
+                    val searchString = intent.getStringExtra(Constants.KEY_SEARCH_STRING) ?: ""
+                    val serviceId = intent.getIntExtra(Constants.KEY_SERVICE_ID, 0)
+                    NavigationHelper.openSearchFragment(
+                            supportFragmentManager,
+                            serviceId,
+                            searchString)
+
+                }
+                else -> NavigationHelper.gotoMainFragment(supportFragmentManager)
             }
         } catch (e: Exception) {
             ErrorActivity.reportUiError(this, e)
@@ -558,8 +561,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MainActivity"
-        @JvmField
-        val DEBUG = BuildConfig.BUILD_TYPE != "release"
 
         private const val ITEM_ID_SUBSCRIPTIONS = -1
         private const val ITEM_ID_FEED = -2

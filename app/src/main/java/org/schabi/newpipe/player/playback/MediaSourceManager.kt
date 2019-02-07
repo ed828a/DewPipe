@@ -319,7 +319,7 @@ class MediaSourceManager private constructor(
 
     private fun onMediaSourceReceived(item: PlayQueueItem,
                                       mediaSource: ManagedMediaSource) {
-        Log.d(TAG, "MediaSource - Loaded=[${item.title}] with url=[${item.url}]")
+        Log.d(TAG, "onMediaSourceReceived(): Loaded=[${item.title}] with url=[${item.url}]")
 
         loadingItems.remove(item)
 

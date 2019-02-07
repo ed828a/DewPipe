@@ -15,29 +15,10 @@ import io.reactivex.annotations.NonNull
 import io.reactivex.disposables.Disposable
 import org.schabi.newpipe.player.playqueue.events.*
 
-/**
- * Created by Christian Schabesberger on 01.08.16.
- *
- * Copyright (C) Christian Schabesberger 2016 <chris.schabesberger></chris.schabesberger>@mailbox.org>
- * InfoListAdapter.java is part of NewPipe.
- *
- * NewPipe is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * NewPipe is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with NewPipe.  If not, see <http:></http:>//www.gnu.org/licenses/>.
- */
 
 class PlayQueueAdapter(context: Context, private val playQueue: PlayQueue) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val playQueueItemBuilder: PlayQueueItemBuilder
+    private val playQueueItemBuilder: PlayQueueItemBuilder = PlayQueueItemBuilder(context)
     private var showFooter = false
     private var footer: View? = null
 
@@ -45,16 +26,18 @@ class PlayQueueAdapter(context: Context, private val playQueue: PlayQueue) : Rec
 
     private val reactor: Observer<PlayQueueEvent>
         get() = object : Observer<PlayQueueEvent> {
-            override fun onSubscribe(@NonNull d: Disposable) {
-                if (playQueueReactor != null) playQueueReactor!!.dispose()
+            override fun onSubscribe(d: Disposable) {
+                playQueueReactor?.dispose()
                 playQueueReactor = d
             }
 
-            override fun onNext(@NonNull playQueueMessage: PlayQueueEvent) {
+            override fun onNext(playQueueMessage: PlayQueueEvent) {
                 if (playQueueReactor != null) onPlayQueueChanged(playQueueMessage)
             }
 
-            override fun onError(@NonNull e: Throwable) {}
+            override fun onError(e: Throwable) {
+                Log.d(TAG, "onError(): ${e.message}")
+            }
 
             override fun onComplete() {
                 dispose()
@@ -71,24 +54,24 @@ class PlayQueueAdapter(context: Context, private val playQueue: PlayQueue) : Rec
             throw IllegalStateException("Play Queue has not been initialized.")
         }
 
-        this.playQueueItemBuilder = PlayQueueItemBuilder(context)
-
         playQueue.broadcastReceiver!!.toObservable().subscribe(reactor)
     }
 
     private fun onPlayQueueChanged(message: PlayQueueEvent) {
         when (message.type()) {
-            PlayQueueEventType.RECOVERY -> {
-            }
+            PlayQueueEventType.RECOVERY -> { /* no-op */ }
+
             PlayQueueEventType.SELECT -> {
                 val selectEvent = message as SelectEvent
                 notifyItemChanged(selectEvent.oldIndex)
                 notifyItemChanged(selectEvent.newIndex)
             }
+
             PlayQueueEventType.APPEND -> {
                 val appendEvent = message as AppendEvent
                 notifyItemRangeInserted(playQueue.size(), appendEvent.amount)
             }
+
             PlayQueueEventType.ERROR -> {
                 val errorEvent = message as ErrorEvent
                 if (!errorEvent.isSkippable) {
@@ -97,22 +80,25 @@ class PlayQueueAdapter(context: Context, private val playQueue: PlayQueue) : Rec
                 notifyItemChanged(errorEvent.errorIndex)
                 notifyItemChanged(errorEvent.queueIndex)
             }
+
             PlayQueueEventType.REMOVE -> {
                 val removeEvent = message as RemoveEvent
                 notifyItemRemoved(removeEvent.removeIndex)
                 notifyItemChanged(removeEvent.queueIndex)
             }
+
             PlayQueueEventType.MOVE -> {
                 val moveEvent = message as MoveEvent
                 notifyItemMoved(moveEvent.fromIndex, moveEvent.toIndex)
             }
-            PlayQueueEventType.INIT, PlayQueueEventType.REORDER -> notifyDataSetChanged()
-            else -> notifyDataSetChanged()
-        }// Do nothing.
+
+            PlayQueueEventType.INIT,
+            PlayQueueEventType.REORDER -> notifyDataSetChanged()
+        }
     }
 
     fun dispose() {
-        if (playQueueReactor != null) playQueueReactor!!.dispose()
+        playQueueReactor?.dispose()
         playQueueReactor = null
     }
 
@@ -176,7 +162,7 @@ class PlayQueueAdapter(context: Context, private val playQueue: PlayQueue) : Rec
     companion object {
         private val TAG = PlayQueueAdapter::class.java.toString()
 
-        private val ITEM_VIEW_TYPE_ID = 0
-        private val FOOTER_VIEW_TYPE_ID = 1
+        private const val ITEM_VIEW_TYPE_ID = 0
+        private const val FOOTER_VIEW_TYPE_ID = 1
     }
 }

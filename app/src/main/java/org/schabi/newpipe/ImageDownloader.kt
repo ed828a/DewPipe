@@ -14,18 +14,12 @@ import java.io.IOException
 import java.io.InputStream
 
 class ImageDownloader(context: Context) : BaseImageDownloader(context) {
-    private val resources: Resources
-    private val preferences: SharedPreferences
-    private val downloadThumbnailKey: String
+    private val resources: Resources = context.resources
+    private val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+    private val downloadThumbnailKey: String = context.getString(R.string.download_thumbnail_key)
 
     private val isDownloadingThumbnail: Boolean
         get() = preferences.getBoolean(downloadThumbnailKey, true)
-
-    init {
-        this.resources = context.resources
-        this.preferences = PreferenceManager.getDefaultSharedPreferences(context)
-        this.downloadThumbnailKey = context.getString(R.string.download_thumbnail_key)
-    }
 
     @SuppressLint("ResourceType")
     @Throws(IOException::class)

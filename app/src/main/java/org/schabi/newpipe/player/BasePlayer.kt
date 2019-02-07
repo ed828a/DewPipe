@@ -298,7 +298,7 @@ abstract class BasePlayer(protected val context: Context) : Player.EventListener
         setPlaybackParameters(playbackSpeed, playbackPitch, playbackSkipSilence)
 
         playQueue = queue
-        playQueue!!.init()
+        playQueue!!.initialize()
         playbackManager?.dispose()
         playbackManager = MediaSourceManager(this, playQueue!!)
 
