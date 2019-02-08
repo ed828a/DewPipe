@@ -125,12 +125,12 @@ class MainActivity : AppCompatActivity() {
                 .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.history))
 
         //Settings and About
-        drawerItems!!.menu
-                .add(R.id.menu_options_about_group, ITEM_ID_SETTINGS, ORDER, R.string.settings)
-                .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.settings))
-        drawerItems!!.menu
-                .add(R.id.menu_options_about_group, ITEM_ID_ABOUT, ORDER, R.string.tab_about)
-                .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.info))
+//        drawerItems!!.menu
+//                .add(R.id.menu_options_about_group, ITEM_ID_SETTINGS, ORDER, R.string.settings)
+//                .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.settings))
+//        drawerItems!!.menu
+//                .add(R.id.menu_options_about_group, ITEM_ID_ABOUT, ORDER, R.string.tab_about)
+//                .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.info))
 
         toggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.drawer_open, R.string.drawer_close)
         toggle!!.syncState()
@@ -165,7 +165,7 @@ class MainActivity : AppCompatActivity() {
                 ErrorActivity.reportUiError(this, e)
             }
 
-            R.id.menu_options_about_group -> optionsAboutSelected(item)
+//            R.id.menu_options_about_group -> optionsAboutSelected(item)
             else -> return false
         }
 
@@ -284,12 +284,12 @@ class MainActivity : AppCompatActivity() {
                 .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.history))
 
         //Settings and About
-        drawerItems!!.menu
-                .add(R.id.menu_options_about_group, ITEM_ID_SETTINGS, ORDER, R.string.settings)
-                .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.settings))
-        drawerItems!!.menu
-                .add(R.id.menu_options_about_group, ITEM_ID_ABOUT, ORDER, R.string.tab_about)
-                .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.info))
+//        drawerItems!!.menu
+//                .add(R.id.menu_options_about_group, ITEM_ID_SETTINGS, ORDER, R.string.settings)
+//                .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.settings))
+//        drawerItems!!.menu
+//                .add(R.id.menu_options_about_group, ITEM_ID_ABOUT, ORDER, R.string.tab_about)
+//                .setIcon(ThemeHelper.resolveResourceIdFromAttr(this, R.attr.info))
     }
 
     override fun onDestroy() {

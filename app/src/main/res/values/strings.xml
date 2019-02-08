@@ -342,7 +342,7 @@
     <string name="website_title">Website</string>
     <string name="website_encouragement">Visit the NewPipe Website for more info and news.</string>
     <string name="website_url" translatable="false">https://newpipe.schabi.org/</string>
-    <string name="privacy_policy_title">NewPipe\'s Privacy Policy</string>
+    <string name="privacy_policy_title">Privacy Policy</string>
     <string name="privacy_policy_encouragement">The NewPipe project takes your privacy very seriously. Therefore, the app does not collect any data without your consent.\nNewPipe\'s privacy policy explains in detail what data is sent and stored when you send a crash report.</string>
     <string name="privacy_policy_url" translatable="false">https://newpipe.schabi.org/legal/privacy/</string>
     <string name="read_privacy_policy">Read privacy policy</string>
@@ -494,7 +494,7 @@
     <string name="playback_reset">Reset</string>
 
     <!-- GDPR dialog -->
-    <string name="start_accept_privacy_policy">In order to comply with the European General Data Protection Regulation (GDPR), we herby draw your attention to NewPipe\'s privacy policy. Please read it carefully.\nYou must accept it to send us the bug report.</string>
+    <string name="start_accept_privacy_policy">This app just collects the stack trace of the crashed app. For building a better app, you must agree it to send us the bug report.</string>
     <string name="accept">Accept</string>
     <string name="decline">Decline</string>
 

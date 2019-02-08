@@ -237,7 +237,8 @@ object NavigationHelper {
 
     fun gotoMainFragment(fragmentManager: FragmentManager) {
         ImageLoader.getInstance().clearMemoryCache()
-
+        // get MainFragment back out of the BackStack
+        // if no MainFragment in BackStack, open a new one
         val popped = fragmentManager.popBackStackImmediate(MAIN_FRAGMENT_TAG, 0)
         if (!popped) openMainFragment(fragmentManager)
     }

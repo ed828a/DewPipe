@@ -1,5 +1,6 @@
 package org.schabi.newpipe.util
 
+
 import android.content.Context
 import android.net.ConnectivityManager
 import android.preference.PreferenceManager
@@ -8,12 +9,7 @@ import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.MediaFormat
 import org.schabi.newpipe.extractor.stream.AudioStream
 import org.schabi.newpipe.extractor.stream.VideoStream
-
-
-import java.util.ArrayList
-import java.util.Arrays
-import java.util.Collections
-import java.util.HashMap
+import java.util.*
 
 object ListHelper {
 
@@ -158,26 +154,12 @@ object ListHelper {
         val retList = ArrayList<VideoStream>()
         val hashMap = HashMap<String, VideoStream>()
 
-//        if (videoOnlyStreams != null) {
-//            for (stream in videoOnlyStreams) {
-//                if (showHigherResolutions || !HIGH_RESOLUTION_LIST.contains(stream.getResolution())) {
-//                    retList.add(stream)
-//                }
-//            }
-//        }
-
         videoOnlyStreams?.forEach { videoStream ->
             if (showHigherResolutions || !HIGH_RESOLUTION_LIST.contains(videoStream.getResolution())) {
                 retList.add(videoStream)
             }
         }
-//        if (videoStreams != null) {
-//            for (stream in videoStreams) {
-//                if (showHigherResolutions || !HIGH_RESOLUTION_LIST.contains(stream.getResolution())) {
-//                    retList.add(stream)
-//                }
-//            }
-//        }
+
         videoStreams?.forEach { videoStream ->
             if (showHigherResolutions || !HIGH_RESOLUTION_LIST.contains(videoStream.getResolution())) {
                 retList.add(videoStream)

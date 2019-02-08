@@ -14,13 +14,13 @@ class ActivityCommunicator {
 
         private var activityCommunicator: ActivityCommunicator? = null
 
-        val communicator: ActivityCommunicator
-            get() {
-                if (activityCommunicator == null) {
-                    activityCommunicator = ActivityCommunicator()
+        val communicator: ActivityCommunicator =
+                activityCommunicator ?: synchronized(ActivityCommunicator::class.java){
+                    activityCommunicator ?: ActivityCommunicator().also {
+                        activityCommunicator = it
+                    }
                 }
-                return activityCommunicator!!
-            }
+
     }
 }
 

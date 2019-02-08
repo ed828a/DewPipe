@@ -1,7 +1,6 @@
 package org.schabi.newpipe.report
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -34,11 +33,10 @@ import java.util.*
 
 
 class ErrorActivity : AppCompatActivity() {
-    private var errorList: Array<String>? = null
+    private var errorList: Array<String>? = null   // get from intent
     private lateinit var errorInfo: ErrorInfo
     private var returnActivity: Class<*>? = null
     private var currentTimeStamp: String? = null
-//    private lateinit var errorCommentBox: EditText
 
     private val contentLangString: String?
         get() = PreferenceManager.getDefaultSharedPreferences(this)
@@ -61,17 +59,11 @@ class ErrorActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         val actionBar = supportActionBar
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true)
-            actionBar.setTitle(R.string.error_report_title)
-            actionBar.setDisplayShowTitleEnabled(true)
+        actionBar?.let {
+            it.setDisplayHomeAsUpEnabled(true)
+            it.setTitle(R.string.error_report_title)
+            it.setDisplayShowTitleEnabled(true)
         }
-
-//        val reportButton = findViewById<Button>(R.id.errorReportButton)
-//        errorCommentBox = findViewById(R.id.errorCommentBox)
-//        val errorView = findViewById<TextView>(R.id.errorView)
-//        val infoView = findViewById<TextView>(R.id.errorInfosView)
-//        val errorMessageView = findViewById<TextView>(R.id.errorMessageView)
 
         val ac = ActivityCommunicator.communicator
         returnActivity = ac.returnActivity
@@ -84,40 +76,39 @@ class ErrorActivity : AppCompatActivity() {
 
         errorReportButton.setOnClickListener { v: View ->
             val context = this
-            AlertDialog.Builder(context)
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setTitle(R.string.privacy_policy_title)
-                    .setMessage(R.string.start_accept_privacy_policy)
-                    .setCancelable(false)
-                    .setNeutralButton(R.string.read_privacy_policy) { dialog, which ->
-                        val webIntent = Intent(Intent.ACTION_VIEW,
-                                Uri.parse(context.getString(R.string.privacy_policy_url))
-                        )
-                        context.startActivity(webIntent)
-                    }
-                    .setPositiveButton(R.string.accept) { dialog, which ->
+//            AlertDialog.Builder(context)
+//                    .setIcon(android.R.drawable.ic_dialog_alert)
+//                    .setTitle(R.string.privacy_policy_title)
+//                    .setMessage(R.string.start_accept_privacy_policy)
+//                    .setCancelable(false)
+//                    .setNeutralButton(R.string.read_privacy_policy) { dialog, which ->
+//                        val webIntent = Intent(Intent.ACTION_VIEW,
+//                                Uri.parse(context.getString(R.string.privacy_policy_url))
+//                        )
+//                        context.startActivity(webIntent)
+//                    }
+//                    .setPositiveButton(R.string.accept) { dialog, which ->
                         val target = Intent(Intent.ACTION_SENDTO)
                         target.setData(Uri.parse("mailto:$ERROR_EMAIL_ADDRESS"))
                                 .putExtra(Intent.EXTRA_SUBJECT, ERROR_EMAIL_SUBJECT)
                                 .putExtra(Intent.EXTRA_TEXT, buildJson())
 
                         startActivity(Intent.createChooser(target, "Send Email"))
-                    }
-                    .setNegativeButton(R.string.decline) { dialog, which ->
-                        // do nothing
-                        dialog.dismiss()  // redundant, no this, dialog still dismiss.
-                    }
-                    .show()
+//                    }
+//                    .setNegativeButton(R.string.decline) { dialog, which ->
+//                        // do nothing
+//                        dialog.dismiss()  // redundant, no this, dialog still dismiss.
+//                    }
+//                    .show()
 
         }
 
-        // normal bugreport
-        buildInfo(errorInfo)
+        // normal bug report
+//        buildInfo(errorInfo)
         if (errorInfo.message != 0) {
             errorMessageView.setText(errorInfo.message)
         } else {
             errorMessageView.visibility = View.GONE
-//            findViewById<View>(R.id.messageWhatHappenedView).visibility = View.GONE
             messageWhatHappenedView.visibility = View.GONE
         }
 
@@ -178,24 +169,22 @@ class ErrorActivity : AppCompatActivity() {
         }
     }
 
-    private fun buildInfo(info: ErrorInfo) {
-//        val infoLabelView = findViewById<TextView>(R.id.errorInfoLabelsView)
-//        val infoView = findViewById<TextView>(R.id.errorInfosView)
-        var text = ""
-
-        errorInfoLabelsView.text = getString(R.string.info_labels).replace("\\n", "\n")
-
-        text += (getUserActionString(info.userAction)
-                + "\n" + info.request
-                + "\n" + contentLangString
-                + "\n" + info.serviceName
-                + "\n" + currentTimeStamp
-                + "\n" + packageName
-                + "\n" + BuildConfig.VERSION_NAME
-                + "\n" + osString)
-
-        errorInfosView.text = text
-    }
+//    private fun buildInfo(info: ErrorInfo) {
+//        var text = ""
+//
+//        errorInfoLabelsView.text = getString(R.string.info_labels).replace("\\n", "\n")
+//
+//        text += (getUserActionString(info.userAction)
+//                + "\n" + info.request
+//                + "\n" + contentLangString
+//                + "\n" + info.serviceName
+//                + "\n" + currentTimeStamp
+//                + "\n" + packageName
+//                + "\n" + BuildConfig.VERSION_NAME
+//                + "\n" + osString)
+//
+//        errorInfosView.text = text
+//    }
 
     private fun buildJson(): String {
         val errorObject = JSONObject()
@@ -229,17 +218,10 @@ class ErrorActivity : AppCompatActivity() {
         }
     }
 
-    private fun getUserActionString(userAction: UserAction?): String {
-        return if (userAction == null) {
-            "Your description is in another castle."
-        } else {
-            userAction.message
-        }
-    }
+    private fun getUserActionString(userAction: UserAction?): String =
+            userAction?.message ?: "Your description is in another castle."
 
     private fun addGuruMeditaion() {
-        //just an easter egg
-//        val sorryView = findViewById<TextView>(R.id.errorSorryView)
         var text = errorSorryView.text.toString()
         text += "\n${getString(R.string.guru_meditation)}"
         errorSorryView.text = text
@@ -257,20 +239,20 @@ class ErrorActivity : AppCompatActivity() {
     }
 
     companion object {
-        // LOG TAGS
         val TAG = ErrorActivity::class.java.toString()
         // BUNDLE TAGS
         const val ERROR_INFO = "error_info"
         const val ERROR_LIST = "error_list"
 
         const val ERROR_EMAIL_ADDRESS = "ed828a@gmail.com"
-        const val ERROR_EMAIL_SUBJECT = "Exception in NewPipe " + BuildConfig.VERSION_NAME
+        const val ERROR_EMAIL_SUBJECT = "Exception in Aihua " + BuildConfig.VERSION_NAME
 
         fun reportUiError(activity: AppCompatActivity, el: Throwable) {
             reportError(activity, el, activity.javaClass, null,
                     ErrorInfo.make(UserAction.UI_ERROR, "none", "", R.string.app_ui_crash))
         }
 
+        // will be called at multiple places
         fun reportError(context: Context, el: List<Throwable>?,
                         returnActivity: Class<*>?, rootView: View?, errorInfo: ErrorInfo) {
             if (rootView != null) {
@@ -293,6 +275,7 @@ class ErrorActivity : AppCompatActivity() {
             context.startActivity(intent)
         }
 
+        // will be called at multiple places
         fun reportError(context: Context, e: Throwable?,
                         returnActivity: Class<*>?, rootView: View?, errorInfo: ErrorInfo) {
             var el: MutableList<Throwable>? = null
@@ -303,7 +286,7 @@ class ErrorActivity : AppCompatActivity() {
             reportError(context, el, returnActivity, rootView, errorInfo)
         }
 
-        // async call
+        // async call, like extractor call it.
         fun reportError(handler: Handler, context: Context, e: Throwable?,
                         returnActivity: Class<*>?, rootView: View?, errorInfo: ErrorInfo) {
 
@@ -312,7 +295,7 @@ class ErrorActivity : AppCompatActivity() {
                 el = Vector()
                 el.add(e)
             }
-            reportError(handler, context, el, returnActivity, rootView, errorInfo)
+            handler.post { reportError(context, el, returnActivity, rootView, errorInfo) }
         }
 
         // async call
@@ -324,6 +307,7 @@ class ErrorActivity : AppCompatActivity() {
         fun reportError(context: Context, report: CrashReportData, errorInfo: ErrorInfo) {
             // get key first (don't ask about this solution)
             var key: ReportField? = null
+            Log.d(TAG, "reportError(): CrashReportData.keys = ${report.keys}")
             for (k in report.keys) {
                 if (k.toString() == "STACK_TRACE") {
                     key = k
@@ -352,8 +336,8 @@ class ErrorActivity : AppCompatActivity() {
         // errorList to StringList
         private fun errorListToStringList(stackTraces: List<Throwable>): Array<String?> {
             val outProd = arrayOfNulls<String>(stackTraces.size)
-            for (i in stackTraces.indices) {
-                outProd[i] = getStackTrace(stackTraces[i])
+            for (index in stackTraces.indices) {
+                outProd[index] = getStackTrace(stackTraces[index])
             }
             return outProd
         }

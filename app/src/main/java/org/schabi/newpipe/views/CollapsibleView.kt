@@ -200,10 +200,10 @@ class CollapsibleView : LinearLayout {
 
     companion object {
         private const val TAG = "CollapsibleView"
+
         ///////////////////////////////////////////////////////////////////////////
         // Collapse/expand logic
         ///////////////////////////////////////////////////////////////////////////
-
         private const val ANIMATION_DURATION = 420
         const val COLLAPSED = 0
         const val EXPANDED = 1
