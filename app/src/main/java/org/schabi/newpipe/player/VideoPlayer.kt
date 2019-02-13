@@ -243,8 +243,8 @@ abstract class VideoPlayer(val TAG: String,
     override fun handleIntent(intent: Intent?) {
         if (intent == null) return
 
-        if (intent.hasExtra(BasePlayer.PLAYBACK_QUALITY)) {
-            playbackQuality = intent.getStringExtra(BasePlayer.PLAYBACK_QUALITY)
+        if (intent.hasExtra(PLAYBACK_QUALITY)) {
+            playbackQuality = intent.getStringExtra(PLAYBACK_QUALITY)
         }
 
         super.handleIntent(intent)
@@ -276,8 +276,8 @@ abstract class VideoPlayer(val TAG: String,
 
         playbackSpeedPopupMenu!!.menu.removeGroup(playbackSpeedPopupMenuGroupId)
 
-        for (i in BasePlayer.PLAYBACK_SPEEDS.indices) {
-            playbackSpeedPopupMenu!!.menu.add(playbackSpeedPopupMenuGroupId, i, Menu.NONE, formatSpeed(BasePlayer.PLAYBACK_SPEEDS[i].toDouble()))
+        for (i in PLAYBACK_SPEEDS.indices) {
+            playbackSpeedPopupMenu!!.menu.add(playbackSpeedPopupMenuGroupId, i, Menu.NONE, formatSpeed(PLAYBACK_SPEEDS[i].toDouble()))
         }
         playbackSpeedTextView!!.text = formatSpeed(playbackSpeed.toDouble())
         playbackSpeedPopupMenu!!.setOnMenuItemClickListener(this)
@@ -535,8 +535,8 @@ abstract class VideoPlayer(val TAG: String,
             playbackEndTime!!.text = getTimeString(duration)
             playbackSeekBar!!.max = duration
         }
-        if (currentState != BasePlayer.STATE_PAUSED) {
-            if (currentState != BasePlayer.STATE_PAUSED_SEEK) playbackSeekBar!!.progress = currentProgress
+        if (currentState != STATE_PAUSED) {
+            if (currentState != STATE_PAUSED_SEEK) playbackSeekBar!!.progress = currentProgress
             playbackCurrentTime!!.text = getTimeString(currentProgress)
         }
         if (simpleExoPlayer!!.isLoading || bufferPercent > 90) {
@@ -554,7 +554,7 @@ abstract class VideoPlayer(val TAG: String,
     }
 
     protected open fun onFullScreenButtonClicked() {
-        changeState(BasePlayer.STATE_BLOCKED)
+        changeState(STATE_BLOCKED)
     }
 
     override fun onFastRewind() {
@@ -604,7 +604,7 @@ abstract class VideoPlayer(val TAG: String,
             return true
         } else if (playbackSpeedPopupMenuGroupId == menuItem.groupId) {
             val speedIndex = menuItem.itemId
-            val speed = BasePlayer.PLAYBACK_SPEEDS[speedIndex]
+            val speed = PLAYBACK_SPEEDS[speedIndex]
 
             playbackSpeed = speed
             playbackSpeedTextView!!.text = formatSpeed(speed.toDouble())
@@ -681,7 +681,7 @@ abstract class VideoPlayer(val TAG: String,
 
     override fun onStartTrackingTouch(seekBar: SeekBar) {
         Log.d(TAG, "onStartTrackingTouch() called with: seekBar = [$seekBar]")
-        if (currentState != BasePlayer.STATE_PAUSED_SEEK) changeState(BasePlayer.STATE_PAUSED_SEEK)
+        if (currentState != STATE_PAUSED_SEEK) changeState(STATE_PAUSED_SEEK)
 
         wasPlaying = simpleExoPlayer!!.playWhenReady
         if (isPlaying) simpleExoPlayer!!.playWhenReady = false
@@ -700,7 +700,7 @@ abstract class VideoPlayer(val TAG: String,
         playbackCurrentTime!!.text = getTimeString(seekBar.progress)
         animateView(currentDisplaySeek!!, AnimationUtils.Type.SCALE_AND_ALPHA, false, 200)
 
-        if (currentState == BasePlayer.STATE_PAUSED_SEEK) changeState(BasePlayer.STATE_BUFFERING)
+        if (currentState == STATE_PAUSED_SEEK) changeState(STATE_BUFFERING)
         if (!isProgressLoopRunning) startProgressLoop()
     }
 

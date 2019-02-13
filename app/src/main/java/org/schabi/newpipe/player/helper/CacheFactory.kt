@@ -39,15 +39,15 @@ internal class CacheFactory private constructor(context: Context,
 
     constructor(context: Context,
                 userAgent: String,
-                transferListener: TransferListener<in DataSource>) : this(context, userAgent, transferListener, PlayerHelper.getPreferredCacheSize(context),
-            PlayerHelper.getPreferredFileSize(context)) {}
+                transferListener: TransferListener<in DataSource>) : this(context, userAgent, transferListener, PREFERRED_CACHE_SIZE, PREFERRED_FILE_SIZE)
+
 
     override fun createDataSource(): DataSource {
         Log.d(TAG, "initExoPlayerCache: cacheDir = ${cacheDir.absolutePath}")
 
         val dataSource = dataSourceFactory.createDataSource()
         val fileSource = FileDataSource()
-        val dataSink = CacheDataSink(cache!!, maxFileSize)
+        val dataSink = CacheDataSink(cache, maxFileSize)
 
         return CacheDataSource(cache, dataSource, fileSource, dataSink, CACHE_FLAGS, null)
     }
@@ -79,5 +79,7 @@ internal class CacheFactory private constructor(context: Context,
         // todo: make this a singleton?
         private var cache: SimpleCache? = null
 
+        private const val PREFERRED_CACHE_SIZE = 64 * 1024 * 1024L    // 64MB
+        private const val PREFERRED_FILE_SIZE = 512 * 1024L           // 0.5MB
     }
 }

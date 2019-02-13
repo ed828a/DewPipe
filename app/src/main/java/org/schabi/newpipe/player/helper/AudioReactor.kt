@@ -17,7 +17,7 @@ import com.google.android.exoplayer2.audio.AudioRendererEventListener
 import com.google.android.exoplayer2.decoder.DecoderCounters
 
 class AudioReactor(private val context: Context,
-                   private val player: SimpleExoPlayer) : AudioManager.OnAudioFocusChangeListener, AudioRendererEventListener {
+                   private val player: SimpleExoPlayer) : AudioManager.OnAudioFocusChangeListener, AudioRendererEventListener{
     private val audioManager: AudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
     private val request: AudioFocusRequest?
@@ -106,7 +106,7 @@ class AudioReactor(private val context: Context,
     private fun animateAudio(from: Float, to: Float) {
         val valueAnimator = ValueAnimator()
         valueAnimator.setFloatValues(from, to)
-        valueAnimator.duration = AudioReactor.DUCK_DURATION.toLong()
+        valueAnimator.duration = DUCK_DURATION.toLong()
         valueAnimator.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationStart(animation: Animator) {
                 player.volume = from
@@ -128,11 +128,11 @@ class AudioReactor(private val context: Context,
     // Audio Processing
     ///////////////////////////////////////////////////////////////////////////
 
-    override fun onAudioSessionId(i: Int) {
+    override fun onAudioSessionId(id: Int) {
         if (!PlayerHelper.isUsingDSP(context)) return
 
         val intent = Intent(AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION)
-        intent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION, i)
+        intent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION, id)
         intent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, context.packageName)
         context.sendBroadcast(intent)
     }

@@ -185,11 +185,11 @@ object PlayerHelper {
 
 
     fun getPreferredCacheSize(context: Context): Long {
-        return 64 * 1024 * 1024L
+        return 64 * 1024 * 1024L    // 64MB
     }
 
     fun getPreferredFileSize(context: Context): Long {
-        return 512 * 1024L
+        return 512 * 1024L        // 0.5MB
     }
 
     /**

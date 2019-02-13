@@ -50,6 +50,7 @@ import org.schabi.newpipe.util.NavigationHelper
 import org.schabi.newpipe.util.ThemeHelper
 
 import org.schabi.newpipe.player.helper.PlayerHelper.getTimeString
+import org.schabi.newpipe.player.model.PlayerServiceBinder
 
 
 /**

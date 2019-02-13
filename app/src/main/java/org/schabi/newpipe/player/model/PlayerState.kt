@@ -1,4 +1,4 @@
-package org.schabi.newpipe.player
+package org.schabi.newpipe.player.model
 
 import org.schabi.newpipe.player.playqueue.PlayQueue
 
@@ -20,7 +20,4 @@ class PlayerState(
                          playbackSkipSilence: Boolean,
                          wasPlaying: Boolean
     ) : this(playQueue, repeatMode, playbackSpeed, playbackPitch, null, playbackSkipSilence, wasPlaying)
-
-//    fun wasPlaying(): Boolean = wasPlaying
-
 }

@@ -57,6 +57,7 @@ import org.schabi.newpipe.player.VideoPlayer.Companion.DEFAULT_CONTROLS_HIDE_TIM
 import org.schabi.newpipe.player.event.PlayerEventListener
 import org.schabi.newpipe.player.helper.LockManager
 import org.schabi.newpipe.player.helper.PlayerHelper
+import org.schabi.newpipe.player.model.PlayerServiceBinder
 import org.schabi.newpipe.player.resolver.MediaSourceTag
 import org.schabi.newpipe.player.resolver.VideoPlaybackResolver
 import org.schabi.newpipe.util.AnimationUtils.animateView

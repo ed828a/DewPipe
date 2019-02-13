@@ -1,4 +1,4 @@
-package org.schabi.newpipe.player.playback
+package org.schabi.newpipe.player.mediasession
 
 import android.net.Uri
 import android.support.v4.media.MediaDescriptionCompat
@@ -7,7 +7,19 @@ import org.schabi.newpipe.player.BasePlayer
 import org.schabi.newpipe.player.mediasession.MediaSessionCallback
 import org.schabi.newpipe.player.playqueue.PlayQueueItem
 
+
+/**
+ * Playback
+ */
 class BasePlayerMediaSession(private val player: BasePlayer) : MediaSessionCallback {
+
+    override fun onPlay() {
+        player.onPlay()
+    }
+
+    override fun onPause() {
+        player.onPause()
+    }
 
     override fun onSkipToPrevious() {
         player.onPlayPrevious()
@@ -22,13 +34,13 @@ class BasePlayerMediaSession(private val player: BasePlayer) : MediaSessionCallb
         player.onSelected(player.playQueue!!.getItem(index)!!)
     }
 
-    override fun getCurrentPlayingIndex(): Int {
-        return if (player.playQueue == null) -1 else player.playQueue!!.index
-    }
+    override fun getCurrentPlayingIndex(): Int =
+            if (player.playQueue == null) -1 else player.playQueue!!.index
 
-    override fun getQueueSize(): Int {
-        return if (player.playQueue == null) -1 else player.playQueue!!.size()
-    }
+
+    override fun getQueueSize(): Int =
+            if (player.playQueue == null) -1 else player.playQueue!!.size()
+
 
     override fun getQueueMetadata(index: Int): MediaDescriptionCompat? {
         if (player.playQueue == null || player.playQueue!!.getItem(index) == null) {
@@ -47,11 +59,5 @@ class BasePlayerMediaSession(private val player: BasePlayer) : MediaSessionCallb
         return descriptionBuilder.build()
     }
 
-    override fun onPlay() {
-        player.onPlay()
-    }
 
-    override fun onPause() {
-        player.onPause()
-    }
 }

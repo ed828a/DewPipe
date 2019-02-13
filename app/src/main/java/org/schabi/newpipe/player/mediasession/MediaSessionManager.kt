@@ -1,4 +1,4 @@
-package org.schabi.newpipe.player.helper
+package org.schabi.newpipe.player.mediasession
 
 import android.content.Context
 import android.content.Intent
@@ -8,10 +8,6 @@ import android.view.KeyEvent
 
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
-
-import org.schabi.newpipe.player.mediasession.MediaSessionCallback
-import org.schabi.newpipe.player.mediasession.PlayQueueNavigator
-import org.schabi.newpipe.player.mediasession.PlayQueuePlaybackController
 
 class MediaSessionManager(context: Context,
                           player: Player,
@@ -29,6 +25,7 @@ class MediaSessionManager(context: Context,
         this.sessionConnector.setPlayer(player, null)
     }
 
+    // process the instruction signals from outside of the app
     fun handleMediaButtonIntent(intent: Intent): KeyEvent? =
             MediaButtonReceiver.handleIntent(mediaSession, intent)
 

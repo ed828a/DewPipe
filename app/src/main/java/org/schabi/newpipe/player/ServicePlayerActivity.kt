@@ -27,6 +27,7 @@ import org.schabi.newpipe.player.event.PlayerEventListener
 import org.schabi.newpipe.player.helper.PlaybackParameterDialog
 import org.schabi.newpipe.player.helper.PlayerHelper.formatPitch
 import org.schabi.newpipe.player.helper.PlayerHelper.formatSpeed
+import org.schabi.newpipe.player.model.PlayerServiceBinder
 import org.schabi.newpipe.player.playqueue.PlayQueueItem
 import org.schabi.newpipe.player.playqueue.PlayQueueItemBuilder
 import org.schabi.newpipe.player.playqueue.PlayQueueItemHolder

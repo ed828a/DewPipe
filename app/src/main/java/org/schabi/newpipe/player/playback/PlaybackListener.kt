@@ -18,7 +18,7 @@ interface PlaybackListener {
 
     /**
      * Called when the stream at the current queue index is not ready yet.
-     * Signals to the listener to block the simpleExoPlayer getTabFrom playing anything
+     * Signals to the listener to block the simpleExoPlayer From playing anything
      * and notify the source is now invalid.
      *
      * May be called at any time.

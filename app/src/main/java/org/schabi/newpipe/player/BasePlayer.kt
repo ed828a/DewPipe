@@ -35,11 +35,11 @@ import org.schabi.newpipe.extractor.stream.StreamInfo
 import org.schabi.newpipe.local.history.HistoryRecordManager
 import org.schabi.newpipe.player.helper.AudioReactor
 import org.schabi.newpipe.player.helper.LoadController
-import org.schabi.newpipe.player.helper.MediaSessionManager
+import org.schabi.newpipe.player.mediasession.MediaSessionManager
 import org.schabi.newpipe.player.helper.PlayerDataSource
 import org.schabi.newpipe.player.helper.PlayerHelper
 import org.schabi.newpipe.player.mediasource.FailedMediaSource
-import org.schabi.newpipe.player.playback.BasePlayerMediaSession
+import org.schabi.newpipe.player.mediasession.BasePlayerMediaSession
 import org.schabi.newpipe.player.playback.CustomTrackSelector
 import org.schabi.newpipe.player.playback.MediaSourceManager
 import org.schabi.newpipe.player.playback.PlaybackListener
@@ -85,15 +85,14 @@ abstract class BasePlayer(protected val context: Context) : Player.EventListener
     protected val dataSource: PlayerDataSource
 
     init {
-//        val userAgent = Downloader.USER_AGENT
         val userAgent = context.packageName
         Log.d(TAG, "BasePlayer: userAgent = $userAgent")
         val bandwidthMeter = DefaultBandwidthMeter()
         this.dataSource = PlayerDataSource(context, userAgent, bandwidthMeter)
 
         val trackSelectionFactory = PlayerHelper.getQualitySelector(context, bandwidthMeter)
-        this.trackSelector = CustomTrackSelector(trackSelectionFactory)
-        this.setupBroadcastReceiver(intentFilter)
+        this.trackSelector = CustomTrackSelector(trackSelectionFactory)  // DefaultTrackSelector
+        this.setupBroadcastReceiver(intentFilter)     // just filtering AudioManager.ACTION_AUDIO_BECOMING_NOISY
     }
 
 
@@ -109,6 +108,7 @@ abstract class BasePlayer(protected val context: Context) : Player.EventListener
     private var playbackManager: MediaSourceManager? = null
 
     private var currentItem: PlayQueueItem? = null
+
     var currentMetadata: MediaSourceTag? = null
         private set
     private var currentThumbnail: Bitmap? = null
@@ -211,6 +211,13 @@ abstract class BasePlayer(protected val context: Context) : Player.EventListener
             if (simpleExoPlayer != null) simpleExoPlayer!!.repeatMode = repeatMode
         }
 
+    val playbackParameters: PlaybackParameters
+        get() {
+            if (simpleExoPlayer == null) return PlaybackParameters.DEFAULT
+            val parameters = simpleExoPlayer!!.playbackParameters
+            return parameters ?: PlaybackParameters.DEFAULT
+        }
+
     var playbackSpeed: Float
         get() = playbackParameters.speed
         set(speed) = setPlaybackParameters(speed, playbackPitch, playbackSkipSilence)
@@ -220,13 +227,6 @@ abstract class BasePlayer(protected val context: Context) : Player.EventListener
 
     val playbackSkipSilence: Boolean
         get() = playbackParameters.skipSilence
-
-    val playbackParameters: PlaybackParameters
-        get() {
-            if (simpleExoPlayer == null) return PlaybackParameters.DEFAULT
-            val parameters = simpleExoPlayer!!.playbackParameters
-            return parameters ?: PlaybackParameters.DEFAULT
-        }
 
     val isProgressLoopRunning: Boolean
         get() = progressUpdateReactor.get() != null
