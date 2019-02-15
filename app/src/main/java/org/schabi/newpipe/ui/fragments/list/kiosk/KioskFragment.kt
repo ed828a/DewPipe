@@ -1,7 +1,6 @@
 package org.schabi.newpipe.ui.fragments.list.kiosk
 
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.util.Log
 import android.view.*
 import icepick.State
@@ -70,27 +69,16 @@ class KioskFragment : BaseListInfoFragment<KioskInfo>() {
     ///////////////////////////////////////////////////////////////////////////
 
     public override fun loadResult(forceReload: Boolean): Single<KioskInfo> {
-        val contentCountry = PreferenceManager
-                .getDefaultSharedPreferences(activity)
-                .getString(getString(R.string.content_country_key),
-                        getString(R.string.default_country_value))
 
         Log.d(TAG, "loadResult(forceReload=$forceReload), serviceId = $serviceId, url = $url")
-        // temporary solution to fix resume NO_SERVICE_ID bug
-//        if (serviceId == NO_SERVICE_ID) {
-//            serviceId = 0
-//            url = "https://www.youtube.com/feed/trending"
-//        }
+
         return ExtractorHelper.getKioskInfo(serviceId,
                 url,
                 forceReload)
     }
 
     public override fun loadMoreItemsLogic(): Single<ListExtractor.InfoItemsPage<*>> {
-        val contentCountry = PreferenceManager
-                .getDefaultSharedPreferences(activity)
-                .getString(getString(R.string.content_country_key),
-                        getString(R.string.default_country_value))
+        Log.d(TAG, "loadMoreItemsLogic(): serviceId = $serviceId, url = $url")
         return ExtractorHelper.getMoreKioskItems(serviceId,
                 url,
                 currentNextPageUrl)

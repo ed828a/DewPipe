@@ -51,7 +51,7 @@
         android:layout_toRightOf="@+id/itemThumbnailView"
         android:layout_toEndOf="@+id/itemThumbnailView"
         android:ellipsize="end"
-        android:maxLines="2"
+        android:maxLines="5"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textSize="@dimen/video_item_search_title_text_size"
         tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc tristique vitae sem vitae blanditLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum"/>
