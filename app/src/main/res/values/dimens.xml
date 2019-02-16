@@ -87,4 +87,9 @@
 
     <!-- File picker dimensions -->
     <dimen name="file_picker_items_text_size">14sp</dimen>
+
+    <!-- Playlist View Dimensions-->
+    <dimen name="playlist_item_thumbnail_width">142dp</dimen>
+    <dimen name="playlist_item_thumbnail_height">80dp</dimen>
+
 </resources>
