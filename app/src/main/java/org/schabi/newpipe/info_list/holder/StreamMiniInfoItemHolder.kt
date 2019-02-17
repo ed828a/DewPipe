@@ -1,16 +1,22 @@
 package org.schabi.newpipe.info_list.holder
 
+import android.content.Intent
 import android.support.v4.content.ContextCompat
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
-
+import com.google.android.exoplayer2.source.MediaSource
+import com.google.android.exoplayer2.ui.PlayerView
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.InfoItem
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
 import org.schabi.newpipe.extractor.stream.StreamType
 import org.schabi.newpipe.info_list.InfoItemBuilder
+import org.schabi.newpipe.info_list.cache.TransportCache
+import org.schabi.newpipe.player.PopupVideoPlayer.Companion.ACTION_CLOSE
 import org.schabi.newpipe.util.ImageDisplayConstants
 import org.schabi.newpipe.util.Localization
 
@@ -52,6 +58,8 @@ open class StreamMiniInfoItemHolder (infoItemBuilder: InfoItemBuilder, layoutId:
                         ImageDisplayConstants.DISPLAY_THUMBNAIL_OPTIONS)
 
         itemView.setOnClickListener { view ->
+            view.context.applicationContext.sendBroadcast(Intent(ACTION_CLOSE))
+
             if (itemBuilder.onStreamSelectedListener != null) {
                 itemBuilder.onStreamSelectedListener?.selected(infoItem)
             }
@@ -78,4 +86,40 @@ open class StreamMiniInfoItemHolder (infoItemBuilder: InfoItemBuilder, layoutId:
         itemView.isLongClickable = false
         itemView.setOnLongClickListener(null)
     }
+
+    private fun playOnView(mediaSource: MediaSource) {
+        val appContext = itemBuilder.context.applicationContext
+        val videoLayout = itemView.findViewById<FrameLayout>(R.id.videoLayout)
+        val cover = itemView.findViewById<ImageView>(R.id.itemThumbnailView)
+
+        // add SurfaceView
+        val lastPlayingCover = TransportCache.transport.lastPlayingCover
+        lastPlayingCover?.visibility = View.VISIBLE
+        cover.visibility = View.GONE
+        TransportCache.transport.lastPlayingCover = cover
+        val videoSurfaceView = TransportCache.transport.videoSurfaceView
+        videoLayout?.addView(videoSurfaceView)
+        videoSurfaceView?.requestFocus()
+
+        val player = TransportCache.transport.player!!
+        with(player) {
+            prepare(mediaSource)
+            playWhenReady = true
+        }
+    }
+
+    private fun removePreviousPlayView(videoView: PlayerView) {
+        val parent = videoView.parent as ViewGroup? ?: return
+
+        val index = parent.indexOfChild(videoView)
+        Log.d(TAG, "removePreviousPlayView(): index = $index, parent = $parent")
+        if (index >= 0) {
+            parent.removeViewAt(index)
+        }
+    }
+
+    companion object {
+        const val TAG = "InfoItemHolder"
+    }
+
 }

@@ -167,9 +167,12 @@ object ListHelper {
         }
 
         // Add all to the hashmap
-        for (videoStream in retList) hashMap[videoStream.getResolution()] = videoStream
+        for (videoStream in retList) {
+            hashMap[videoStream.getResolution()] = videoStream
+        }
 
         // Override the values when the key == resolution, with the defaultFormat
+        // this should be redundant as videos store by resolution already -- commented by Edward
         for (videoStream in retList) {
             if (videoStream.getFormat() == defaultFormat) hashMap[videoStream.getResolution()] = videoStream
         }

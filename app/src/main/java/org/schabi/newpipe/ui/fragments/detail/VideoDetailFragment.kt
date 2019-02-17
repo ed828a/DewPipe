@@ -60,6 +60,7 @@ import org.schabi.newpipe.util.*
 import org.schabi.newpipe.util.AnimationUtils.animateView
 import org.schabi.newpipe.util.StreamItemAdapter.StreamSizeWrapper
 import java.util.*
+import org.schabi.newpipe.player.PopupVideoPlayer.Companion.ACTION_CLOSE
 
 class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, SharedPreferences.OnSharedPreferenceChangeListener, View.OnClickListener, View.OnLongClickListener {
 
@@ -83,7 +84,6 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
 
     private var currentInfo: StreamInfo? = null
     private var currentWorker: Disposable? = null
-//    private var disposables: CompositeDisposable? = CompositeDisposable()
 
     private var sortedVideoStreams: List<VideoStream>? = null
     private var selectedVideoStreamIndex = -1
@@ -345,10 +345,13 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
                 }
 
             }
-            R.id.detail_thumbnail_root_layout -> if (currentInfo!!.videoStreams.isEmpty() && currentInfo!!.videoOnlyStreams.isEmpty()) {
-                openBackgroundPlayer(false)
-            } else {
-                openVideoPlayer()
+            R.id.detail_thumbnail_root_layout -> {
+                view.context.applicationContext.sendBroadcast(Intent(ACTION_CLOSE))
+                if (currentInfo!!.videoStreams.isEmpty() && currentInfo!!.videoOnlyStreams.isEmpty()) {
+                    openBackgroundPlayer(false)
+                } else {
+                    openVideoPlayer()
+                }
             }
             R.id.detail_title_root_layout -> toggleTitleAndDescription()
             R.id.detail_related_streams_expand -> toggleExpandRelatedVideos(currentInfo)
@@ -691,7 +694,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         if (stack.size > 0 && stack.peek().serviceId == serviceId && stack.peek().url == videoUrl) {
             Log.d(TAG, "pushToStack() called with: serviceId == peek.serviceId = [$serviceId], videoUrl == peek.getUrl = [$videoUrl]")
         } else {
-            Log.d(TAG, "pushToStack() wasn't equal")
+            Log.d(TAG, "pushToStack() when no stackItem has equal serviceId and videoUrl")
             stack.push(StackItem(serviceId, videoUrl, name))
         }
     }
@@ -847,24 +850,24 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
 
     private fun openNormalPlayer(selectedVideoStream: VideoStream?) {
 
-        val useOldPlayer = PlayerHelper.isUsingOldPlayer(activity!!)
+//        val useOldPlayer = PlayerHelper.isUsingOldPlayer(activity!!)
 
-        val intent: Intent =
-                if (!useOldPlayer) {
-                    // using ExoPlayer
-                    val playQueue = SinglePlayQueue(currentInfo!!)
-                    NavigationHelper.getPlayerIntent(activity!!,
-                            MainVideoPlayer::class.java,
-                            playQueue,
-                            selectedVideoStream!!.getResolution())
-                } else {
-                    // Internal Player
-                    Intent(activity, PlayVideoActivity::class.java)
-                            .putExtra(PlayVideoActivity.VIDEO_TITLE, currentInfo!!.name)
-                            .putExtra(PlayVideoActivity.STREAM_URL, selectedVideoStream!!.getUrl())
-                            .putExtra(PlayVideoActivity.VIDEO_URL, currentInfo!!.url)
-                            .putExtra(PlayVideoActivity.START_POSITION, currentInfo!!.startPosition)
-                }
+        // cut off MediaPlayer
+//                if (!useOldPlayer) {
+        // using ExoPlayer
+        val playQueue = SinglePlayQueue(currentInfo!!)
+        val intent: Intent = NavigationHelper.getPlayerIntent(activity!!,
+                MainVideoPlayer::class.java,
+                playQueue,
+                selectedVideoStream!!.getResolution())
+//                } else {
+//                    // Internal Player
+//          val intent: Intent =  Intent(activity, PlayVideoActivity::class.java)
+//                            .putExtra(PlayVideoActivity.VIDEO_TITLE, currentInfo!!.name)
+//                            .putExtra(PlayVideoActivity.STREAM_URL, selectedVideoStream!!.getUrl())
+//                            .putExtra(PlayVideoActivity.VIDEO_URL, currentInfo!!.url)
+//                            .putExtra(PlayVideoActivity.START_POSITION, currentInfo!!.startPosition)
+//                }
         startActivity(intent)
     }
 

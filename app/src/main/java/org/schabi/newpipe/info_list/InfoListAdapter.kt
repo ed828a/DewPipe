@@ -1,17 +1,27 @@
 package org.schabi.newpipe.info_list
 
 import android.app.Activity
+import android.content.Context
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.source.TrackGroupArray
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
+import com.google.android.exoplayer2.ui.PlayerView
+import com.google.android.exoplayer2.upstream.DefaultAllocator
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import org.schabi.newpipe.extractor.InfoItem
 import org.schabi.newpipe.extractor.channel.ChannelInfoItem
 import org.schabi.newpipe.extractor.playlist.PlaylistInfoItem
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
+import org.schabi.newpipe.info_list.cache.TransportCache
 import org.schabi.newpipe.info_list.holder.*
-import org.schabi.newpipe.info_list.holder.FallbackViewHolder
 import org.schabi.newpipe.util.OnClickGesture
 import java.util.*
 
@@ -26,8 +36,11 @@ class InfoListAdapter(activity: Activity) : RecyclerView.Adapter<RecyclerView.Vi
     private var header: View? = null
     private var footer: View? = null
 
-    // Header and Footer ViewHolder, same as HeaderFooterHolder, can be removed
-//    inner class HFHolder(var view: View) : RecyclerView.ViewHolder(view)
+    // for surface view for playing video
+    private var videoSurfaceView: PlayerView? = null
+    private var player: SimpleExoPlayer? = null
+    private val appContext: Context = activity.applicationContext
+
 
     fun setOnStreamSelectedListener(listener: OnClickGesture<StreamInfoItem>) {
         infoItemBuilder.onStreamSelectedListener = listener
@@ -202,8 +215,6 @@ class InfoListAdapter(activity: Activity) : RecyclerView.Adapter<RecyclerView.Vi
 
                 holder.updateFromItem(itemsList[position])
             }
-//            holder is HFHolder && position == 0 && header != null -> holder.view = header!!
-//            holder is HFHolder && position == sizeConsideringHeaderOffset() && footer != null && showFooter -> holder.view = footer!!
             holder is HeaderFooterHolder && position == 0 && header != null -> holder.view = header!!
             holder is HeaderFooterHolder && position == sizeConsideringHeaderOffset() && footer != null && showFooter -> holder.view = footer!!
         }
@@ -217,6 +228,106 @@ class InfoListAdapter(activity: Activity) : RecyclerView.Adapter<RecyclerView.Vi
             }
         }
     }
+
+
+    // make sure this one is called in onStart() to prevent the leakage.
+    internal fun initializePlayer() {
+        // 1. create SurfaceView
+        videoSurfaceView = PlayerView(appContext)
+        videoSurfaceView!!.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+        videoSurfaceView!!.useController = false
+        videoSurfaceView!!.setShowBuffering(true)
+
+        // 2. create SimpleExoPlayer
+        val bandwidthMeter = DefaultBandwidthMeter()
+        val trackSelectionFactory = AdaptiveTrackSelection.Factory(bandwidthMeter)
+        val trackSelector = DefaultTrackSelector(trackSelectionFactory)
+        val loadControl = DefaultLoadControl.Builder()
+                .setAllocator(DefaultAllocator(true, 16))
+                .setBufferDurationsMs(
+                        MIN_BUFFER_DURATION,
+                        MAX_BUFFER_DURATION,
+                        MIN_PLAYBACK_START_BUFFER,
+                        MIN_PLAYBACK_RESUME_BUFFER
+                )
+                .setTargetBufferBytes(-1)
+                .setPrioritizeTimeOverSizeThresholds(true)
+                .createDefaultLoadControl()
+
+        player = ExoPlayerFactory.newSimpleInstance(
+                DefaultRenderersFactory(appContext),
+                trackSelector,
+                loadControl
+        )
+
+        // 3. bind SurfaceView to ExoPlayer
+        videoSurfaceView?.player = player
+
+        player!!.addListener(object : Player.EventListener {
+            override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+//                super.onPlayerStateChanged(playWhenReady, playbackState)
+                when (playbackState) {
+                    Player.STATE_BUFFERING -> {
+                        TransportCache.transport.lastPlayingCover?.visibility = View.VISIBLE
+                        videoSurfaceView!!.alpha = 0.5f
+                        Log.d(TAG, "onPlayerStateChanged(): Buffering")
+
+                    }
+
+                    Player.STATE_READY -> {
+                        Log.d(TAG, "onPlayerStateChanged(): Ready")
+                        TransportCache.transport.lastPlayingCover?.visibility = View.GONE
+                        videoSurfaceView?.visibility = View.VISIBLE
+                        videoSurfaceView?.alpha = 1.0f
+
+                    }
+
+                    Player.STATE_ENDED -> {
+                        Log.d(TAG, "onPlayerStateChanged(): Ended")
+                        // make circularly playing
+//                        player?.seekTo(0)
+                    }
+                }
+            }
+
+            override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
+            }
+
+            override fun onSeekProcessed() {
+            }
+
+            override fun onTracksChanged(trackGroups: TrackGroupArray?, trackSelections: TrackSelectionArray?) {
+            }
+
+            override fun onPlayerError(error: ExoPlaybackException?) {
+            }
+
+            override fun onLoadingChanged(isLoading: Boolean) {
+            }
+
+            override fun onPositionDiscontinuity(reason: Int) {
+            }
+
+            override fun onRepeatModeChanged(repeatMode: Int) {
+            }
+
+            override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
+            }
+
+            override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, reason: Int) {
+            }
+
+
+        })
+
+        TransportCache.transport.player = player
+        TransportCache.transport.videoSurfaceView = videoSurfaceView
+    }
+
+    fun onRelease() {
+        TransportCache.reset()
+    }
+
 
     companion object {
         private val TAG = InfoListAdapter::class.java.simpleName
@@ -233,5 +344,10 @@ class InfoListAdapter(activity: Activity) : RecyclerView.Adapter<RecyclerView.Vi
         private const val MINI_PLAYLIST_HOLDER_TYPE = 0x300
         private const val PLAYLIST_HOLDER_TYPE = 0x301
         private const val GRID_PLAYLIST_HOLDER_TYPE = 0x302
+
+        const val MIN_BUFFER_DURATION = 5000
+        const val MAX_BUFFER_DURATION = 15000
+        const val MIN_PLAYBACK_START_BUFFER = 1500
+        const val MIN_PLAYBACK_RESUME_BUFFER = 5000
     }
 }

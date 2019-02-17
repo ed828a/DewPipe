@@ -153,6 +153,9 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         Log.d(TAG, "onResume() called")
         super.onResume()
 
+        // start playing on Landscape
+        isLandscape = true
+
         if (globalScreenOrientationLocked()) {
             val lastOrientationWasLandscape = defaultPreferences!!.getBoolean(getString(R.string.last_orientation_landscape_key), false)
             isLandscape = lastOrientationWasLandscape
@@ -887,13 +890,20 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         }
 
         override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
+            Log.d(TAG, "onFling() e1: x = ${e1?.x}, y = ${e1?.y}; e2: x = ${e2?.x}, y = ${e2?.y}")
 
             if (e1 != null && e2 != null)
                 when {
-                    ((e2.x - e1.x) > 0 && Math.abs(e1.x - e2.x) > Math.abs(e1.y - e2.y)) -> playerImpl!!.onFastForward()
-                    ((e2.x - e1.x) < 0 && Math.abs(e1.x - e2.x) > Math.abs(e1.y - e2.y)) -> playerImpl!!.onFastRewind()
-                    ((e2.y - e1.y) > 0 && Math.abs(e1.y - e2.y) > Math.abs(e1.x - e2.x)) -> "up to down fling"
-                    ((e2.y - e1.y) < 0 && Math.abs(e1.y - e2.y) > Math.abs(e1.x - e2.x)) -> "down to up fling"
+                    (Math.abs(e2.x - e1.x) > 500 && Math.abs(e2.y - e1.y) > 500) -> {
+                        playerImpl!!.onFullScreenButtonClicked()  // "from one corner to opposite corner"
+                        finish()
+                    }
+
+                    ((e2.x - e1.x) > 0 && Math.abs(e1.x - e2.x) > Math.abs(e1.y - e2.y)) -> playerImpl!!.onFastForward() // from left to right
+                    ((e2.x - e1.x) < 0 && Math.abs(e1.x - e2.x) > Math.abs(e1.y - e2.y)) -> playerImpl!!.onFastRewind()  // from right to left
+                    ((e2.y - e1.y) > 0 && Math.abs(e1.y - e2.y) > Math.abs(e1.x - e2.x)) -> "up to down fling"           // from up to down
+                    ((e2.y - e1.y) < 0 && Math.abs(e1.y - e2.y) > Math.abs(e1.x - e2.x)) -> "down to up fling"           // down to up
+
                 }
 
             return super.onFling(e1, e2, velocityX, velocityY)

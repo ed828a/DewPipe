@@ -3,7 +3,6 @@ package org.schabi.newpipe.info_list.holder
 import android.text.TextUtils
 import android.view.ViewGroup
 import android.widget.TextView
-
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.InfoItem
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
@@ -37,4 +36,6 @@ class StreamInfoItemHolder(infoItemBuilder: InfoItemBuilder, parent: ViewGroup) 
         }
         return viewsAndDate
     }
+
+
 }

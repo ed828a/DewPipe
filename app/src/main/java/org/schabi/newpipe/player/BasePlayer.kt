@@ -10,17 +10,8 @@ import android.media.AudioManager
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-
-import com.google.android.exoplayer2.DefaultRenderersFactory
-import com.google.android.exoplayer2.ExoPlaybackException
-import com.google.android.exoplayer2.ExoPlayerFactory
-import com.google.android.exoplayer2.LoadControl
-import com.google.android.exoplayer2.PlaybackParameters
-import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.Player.*
-import com.google.android.exoplayer2.RenderersFactory
-import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.source.BehindLiveWindowException
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.TrackGroupArray
@@ -29,17 +20,21 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.nostra13.universalimageloader.core.ImageLoader
 import com.nostra13.universalimageloader.core.assist.FailReason
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener
-
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
+import io.reactivex.disposables.SerialDisposable
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.stream.StreamInfo
 import org.schabi.newpipe.local.history.HistoryRecordManager
 import org.schabi.newpipe.player.helper.AudioReactor
 import org.schabi.newpipe.player.helper.LoadController
-import org.schabi.newpipe.player.mediasession.MediaSessionManager
 import org.schabi.newpipe.player.helper.PlayerDataSource
 import org.schabi.newpipe.player.helper.PlayerHelper
-import org.schabi.newpipe.player.mediasource.FailedMediaSource
 import org.schabi.newpipe.player.mediasession.BasePlayerMediaSession
+import org.schabi.newpipe.player.mediasession.MediaSessionManager
+import org.schabi.newpipe.player.mediasource.FailedMediaSource
 import org.schabi.newpipe.player.playback.CustomTrackSelector
 import org.schabi.newpipe.player.playback.MediaSourceManager
 import org.schabi.newpipe.player.playback.PlaybackListener
@@ -49,16 +44,9 @@ import org.schabi.newpipe.player.playqueue.PlayQueueItem
 import org.schabi.newpipe.player.resolver.MediaSourceTag
 import org.schabi.newpipe.util.ImageDisplayConstants
 import org.schabi.newpipe.util.SerializedCache
-
 import java.io.IOException
 import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
-
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.disposables.SerialDisposable
 
 /**
  * Base for the players, joining the common properties
@@ -354,7 +342,7 @@ abstract class BasePlayer(protected val context: Context) : Player.EventListener
         Log.d(TAG, "Thumbnail - onLoadingStarted() called on: imageUri = [$imageUri], view = [$view]")
     }
 
-    override fun onLoadingFailed(imageUri: String, view: View, failReason: FailReason) {
+    override fun onLoadingFailed(imageUri: String, view: View?, failReason: FailReason) {
         Log.e(TAG, "Thumbnail - onLoadingFailed() called on imageUri = [$imageUri]", failReason.cause)
         currentThumbnail = null
     }

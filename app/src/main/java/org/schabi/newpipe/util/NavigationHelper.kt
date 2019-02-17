@@ -274,7 +274,13 @@ object NavigationHelper {
     }
 
     @JvmOverloads
-    fun openVideoDetailFragment(fragmentManager: FragmentManager?, serviceId: Int, url: String?, title: String?, autoPlay: Boolean = false) {
+    fun openVideoDetailFragment(
+            fragmentManager: FragmentManager?,
+            serviceId: Int,
+            url: String?,
+            title: String?,
+            autoPlay: Boolean = true  // it was false
+    ) {
         if (fragmentManager == null) {
             Log.d(TAG, "openVideoDetailFragment() with fragmentManager = null")
             return

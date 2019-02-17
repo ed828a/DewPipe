@@ -32,25 +32,22 @@ import android.support.v4.app.NotificationCompat
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
-
 import com.google.android.exoplayer2.PlaybackParameters
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.source.MediaSource
 import com.nostra13.universalimageloader.core.assist.FailReason
-
 import org.schabi.newpipe.BuildConfig
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.stream.StreamInfo
 import org.schabi.newpipe.player.event.PlayerEventListener
 import org.schabi.newpipe.player.helper.LockManager
+import org.schabi.newpipe.player.helper.PlayerHelper.getTimeString
+import org.schabi.newpipe.player.model.PlayerServiceBinder
 import org.schabi.newpipe.player.playqueue.PlayQueueItem
 import org.schabi.newpipe.player.resolver.AudioPlaybackResolver
 import org.schabi.newpipe.player.resolver.MediaSourceTag
 import org.schabi.newpipe.util.NavigationHelper
 import org.schabi.newpipe.util.ThemeHelper
-
-import org.schabi.newpipe.player.helper.PlayerHelper.getTimeString
-import org.schabi.newpipe.player.model.PlayerServiceBinder
 
 
 /**
@@ -271,7 +268,7 @@ class BackgroundPlayer : Service() {
             updateNotification(-1)
         }
 
-        override fun onLoadingFailed(imageUri: String, view: View, failReason: FailReason) {
+        override fun onLoadingFailed(imageUri: String, view: View?, failReason: FailReason) {
             super.onLoadingFailed(imageUri, view, failReason)
             resetNotification()
             updateNotificationThumbnail()

@@ -588,7 +588,7 @@ class PopupVideoPlayer : Service() {
             updateNotification(-1)
         }
 
-        override fun onLoadingFailed(imageUri: String, view: View, failReason: FailReason) {
+        override fun onLoadingFailed(imageUri: String, view: View?, failReason: FailReason) {
             super.onLoadingFailed(imageUri, view, failReason)
             resetNotification()
             updateNotification(-1)
