@@ -218,9 +218,10 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
     }
 
     private fun onStreamSelected(selectedItem: StreamInfoItem) {
+        Log.d(TAG, "onStreamSelected() called: autoPlay = true")
         onItemSelected(selectedItem)
-
-        NavigationHelper.openVideoDetailFragment(getFM(), selectedItem.serviceId, selectedItem.url, selectedItem.name)
+        // no last parameter before
+        NavigationHelper.openVideoDetailFragment(getFM(), selectedItem.serviceId, selectedItem.url, selectedItem.name, true)
     }
 
     protected fun onScrollToBottom() {

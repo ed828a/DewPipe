@@ -185,8 +185,6 @@ class InfoListAdapter(activity: Activity) : RecyclerView.Adapter<RecyclerView.Vi
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         Log.d(TAG, "onCreateViewHolder() called with: parent = [$parent], viewType = [$viewType]")
         return when (viewType) {
-//            HEADER_TYPE -> HFHolder(header!!)
-//            FOOTER_TYPE -> HFHolder(footer!!)
             HEADER_TYPE -> HeaderFooterHolder(header!!)
             FOOTER_TYPE -> HeaderFooterHolder(footer!!)
             MINI_STREAM_HOLDER_TYPE -> StreamMiniInfoItemHolder(infoItemBuilder, parent)

@@ -247,7 +247,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
             ReCaptchaActivity.RECAPTCHA_REQUEST -> if (resultCode == Activity.RESULT_OK) {
-                NavigationHelper.openVideoDetailFragment(fragmentManager, serviceId, url, name)
+                NavigationHelper.openVideoDetailFragment(fragmentManager, serviceId, url, name, true)
             } else
                 Log.e(TAG, "ReCaptcha failed")
 
@@ -482,7 +482,9 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         super.initListeners()
         infoItemBuilder.onStreamSelectedListener = object : OnClickGesture<StreamInfoItem>() {
             override fun selected(selectedItem: StreamInfoItem) {
+                Log.d(TAG, "initListeners(): selected() called")
                 selectAndLoadVideo(selectedItem.serviceId, selectedItem.url, selectedItem.name)
+//                openVideoPlayer()
             }
 
             override fun held(selectedItem: StreamInfoItem) {
@@ -849,25 +851,13 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
     }
 
     private fun openNormalPlayer(selectedVideoStream: VideoStream?) {
-
-//        val useOldPlayer = PlayerHelper.isUsingOldPlayer(activity!!)
-
-        // cut off MediaPlayer
-//                if (!useOldPlayer) {
         // using ExoPlayer
         val playQueue = SinglePlayQueue(currentInfo!!)
         val intent: Intent = NavigationHelper.getPlayerIntent(activity!!,
                 MainVideoPlayer::class.java,
                 playQueue,
                 selectedVideoStream!!.getResolution())
-//                } else {
-//                    // Internal Player
-//          val intent: Intent =  Intent(activity, PlayVideoActivity::class.java)
-//                            .putExtra(PlayVideoActivity.VIDEO_TITLE, currentInfo!!.name)
-//                            .putExtra(PlayVideoActivity.STREAM_URL, selectedVideoStream!!.getUrl())
-//                            .putExtra(PlayVideoActivity.VIDEO_URL, currentInfo!!.url)
-//                            .putExtra(PlayVideoActivity.START_POSITION, currentInfo!!.startPosition)
-//                }
+
         startActivity(intent)
     }
 
@@ -1149,8 +1139,6 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
             else -> {
                 if (info.audioStreams.isEmpty()) detailControlsBackground!!.visibility = View.GONE
 
-//                if (!info.videoStreams.isEmpty() || !info.videoOnlyStreams.isEmpty())
-//                    break
                 if (info.videoStreams.isEmpty() && info.videoOnlyStreams.isEmpty()) {
                     detailControlsPopup!!.visibility = View.GONE
                     toolbarSpinner!!.visibility = View.GONE
@@ -1179,9 +1167,6 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
                 setAudioStreams(currentInfo!!.audioStreams)
                 setSelectedVideoStream(selectedVideoStreamIndex)
             }
-//            downloadDialog.setVideoStreams(sortedVideoStreams!!)
-//            downloadDialog.setAudioStreams(currentInfo!!.audioStreams)
-//            downloadDialog.setSelectedVideoStream(selectedVideoStreamIndex)
 
             downloadDialog.show(activity!!.supportFragmentManager, "downloadDialog")
         } catch (e: Exception) {
@@ -1229,8 +1214,6 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
                 action = Intent.ACTION_VIEW
                 data = Uri.parse(getString(R.string.c3s_url))
             }
-//            intent.action = Intent.ACTION_VIEW
-//            intent.data = Uri.parse(getString(R.string.c3s_url))
             startActivity(intent)
         }
 

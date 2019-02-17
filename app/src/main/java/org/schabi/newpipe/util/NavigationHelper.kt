@@ -286,10 +286,13 @@ object NavigationHelper {
             return
         }
 
+        Log.d(TAG, "openVideoDetailFragment() with fragmentManager != null")
+
         val fragment = fragmentManager.findFragmentById(R.id.fragment_holder)
         val locTitle = title ?: ""
 
         if (fragment != null && fragment is VideoDetailFragment && fragment.isVisible) {
+            Log.d(TAG, "openVideoDetailFragment() with autoPlay = $autoPlay")
             fragment.setAutoplay(autoPlay)
             fragment.selectAndLoadVideo(serviceId, url, locTitle)
             return
