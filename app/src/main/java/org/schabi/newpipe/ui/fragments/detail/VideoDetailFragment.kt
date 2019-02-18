@@ -9,13 +9,12 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.support.annotation.DrawableRes
-import android.support.annotation.FloatRange
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.animation.FastOutSlowInInterpolator
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.preference.PreferenceManager
 import android.text.Html
 import android.text.Html.FROM_HTML_MODE_LEGACY
 import android.text.Spanned
@@ -34,33 +33,30 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import org.schabi.newpipe.ui.fragments.BaseFragment
 import org.schabi.newpipe.R
-import org.schabi.newpipe.ui.activity.ReCaptchaActivity
 import org.schabi.newpipe.download.ui.DownloadDialog
 import org.schabi.newpipe.extractor.NewPipe
 import org.schabi.newpipe.extractor.exceptions.ContentNotAvailableException
 import org.schabi.newpipe.extractor.exceptions.ParsingException
 import org.schabi.newpipe.extractor.services.youtube.extractors.YoutubeStreamExtractor
 import org.schabi.newpipe.extractor.stream.*
-import org.schabi.newpipe.ui.fragments.BackPressable
-import org.schabi.newpipe.ui.fragments.BaseStateFragment
 import org.schabi.newpipe.info_list.InfoItemBuilder
 import org.schabi.newpipe.info_list.InfoItemDialog
 import org.schabi.newpipe.local.dialog.PlaylistAppendDialog
 import org.schabi.newpipe.local.history.HistoryRecordManager
 import org.schabi.newpipe.player.MainVideoPlayer
 import org.schabi.newpipe.player.PopupVideoPlayer
-import org.schabi.newpipe.player.helper.PlayerHelper
-import org.schabi.newpipe.player.old.PlayVideoActivity
+import org.schabi.newpipe.player.PopupVideoPlayer.Companion.ACTION_CLOSE
 import org.schabi.newpipe.player.playqueue.SinglePlayQueue
 import org.schabi.newpipe.report.ErrorActivity
 import org.schabi.newpipe.report.UserAction
+import org.schabi.newpipe.ui.activity.ReCaptchaActivity
+import org.schabi.newpipe.ui.fragments.BackPressable
+import org.schabi.newpipe.ui.fragments.BaseFragment
+import org.schabi.newpipe.ui.fragments.BaseStateFragment
 import org.schabi.newpipe.util.*
 import org.schabi.newpipe.util.AnimationUtils.animateView
-import org.schabi.newpipe.util.StreamItemAdapter.StreamSizeWrapper
 import java.util.*
-import org.schabi.newpipe.player.PopupVideoPlayer.Companion.ACTION_CLOSE
 
 class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, SharedPreferences.OnSharedPreferenceChangeListener, View.OnClickListener, View.OnLongClickListener {
 
@@ -157,10 +153,10 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     * Stack that contains the "navigation history".<br></br>
-     * The peek is the current video.
-     */
+     *  Stack that contains the "navigation history"
+     *  The peek is the current video. */
     private val stack = LinkedList<StackItem>()
+
 
     private val selectedVideoStream: VideoStream?
         get() = if (sortedVideoStreams != null) sortedVideoStreams!![selectedVideoStreamIndex] else null
@@ -181,6 +177,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
 
             return separator
         }
+
 
     ///////////////////////////////////////////////////////////////////////////
     // Fragment's Lifecycle
@@ -312,7 +309,6 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
     ///////////////////////////////////////////////////////////////////////////
     // OnClick
     ///////////////////////////////////////////////////////////////////////////
-
     override fun onClick(view: View) {
         if (isLoading.get() || currentInfo == null) return
 
@@ -419,7 +415,6 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
                                 ThemeHelper.resolveResourceIdFromAttr(activity!!, R.attr.collapse)))
             }
         }
-
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -484,7 +479,6 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
             override fun selected(selectedItem: StreamInfoItem) {
                 Log.d(TAG, "initListeners(): selected() called")
                 selectAndLoadVideo(selectedItem.serviceId, selectedItem.url, selectedItem.name)
-//                openVideoPlayer()
             }
 
             override fun held(selectedItem: StreamInfoItem) {
@@ -674,7 +668,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
         sortedVideoStreams = ListHelper.getSortedStreamVideosList(activity!!, info.videoStreams, info.videoOnlyStreams, false)
         selectedVideoStreamIndex = ListHelper.getDefaultResolutionIndex(activity!!, sortedVideoStreams!!)
 
-        val streamsAdapter = StreamItemAdapter(activity!!, StreamSizeWrapper(sortedVideoStreams!!), isExternalPlayerEnabled)
+        val streamsAdapter = StreamItemAdapter(activity!!, StreamItemAdapter.StreamSizeWrapper(sortedVideoStreams!!), isExternalPlayerEnabled)
         toolbarSpinner!!.adapter = streamsAdapter
         toolbarSpinner!!.setSelection(selectedVideoStreamIndex)
         toolbarSpinner!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -728,7 +722,6 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
     ///////////////////////////////////////////////////////////////////////////
     // Info loading and handling
     ///////////////////////////////////////////////////////////////////////////
-
     override fun doInitialLoadLogic() {
         if (currentInfo == null)
             prepareAndLoadInfo()
@@ -763,6 +756,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
                 })
     }
 
+
     protected fun prepareAndLoadInfo() {
         parallaxScrollRootView!!.smoothScrollTo(0, 0)
         pushToStack(serviceId, url!!, name)
@@ -791,7 +785,6 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
                                 onError(throwable)
                             })
         }
-
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -841,7 +834,6 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
             openNormalPlayer(selectedVideoStream)
         }
     }
-
     private fun openNormalBackgroundPlayer(append: Boolean) {
         val itemQueue = SinglePlayQueue(currentInfo!!)
         if (append) {
@@ -921,7 +913,8 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
 
     private fun showContentWithAnimation(duration: Long,
                                          delay: Long,
-                                         @FloatRange(from = 0.0, to = 1.0) translationPercent: Float) {
+//                                         @android.support.annotation.FloatRange(from = 0.0, to = 1.0)
+                                         translationPercent: Float) {
         val translationY = (resources.displayMetrics.heightPixels * if (translationPercent > 0.0f) translationPercent else .06f).toInt()
 
         contentRootLayoutHiding!!.animate().setListener(null).cancel()
@@ -1159,7 +1152,6 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
             related.scrollTo(0, 0)
         }
     }
-
 
     fun openDownloadDialog() {
         try {
