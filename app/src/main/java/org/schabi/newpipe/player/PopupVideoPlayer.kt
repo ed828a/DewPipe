@@ -932,18 +932,35 @@ class PopupVideoPlayer : Service() {
         }
 
         override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
-            Log.d(TAG, "Fling velocity: dX=[$velocityX], dY=[$velocityY]")
+            Log.d(TAG, "Fling velocity: dX=[$velocityX], dY=[$velocityY], e1:[${e1.x}, ${e1.y}], e2:[${e2.x}, ${e2.y}]")
             if (playerImpl == null) return false
+
 
             val absVelocityX = Math.abs(velocityX)
             val absVelocityY = Math.abs(velocityY)
-            if (Math.max(absVelocityX, absVelocityY) > tossFlingVelocity) {
+
+            // only happens when popup window can't move
+            if (Math.max(absVelocityX, absVelocityY) > 5000 && Math.abs(e2.y - e1.y) < 100) {
+                if ((e2.x - e1.x) > 0 && Math.abs(e1.x - e2.x) > Math.abs(e1.y - e2.y) ){
+                    Log.d(TAG, "Fling velocity: left to right: e2.y - e1.y = ${e2.y - e1.y}, e2.x - e1.x = ${e2.x - e1.x}")
+                    playerImpl!!.onFastForward() // fling from left to right
+                }
+
+                if ((e2.x - e1.x) < 0 && Math.abs(e1.x - e2.x) > Math.abs(e1.y - e2.y)) {
+                    Log.d(TAG, "Fling velocity: right to left: e2.y - e1.y = ${e2.y - e1.y}, e2.x - e1.x = ${e2.x - e1.x}")
+                    playerImpl!!.onFastRewind()  // fling from right to left
+                }
+            }
+
+            if (  Math.max(absVelocityX, absVelocityY) in tossFlingVelocity.toFloat() .. 5000.0f) {
                 if (absVelocityX > tossFlingVelocity) popupLayoutParams!!.x = velocityX.toInt()
                 if (absVelocityY > tossFlingVelocity) popupLayoutParams!!.y = velocityY.toInt()
                 checkPopupPositionBounds()
                 windowManager!!.updateViewLayout(playerImpl!!.rootView, popupLayoutParams)
                 return true
             }
+
+
             return false
         }
 
