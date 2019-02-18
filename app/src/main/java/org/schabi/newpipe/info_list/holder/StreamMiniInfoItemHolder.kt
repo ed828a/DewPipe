@@ -1,5 +1,7 @@
 package org.schabi.newpipe.info_list.holder
 
+import android.content.Intent
+import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.view.View
@@ -15,6 +17,8 @@ import org.schabi.newpipe.extractor.stream.StreamInfoItem
 import org.schabi.newpipe.extractor.stream.StreamType
 import org.schabi.newpipe.info_list.InfoItemBuilder
 import org.schabi.newpipe.info_list.cache.TransportCache
+import org.schabi.newpipe.player.PopupVideoPlayer.Companion.ACTION_CLOSE
+import org.schabi.newpipe.ui.fragments.detail.VideoDetailFragment
 import org.schabi.newpipe.util.ImageDisplayConstants
 import org.schabi.newpipe.util.Localization
 
@@ -57,7 +61,13 @@ open class StreamMiniInfoItemHolder (infoItemBuilder: InfoItemBuilder, layoutId:
                         ImageDisplayConstants.DISPLAY_THUMBNAIL_OPTIONS)
 
         itemView.setOnClickListener { view ->
-//            view.context.applicationContext.sendBroadcast(Intent(ACTION_CLOSE))
+            val fragment = (view.context as FragmentActivity).supportFragmentManager.findFragmentById(R.id.fragment_holder)
+            if (fragment is VideoDetailFragment){
+                Log.d(TAG, "itemView onClick(): fragment is  VideoDetailFragment")
+            } else {
+                view.context.applicationContext.sendBroadcast(Intent(ACTION_CLOSE))
+            }
+
             Log.d(TAG, "itemView onClicked() called: itemBuilder.onStreamSelectedListener  = ${itemBuilder.onStreamSelectedListener }")
             if (itemBuilder.onStreamSelectedListener != null) {
                 itemBuilder.onStreamSelectedListener?.selected(infoItem)

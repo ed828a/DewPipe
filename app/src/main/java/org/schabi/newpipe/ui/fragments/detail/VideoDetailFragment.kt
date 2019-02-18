@@ -830,6 +830,7 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
     }
 
     private fun openVideoPlayer() {
+        context?.sendBroadcast(Intent(ACTION_CLOSE))
         val selectedVideoStream = selectedVideoStream
         val useExternalPlayer = PreferenceManager.getDefaultSharedPreferences(activity)
                 .getBoolean(this.getString(R.string.use_external_video_player_key), false)

@@ -1,6 +1,7 @@
 package org.schabi.newpipe.local.history
 
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
 import android.support.design.widget.Snackbar
@@ -20,6 +21,7 @@ import org.schabi.newpipe.database.stream.model.StreamStatisticsEntry
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
 import org.schabi.newpipe.info_list.InfoItemDialog
 import org.schabi.newpipe.local.BaseLocalListFragment
+import org.schabi.newpipe.player.PopupVideoPlayer.Companion.ACTION_CLOSE
 import org.schabi.newpipe.player.playqueue.PlayQueue
 import org.schabi.newpipe.player.playqueue.SinglePlayQueue
 import org.schabi.newpipe.report.UserAction
@@ -131,6 +133,7 @@ class StatisticsPlaylistFragment : BaseLocalListFragment<List<StreamStatisticsEn
         itemListAdapter?.setSelectedListener(object : OnClickGesture<LocalItem>() {
             override fun selected(selectedItem: LocalItem) {
                 if (selectedItem is StreamStatisticsEntry) {
+                    context?.applicationContext?.sendBroadcast(Intent(ACTION_CLOSE))
                     NavigationHelper.openVideoDetailFragment(getFM(),
                             selectedItem.serviceId,
                             selectedItem.url,

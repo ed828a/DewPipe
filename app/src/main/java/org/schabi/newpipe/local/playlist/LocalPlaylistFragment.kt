@@ -1,6 +1,7 @@
 package org.schabi.newpipe.local.playlist
 
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
 import android.support.v7.app.AlertDialog
@@ -28,6 +29,7 @@ import org.schabi.newpipe.database.playlist.model.PlaylistStreamEntry
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
 import org.schabi.newpipe.info_list.InfoItemDialog
 import org.schabi.newpipe.local.BaseLocalListFragment
+import org.schabi.newpipe.player.PopupVideoPlayer.Companion.ACTION_CLOSE
 import org.schabi.newpipe.player.playqueue.PlayQueue
 import org.schabi.newpipe.player.playqueue.SinglePlayQueue
 import org.schabi.newpipe.report.UserAction
@@ -228,6 +230,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
         itemListAdapter?.setSelectedListener(object : OnClickGesture<LocalItem>() {
             override fun selected(selectedItem: LocalItem) {
                 if (selectedItem is PlaylistStreamEntry) {
+                    context?.applicationContext?.sendBroadcast(Intent(ACTION_CLOSE))
                     NavigationHelper.openVideoDetailFragment(fragmentManager,
                             selectedItem.serviceId, selectedItem.url, selectedItem.title)
                 }
