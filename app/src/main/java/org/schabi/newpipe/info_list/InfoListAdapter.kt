@@ -253,6 +253,7 @@ class InfoListAdapter(activity: Activity) : RecyclerView.Adapter<RecyclerView.Vi
                 .createDefaultLoadControl()
 
         player = ExoPlayerFactory.newSimpleInstance(
+                appContext,
                 DefaultRenderersFactory(appContext),
                 trackSelector,
                 loadControl

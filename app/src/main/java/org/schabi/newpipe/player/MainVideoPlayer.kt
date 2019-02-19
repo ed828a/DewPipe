@@ -895,7 +895,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
             if (e1 != null && e2 != null)
                 when {
                     (Math.abs(e2.x - e1.x) > 500 && Math.abs(e2.y - e1.y) > 500) -> {
-                        playerImpl!!.onFullScreenButtonClicked()  // "from one corner to opposite corner"
+                        playerImpl!!.onFullScreenButtonClicked()  // "fling from one corner to opposite corner"
                         finish()
                     }
 

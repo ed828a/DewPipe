@@ -17,7 +17,7 @@ import java.io.File
 
 internal class CacheFactory private constructor(context: Context,
                                                 userAgent: String,
-                                                transferListener: TransferListener<in DataSource>,
+                                                transferListener: TransferListener,
                                                 maxCacheSize: Long,
                                                 private val maxFileSize: Long) : DataSource.Factory {
 
@@ -39,7 +39,7 @@ internal class CacheFactory private constructor(context: Context,
 
     constructor(context: Context,
                 userAgent: String,
-                transferListener: TransferListener<in DataSource>) : this(context, userAgent, transferListener, PREFERRED_CACHE_SIZE, PREFERRED_FILE_SIZE)
+                transferListener: TransferListener) : this(context, userAgent, transferListener, PREFERRED_CACHE_SIZE, PREFERRED_FILE_SIZE)
 
 
     override fun createDataSource(): DataSource {

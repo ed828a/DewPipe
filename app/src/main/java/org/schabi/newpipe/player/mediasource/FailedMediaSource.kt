@@ -7,12 +7,22 @@ import com.google.android.exoplayer2.source.BaseMediaSource
 import com.google.android.exoplayer2.source.MediaPeriod
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.upstream.Allocator
+import com.google.android.exoplayer2.upstream.TransferListener
 
 import org.schabi.newpipe.player.playqueue.PlayQueueItem
 
 import java.io.IOException
 
 class FailedMediaSource : BaseMediaSource, ManagedMediaSource {
+    override fun prepareSourceInternal(player: ExoPlayer?, isTopLevelSource: Boolean, mediaTransferListener: TransferListener?) {
+        Log.e(TAG, "Loading failed source: ", error)
+    }
+
+    override fun createPeriod(id: MediaSource.MediaPeriodId?, allocator: Allocator?, startPositionUs: Long): MediaPeriod? {
+        return null
+    }
+
+
     private val TAG = "FailedMediaSource@" + Integer.toHexString(hashCode())
 
     val stream: PlayQueueItem
@@ -58,16 +68,11 @@ class FailedMediaSource : BaseMediaSource, ManagedMediaSource {
         throw IOException(error)
     }
 
-    override fun createPeriod(id: MediaSource.MediaPeriodId, allocator: Allocator): MediaPeriod? {
-        return null
-    }
+
 
     override fun releasePeriod(mediaPeriod: MediaPeriod) {}
 
 
-    override fun prepareSourceInternal(player: ExoPlayer, isTopLevelSource: Boolean) {
-        Log.e(TAG, "Loading failed source: ", error)
-    }
 
     override fun releaseSourceInternal() {}
 

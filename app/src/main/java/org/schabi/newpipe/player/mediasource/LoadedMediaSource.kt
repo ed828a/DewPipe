@@ -7,6 +7,7 @@ import com.google.android.exoplayer2.source.MediaPeriod
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.MediaSourceEventListener
 import com.google.android.exoplayer2.upstream.Allocator
+import com.google.android.exoplayer2.upstream.TransferListener
 
 import org.schabi.newpipe.player.playqueue.PlayQueueItem
 
@@ -15,6 +16,9 @@ import java.io.IOException
 class LoadedMediaSource(private val source: MediaSource,
                         val stream: PlayQueueItem,
                         private val expireTimestamp: Long) : ManagedMediaSource {
+    override fun prepareSource(player: ExoPlayer?, isTopLevelSource: Boolean, listener: MediaSource.SourceInfoRefreshListener?, mediaTransferListener: TransferListener?) {
+        source.prepareSource(player, isTopLevelSource, listener, mediaTransferListener)
+    }
 
     private val isExpired: Boolean
         get() = System.currentTimeMillis() >= expireTimestamp
@@ -29,9 +33,10 @@ class LoadedMediaSource(private val source: MediaSource,
         source.maybeThrowSourceInfoRefreshError()
     }
 
-    override fun createPeriod(id: MediaSource.MediaPeriodId, allocator: Allocator): MediaPeriod {
-        return source.createPeriod(id, allocator)
+    override fun createPeriod(id: MediaSource.MediaPeriodId?, allocator: Allocator?, startPositionUs: Long): MediaPeriod {
+        return source.createPeriod(id, allocator, startPositionUs)
     }
+
 
     override fun releasePeriod(mediaPeriod: MediaPeriod) {
         source.releasePeriod(mediaPeriod)

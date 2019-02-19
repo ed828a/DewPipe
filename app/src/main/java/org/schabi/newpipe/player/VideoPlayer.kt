@@ -452,12 +452,12 @@ abstract class VideoPlayer(val TAG: String,
     ///////////////////////////////////////////////////////////////////////////
 
     override fun onTracksChanged(trackGroups: TrackGroupArray, trackSelections: TrackSelectionArray) {
-        super.onTracksChanged(trackGroups, trackSelections)
+        super<BasePlayer>.onTracksChanged(trackGroups, trackSelections)
         onTextTrackUpdate()
     }
 
     override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) {
-        super.onPlaybackParametersChanged(playbackParameters)
+        super<BasePlayer>.onPlaybackParametersChanged(playbackParameters)
         playbackSpeedTextView!!.text = formatSpeed(playbackParameters.speed.toDouble())
     }
 
@@ -573,7 +573,7 @@ abstract class VideoPlayer(val TAG: String,
 
     override fun onClick(view: View) {
         Log.d(TAG, "onClick() called with: view = [$view]")
-        when(view.id) {
+        when (view.id) {
             qualityTextView!!.id -> onQualitySelectorClicked()
             playbackSpeedTextView!!.id -> onPlaybackSpeedClicked()
             resizeView!!.id -> onResizeClicked()

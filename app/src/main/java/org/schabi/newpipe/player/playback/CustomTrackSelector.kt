@@ -33,14 +33,14 @@ class CustomTrackSelector(adaptiveTrackSelectionFactory: TrackSelection.Factory)
      */
     override fun selectTextTrack(groups: TrackGroupArray,
                                  formatSupport: Array<IntArray>,
-                                 params: DefaultTrackSelector.Parameters): TrackSelection? {
+                                 params: DefaultTrackSelector.Parameters):  android.util.Pair<TrackSelection?, Int?>? {
         var selectedGroup: TrackGroup? = null
         var selectedTrackIndex = 0
         var selectedTrackScore = 0
         for (groupIndex in 0 until groups.length) {
             val trackGroup = groups.get(groupIndex)
             val trackFormatSupport = formatSupport[groupIndex]
-            for (trackIndex in 0 until trackGroup.length) {
+            loop@ for (trackIndex in 0 until trackGroup.length) {
                 if (DefaultTrackSelector.isSupported(trackFormatSupport[trackIndex],
                                 params.exceedRendererCapabilitiesIfNecessary)) {
                     val format = trackGroup.getFormat(trackIndex)
@@ -49,24 +49,23 @@ class CustomTrackSelector(adaptiveTrackSelectionFactory: TrackSelection.Factory)
                     val isForced = maskedSelectionFlags and C.SELECTION_FLAG_FORCED != 0
                     var trackScore: Int
                     val preferredLanguageFound = formatHasLanguage(format, this.preferredTextLanguage)
-                    if (preferredLanguageFound || params.selectUndeterminedTextLanguage && formatHasNoLanguage(format)) {
-                        trackScore = when {
-                            isDefault -> 8
-                            !isForced -> // Prefer non-forced to forced if a preferred text language has been specified. Where
-                                // both are provided the non-forced track will usually contain the forced subtitles as
-                                // a subset.
-                                6
-                            else -> 4
+                    when {
+                        preferredLanguageFound || params.selectUndeterminedTextLanguage && formatHasNoLanguage(format) -> {
+                            trackScore = when {
+                                isDefault -> 8
+                                !isForced -> // Prefer non-forced to forced if a preferred text language has been specified. Where
+                                    // both are provided the non-forced track will usually contain the forced subtitles as
+                                    // a subset.
+                                    6
+                                else -> 4
+                            }
+                            trackScore += if (preferredLanguageFound) 1 else 0
                         }
-                        trackScore += if (preferredLanguageFound) 1 else 0
-                    } else if (isDefault) {
-                        trackScore = 3
-                    } else if (isForced) {
-                        trackScore = if (formatHasLanguage(format, params.preferredAudioLanguage)) 2 else 1
+                        isDefault -> trackScore = 3
+                        isForced -> trackScore = if (formatHasLanguage(format, params.preferredAudioLanguage)) 2 else 1
+                        else -> // Track should not be selected.
+                            continue@loop
 
-                    } else {
-                        // Track should not be selected.
-                        continue
                     }
                     if (DefaultTrackSelector.isSupported(trackFormatSupport[trackIndex], false)) {
                         trackScore += WITHIN_RENDERER_CAPABILITIES_BONUS
@@ -82,7 +81,7 @@ class CustomTrackSelector(adaptiveTrackSelectionFactory: TrackSelection.Factory)
         return if (selectedGroup == null)
             null
         else
-            FixedTrackSelection(selectedGroup, selectedTrackIndex)
+            android.util.Pair(FixedTrackSelection(selectedGroup, selectedTrackIndex), selectedTrackScore)
     }
 
     companion object {

@@ -15,7 +15,7 @@ import com.google.android.exoplayer2.upstream.TransferListener
 
 class PlayerDataSource(context: Context,
                        userAgent: String,
-                       transferListener: TransferListener<in DataSource>) {
+                       transferListener: TransferListener) {
 
     private val cacheDataSourceFactory: DataSource.Factory
     private val cachelessDataSourceFactory: DataSource.Factory

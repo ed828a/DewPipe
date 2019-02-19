@@ -1,5 +1,6 @@
 package org.schabi.newpipe.player.mediasource
 
+import android.os.Handler
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.ShuffleOrder
 
@@ -123,6 +124,6 @@ class ManagedMediaSourcePlaylist {
 
         // Because of the above race condition, it is thus only safe to synchronize the simpleExoPlayer
         // in the finalizing action AFTER the removal is complete and the timeline has changed.
-        internalMediaSource.removeMediaSource(index, finalizingAction)
+        internalMediaSource.removeMediaSource(index, Handler(), finalizingAction)
     }
 }

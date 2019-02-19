@@ -4,6 +4,7 @@ package org.schabi.newpipe.player
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
@@ -18,6 +19,7 @@ import android.os.IBinder
 import android.preference.PreferenceManager
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.NotificationCompat
+import android.support.v7.content.res.AppCompatResources
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.*
@@ -42,6 +44,7 @@ import org.schabi.newpipe.player.helper.PlayerHelper
 import org.schabi.newpipe.player.model.PlayerServiceBinder
 import org.schabi.newpipe.player.resolver.MediaSourceTag
 import org.schabi.newpipe.player.resolver.VideoPlaybackResolver
+import org.schabi.newpipe.util.AnimationUtils
 import org.schabi.newpipe.util.AnimationUtils.animateView
 import org.schabi.newpipe.util.ListHelper
 import org.schabi.newpipe.util.NavigationHelper
@@ -79,6 +82,7 @@ class PopupVideoPlayer : Service() {
     private var playerImpl: VideoPlayerImpl? = null
     private var lockManager: LockManager? = null
     private var isPopupClosing = false
+
 
     ///////////////////////////////////////////////////////////////////////////
     // Service-Activity Binder
@@ -177,6 +181,7 @@ class PopupVideoPlayer : Service() {
         playerImpl!!.loadingPanel!!.minimumWidth = popupLayoutParams!!.width
         playerImpl!!.loadingPanel!!.minimumHeight = popupLayoutParams!!.height
         windowManager!!.addView(rootView, popupLayoutParams)
+
     }
 
     @SuppressLint("RtlHardcoded", "RestrictedApi")
@@ -447,6 +452,22 @@ class PopupVideoPlayer : Service() {
         var closingOverlayView: View? = null
             private set
 
+        var volumeRelativeLayout: RelativeLayout? = null
+            private set
+        var volumeProgressBar: ProgressBar? = null
+            private set
+        var volumeImageView: ImageView? = null
+            private set
+        var brightnessRelativeLayout: RelativeLayout? = null
+            private set
+        var brightnessProgressBar: ProgressBar? = null
+            private set
+        var brightnessImageView: ImageView? = null
+            private set
+
+        var maxGestureLength: Int = 0
+            private set
+
         override fun handleIntent(intent: Intent?) {
             super.handleIntent(intent)
 
@@ -464,6 +485,13 @@ class PopupVideoPlayer : Service() {
             extraOptionsView = rootView.findViewById(R.id.extraOptionsView)
             closingOverlayView = rootView.findViewById(R.id.closingOverlay)
             rootView.addOnLayoutChangeListener(this)
+
+            this.volumeRelativeLayout = rootView.findViewById(R.id.volumeRelativeLayout)
+            this.volumeProgressBar = rootView.findViewById(R.id.volumeProgressBar)
+            this.volumeImageView = rootView.findViewById(R.id.volumeImageView)
+            this.brightnessRelativeLayout = rootView.findViewById(R.id.brightnessRelativeLayout)
+            this.brightnessProgressBar = rootView.findViewById(R.id.brightnessProgressBar)
+            this.brightnessImageView = rootView.findViewById(R.id.brightnessImageView)
         }
 
         override fun initListeners() {
@@ -485,6 +513,10 @@ class PopupVideoPlayer : Service() {
             val widthDp = Math.abs(right - left) / resources.displayMetrics.density
             val visibility = if (widthDp > MINIMUM_SHOW_EXTRA_WIDTH_DP) View.VISIBLE else View.GONE
             extraOptionsView!!.visibility = visibility
+
+            val width = right - left
+            val height = bottom - top
+            maxGestureLength = (Math.min(width, height) * MAX_GESTURE_LENGTH).toInt()
         }
 
         override fun destroy() {
@@ -797,6 +829,8 @@ class PopupVideoPlayer : Service() {
                 return buttonRadius * 1.2f    // 20% wider than the button itself
             }
 
+        private val maxVolume = playerImpl!!.audioReactor!!.maxVolume
+
         override fun onDoubleTap(e: MotionEvent): Boolean {
             Log.d(TAG, "onDoubleTap() called with: event = [$e] rawXy = ${e.rawX}, ${e.rawY}, xy = ${e.x}, ${e.y}")
             if (playerImpl == null || !playerImpl!!.isPlaying) return false
@@ -892,6 +926,64 @@ class PopupVideoPlayer : Service() {
                     ", popupW,H = [" + popupWidth + " x " + popupHeight + "]")
 
             windowManager!!.updateViewLayout(playerImpl!!.rootView, popupLayoutParams)
+
+            if (screenWidth == popupWidth){
+//                val acceptVolumeArea = initialEvent.x > playerImpl!!.rootView!!.width / 2
+//                val acceptBrightnessArea = initialEvent.x < playerImpl!!.rootView!!.width / 2
+//                if (acceptVolumeArea) {
+//                    playerImpl!!.volumeProgressBar!!.incrementProgressBy(distanceY.toInt())
+//                    val currentProgressPercent = playerImpl!!.volumeProgressBar!!.progress.toFloat() / playerImpl!!.maxGestureLength
+//                    val currentVolume = (maxVolume * currentProgressPercent).toInt()
+//                    playerImpl!!.audioReactor!!.volume = currentVolume
+//
+//                    Log.d(TAG, "onScroll().volumeControl, currentVolume = $currentVolume")
+//
+//                    val resId = when {
+//                        currentProgressPercent <= 0 -> R.drawable.ic_volume_off_white_72dp
+//                        currentProgressPercent < 0.25 -> R.drawable.ic_volume_mute_white_72dp
+//                        currentProgressPercent < 0.75 -> R.drawable.ic_volume_down_white_72dp
+//                        else -> R.drawable.ic_volume_up_white_72dp
+//                    }
+//
+//                    playerImpl!!.volumeImageView!!.setImageDrawable(
+//                            AppCompatResources.getDrawable(applicationContext, resId)
+//                    )
+//
+//                    if (playerImpl!!.volumeRelativeLayout!!.visibility != View.VISIBLE) {
+//                        animateView(playerImpl!!.volumeRelativeLayout!!, AnimationUtils.Type.SCALE_AND_ALPHA, true, 200)
+//                    }
+//                    if (playerImpl!!.brightnessRelativeLayout!!.visibility == View.VISIBLE) {
+//                        playerImpl!!.brightnessRelativeLayout!!.visibility = View.GONE
+//                    }
+//                } else if (acceptBrightnessArea) {
+//                    playerImpl!!.brightnessProgressBar!!.incrementProgressBy(distanceY.toInt())
+//                    val currentProgressPercent = playerImpl!!.brightnessProgressBar!!.progress.toFloat() / playerImpl!!.maxGestureLength
+//
+////                    val layoutParams = window.attributes
+////                    layoutParams.screenBrightness = currentProgressPercent
+////                    window.attributes = layoutParams
+//
+//                    Log.d(TAG, "onScroll().brightnessControl, currentBrightness = $currentProgressPercent")
+//
+//                    val resId = when {
+//                        currentProgressPercent < 0.25 -> R.drawable.ic_brightness_low_white_72dp
+//                        currentProgressPercent < 0.75 -> R.drawable.ic_brightness_medium_white_72dp
+//                        else -> R.drawable.ic_brightness_high_white_72dp
+//                    }
+//
+//                    playerImpl!!.brightnessImageView!!.setImageDrawable(
+//                            AppCompatResources.getDrawable(applicationContext, resId)
+//                    )
+//
+//                    if (playerImpl!!.brightnessRelativeLayout!!.visibility != View.VISIBLE) {
+//                        animateView(playerImpl!!.brightnessRelativeLayout!!, AnimationUtils.Type.SCALE_AND_ALPHA, true, 200)
+//                    }
+//                    if (playerImpl!!.volumeRelativeLayout!!.visibility == View.VISIBLE) {
+//                        playerImpl!!.volumeRelativeLayout!!.visibility = View.GONE
+//                    }
+//                }
+            }
+
             return true
         }
 
@@ -921,27 +1013,28 @@ class PopupVideoPlayer : Service() {
             val absVelocityX = Math.abs(velocityX)
             val absVelocityY = Math.abs(velocityY)
 
+            Log.d(TAG, "screenWidth - popupWidth = ${screenWidth - popupWidth}, screenWidth = $screenWidth, popupWidth = $popupWidth")
             // only happens when popup window can't move
-            if (Math.max(absVelocityX, absVelocityY) > 5000 && Math.abs(e2.y - e1.y) < 100) {
-                if ((e2.x - e1.x) > 0 && Math.abs(e1.x - e2.x) > Math.abs(e1.y - e2.y) ){
-                    Log.d(TAG, "Fling velocity: left to right: e2.y - e1.y = ${e2.y - e1.y}, e2.x - e1.x = ${e2.x - e1.x}")
-                    playerImpl!!.onFastForward() // fling from left to right
+            if (screenWidth == popupWidth){ // full screen
+                when{
+                    ((e2.x - e1.x) > 0 && Math.abs(e1.x - e2.x) > Math.abs(e1.y - e2.y)) -> {
+                        Log.d(TAG, "Fling velocity: left to right: e2.y - e1.y = ${e2.y - e1.y}, e2.x - e1.x = ${e2.x - e1.x}")
+                        playerImpl!!.onFastForward()  // from left to right
+                    }
+                    ((e2.x - e1.x) < 0 && Math.abs(e1.x - e2.x) > Math.abs(e1.y - e2.y)) ->{
+                        Log.d(TAG, "Fling velocity: right to left: e2.y - e1.y = ${e2.y - e1.y}, e2.x - e1.x = ${e2.x - e1.x}")
+                         playerImpl!!.onFastRewind()  // from right to left
+                    }
                 }
-
-                if ((e2.x - e1.x) < 0 && Math.abs(e1.x - e2.x) > Math.abs(e1.y - e2.y)) {
-                    Log.d(TAG, "Fling velocity: right to left: e2.y - e1.y = ${e2.y - e1.y}, e2.x - e1.x = ${e2.x - e1.x}")
-                    playerImpl!!.onFastRewind()  // fling from right to left
+            } else {
+                if (  Math.max(absVelocityX, absVelocityY) > tossFlingVelocity.toFloat()) {
+                    if (absVelocityX > tossFlingVelocity) popupLayoutParams!!.x = velocityX.toInt()
+                    if (absVelocityY > tossFlingVelocity) popupLayoutParams!!.y = velocityY.toInt()
+                    checkPopupPositionBounds()
+                    windowManager!!.updateViewLayout(playerImpl!!.rootView, popupLayoutParams)
+                    return true
                 }
             }
-
-            if (  Math.max(absVelocityX, absVelocityY) in tossFlingVelocity.toFloat() .. 5000.0f) {
-                if (absVelocityX > tossFlingVelocity) popupLayoutParams!!.x = velocityX.toInt()
-                if (absVelocityY > tossFlingVelocity) popupLayoutParams!!.y = velocityY.toInt()
-                checkPopupPositionBounds()
-                windowManager!!.updateViewLayout(playerImpl!!.rootView, popupLayoutParams)
-                return true
-            }
-
 
             return false
         }

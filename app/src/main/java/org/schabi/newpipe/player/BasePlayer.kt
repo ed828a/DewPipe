@@ -231,7 +231,7 @@ abstract class BasePlayer(protected val context: Context) : Player.EventListener
     open fun initPlayer(playOnReady: Boolean) {
         Log.d(TAG, "initPlayer() called with: context = [$context]")
 
-        simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(renderFactory, trackSelector, loadControl)
+        simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(context, renderFactory, trackSelector, loadControl)
         simpleExoPlayer!!.addListener(this)
         simpleExoPlayer!!.playWhenReady = playOnReady
         simpleExoPlayer!!.setSeekParameters(PlayerHelper.getSeekParameters(context))
