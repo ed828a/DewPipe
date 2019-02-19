@@ -2,10 +2,10 @@ package org.schabi.newpipe.download.background
 
 import android.app.Activity
 import android.os.Bundle
-import android.support.design.widget.BaseTransientBottomBar
-import android.support.design.widget.Snackbar
 import android.util.Log
 import android.view.View
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers

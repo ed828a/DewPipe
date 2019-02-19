@@ -4,11 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentPagerAdapter
-import android.support.v7.app.AppCompatActivity
 import android.view.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentPagerAdapter
 import kotlinx.android.synthetic.main.activity_about.*
 import kotlinx.android.synthetic.main.fragment_about.view.*
 import org.schabi.newpipe.BuildConfig
@@ -78,7 +76,7 @@ class AboutActivity : AppCompatActivity() {
     /**
      * A placeholder fragment containing a simple view.
      */
-    class AboutFragment : Fragment() {
+    class AboutFragment : androidx.fragment.app.Fragment() {
 
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                                   savedInstanceState: Bundle?): View? {
@@ -119,13 +117,13 @@ class AboutActivity : AppCompatActivity() {
      * A [FragmentPagerAdapter] that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
-    inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
+    inner class SectionsPagerAdapter(fm: androidx.fragment.app.FragmentManager) : androidx.fragment.app.FragmentPagerAdapter(fm) {
 
-        override fun getItem(position: Int): Fragment? {
+        override fun getItem(position: Int): androidx.fragment.app.Fragment {
             return when (position) {
                 0 -> AboutFragment.newInstance()
                 1 -> LicenseFragment.newInstance(SOFTWARE_COMPONENTS)
-                else -> null
+                else -> AboutFragment.newInstance()
             }
         }
 

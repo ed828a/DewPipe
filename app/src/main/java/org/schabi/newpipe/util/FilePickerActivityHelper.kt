@@ -4,21 +4,16 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
-import android.support.v4.content.Loader
-import android.support.v7.util.SortedList
-import android.support.v7.widget.RecyclerView
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-
+import androidx.recyclerview.widget.SortedList
 import com.nononsenseapps.filepicker.AbstractFilePickerFragment
 import com.nononsenseapps.filepicker.FilePickerFragment
-
 import org.schabi.newpipe.R
-
 import java.io.File
 
 class FilePickerActivityHelper : com.nononsenseapps.filepicker.FilePickerActivity() {
@@ -85,7 +80,7 @@ class FilePickerActivityHelper : com.nononsenseapps.filepicker.FilePickerActivit
             return super.onCreateView(inflater, container, savedInstanceState)
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): androidx.recyclerview.widget.RecyclerView.ViewHolder {
             val viewHolder = super.onCreateViewHolder(parent, viewType)
 
             val view = viewHolder.itemView.findViewById<View>(android.R.id.text1)
@@ -107,7 +102,7 @@ class FilePickerActivityHelper : com.nononsenseapps.filepicker.FilePickerActivit
             super.onClickOk(view)
         }
 
-        override fun onLoadFinished(loader: Loader<SortedList<File>>, data: SortedList<File>) {
+        override fun onLoadFinished(loader: androidx.loader.content.Loader<SortedList<File>>, data: SortedList<File>) {
             super.onLoadFinished(loader, data)
             layoutManager.scrollToPosition(0)
         }

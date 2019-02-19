@@ -1,17 +1,16 @@
 package org.schabi.newpipe.ui.fragments.list.search
 
 import android.content.Context
-import android.support.annotation.AttrRes
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.AttrRes
 import org.schabi.newpipe.R
 import java.util.*
 
-class SuggestionListAdapter(private val context: Context) : RecyclerView.Adapter<SuggestionListAdapter.SuggestionItemHolder>() {
+class SuggestionListAdapter(private val context: Context) : androidx.recyclerview.widget.RecyclerView.Adapter<SuggestionListAdapter.SuggestionItemHolder>() {
     private val items = ArrayList<SuggestionItem>()
     private var listener: OnSuggestionItemSelected? = null
     private var showSuggestionHistory = true
@@ -71,7 +70,7 @@ class SuggestionListAdapter(private val context: Context) : RecyclerView.Adapter
         return items.size
     }
 
-    class SuggestionItemHolder (rootView: View) : RecyclerView.ViewHolder(rootView) {
+    class SuggestionItemHolder (rootView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(rootView) {
         private val itemSuggestionQuery: TextView = rootView.findViewById(R.id.item_suggestion_query)
         private val suggestionIcon: ImageView = rootView.findViewById(R.id.item_suggestion_icon)
         val queryView: View = rootView.findViewById(R.id.suggestion_search)

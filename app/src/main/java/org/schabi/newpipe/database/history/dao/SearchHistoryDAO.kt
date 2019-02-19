@@ -1,7 +1,7 @@
 package org.schabi.newpipe.database.history.dao
 
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Query
+import androidx.room.Dao
+import androidx.room.Query
 import io.reactivex.Flowable
 import org.schabi.newpipe.database.history.model.SearchHistoryEntry
 import org.schabi.newpipe.database.history.model.SearchHistoryEntry.Companion.CREATION_DATE

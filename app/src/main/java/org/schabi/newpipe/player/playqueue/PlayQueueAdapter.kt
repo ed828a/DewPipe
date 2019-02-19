@@ -1,22 +1,18 @@
 package org.schabi.newpipe.player.playqueue
 
 import android.content.Context
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
+import io.reactivex.Observer
+import io.reactivex.disposables.Disposable
 import org.schabi.newpipe.R
 import org.schabi.newpipe.info_list.holder.FallbackViewHolder
-
-import io.reactivex.Observer
-import io.reactivex.annotations.NonNull
-import io.reactivex.disposables.Disposable
 import org.schabi.newpipe.player.playqueue.events.*
 
 
-class PlayQueueAdapter(context: Context, private val playQueue: PlayQueue) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class PlayQueueAdapter(context: Context, private val playQueue: PlayQueue) : androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder>() {
 
     private val playQueueItemBuilder: PlayQueueItemBuilder = PlayQueueItemBuilder(context)
     private var showFooter = false
@@ -47,7 +43,7 @@ class PlayQueueAdapter(context: Context, private val playQueue: PlayQueue) : Rec
     val items: List<PlayQueueItem>
         get() = playQueue.streams!!
 
-    inner class HFHolder(var view: View) : RecyclerView.ViewHolder(view)
+    inner class HFHolder(var view: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view)
 
     init {
         if (playQueue.broadcastReceiver == null) {
@@ -133,7 +129,7 @@ class PlayQueueAdapter(context: Context, private val playQueue: PlayQueue) : Rec
 
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, type: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, type: Int): androidx.recyclerview.widget.RecyclerView.ViewHolder {
         return when (type) {
             FOOTER_VIEW_TYPE_ID -> HFHolder(footer!!)
             ITEM_VIEW_TYPE_ID -> PlayQueueItemHolder(LayoutInflater.from(parent.context).inflate(R.layout.play_queue_item, parent, false))
@@ -144,7 +140,7 @@ class PlayQueueAdapter(context: Context, private val playQueue: PlayQueue) : Rec
         }
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, position: Int) {
         if (holder is PlayQueueItemHolder) {
 
             // Build the list item

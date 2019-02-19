@@ -1,7 +1,5 @@
 package org.schabi.newpipe.util
 
-import android.support.v7.widget.RecyclerView
-
 abstract class OnClickGesture<T> {
 
     abstract fun selected(selectedItem: T)
@@ -10,7 +8,7 @@ abstract class OnClickGesture<T> {
         // Optional gesture
     }
 
-    open fun drag(selectedItem: T, viewHolder: RecyclerView.ViewHolder) {
+    open fun drag(selectedItem: T, viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder) {
         // Optional gesture
     }
 }

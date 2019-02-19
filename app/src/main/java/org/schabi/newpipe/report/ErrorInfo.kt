@@ -2,7 +2,7 @@ package org.schabi.newpipe.report
 
 import android.os.Parcel
 import android.os.Parcelable
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 
 /**
  * Created by Edward on 1/12/2019.

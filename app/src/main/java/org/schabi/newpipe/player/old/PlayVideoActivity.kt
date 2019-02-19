@@ -6,25 +6,18 @@ import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.media.AudioManager
-import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.support.v7.app.ActionBar
-import android.support.v7.app.AppCompatActivity
 import android.util.DisplayMetrics
 import android.util.Log
-import android.view.Display
-import android.view.KeyEvent
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.WindowManager
-import android.widget.*
+import android.view.*
+import android.widget.FrameLayout
+import android.widget.MediaController
+import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_play_video.*
-
 import org.schabi.newpipe.R
 
 /*

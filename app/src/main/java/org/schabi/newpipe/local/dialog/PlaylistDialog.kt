@@ -2,14 +2,12 @@ package org.schabi.newpipe.local.dialog
 
 import android.app.Dialog
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
 import android.view.Window
-
 import org.schabi.newpipe.database.stream.model.StreamEntity
 import org.schabi.newpipe.util.StateSaver
-import java.util.Queue
+import java.util.*
 
-abstract class PlaylistDialog : DialogFragment(), StateSaver.WriteRead {
+abstract class PlaylistDialog : androidx.fragment.app.DialogFragment(), StateSaver.WriteRead {
 
     protected var streams: List<StreamEntity>? = null  // StateSaver take care this
         private set

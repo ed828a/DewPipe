@@ -27,16 +27,16 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.preference.PreferenceManager
-import android.support.design.widget.NavigationView
-import android.support.v4.view.GravityCompat
-import android.support.v4.widget.DrawerLayout
-import android.support.v7.app.ActionBarDrawerToggle
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import com.google.android.material.navigation.NavigationView
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.NewPipe
 import org.schabi.newpipe.extractor.StreamingService
@@ -51,7 +51,7 @@ import org.schabi.newpipe.util.*
 class MainActivity : AppCompatActivity() {
 
     private var toggle: ActionBarDrawerToggle? = null
-    private var drawer: DrawerLayout? = null
+    private var drawer: androidx.drawerlayout.widget.DrawerLayout? = null
     private var drawerItems: NavigationView? = null
     private var headerServiceView: TextView? = null
 
@@ -135,7 +135,7 @@ class MainActivity : AppCompatActivity() {
         toggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.drawer_open, R.string.drawer_close)
         toggle!!.syncState()
         drawer!!.addDrawerListener(toggle!!)
-        drawer!!.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
+        drawer!!.addDrawerListener(object : androidx.drawerlayout.widget.DrawerLayout.SimpleDrawerListener() {
             private var lastService: Int = 0
 
             override fun onDrawerOpened(drawerView: View) {
@@ -479,7 +479,7 @@ class MainActivity : AppCompatActivity() {
         if (supportActionBar == null) return
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
+        val drawer = findViewById<androidx.drawerlayout.widget.DrawerLayout>(R.id.drawer_layout)
 
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_holder)
         if (fragment is MainFragment) {
@@ -487,10 +487,10 @@ class MainActivity : AppCompatActivity() {
             if (toggle != null) {
                 toggle!!.syncState()
                 toolbar.setNavigationOnClickListener { v -> drawer.openDrawer(GravityCompat.START) }
-                drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNDEFINED)
+                drawer.setDrawerLockMode(androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNDEFINED)
             }
         } else {
-            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+            drawer.setDrawerLockMode(androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             supportActionBar!!.setDisplayHomeAsUpEnabled(true)
             toolbar.setNavigationOnClickListener { v -> onHomeButtonPressed() }
         }

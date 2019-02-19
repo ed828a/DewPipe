@@ -28,10 +28,10 @@ import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.IBinder
-import android.support.v4.app.NotificationCompat
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
+import androidx.core.app.NotificationCompat
 import com.google.android.exoplayer2.PlaybackParameters
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.source.MediaSource

@@ -2,15 +2,11 @@ package org.schabi.newpipe.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.support.design.widget.TabLayout
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentPagerAdapter
-import android.support.v4.view.PagerAdapter
-import android.support.v4.view.ViewPager
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import com.google.android.material.tabs.TabLayout
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.exceptions.ExtractionException
 import org.schabi.newpipe.report.ErrorActivity
@@ -23,7 +19,7 @@ import org.schabi.newpipe.util.ServiceHelper
 import java.util.*
 
 class MainFragment : BaseFragment(), TabLayout.OnTabSelectedListener {
-    private lateinit var viewPager: ViewPager
+    private lateinit var viewPager: androidx.viewpager.widget.ViewPager
     private lateinit var pagerAdapter: SelectedTabsPagerAdapter
     private lateinit var tabLayout: TabLayout
 
@@ -91,7 +87,7 @@ class MainFragment : BaseFragment(), TabLayout.OnTabSelectedListener {
     // Menu
     ///////////////////////////////////////////////////////////////////////////
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         Log.d(TAG, "onCreateOptionsMenu() called with: menu = [$menu], inflater = [$inflater]")
         inflater?.inflate(R.menu.main_fragment_menu, menu)
@@ -100,7 +96,7 @@ class MainFragment : BaseFragment(), TabLayout.OnTabSelectedListener {
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item!!.itemId) {
             R.id.action_search -> {
                 try {
@@ -166,9 +162,9 @@ class MainFragment : BaseFragment(), TabLayout.OnTabSelectedListener {
         updateCurrentTitle()
     }
 
-    inner class SelectedTabsPagerAdapter(fragmentManager: FragmentManager) : FragmentPagerAdapter(fragmentManager) {
+    inner class SelectedTabsPagerAdapter(fragmentManager: androidx.fragment.app.FragmentManager) : androidx.fragment.app.FragmentPagerAdapter(fragmentManager) {
 
-        override fun getItem(position: Int): Fragment? {
+        override fun getItem(position: Int): Fragment {
             val tab = tabsList[position]
 
             var throwable: Throwable? = null
@@ -193,13 +189,13 @@ class MainFragment : BaseFragment(), TabLayout.OnTabSelectedListener {
                 fragment.useAsFrontPage(true)
             }
 
-            return fragment
+            return fragment!!
         }
 
         override fun getItemPosition(`object`: Any): Int {
             // Causes adapter to reload all Fragments when
             // notifyDataSetChanged is called
-            return PagerAdapter.POSITION_NONE
+            return androidx.viewpager.widget.PagerAdapter.POSITION_NONE
         }
 
         override fun getCount(): Int = tabsList.size
@@ -208,7 +204,7 @@ class MainFragment : BaseFragment(), TabLayout.OnTabSelectedListener {
         override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
             childFragmentManager
                     .beginTransaction()
-                    .remove(`object` as Fragment)
+                    .remove(`object` as androidx.fragment.app.Fragment)
                     .commitNowAllowingStateLoss()
         }
     }

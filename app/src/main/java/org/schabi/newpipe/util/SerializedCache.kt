@@ -1,6 +1,5 @@
 package org.schabi.newpipe.util
 
-import android.support.v4.util.LruCache
 import android.util.Log
 import java.io.*
 import java.util.*
@@ -78,6 +77,6 @@ class SerializedCache private constructor()//no instance
         val instance = SerializedCache()
         private const val MAX_ITEMS_ON_CACHE = 5
 
-        private val lruCache = LruCache<String, CacheData<*>>(MAX_ITEMS_ON_CACHE)
+        private val lruCache = androidx.collection.LruCache<String, CacheData<*>>(MAX_ITEMS_ON_CACHE)
     }
 }

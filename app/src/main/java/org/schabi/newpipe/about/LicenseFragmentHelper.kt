@@ -2,13 +2,11 @@ package org.schabi.newpipe.about
 
 import android.app.Activity
 import android.content.Context
-import android.content.DialogInterface
 import android.os.AsyncTask
-import android.support.v7.app.AlertDialog
 import android.webkit.WebView
+import androidx.appcompat.app.AlertDialog
 import org.schabi.newpipe.R
 import org.schabi.newpipe.util.ThemeHelper
-
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.lang.ref.WeakReference

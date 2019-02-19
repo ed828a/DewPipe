@@ -21,10 +21,15 @@ package org.schabi.newpipe.local.subscription.services
 
 import android.app.Service
 import android.content.Intent
-import android.support.v4.content.LocalBroadcastManager
 import android.text.TextUtils
 import android.util.Log
-
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import io.reactivex.Flowable
+import io.reactivex.Notification
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.functions.Consumer
+import io.reactivex.functions.Function
+import io.reactivex.schedulers.Schedulers
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import org.schabi.newpipe.R
@@ -34,22 +39,9 @@ import org.schabi.newpipe.extractor.channel.ChannelInfo
 import org.schabi.newpipe.extractor.subscription.SubscriptionItem
 import org.schabi.newpipe.local.subscription.ImportExportJsonHelper
 import org.schabi.newpipe.util.Constants
-
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileNotFoundException
-import java.io.IOException
-import java.io.InputStream
-import java.util.ArrayList
-
-import io.reactivex.Flowable
-import io.reactivex.Notification
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.functions.Consumer
-import io.reactivex.functions.Function
-import io.reactivex.schedulers.Schedulers
-
 import org.schabi.newpipe.util.ExtractorHelper
+import java.io.*
+import java.util.*
 
 class SubscriptionsImportService : BaseImportExportService() {
 
@@ -77,7 +69,7 @@ class SubscriptionsImportService : BaseImportExportService() {
             }
 
             override fun onComplete() {
-                LocalBroadcastManager.getInstance(this@SubscriptionsImportService).sendBroadcast(Intent(IMPORT_COMPLETE_ACTION))
+                androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this@SubscriptionsImportService).sendBroadcast(Intent(IMPORT_COMPLETE_ACTION))
                 showToast(R.string.import_complete_toast)
                 stopService()
             }

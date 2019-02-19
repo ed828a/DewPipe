@@ -3,10 +3,10 @@ package org.schabi.newpipe.download.util
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.support.annotation.ColorRes
-import android.support.annotation.DrawableRes
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
 import org.schabi.newpipe.R
 import java.io.*
 import java.security.MessageDigest

@@ -9,10 +9,10 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.*
-import android.support.v4.app.NotificationCompat
-import android.support.v4.content.PermissionChecker
 import android.util.Log
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
+import androidx.core.content.PermissionChecker
 import org.schabi.newpipe.R
 import org.schabi.newpipe.download.background.DownloadMissionManager
 import org.schabi.newpipe.download.background.DownloadMissionManagerImpl

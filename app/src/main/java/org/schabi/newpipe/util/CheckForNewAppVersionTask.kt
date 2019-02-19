@@ -8,8 +8,8 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.AsyncTask
 import android.preference.PreferenceManager
-import android.support.v4.app.NotificationCompat
-import android.support.v4.app.NotificationManagerCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONException

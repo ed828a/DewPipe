@@ -6,14 +6,11 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.InfoItem
 import org.schabi.newpipe.extractor.channel.ChannelInfoItem
@@ -39,7 +36,7 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
     ///////////////////////////////////////////////////////////////////////////
 
     protected var infoListAdapter: InfoListAdapter? = null
-    protected var itemsList: RecyclerView? = null
+    protected var itemsList: androidx.recyclerview.widget.RecyclerView? = null
     private var updateFlags = 0
 
     ///////////////////////////////////////////////////////////////////////////
@@ -56,14 +53,14 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
 
     protected open fun getListFooter(): View = activity!!.layoutInflater.inflate(R.layout.pignate_footer, itemsList, false)
 
-    private fun getListLayoutManager(): RecyclerView.LayoutManager = LinearLayoutManager(activity)
+    private fun getListLayoutManager(): androidx.recyclerview.widget.RecyclerView.LayoutManager = androidx.recyclerview.widget.LinearLayoutManager(activity)
 
-    private fun getGridLayoutManager(): RecyclerView.LayoutManager {
+    private fun getGridLayoutManager(): androidx.recyclerview.widget.RecyclerView.LayoutManager {
         val resources = activity!!.resources
         var width = resources.getDimensionPixelSize(R.dimen.video_item_grid_thumbnail_image_width)
         width += (24 * resources.displayMetrics.density).toInt()
         val spanCount = Math.floor(resources.displayMetrics.widthPixels / width.toDouble()).toInt()
-        val layoutManager = GridLayoutManager(activity, spanCount)
+        val layoutManager = androidx.recyclerview.widget.GridLayoutManager(activity, spanCount)
         layoutManager.spanSizeLookup = infoListAdapter!!.getSpanSizeLookup(spanCount)
         return layoutManager
     }
@@ -84,7 +81,7 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
     // LifeCycle
     ///////////////////////////////////////////////////////////////////////////
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         infoListAdapter = InfoListAdapter(activity!!)
     }
@@ -211,7 +208,7 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
 
         itemsList!!.clearOnScrollListeners()
         itemsList!!.addOnScrollListener(object : OnScrollBelowItemsListener() {
-            override fun onScrolledDown(recyclerView: RecyclerView) {
+            override fun onScrolledDown(recyclerView: androidx.recyclerview.widget.RecyclerView) {
                 onScrollToBottom()
             }
         })
@@ -258,7 +255,7 @@ abstract class BaseListFragment<I, N> : BaseStateFragment<I>(), ListViewContract
     // Menu
     ///////////////////////////////////////////////////////////////////////////
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         Log.d(TAG, "onCreateOptionsMenu() called with: menu = [$menu], inflater = [$inflater]")
         super.onCreateOptionsMenu(menu, inflater)
         val supportActionBar = activity!!.supportActionBar

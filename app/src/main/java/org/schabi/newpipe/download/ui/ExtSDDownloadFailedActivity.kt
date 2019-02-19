@@ -3,7 +3,7 @@ package org.schabi.newpipe.download.ui
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 
 import org.schabi.newpipe.R
 import org.schabi.newpipe.settings.NewPipeSettings

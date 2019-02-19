@@ -2,12 +2,12 @@ package org.schabi.newpipe.ui.fragments.list.playlist
 
 import android.content.DialogInterface
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.text.TextUtils
 import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -161,9 +161,9 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
         InfoItemDialog(getActivity()!!, item, commands, actions).show()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         Log.d(TAG, "onCreateOptionsMenu() called with: menu = [$menu], inflater = [$inflater]")
-        if (menu == null || inflater == null) return
+//        if (menu == null || inflater == null) return
 
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_playlist, menu)
@@ -171,6 +171,7 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
         playlistBookmarkButton = menu.findItem(R.id.menu_item_bookmark)
         updateBookmarkButtons()
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -204,23 +205,24 @@ class PlaylistFragment : BaseListInfoFragment<PlaylistInfo>() {
         return ExtractorHelper.getPlaylistInfo(serviceId, url, forceLoad)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
-            when (item!!.itemId) {
-                R.id.menu_item_openInBrowser -> {
-                    openUrlInBrowser(url)
-                    true
-                }
-                R.id.menu_item_share -> {
-                    shareUrl(name, url)
-                    true
-                }
-                R.id.menu_item_bookmark -> {
-                    onBookmarkClicked()
-                    true
-                }
-
-                else -> super.onOptionsItemSelected(item)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menu_item_openInBrowser -> {
+                openUrlInBrowser(url)
+                true
             }
+            R.id.menu_item_share -> {
+                shareUrl(name, url)
+                true
+            }
+            R.id.menu_item_bookmark -> {
+                onBookmarkClicked()
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
 
 
     ///////////////////////////////////////////////////////////////////////////

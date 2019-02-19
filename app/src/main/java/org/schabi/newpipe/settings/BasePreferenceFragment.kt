@@ -3,9 +3,9 @@ package org.schabi.newpipe.settings
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.preference.PreferenceFragmentCompat
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceFragmentCompat
 
 abstract class BasePreferenceFragment : PreferenceFragmentCompat() {
     protected lateinit var defaultPreferences: SharedPreferences

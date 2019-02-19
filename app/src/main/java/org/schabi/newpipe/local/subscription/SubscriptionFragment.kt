@@ -11,15 +11,11 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.Parcelable
 import android.preference.PreferenceManager
-import android.support.annotation.DrawableRes
-import android.support.v4.content.LocalBroadcastManager
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.DrawableRes
 import com.nononsenseapps.filepicker.Utils
 import icepick.State
 import io.reactivex.Observer
@@ -53,7 +49,7 @@ import kotlin.Comparator
 
 class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private var itemsList: RecyclerView? = null
+    private var itemsList: androidx.recyclerview.widget.RecyclerView? = null
     @State
     @JvmField
     var itemsListState: Parcelable? = null
@@ -71,16 +67,16 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
     //    private var disposables: CompositeDisposable? = CompositeDisposable()
     private var subscriptionService: SubscriptionService? = null
 
-    protected val listLayoutManager: RecyclerView.LayoutManager
-        get() = LinearLayoutManager(activity)
+    protected val listLayoutManager: androidx.recyclerview.widget.RecyclerView.LayoutManager
+        get() = androidx.recyclerview.widget.LinearLayoutManager(activity)
 
-    protected val gridLayoutManager: RecyclerView.LayoutManager
+    protected val gridLayoutManager: androidx.recyclerview.widget.RecyclerView.LayoutManager
         get() {
             val resources = activity!!.resources
             var width = resources.getDimensionPixelSize(R.dimen.video_item_grid_thumbnail_image_width)
             width += (24 * resources.displayMetrics.density).toInt()
             val spanCount = Math.floor(resources.displayMetrics.widthPixels / width.toDouble()).toInt()
-            val lm = GridLayoutManager(activity, spanCount)
+            val lm = androidx.recyclerview.widget.GridLayoutManager(activity, spanCount)
             lm.spanSizeLookup = infoListAdapter!!.getSpanSizeLookup(spanCount)
             return lm
         }
@@ -156,7 +152,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
         }
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         activity?.let {
             infoListAdapter = InfoListAdapter(it)
@@ -189,7 +185,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
         importExportOptionsState = importExportOptions!!.onSaveInstanceState()
 
         if (subscriptionBroadcastReceiver != null && activity != null) {
-            LocalBroadcastManager.getInstance(activity!!).unregisterReceiver(subscriptionBroadcastReceiver!!)
+            androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(activity!!).unregisterReceiver(subscriptionBroadcastReceiver!!)
         }
     }
 
@@ -212,7 +208,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
     // Menu
     //////////////////////////////////////////////////////////////////////////
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
 
         val supportActionBar = activity!!.supportActionBar
@@ -226,7 +222,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
         if (activity == null) return
 
         if (subscriptionBroadcastReceiver != null) {
-            LocalBroadcastManager.getInstance(activity!!).unregisterReceiver(subscriptionBroadcastReceiver!!)
+            androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(activity!!).unregisterReceiver(subscriptionBroadcastReceiver!!)
         }
 
         val filters = IntentFilter()
@@ -238,7 +234,7 @@ class SubscriptionFragment : BaseStateFragment<List<SubscriptionEntity>>(), Shar
             }
         }
 
-        LocalBroadcastManager.getInstance(activity!!).registerReceiver(subscriptionBroadcastReceiver!!, filters)
+        androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(activity!!).registerReceiver(subscriptionBroadcastReceiver!!, filters)
     }
 
     private fun addItemView(title: String, @DrawableRes icon: Int, container: ViewGroup): View {

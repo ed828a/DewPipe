@@ -1,10 +1,8 @@
 package org.schabi.newpipe.player.playqueue
 
-import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-
 import org.schabi.newpipe.R
 
 /**
@@ -31,7 +29,7 @@ import org.schabi.newpipe.R
  * along with NewPipe.  If not, see <http:></http:>//www.gnu.org/licenses/>.
  */
 
-class PlayQueueItemHolder(view: View) : RecyclerView.ViewHolder(view) {
+class PlayQueueItemHolder(view: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {
 
     val itemVideoTitleView: TextView = view.findViewById(R.id.itemVideoTitleView)
     val itemDurationView: TextView = view.findViewById(R.id.itemDurationView)

@@ -4,9 +4,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
-import android.support.v7.app.AlertDialog
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.helper.ItemTouchHelper
 import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,6 +12,8 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.ItemTouchHelper
 import icepick.State
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -124,7 +123,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
             }
             return object : ItemTouchHelper.SimpleCallback(directions,
                     ItemTouchHelper.ACTION_STATE_IDLE) {
-                override fun interpolateOutOfBoundsScroll(recyclerView: RecyclerView,
+                override fun interpolateOutOfBoundsScroll(recyclerView: androidx.recyclerview.widget.RecyclerView,
                                                           viewSize: Int,
                                                           viewSizeOutOfBounds: Int,
                                                           totalSize: Int,
@@ -140,9 +139,9 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
                     return minimumAbsVelocity * Math.signum(viewSizeOutOfBounds.toFloat()).toInt()
                 }
 
-                override fun onMove(recyclerView: RecyclerView,
-                                    source: RecyclerView.ViewHolder,
-                                    target: RecyclerView.ViewHolder): Boolean {
+                override fun onMove(recyclerView: androidx.recyclerview.widget.RecyclerView,
+                                    source: androidx.recyclerview.widget.RecyclerView.ViewHolder,
+                                    target: androidx.recyclerview.widget.RecyclerView.ViewHolder): Boolean {
                     if (source.itemViewType != target.itemViewType || itemListAdapter == null) {
                         return false
                     }
@@ -160,7 +159,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
                 override fun isItemViewSwipeEnabled(): Boolean = true
 
 
-                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {}
+                override fun onSwiped(viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder, swipeDir: Int) {}
             }
         }
 
@@ -242,7 +241,7 @@ class LocalPlaylistFragment : BaseLocalListFragment<List<PlaylistStreamEntry>, V
                 }
             }
 
-            override fun drag(selectedItem: LocalItem, viewHolder: RecyclerView.ViewHolder) {
+            override fun drag(selectedItem: LocalItem, viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder) {
                 itemTouchHelper?.startDrag(viewHolder)
             }
         })

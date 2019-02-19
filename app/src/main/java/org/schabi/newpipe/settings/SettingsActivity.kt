@@ -2,13 +2,12 @@ package org.schabi.newpipe.settings
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.preference.Preference
-import android.support.v7.preference.PreferenceFragmentCompat
-import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
 import org.schabi.newpipe.R
 import org.schabi.newpipe.util.ThemeHelper
 
@@ -55,7 +54,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
     }
 
     override fun onPreferenceStartFragment(caller: PreferenceFragmentCompat, preference: Preference): Boolean {
-        val fragment = Fragment.instantiate(this, preference.fragment, preference.extras)
+        val fragment = androidx.fragment.app.Fragment.instantiate(this, preference.fragment, preference.extras)
         supportFragmentManager.beginTransaction()
                 .setCustomAnimations(R.animator.custom_fade_in, R.animator.custom_fade_out, R.animator.custom_fade_in, R.animator.custom_fade_out)
                 .replace(R.id.fragment_holder, fragment)

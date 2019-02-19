@@ -1,6 +1,6 @@
 package org.schabi.newpipe.database.subscription
 
-import android.arch.persistence.room.*
+import androidx.room.*
 import io.reactivex.Flowable
 import org.schabi.newpipe.database.BasicDAO
 import org.schabi.newpipe.database.subscription.SubscriptionEntity.Companion.SUBSCRIPTION_SERVICE_ID

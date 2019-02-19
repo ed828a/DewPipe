@@ -2,17 +2,15 @@ package org.schabi.newpipe.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import com.nostra13.universalimageloader.core.ImageLoader
 import icepick.Icepick
 import icepick.State
 import org.schabi.newpipe.App
 
-abstract class BaseFragment : Fragment() {
+abstract class BaseFragment : androidx.fragment.app.Fragment() {
 
     protected val TAG = this::class.java.simpleName + "@" + Integer.toHexString(Companion.hashCode())
 
@@ -24,7 +22,7 @@ abstract class BaseFragment : Fragment() {
     var useAsFrontPage = false
     private var mIsVisibleToUser = false
 
-    protected fun getFM(): FragmentManager? =
+    protected fun getFM(): androidx.fragment.app.FragmentManager? =
             if (parentFragment == null)
                 fragmentManager
             else
@@ -38,7 +36,7 @@ abstract class BaseFragment : Fragment() {
     // Fragment's Lifecycle
     ///////////////////////////////////////////////////////////////////////////
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = context as AppCompatActivity?
     }

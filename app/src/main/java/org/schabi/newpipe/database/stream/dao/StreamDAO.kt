@@ -1,6 +1,6 @@
 package org.schabi.newpipe.database.stream.dao
 
-import android.arch.persistence.room.*
+import androidx.room.*
 import io.reactivex.Flowable
 import org.schabi.newpipe.database.BasicDAO
 import org.schabi.newpipe.database.history.model.StreamHistoryEntity

@@ -9,12 +9,6 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.support.annotation.DrawableRes
-import android.support.v4.content.ContextCompat
-import android.support.v4.view.animation.FastOutSlowInInterpolator
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.preference.PreferenceManager
 import android.text.Html
 import android.text.Html.FROM_HTML_MODE_LEGACY
 import android.text.Spanned
@@ -25,6 +19,12 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.*
 import android.widget.*
+import androidx.annotation.DrawableRes
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.preference.PreferenceManager
 import com.nirhart.parallaxscroll.views.ParallaxScrollView
 import com.nostra13.universalimageloader.core.assist.FailReason
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener
@@ -594,8 +594,8 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
     // Menu
     ///////////////////////////////////////////////////////////////////////////
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        if (menu == null || inflater == null) return
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+//        if (menu == null || inflater == null) return
 
         this.menu = menu
 
@@ -620,8 +620,8 @@ class VideoDetailFragment : BaseStateFragment<StreamInfo>(), BackPressable, Shar
                 activity!!.getString(R.string.show_play_with_kodi_key), false)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if (item == null || isLoading.get()) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (isLoading.get()) {
             // if is still loading block menu
             return true
         }

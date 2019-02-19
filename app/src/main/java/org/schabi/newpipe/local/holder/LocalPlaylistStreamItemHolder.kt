@@ -1,13 +1,12 @@
 package org.schabi.newpipe.local.holder
 
 import android.annotation.SuppressLint
-import android.support.v4.content.ContextCompat
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-
+import androidx.core.content.ContextCompat
 import org.schabi.newpipe.R
 import org.schabi.newpipe.database.LocalItem
 import org.schabi.newpipe.database.playlist.model.PlaylistStreamEntry
@@ -15,7 +14,6 @@ import org.schabi.newpipe.extractor.NewPipe
 import org.schabi.newpipe.local.LocalItemBuilder
 import org.schabi.newpipe.util.ImageDisplayConstants
 import org.schabi.newpipe.util.Localization
-
 import java.text.DateFormat
 
 open class LocalPlaylistStreamItemHolder internal constructor(infoItemBuilder: LocalItemBuilder, layoutId: Int, parent: ViewGroup) : LocalItemHolder(infoItemBuilder, layoutId, parent) {

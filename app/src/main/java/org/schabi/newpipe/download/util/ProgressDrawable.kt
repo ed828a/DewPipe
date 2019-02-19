@@ -6,8 +6,8 @@ import android.graphics.ColorFilter
 import android.graphics.Paint
 import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
-import android.support.annotation.ColorRes
-import android.support.v4.content.ContextCompat
+import androidx.annotation.ColorRes
+import androidx.core.content.ContextCompat
 
 class ProgressDrawable(context: Context, @ColorRes background: Int, @ColorRes foreground: Int) : Drawable() {
     private val mBackgroundColor: Int = ContextCompat.getColor(context, background)

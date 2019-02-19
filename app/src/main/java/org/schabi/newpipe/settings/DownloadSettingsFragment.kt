@@ -3,8 +3,8 @@ package org.schabi.newpipe.settings
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.preference.Preference
 import android.util.Log
+import androidx.preference.Preference
 import com.nononsenseapps.filepicker.Utils
 import org.schabi.newpipe.R
 import org.schabi.newpipe.util.FilePickerActivityHelper

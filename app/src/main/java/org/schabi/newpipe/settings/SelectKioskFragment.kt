@@ -2,16 +2,13 @@ package org.schabi.newpipe.settings
 
 import android.content.DialogInterface
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
-import android.support.v4.content.ContextCompat
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.NewPipe
 import org.schabi.newpipe.extractor.ServiceList
@@ -27,9 +24,9 @@ import java.util.*
  *
  * this class includes adapter and data model declaration.
  */
-class SelectKioskFragment : DialogFragment() {
+class SelectKioskFragment : androidx.fragment.app.DialogFragment() {
 
-    var recyclerView: RecyclerView? = null
+    var recyclerView: androidx.recyclerview.widget.RecyclerView? = null
     var selectKioskAdapter: SelectKioskAdapter? = null
 
     private var onSelectedLisener: OnSelectedLisener? = null
@@ -58,7 +55,7 @@ class SelectKioskFragment : DialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.select_kiosk_fragment, container, false)
         recyclerView = view.findViewById(R.id.items_list)
-        recyclerView?.layoutManager = LinearLayoutManager(context)
+        recyclerView?.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
         try {
             selectKioskAdapter = SelectKioskAdapter()
         } catch (e: Exception) {
@@ -74,7 +71,7 @@ class SelectKioskFragment : DialogFragment() {
     // Handle actions
     ///////////////////////////////////////////////////////////////////////////
 
-    override fun onCancel(dialogInterface: DialogInterface?) {
+    override fun onCancel(dialogInterface: DialogInterface) {
         super.onCancel(dialogInterface)
         if (onCancelListener !=
                 null) {
@@ -90,7 +87,7 @@ class SelectKioskFragment : DialogFragment() {
     }
 
     inner class SelectKioskAdapter @Throws(Exception::class)
-    constructor() : RecyclerView.Adapter<SelectKioskAdapter.SelectKioskItemHolder>() {
+    constructor() : androidx.recyclerview.widget.RecyclerView.Adapter<SelectKioskAdapter.SelectKioskItemHolder>() {
 
         private val kioskList = Vector<Entry>()
 
@@ -130,7 +127,7 @@ class SelectKioskFragment : DialogFragment() {
             return SelectKioskItemHolder(item)
         }
 
-        inner class SelectKioskItemHolder(val view: View) : RecyclerView.ViewHolder(view) {
+        inner class SelectKioskItemHolder(val view: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {
             val thumbnailView: ImageView = view.findViewById(R.id.itemThumbnailView)
             val titleView: TextView = view.findViewById(R.id.itemTitleView)
         }

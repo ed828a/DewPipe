@@ -5,9 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.*
-import android.widget.TextView
 import kotlinx.android.synthetic.main.fragment_licenses.view.*
 import kotlinx.android.synthetic.main.item_software_component.view.*
 import org.schabi.newpipe.R
@@ -16,7 +14,7 @@ import java.util.*
 /**
  * Fragment containing the software licenses
  */
-class LicenseFragment : Fragment() {
+class LicenseFragment : androidx.fragment.app.Fragment() {
     private var softwareComponents: Array<SoftwareComponent>? = null
     private var mComponentForContextMenu: SoftwareComponent? = null
 
@@ -55,7 +53,7 @@ class LicenseFragment : Fragment() {
         return rootView
     }
 
-    override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo) {
+    override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
         val inflater = activity!!.menuInflater
         val component = v.tag as SoftwareComponent
         menu.setHeaderTitle(component.name)
@@ -64,7 +62,7 @@ class LicenseFragment : Fragment() {
         mComponentForContextMenu = v.tag as SoftwareComponent
     }
 
-    override fun onContextItemSelected(item: MenuItem?): Boolean {
+    override fun onContextItemSelected(item: MenuItem): Boolean {
         // item.getMenuInfo() is null so we use the tag of the view
         val component = mComponentForContextMenu ?: return false
         when (item!!.itemId) {

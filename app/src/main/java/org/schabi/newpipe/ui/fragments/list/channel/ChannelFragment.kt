@@ -5,7 +5,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
 import android.text.TextUtils
 import android.util.Log
 import android.view.*
@@ -13,6 +12,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -85,7 +85,7 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
         }
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         subscriptionService = SubscriptionService.getInstance(activity!!)
         Log.d(TAG, "ChannelFragment::onAttach called")
@@ -153,16 +153,16 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
     // Menu
     ///////////////////////////////////////////////////////////////////////////
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         val supportActionBar = activity!!.supportActionBar
         if (useAsFrontPage && supportActionBar != null) {
             supportActionBar.setDisplayHomeAsUpEnabled(false)
         } else {
-            inflater!!.inflate(R.menu.menu_channel, menu)
+            inflater.inflate(R.menu.menu_channel, menu)
 
             Log.d(TAG, "onCreateOptionsMenu() called with: menu = [$menu], inflater = [$inflater]")
-            menuRssButton = menu!!.findItem(R.id.menu_item_rss)
+            menuRssButton = menu.findItem(R.id.menu_item_rss)
         }
     }
 
@@ -174,8 +174,8 @@ class ChannelFragment : BaseListInfoFragment<ChannelInfo>() {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when (item!!.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
             R.id.menu_item_rss -> openRssFeed()
             R.id.menu_item_openInBrowser -> openUrlInBrowser(url)
             R.id.menu_item_share -> shareUrl(name, url)

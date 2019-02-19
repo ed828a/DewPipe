@@ -5,20 +5,16 @@ import android.content.*
 import android.os.Bundle
 import android.os.IBinder
 import android.preference.PreferenceManager
-import android.support.v4.app.Fragment
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.widget.Toast
 import io.reactivex.disposables.Disposable
 import org.schabi.newpipe.R
-import org.schabi.newpipe.download.background.DownloadMissionManager
 import org.schabi.newpipe.download.adapter.MissionAdapter
-import org.schabi.newpipe.download.service.DownloadManagerService
 import org.schabi.newpipe.download.background.DeleteDownloadManager
+import org.schabi.newpipe.download.background.DownloadMissionManager
+import org.schabi.newpipe.download.service.DownloadManagerService
 
-class DownloadMissionsFragment : Fragment() {
+class DownloadMissionsFragment : androidx.fragment.app.Fragment() {
     private var mDownloadManager: DownloadMissionManager? = null
     private var mBinder: DownloadManagerService.DMBinder? = null
 
@@ -26,10 +22,10 @@ class DownloadMissionsFragment : Fragment() {
     private var mLinear: Boolean = false
     private var mSwitch: MenuItem? = null
 
-    private var mList: RecyclerView? = null
+    private var mList: androidx.recyclerview.widget.RecyclerView? = null
     private var mAdapter: MissionAdapter? = null
-    private var mGridManager: GridLayoutManager? = null
-    private var mLinearManager: LinearLayoutManager? = null
+    private var mGridManager: androidx.recyclerview.widget.GridLayoutManager? = null
+    private var mLinearManager: androidx.recyclerview.widget.LinearLayoutManager? = null
     private var mActivity: Context? = null
     private var mDeleteDownloadManager: DeleteDownloadManager? = null
     private var mDeleteDisposable: Disposable? = null
@@ -84,9 +80,9 @@ class DownloadMissionsFragment : Fragment() {
         mList = view.findViewById(R.id.mission_recycler)
 
         // Init
-        mGridManager = GridLayoutManager(activity, 2)
-        mLinearManager = LinearLayoutManager(activity)
-        mList?.layoutManager = mGridManager as RecyclerView.LayoutManager?
+        mGridManager = androidx.recyclerview.widget.GridLayoutManager(activity, 2)
+        mLinearManager = androidx.recyclerview.widget.LinearLayoutManager(activity)
+        mList?.layoutManager = mGridManager as androidx.recyclerview.widget.RecyclerView.LayoutManager?
 
         setHasOptionsMenu(true)
 
@@ -167,7 +163,7 @@ class DownloadMissionsFragment : Fragment() {
         mList?.layoutManager = if (mLinear) {
             mLinearManager
         } else {
-            mGridManager as RecyclerView.LayoutManager?
+            mGridManager as androidx.recyclerview.widget.RecyclerView.LayoutManager?
         }
 
         mList?.adapter = mAdapter

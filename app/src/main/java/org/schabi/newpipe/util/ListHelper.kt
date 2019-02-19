@@ -4,7 +4,7 @@ package org.schabi.newpipe.util
 import android.content.Context
 import android.net.ConnectivityManager
 import android.preference.PreferenceManager
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.MediaFormat
 import org.schabi.newpipe.extractor.stream.AudioStream

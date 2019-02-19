@@ -1,7 +1,7 @@
 package org.schabi.newpipe.database.history.model
 
-import android.arch.persistence.room.*
-import android.arch.persistence.room.ForeignKey.CASCADE
+import androidx.room.*
+import androidx.room.ForeignKey.CASCADE
 import org.schabi.newpipe.database.history.model.StreamHistoryEntity.Companion.JOIN_STREAM_ID
 import org.schabi.newpipe.database.history.model.StreamHistoryEntity.Companion.STREAM_ACCESS_DATE
 import org.schabi.newpipe.database.history.model.StreamHistoryEntity.Companion.STREAM_HISTORY_TABLE

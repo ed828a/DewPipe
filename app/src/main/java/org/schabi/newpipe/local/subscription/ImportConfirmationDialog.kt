@@ -4,16 +4,12 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
-import android.support.v4.app.Fragment
-
+import icepick.Icepick
+import icepick.State
 import org.schabi.newpipe.R
 import org.schabi.newpipe.util.ThemeHelper
 
-import icepick.Icepick
-import icepick.State
-
-class ImportConfirmationDialog : DialogFragment() {
+class ImportConfirmationDialog : androidx.fragment.app.DialogFragment() {
     @State @JvmField
     var resultServiceIntent: Intent? = null
 
@@ -46,7 +42,7 @@ class ImportConfirmationDialog : DialogFragment() {
 
     companion object {
 
-        fun show(fragment: Fragment, resultServiceIntent: Intent) {
+        fun show(fragment: androidx.fragment.app.Fragment, resultServiceIntent: Intent) {
             if (fragment.fragmentManager == null) return
 
             val confirmationDialog = ImportConfirmationDialog()

@@ -4,19 +4,16 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
-import android.support.design.widget.FloatingActionButton
-import android.support.v4.app.Fragment
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.content.res.AppCompatResources
-import android.support.v7.widget.AppCompatImageView
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.widget.AppCompatImageView
+import androidx.recyclerview.widget.ItemTouchHelper
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.NewPipe
 import org.schabi.newpipe.report.ErrorActivity
@@ -30,7 +27,7 @@ import org.schabi.newpipe.util.ThemeHelper
 import java.util.*
 
 
-class ChooseTabsFragment : Fragment() {
+class ChooseTabsFragment : androidx.fragment.app.Fragment() {
 
     private lateinit var tabsManager: TabsManager
     private val tabList = ArrayList<Tab>()
@@ -57,8 +54,8 @@ class ChooseTabsFragment : Fragment() {
 
         initButton(rootView)
 
-        val listSelectedTabs = rootView.findViewById<RecyclerView>(R.id.selectedTabs)
-        listSelectedTabs.layoutManager = LinearLayoutManager(requireContext())
+        val listSelectedTabs = rootView.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.selectedTabs)
+        listSelectedTabs.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
 
         val itemTouchHelper = ItemTouchHelper(getItemTouchCallback())
         itemTouchHelper.attachToRecyclerView(listSelectedTabs)
@@ -85,7 +82,7 @@ class ChooseTabsFragment : Fragment() {
         private const val MENU_ITEM_RESTORE_ID = 123456
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
 
         val restoreItem = menu?.add(Menu.NONE, MENU_ITEM_RESTORE_ID, Menu.NONE, R.string.restore_defaults)
@@ -95,8 +92,8 @@ class ChooseTabsFragment : Fragment() {
         restoreItem?.icon = AppCompatResources.getDrawable(requireContext(), restoreIcon)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
-            if (MENU_ITEM_RESTORE_ID == item?.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            if (MENU_ITEM_RESTORE_ID == item.itemId) {
                 restoreDefaults()
                 true
             } else {
@@ -230,7 +227,7 @@ class ChooseTabsFragment : Fragment() {
     // List Handling
     ///////////////////////////////////////////////////////////////////////////
 
-    inner class SelectedTabsAdapter(val tabList: List<Tab>, private val itemTouchHelper: ItemTouchHelper?) : RecyclerView.Adapter<SelectedTabsAdapter.TabViewHolder>() {
+    inner class SelectedTabsAdapter(val tabList: List<Tab>, private val itemTouchHelper: ItemTouchHelper?) : androidx.recyclerview.widget.RecyclerView.Adapter<SelectedTabsAdapter.TabViewHolder>() {
 
         fun swapItems(fromPosition: Int, toPosition: Int) {
             Collections.swap(tabList, fromPosition, toPosition)
@@ -248,7 +245,7 @@ class ChooseTabsFragment : Fragment() {
 
         override fun getItemCount(): Int = tabList.size
 
-        inner class TabViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        inner class TabViewHolder(itemView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
             private val tabIconView: AppCompatImageView = itemView.findViewById(R.id.tabIcon)
             private val tabNameView: TextView = itemView.findViewById(R.id.tabName)
             private val handle: ImageView = itemView.findViewById(R.id.handle)
@@ -272,7 +269,7 @@ class ChooseTabsFragment : Fragment() {
             }
 
             @SuppressLint("ClickableViewAccessibility")
-            private fun getOnTouchListener(item: RecyclerView.ViewHolder): View.OnTouchListener =
+            private fun getOnTouchListener(item: androidx.recyclerview.widget.RecyclerView.ViewHolder): View.OnTouchListener =
                     View.OnTouchListener { view, motionEvent ->
                         if (motionEvent.actionMasked == MotionEvent.ACTION_DOWN) {
                             if (itemTouchHelper != null && itemCount > 1) {
@@ -297,7 +294,7 @@ class ChooseTabsFragment : Fragment() {
 
                 // Called by the ItemTouchHelper when user is dragging a view out of bounds.
                 override fun interpolateOutOfBoundsScroll(
-                        recyclerView: RecyclerView,
+                        recyclerView: androidx.recyclerview.widget.RecyclerView,
                         viewSize: Int,
                         viewSizeOutOfBounds: Int,
                         totalSize: Int,
@@ -311,8 +308,8 @@ class ChooseTabsFragment : Fragment() {
                 }
 
                 // Called when ItemTouchHelper wants to move the dragged item getTabFrom its old position to the new position.
-                override fun onMove(recyclerView: RecyclerView, source: RecyclerView.ViewHolder,
-                                    target: RecyclerView.ViewHolder): Boolean {
+                override fun onMove(recyclerView: androidx.recyclerview.widget.RecyclerView, source: androidx.recyclerview.widget.RecyclerView.ViewHolder,
+                                    target: androidx.recyclerview.widget.RecyclerView.ViewHolder): Boolean {
                     if (source.itemViewType != target.itemViewType) {
                         return false  // not moved
                     }
@@ -327,7 +324,7 @@ class ChooseTabsFragment : Fragment() {
 
                 override fun isItemViewSwipeEnabled(): Boolean = true
 
-                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
+                override fun onSwiped(viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder, swipeDir: Int) {
                     val position = viewHolder.adapterPosition
                     tabList.removeAt(position)
                     selectedTabsAdapter.notifyItemRemoved(position)

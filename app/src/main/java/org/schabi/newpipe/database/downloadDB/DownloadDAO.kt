@@ -1,6 +1,6 @@
 package org.schabi.newpipe.database.downloadDB
 
-import android.arch.persistence.room.*
+import androidx.room.*
 
 /**
  * Created by Edward on 12/21/2018.

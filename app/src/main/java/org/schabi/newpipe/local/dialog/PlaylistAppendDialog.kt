@@ -2,8 +2,6 @@ package org.schabi.newpipe.local.dialog
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,7 +24,7 @@ import java.util.*
 
 class PlaylistAppendDialog : PlaylistDialog() {
 
-    private var playlistRecyclerView: RecyclerView? = null
+    private var playlistRecyclerView: androidx.recyclerview.widget.RecyclerView? = null
     private var playlistAdapter: LocalItemListAdapter? = null
 
     private var playlistReactor: Disposable? = null
@@ -56,7 +54,7 @@ class PlaylistAppendDialog : PlaylistDialog() {
         })
 
         playlistRecyclerView = view.findViewById(R.id.playlist_list)
-        playlistRecyclerView?.layoutManager = LinearLayoutManager(context) as RecyclerView.LayoutManager?
+        playlistRecyclerView?.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context) as androidx.recyclerview.widget.RecyclerView.LayoutManager?
         playlistRecyclerView?.adapter = playlistAdapter
 
         val newPlaylistButton = view.findViewById<View>(R.id.newPlaylist)
@@ -90,7 +88,7 @@ class PlaylistAppendDialog : PlaylistDialog() {
         if (streams == null || fragmentManager == null) return
 
         PlaylistCreationDialog.newInstance(streams!!).show(fragmentManager!!, TAG)
-        dialog.dismiss()
+        dialog?.dismiss()
     }
 
     private fun onPlaylistsReceived(playlists: List<PlaylistMetadataEntry>) {
@@ -119,7 +117,7 @@ class PlaylistAppendDialog : PlaylistDialog() {
                 .subscribe { ignored -> successToast.show() }
 
         compositeDisposable.add(d)
-        dialog.dismiss()
+        dialog?.dismiss()
     }
 
     companion object {

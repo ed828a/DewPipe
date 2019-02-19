@@ -8,13 +8,13 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Build
 import android.os.Handler
-import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.SurfaceView
 import android.view.View
 import android.widget.*
+import androidx.core.content.ContextCompat
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.PlaybackParameters
 import com.google.android.exoplayer2.Player

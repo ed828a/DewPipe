@@ -3,19 +3,16 @@ package org.schabi.newpipe.player.helper
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
-import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.view.View
 import android.widget.CheckBox
 import android.widget.SeekBar
 import android.widget.TextView
-import org.schabi.newpipe.BuildConfig.DEBUG
-
+import androidx.appcompat.app.AlertDialog
 import org.schabi.newpipe.R
 import org.schabi.newpipe.util.SliderStrategy
 
-class PlaybackParameterDialog : DialogFragment() {
+class PlaybackParameterDialog : androidx.fragment.app.DialogFragment() {
 
     private var callback: Callback? = null
 
@@ -103,7 +100,7 @@ class PlaybackParameterDialog : DialogFragment() {
     // Lifecycle
     ///////////////////////////////////////////////////////////////////////////
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context != null && context is Callback) {
             callback = context

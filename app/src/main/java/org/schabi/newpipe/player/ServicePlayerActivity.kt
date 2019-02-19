@@ -7,16 +7,14 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.provider.Settings
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.Toolbar
-import android.support.v7.widget.helper.ItemTouchHelper
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.ItemTouchHelper
 import com.google.android.exoplayer2.PlaybackParameters
 import com.google.android.exoplayer2.Player
 import org.schabi.newpipe.R
@@ -49,7 +47,7 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
 
     private var rootView: View? = null
 
-    private var itemsList: RecyclerView? = null
+    private var itemsList: androidx.recyclerview.widget.RecyclerView? = null
     private var itemTouchHelper: ItemTouchHelper? = null
 
     private var metadata: LinearLayout? = null
@@ -98,7 +96,7 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
 
     private fun getQueueScrollListener(): OnScrollBelowItemsListener =
             object : OnScrollBelowItemsListener() {
-                override fun onScrolledDown(recyclerView: RecyclerView) {
+                override fun onScrolledDown(recyclerView: androidx.recyclerview.widget.RecyclerView) {
                     if (player != null && player!!.playQueue != null && !player!!.playQueue!!.isComplete) {
                         player!!.playQueue!!.fetch()
                     } else if (itemsList != null) {
@@ -287,7 +285,7 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
 
     private fun buildQueue() {
         itemsList = findViewById(R.id.play_queue)
-        itemsList!!.layoutManager = LinearLayoutManager(this)
+        itemsList!!.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
         itemsList!!.adapter = player!!.playQueueAdapter
         itemsList!!.isClickable = true
         itemsList!!.isLongClickable = true
@@ -386,8 +384,8 @@ abstract class ServicePlayerActivity : AppCompatActivity(), PlayerEventListener,
 
         val currentPlayingIndex = player!!.playQueue!!.index
         val currentVisibleIndex: Int
-        currentVisibleIndex = if (itemsList!!.layoutManager is LinearLayoutManager) {
-            val layout = itemsList!!.layoutManager as LinearLayoutManager?
+        currentVisibleIndex = if (itemsList!!.layoutManager is androidx.recyclerview.widget.LinearLayoutManager) {
+            val layout = itemsList!!.layoutManager as androidx.recyclerview.widget.LinearLayoutManager?
             layout!!.findFirstVisibleItemPosition()
         } else {
             0

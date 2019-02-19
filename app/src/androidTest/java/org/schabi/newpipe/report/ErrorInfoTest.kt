@@ -1,16 +1,13 @@
 package org.schabi.newpipe.report
 
 import android.os.Parcel
-import android.support.test.InstrumentationRegistry
-import android.support.test.filters.LargeTest
-import android.support.test.runner.AndroidJUnit4
-
+import androidx.test.InstrumentationRegistry
+import androidx.test.filters.LargeTest
+import androidx.test.runner.AndroidJUnit4
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.schabi.newpipe.R
-import org.schabi.newpipe.report.ErrorActivity.ErrorInfo
-
-import org.junit.Assert.assertEquals
 
 /**
  * Instrumented tests for [ErrorInfo]

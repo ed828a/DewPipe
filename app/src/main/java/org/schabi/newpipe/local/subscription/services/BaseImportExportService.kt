@@ -23,31 +23,28 @@ import android.app.Service
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
-import android.support.annotation.StringRes
-import android.support.v4.app.NotificationCompat
-import android.support.v4.app.NotificationManagerCompat
 import android.text.TextUtils
 import android.widget.Toast
-
-import org.reactivestreams.Publisher
-import org.schabi.newpipe.R
-import org.schabi.newpipe.extractor.subscription.SubscriptionExtractor
-import org.schabi.newpipe.report.ErrorActivity
-import org.schabi.newpipe.report.UserAction
-import org.schabi.newpipe.local.subscription.ImportExportEventListener
-import org.schabi.newpipe.local.subscription.SubscriptionService
-
-import java.io.FileNotFoundException
-import java.io.IOException
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicInteger
-
+import androidx.annotation.StringRes
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Function
 import io.reactivex.processors.PublishProcessor
+import org.reactivestreams.Publisher
+import org.schabi.newpipe.R
+import org.schabi.newpipe.extractor.subscription.SubscriptionExtractor
+import org.schabi.newpipe.local.subscription.ImportExportEventListener
+import org.schabi.newpipe.local.subscription.SubscriptionService
+import org.schabi.newpipe.report.ErrorActivity
 import org.schabi.newpipe.report.ErrorInfo
+import org.schabi.newpipe.report.UserAction
+import java.io.FileNotFoundException
+import java.io.IOException
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 abstract class BaseImportExportService : Service() {
     protected lateinit var notificationManager: NotificationManagerCompat

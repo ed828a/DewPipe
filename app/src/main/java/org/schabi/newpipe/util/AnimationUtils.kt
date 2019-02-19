@@ -24,12 +24,12 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.content.res.ColorStateList
-import android.support.annotation.ColorInt
-import android.support.v4.view.ViewCompat
-import android.support.v4.view.animation.FastOutSlowInInterpolator
 import android.util.Log
 import android.view.View
 import android.widget.TextView
+import androidx.annotation.ColorInt
+import androidx.core.view.ViewCompat
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import org.schabi.newpipe.BuildConfig.DEBUG
 
 object AnimationUtils {

@@ -1,6 +1,6 @@
 package org.schabi.newpipe.database.stream.model
 
-import android.arch.persistence.room.*
+import androidx.room.*
 import org.schabi.newpipe.database.stream.model.StreamEntity.Companion.STREAM_SERVICE_ID
 import org.schabi.newpipe.database.stream.model.StreamEntity.Companion.STREAM_TABLE
 import org.schabi.newpipe.database.stream.model.StreamEntity.Companion.STREAM_URL

@@ -1,21 +1,21 @@
 package org.schabi.newpipe.background
 
-import android.arch.persistence.room.Room
 import android.content.Context
 import android.os.Looper
-import android.support.test.InstrumentationRegistry
-import android.support.test.filters.LargeTest
-import android.support.test.runner.AndroidJUnit4
 import android.util.Log
+import androidx.room.Room
+import androidx.test.InstrumentationRegistry
+import androidx.test.filters.LargeTest
+import androidx.test.runner.AndroidJUnit4
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.schabi.newpipe.database.AppDatabase
-import org.schabi.newpipe.download.background.DownloadMissionManagerImpl
-import org.schabi.newpipe.download.background.MissionControl
 import org.schabi.newpipe.database.downloadDB.DownloadDAO
 import org.schabi.newpipe.database.downloadDB.MissionEntity
+import org.schabi.newpipe.download.background.DownloadMissionManagerImpl
+import org.schabi.newpipe.download.background.MissionControl
 import java.io.File
 import java.io.IOException
 import java.io.RandomAccessFile

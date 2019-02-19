@@ -4,7 +4,6 @@ package org.schabi.newpipe.download.background
 import android.content.Context
 import android.content.Intent
 import android.os.Handler
-import android.support.design.widget.Snackbar
 import android.util.Log
 import android.widget.Toast
 import io.reactivex.android.schedulers.AndroidSchedulers

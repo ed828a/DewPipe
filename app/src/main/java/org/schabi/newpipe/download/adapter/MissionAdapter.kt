@@ -7,9 +7,6 @@ import android.content.Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
 import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
 import android.os.AsyncTask
 import android.os.Build
-import android.support.v4.content.FileProvider
-import android.support.v4.view.ViewCompat
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -19,14 +16,16 @@ import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.FileProvider
+import androidx.core.view.ViewCompat
 import org.schabi.newpipe.R
+import org.schabi.newpipe.download.background.DeleteDownloadManager
 import org.schabi.newpipe.download.background.DownloadMissionManager
 import org.schabi.newpipe.download.background.MissionControl
 import org.schabi.newpipe.download.background.MissionControl.Companion.NO_ERROR
 import org.schabi.newpipe.download.background.MissionControlListener
-import org.schabi.newpipe.download.util.ProgressDrawable
 import org.schabi.newpipe.download.service.DownloadManagerService
-import org.schabi.newpipe.download.background.DeleteDownloadManager
+import org.schabi.newpipe.download.util.ProgressDrawable
 import org.schabi.newpipe.download.util.Utility
 import java.io.File
 import java.lang.ref.WeakReference
@@ -36,7 +35,7 @@ class MissionAdapter(private val mContext: Activity?,
                      private val mBinder: DownloadManagerService.DMBinder?,
                      private val mDownloadMissionManager: DownloadMissionManager?,
                      private val mDeleteDownloadManager: DeleteDownloadManager?,
-                     isLinear: Boolean) : RecyclerView.Adapter<MissionAdapter.MissionViewHolder>() {
+                     isLinear: Boolean) : androidx.recyclerview.widget.RecyclerView.Adapter<MissionAdapter.MissionViewHolder>() {
 
     private val mItemList: MutableList<MissionControl> = ArrayList()
     private val mLayout: Int = if (isLinear) R.layout.mission_item_linear else R.layout.mission_item
@@ -254,7 +253,7 @@ class MissionAdapter(private val mContext: Activity?,
         }
     }
 
-    class MissionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    class MissionViewHolder(view: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {
         // because there are 2 type of itemViews, dynamically locating views in itemView is a better choice.
         val status: TextView = view.findViewById(R.id.item_status)
         val icon: ImageView = view.findViewById(R.id.item_icon)

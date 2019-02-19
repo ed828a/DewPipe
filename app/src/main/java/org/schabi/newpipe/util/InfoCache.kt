@@ -19,9 +19,7 @@
 
 package org.schabi.newpipe.util
 
-import android.support.v4.util.LruCache
 import android.util.Log
-import org.schabi.newpipe.BuildConfig.DEBUG
 import org.schabi.newpipe.extractor.Info
 
 
@@ -89,7 +87,7 @@ class InfoCache private constructor() { //no instance
          */
         private const val TRIM_CACHE_TO = 30
 
-        private val lruCache = LruCache<String, CacheData>(MAX_ITEMS_ON_CACHE)
+        private val lruCache = androidx.collection.LruCache<String, CacheData>(MAX_ITEMS_ON_CACHE)
 
         private fun keyOf(serviceId: Int, url: String): String = "$serviceId$url"
 

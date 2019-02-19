@@ -1,16 +1,12 @@
 package org.schabi.newpipe.ui.fragments
 
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.StaggeredGridLayoutManager
-
 /**
  * Recycler view scroll listener which calls the method [.onScrolledDown]
  * if the view is scrolled below the last item.
  */
-abstract class OnScrollBelowItemsListener : RecyclerView.OnScrollListener() {
+abstract class OnScrollBelowItemsListener : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
 
-    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+    override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
         if (dy > 0) {
             var pastVisibleItems = 0
@@ -19,9 +15,9 @@ abstract class OnScrollBelowItemsListener : RecyclerView.OnScrollListener() {
             val totalItemCount: Int = layoutManager.itemCount
 
             // Already covers the GridLayoutManager case
-            if (layoutManager is LinearLayoutManager) {
+            if (layoutManager is androidx.recyclerview.widget.LinearLayoutManager) {
                 pastVisibleItems = layoutManager.findFirstVisibleItemPosition()
-            } else if (layoutManager is StaggeredGridLayoutManager) {
+            } else if (layoutManager is androidx.recyclerview.widget.StaggeredGridLayoutManager) {
                 val positions = layoutManager.findFirstVisibleItemPositions(null)
                 if (positions != null && positions.isNotEmpty()) pastVisibleItems = positions[0]
             }
@@ -37,5 +33,5 @@ abstract class OnScrollBelowItemsListener : RecyclerView.OnScrollListener() {
      *
      * @param recyclerView the recycler view
      */
-    abstract fun onScrolledDown(recyclerView: RecyclerView)
+    abstract fun onScrolledDown(recyclerView: androidx.recyclerview.widget.RecyclerView)
 }

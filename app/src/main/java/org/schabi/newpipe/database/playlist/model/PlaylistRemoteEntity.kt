@@ -1,6 +1,6 @@
 package org.schabi.newpipe.database.playlist.model
 
-import android.arch.persistence.room.*
+import androidx.room.*
 import org.schabi.newpipe.database.LocalItem
 import org.schabi.newpipe.database.LocalItem.LocalItemType.PLAYLIST_REMOTE_ITEM
 import org.schabi.newpipe.database.playlist.PlaylistLocalItem

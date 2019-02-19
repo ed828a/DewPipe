@@ -1,6 +1,5 @@
 package org.schabi.newpipe.player.playback
 
-import android.support.v4.util.ArraySet
 import android.util.Log
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -56,7 +55,7 @@ class MediaSourceManager private constructor(
 
     private var playQueueReactor: Subscription = EmptySubscription.INSTANCE
     private val loaderReactor: CompositeDisposable = CompositeDisposable()
-    private val loadingItems: MutableSet<PlayQueueItem> = Collections.synchronizedSet(ArraySet())
+    private val loadingItems: MutableSet<PlayQueueItem> = Collections.synchronizedSet(androidx.collection.ArraySet())
 
     private val isBlocked: AtomicBoolean = AtomicBoolean(false)
 
@@ -442,7 +441,7 @@ class MediaSourceManager private constructor(
             val leftBound = Math.max(0, currentIndex - MediaSourceManager.WINDOW_SIZE)
             val rightLimit = currentIndex + MediaSourceManager.WINDOW_SIZE + 1
             val rightBound = Math.min(playQueue.size(), rightLimit)
-            val neighbors = ArraySet(
+            val neighbors = androidx.collection.ArraySet(
                     playQueue.streams!!.subList(leftBound, rightBound))
 
             // Do a round robin

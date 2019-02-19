@@ -1,6 +1,6 @@
 package org.schabi.newpipe.database.stream.model
 
-import android.arch.persistence.room.ColumnInfo
+import androidx.room.ColumnInfo
 import org.schabi.newpipe.database.LocalItem
 import org.schabi.newpipe.database.history.model.StreamHistoryEntity
 import org.schabi.newpipe.extractor.stream.StreamInfoItem

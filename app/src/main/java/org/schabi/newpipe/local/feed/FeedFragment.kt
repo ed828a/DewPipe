@@ -93,7 +93,7 @@ class FeedFragment : BaseListFragment<List<SubscriptionEntity>, Void>() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
 
         val supportActionBar = activity!!.supportActionBar

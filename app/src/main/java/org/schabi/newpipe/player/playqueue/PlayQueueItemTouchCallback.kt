@@ -1,13 +1,12 @@
 package org.schabi.newpipe.player.playqueue
 
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.helper.ItemTouchHelper
+import androidx.recyclerview.widget.ItemTouchHelper
 
 abstract class PlayQueueItemTouchCallback : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
 
     abstract fun onMove(sourceIndex: Int, targetIndex: Int)
 
-    override fun interpolateOutOfBoundsScroll(recyclerView: RecyclerView,
+    override fun interpolateOutOfBoundsScroll(recyclerView: androidx.recyclerview.widget.RecyclerView,
                                               viewSize: Int,
                                               viewSizeOutOfBounds: Int,
                                               totalSize: Int,
@@ -19,9 +18,9 @@ abstract class PlayQueueItemTouchCallback : ItemTouchHelper.SimpleCallback(ItemT
         return clampedAbsVelocity * Math.signum(viewSizeOutOfBounds.toFloat()).toInt()
     }
 
-    override fun onMove(recyclerView: RecyclerView,
-                        source: RecyclerView.ViewHolder,
-                        target: RecyclerView.ViewHolder): Boolean {
+    override fun onMove(recyclerView: androidx.recyclerview.widget.RecyclerView,
+                        source: androidx.recyclerview.widget.RecyclerView.ViewHolder,
+                        target: androidx.recyclerview.widget.RecyclerView.ViewHolder): Boolean {
         if (source.itemViewType != target.itemViewType) {
             return false
         }
@@ -40,7 +39,7 @@ abstract class PlayQueueItemTouchCallback : ItemTouchHelper.SimpleCallback(ItemT
         return false
     }
 
-    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {}
+    override fun onSwiped(viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder, swipeDir: Int) {}
 
     companion object {
         private const val MINIMUM_INITIAL_DRAG_VELOCITY = 10

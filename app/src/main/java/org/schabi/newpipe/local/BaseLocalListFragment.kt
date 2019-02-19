@@ -4,19 +4,14 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.support.v4.app.Fragment
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
-
+import androidx.fragment.app.Fragment
 import org.schabi.newpipe.R
 import org.schabi.newpipe.ui.fragments.BaseStateFragment
 import org.schabi.newpipe.ui.fragments.list.ListViewContract
-
 import org.schabi.newpipe.util.AnimationUtils.animateView
 
 /**
@@ -37,7 +32,7 @@ abstract class BaseLocalListFragment<I, N> : BaseStateFragment<I>(), ListViewCon
     protected var footerRootView: View? = null
 
     protected var itemListAdapter: LocalItemListAdapter? = null
-    protected var itemsList: RecyclerView? = null
+    protected var itemsList: androidx.recyclerview.widget.RecyclerView? = null
     private var updateFlags = FLAG_NO_UPDATE
 
     ///////////////////////////////////////////////////////////////////////////
@@ -48,17 +43,17 @@ abstract class BaseLocalListFragment<I, N> : BaseStateFragment<I>(), ListViewCon
 
     protected fun getListFooter(): View = activity!!.layoutInflater.inflate(R.layout.pignate_footer, itemsList, false)
 
-    protected fun getGridLayoutManager(): RecyclerView.LayoutManager {
+    protected fun getGridLayoutManager(): androidx.recyclerview.widget.RecyclerView.LayoutManager {
         val resources = activity!!.resources
         var width = resources.getDimensionPixelSize(R.dimen.video_item_grid_thumbnail_image_width)
         width += (24 * resources.displayMetrics.density).toInt()
         val spanCount = Math.floor(resources.displayMetrics.widthPixels / width.toDouble()).toInt()
-        val layoutManager = GridLayoutManager(activity, spanCount)
+        val layoutManager = androidx.recyclerview.widget.GridLayoutManager(activity, spanCount)
         layoutManager.spanSizeLookup = itemListAdapter!!.getSpanSizeLookup(spanCount)
         return layoutManager
     }
 
-    protected fun getListLayoutManager(): RecyclerView.LayoutManager = LinearLayoutManager(activity)
+    protected fun getListLayoutManager(): androidx.recyclerview.widget.RecyclerView.LayoutManager = androidx.recyclerview.widget.LinearLayoutManager(activity)
 
     /**
      * when screen size is big enough and Landscaped, it's grid layout. or listMode is set to grid.
@@ -132,7 +127,7 @@ abstract class BaseLocalListFragment<I, N> : BaseStateFragment<I>(), ListViewCon
     // Lifecycle - Menu
     ///////////////////////////////////////////////////////////////////////////
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         Log.d(TAG, "onCreateOptionsMenu() called with: menu = [$menu], inflater = [$inflater]")
 

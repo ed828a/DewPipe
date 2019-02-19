@@ -2,14 +2,13 @@ package org.schabi.newpipe.download.ui
 
 import android.content.Context
 import android.os.Bundle
-import android.support.annotation.IdRes
-import android.support.v4.app.DialogFragment
-import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.annotation.IdRes
+import androidx.appcompat.widget.Toolbar
 import icepick.Icepick
 import icepick.State
 import io.reactivex.disposables.CompositeDisposable
@@ -24,7 +23,7 @@ import org.schabi.newpipe.util.*
 import org.schabi.newpipe.util.StreamItemAdapter.StreamSizeWrapper
 import java.util.*
 
-class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, AdapterView.OnItemSelectedListener {
+class DownloadDialog : androidx.fragment.app.DialogFragment(), RadioGroup.OnCheckedChangeListener, AdapterView.OnItemSelectedListener {
 
     @State @JvmField
     var currentInfo: StreamInfo? = null
@@ -84,11 +83,11 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate() called with: savedInstanceState = [$savedInstanceState]")
         if (!PermissionHelper.checkStoragePermissions(activity!!, PermissionHelper.DOWNLOAD_DIALOG_REQUEST_CODE)) {
-            dialog.dismiss()
+            dialog?.dismiss()
             return
         }
 
-        setStyle(DialogFragment.STYLE_NO_TITLE, ThemeHelper.getDialogTheme(context!!))
+        setStyle(androidx.fragment.app.DialogFragment.STYLE_NO_TITLE, ThemeHelper.getDialogTheme(context!!))
         Icepick.restoreInstanceState(this, savedInstanceState)
 
         this.videoStreamsAdapter = StreamItemAdapter(context!!, wrappedVideoStreams, true)
@@ -169,7 +168,7 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
         toolbar.setTitle(R.string.download_dialog_title)
         toolbar.setNavigationIcon(if (ThemeHelper.isLightThemeSelected(activity!!)) R.drawable.ic_arrow_back_black_24dp else R.drawable.ic_arrow_back_white_24dp)
         toolbar.inflateMenu(R.menu.dialog_url)
-        toolbar.setNavigationOnClickListener { v -> dialog.dismiss() }
+        toolbar.setNavigationOnClickListener { v -> dialog?.dismiss() }
 
         toolbar.setOnMenuItemClickListener { item ->
             if (item.itemId == R.id.okay) {
@@ -245,7 +244,7 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
             setupAudioSpinner()
         } else {
             Toast.makeText(context, R.string.no_streams_available_download, Toast.LENGTH_SHORT).show()
-            dialog.dismiss()
+            dialog?.dismiss()
         }
     }
 
@@ -277,7 +276,7 @@ class DownloadDialog : DialogFragment(), RadioGroup.OnCheckedChangeListener, Ada
 
         // start Downloading Service
         DownloadManagerService.startMission(context, url, location, fileName, isAudio, threadsSeekBar!!.progress + 1)
-        dialog.dismiss()
+        dialog?.dismiss()
     }
 
     companion object {

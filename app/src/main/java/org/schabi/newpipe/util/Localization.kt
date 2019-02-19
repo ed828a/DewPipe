@@ -2,18 +2,15 @@ package org.schabi.newpipe.util
 
 import android.content.Context
 import android.preference.PreferenceManager
-import android.support.annotation.PluralsRes
-import android.support.annotation.StringRes
 import android.text.TextUtils
+import androidx.annotation.PluralsRes
+import androidx.annotation.StringRes
 import org.schabi.newpipe.R
-
 import java.text.DateFormat
 import java.text.NumberFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.Arrays
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
 
 object Localization {

@@ -1,6 +1,6 @@
 package org.schabi.newpipe.database.downloadDB
 
-import android.arch.persistence.room.*
+import androidx.room.*
 import org.schabi.newpipe.database.downloadDB.MissionEntity.Companion.FILE_NAME
 import org.schabi.newpipe.database.downloadDB.MissionEntity.Companion.LOCATION
 import org.schabi.newpipe.database.downloadDB.MissionEntity.Companion.TABLE_NAME

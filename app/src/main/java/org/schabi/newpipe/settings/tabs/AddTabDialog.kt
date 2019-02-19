@@ -3,11 +3,11 @@ package org.schabi.newpipe.settings.tabs
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
-import android.support.annotation.DrawableRes
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import androidx.annotation.DrawableRes
 import kotlinx.android.synthetic.main.list_choose_tabs_dialog.view.*
 import org.schabi.newpipe.R
 import org.schabi.newpipe.util.ThemeHelper

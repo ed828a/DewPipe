@@ -2,8 +2,6 @@ package org.schabi.newpipe.info_list
 
 import android.app.Activity
 import android.content.Context
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -26,7 +24,7 @@ import org.schabi.newpipe.util.OnClickGesture
 import java.util.*
 
 
-class InfoListAdapter(activity: Activity) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class InfoListAdapter(activity: Activity) : androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder>() {
 
     private val infoItemBuilder: InfoItemBuilder = InfoItemBuilder(activity)
     val itemsList: ArrayList<InfoItem> = ArrayList()
@@ -182,7 +180,7 @@ class InfoListAdapter(activity: Activity) : RecyclerView.Adapter<RecyclerView.Vi
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): androidx.recyclerview.widget.RecyclerView.ViewHolder {
         Log.d(TAG, "onCreateViewHolder() called with: parent = [$parent], viewType = [$viewType]")
         return when (viewType) {
             HEADER_TYPE -> HeaderFooterHolder(header!!)
@@ -203,7 +201,7 @@ class InfoListAdapter(activity: Activity) : RecyclerView.Adapter<RecyclerView.Vi
         }
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, position: Int) {
         var position = position
         Log.d(TAG, "onBindViewHolder() called with: holder = [${holder.javaClass.simpleName}], position = [$position]")
         when {
@@ -218,8 +216,8 @@ class InfoListAdapter(activity: Activity) : RecyclerView.Adapter<RecyclerView.Vi
         }
     }
 
-    fun getSpanSizeLookup(spanCount: Int): GridLayoutManager.SpanSizeLookup {
-        return object : GridLayoutManager.SpanSizeLookup() {
+    fun getSpanSizeLookup(spanCount: Int): androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup {
+        return object : androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
                 val type = getItemViewType(position)
                 return if (type == HEADER_TYPE || type == FOOTER_TYPE) spanCount else 1

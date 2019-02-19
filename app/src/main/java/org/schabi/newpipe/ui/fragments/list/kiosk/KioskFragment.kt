@@ -56,7 +56,7 @@ class KioskFragment : BaseListInfoFragment<KioskInfo>() {
     // Menu
     ///////////////////////////////////////////////////////////////////////////
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         val supportActionBar = activity!!.supportActionBar
         if (supportActionBar != null && useAsFrontPage) {

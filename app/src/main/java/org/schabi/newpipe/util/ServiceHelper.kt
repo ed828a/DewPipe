@@ -2,19 +2,16 @@ package org.schabi.newpipe.util
 
 import android.content.Context
 import android.preference.PreferenceManager
-import android.support.annotation.DrawableRes
-import android.support.annotation.StringRes
 import android.util.Log
-
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.NewPipe
 import org.schabi.newpipe.extractor.ServiceList
+import org.schabi.newpipe.extractor.ServiceList.SoundCloud
 import org.schabi.newpipe.extractor.StreamingService
 import org.schabi.newpipe.extractor.exceptions.ExtractionException
-
 import java.util.concurrent.TimeUnit
-
-import org.schabi.newpipe.extractor.ServiceList.SoundCloud
 
 // NewPipe Extractor support only 2 service so far: YouTube and SoundCloud.
 object ServiceHelper {

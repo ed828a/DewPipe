@@ -6,9 +6,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.support.v7.app.AlertDialog
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.TooltipCompat
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
@@ -18,6 +15,8 @@ import android.view.animation.DecelerateInterpolator
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.TooltipCompat
 import icepick.State
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -105,7 +104,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
     private lateinit var searchClear: View
 
     private lateinit var suggestionsPanel: View
-    private lateinit var suggestionsRecyclerView: RecyclerView
+    private lateinit var suggestionsRecyclerView: androidx.recyclerview.widget.RecyclerView
 
     ///////////////////////////////////////////////////////////////////////////
     // Search
@@ -124,7 +123,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
     // Fragment's LifeCycle
     ///////////////////////////////////////////////////////////////////////////
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
 
         suggestionListAdapter = SuggestionListAdapter(activity!!)
@@ -294,7 +293,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
     // Menu
     ///////////////////////////////////////////////////////////////////////////
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
 
         val supportActionBar = activity!!.supportActionBar?.apply {
@@ -328,7 +327,7 @@ class SearchFragment : BaseListFragment<SearchInfo, ListExtractor.InfoItemsPage<
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         val contentFilter = ArrayList<String>(1)
         if (item != null) {

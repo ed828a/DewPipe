@@ -6,9 +6,9 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.support.v7.preference.Preference
 import android.util.Log
 import android.widget.Toast
+import androidx.preference.Preference
 import com.nononsenseapps.filepicker.FilePickerActivity.*
 import com.nononsenseapps.filepicker.Utils
 import com.nostra13.universalimageloader.core.ImageLoader

@@ -1,9 +1,8 @@
 package org.schabi.newpipe.settings.tabs
 
 import android.content.Context
-import android.support.annotation.DrawableRes
-import android.support.v4.app.Fragment
 import android.util.Log
+import androidx.annotation.DrawableRes
 import com.grack.nanojson.JsonObject
 import com.grack.nanojson.JsonSink
 import org.schabi.newpipe.R
@@ -41,7 +40,7 @@ abstract class Tab(jsonObject: JsonObject? = null) {
     /**
      * Return a instance of the fragment that this tab represent.
      */
-    abstract val fragment: Fragment
+    abstract val fragment: androidx.fragment.app.Fragment
 
     abstract fun getTabName(context: Context): String
     @DrawableRes

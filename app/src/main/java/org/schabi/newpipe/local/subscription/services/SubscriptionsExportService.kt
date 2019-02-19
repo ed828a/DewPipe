@@ -21,9 +21,9 @@ package org.schabi.newpipe.local.subscription.services
 
 import android.app.Service
 import android.content.Intent
-import android.support.v4.content.LocalBroadcastManager
 import android.text.TextUtils
 import android.util.Log
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Function
 import io.reactivex.schedulers.Schedulers
@@ -60,7 +60,7 @@ class SubscriptionsExportService : BaseImportExportService() {
             }
 
             override fun onComplete() {
-                LocalBroadcastManager.getInstance(this@SubscriptionsExportService).sendBroadcast(Intent(EXPORT_COMPLETE_ACTION))
+                androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this@SubscriptionsExportService).sendBroadcast(Intent(EXPORT_COMPLETE_ACTION))
                 showToast(R.string.export_complete_toast)
                 stopService()
             }

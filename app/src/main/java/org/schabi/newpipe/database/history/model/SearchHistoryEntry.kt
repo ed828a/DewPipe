@@ -1,6 +1,6 @@
 package org.schabi.newpipe.database.history.model
 
-import android.arch.persistence.room.*
+import androidx.room.*
 import org.schabi.newpipe.database.history.model.SearchHistoryEntry.Companion.SEARCH
 import java.util.*
 

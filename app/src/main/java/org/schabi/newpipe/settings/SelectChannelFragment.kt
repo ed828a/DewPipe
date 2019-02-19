@@ -2,9 +2,6 @@ package org.schabi.newpipe.settings
 
 import android.content.DialogInterface
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,12 +23,12 @@ import org.schabi.newpipe.report.UserAction
 import java.util.*
 
 
-class SelectChannelFragment : DialogFragment() {
+class SelectChannelFragment : androidx.fragment.app.DialogFragment() {
     private val imageLoader: ImageLoader = ImageLoader.getInstance()
 
     private lateinit var progressBar: ProgressBar
     private lateinit var emptyView: TextView
-    private lateinit var recyclerView: RecyclerView
+    private lateinit var recyclerView: androidx.recyclerview.widget.RecyclerView
 
     private var subscriptions: List<SubscriptionEntity> = Vector()
     internal var onSelectedLisener: OnSelectedLisener? = null
@@ -82,7 +79,7 @@ class SelectChannelFragment : DialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.select_channel_fragment, container, false)
         recyclerView = view.findViewById(R.id.items_list)
-        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
         val channelAdapter = SelectChannelAdapter()
         recyclerView.adapter = channelAdapter
 
@@ -107,7 +104,7 @@ class SelectChannelFragment : DialogFragment() {
     // Handle actions
     ///////////////////////////////////////////////////////////////////////////
 
-    override fun onCancel(dialogInterface: DialogInterface?) {
+    override fun onCancel(dialogInterface: DialogInterface) {
         super.onCancel(dialogInterface)
         if (onCancelListener != null) {
             onCancelListener?.onCancel()
@@ -139,7 +136,7 @@ class SelectChannelFragment : DialogFragment() {
 
     }
 
-    private inner class SelectChannelAdapter : RecyclerView.Adapter<SelectChannelAdapter.SelectChannelViewHolder>() {
+    private inner class SelectChannelAdapter : androidx.recyclerview.widget.RecyclerView.Adapter<SelectChannelAdapter.SelectChannelViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SelectChannelViewHolder {
             val view = LayoutInflater.from(parent.context)
@@ -157,7 +154,7 @@ class SelectChannelFragment : DialogFragment() {
 
         override fun getItemCount(): Int = subscriptions.size
 
-        inner class SelectChannelViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
+        inner class SelectChannelViewHolder(val view: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {
             val thumbnailView: CircleImageView = view.findViewById(R.id.itemThumbnailView)
             val titleView: TextView = view.findViewById(R.id.itemTitleView)
         }

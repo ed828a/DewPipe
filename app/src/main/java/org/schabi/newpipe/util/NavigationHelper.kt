@@ -8,11 +8,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.preference.PreferenceManager
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentTransaction
-import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import com.nostra13.universalimageloader.core.ImageLoader
 import org.schabi.newpipe.R
 import org.schabi.newpipe.about.AboutActivity
@@ -230,12 +228,12 @@ object NavigationHelper {
     ///////////////////////////////////////////////////////////////////////////
 
     @SuppressLint("CommitTransaction")
-    private fun defaultTransaction(fragmentManager: FragmentManager): FragmentTransaction {
+    private fun defaultTransaction(fragmentManager: androidx.fragment.app.FragmentManager): androidx.fragment.app.FragmentTransaction {
         return fragmentManager.beginTransaction()
                 .setCustomAnimations(R.animator.custom_fade_in, R.animator.custom_fade_out, R.animator.custom_fade_in, R.animator.custom_fade_out)
     }
 
-    fun gotoMainFragment(fragmentManager: FragmentManager) {
+    fun gotoMainFragment(fragmentManager: androidx.fragment.app.FragmentManager) {
         ImageLoader.getInstance().clearMemoryCache()
         // get MainFragment back out of the BackStack
         // if no MainFragment in BackStack, open a new one
@@ -243,17 +241,17 @@ object NavigationHelper {
         if (!popped) openMainFragment(fragmentManager)
     }
 
-    private fun openMainFragment(fragmentManager: FragmentManager) {
+    private fun openMainFragment(fragmentManager: androidx.fragment.app.FragmentManager) {
         InfoCache.instance.trimCache()
 
-        fragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        fragmentManager.popBackStackImmediate(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
         defaultTransaction(fragmentManager)
                 .replace(R.id.fragment_holder, MainFragment())
                 .addToBackStack(MAIN_FRAGMENT_TAG)
                 .commit()
     }
 
-    fun tryGotoSearchFragment(fragmentManager: FragmentManager): Boolean {
+    fun tryGotoSearchFragment(fragmentManager: androidx.fragment.app.FragmentManager): Boolean {
         for (i in 0 until fragmentManager.backStackEntryCount) {
             Log.d("NavigationHelper", "tryGoToSearchFragment(): fragmentManager.BackStackEntryAt[$i] = [${fragmentManager.getBackStackEntryAt(i)}]")
         }
@@ -261,7 +259,7 @@ object NavigationHelper {
         return fragmentManager.popBackStackImmediate(SEARCH_FRAGMENT_TAG, 0)
     }
 
-    fun openSearchFragment(fragmentManager: FragmentManager?,
+    fun openSearchFragment(fragmentManager: androidx.fragment.app.FragmentManager?,
                            serviceId: Int,
                            searchString: String) {
         fragmentManager?.let {
@@ -275,7 +273,7 @@ object NavigationHelper {
 
     @JvmOverloads
     fun openVideoDetailFragment(
-            fragmentManager: FragmentManager?,
+            fragmentManager: androidx.fragment.app.FragmentManager?,
             serviceId: Int,
             url: String?,
             title: String?,
@@ -307,7 +305,7 @@ object NavigationHelper {
                 .commit()
     }
 
-    fun openChannelFragment(fragmentManager: FragmentManager?,
+    fun openChannelFragment(fragmentManager: androidx.fragment.app.FragmentManager?,
                             serviceId: Int,
                             url: String,
                             name: String?) {
@@ -319,7 +317,7 @@ object NavigationHelper {
                     .commit()
     }
 
-    fun openPlaylistFragment(fragmentManager: FragmentManager?,
+    fun openPlaylistFragment(fragmentManager: androidx.fragment.app.FragmentManager?,
                              serviceId: Int,
                              url: String,
                              name: String?) {
@@ -331,7 +329,7 @@ object NavigationHelper {
                     .commit()
     }
 
-    fun openWhatsNewFragment(fragmentManager: FragmentManager?) {
+    fun openWhatsNewFragment(fragmentManager: androidx.fragment.app.FragmentManager?) {
         if (fragmentManager != null)
             defaultTransaction(fragmentManager)
                     .replace(R.id.fragment_holder, FeedFragment())
@@ -339,7 +337,7 @@ object NavigationHelper {
                     .commit()
     }
 
-    fun openBookmarksFragment(fragmentManager: FragmentManager?) {
+    fun openBookmarksFragment(fragmentManager: androidx.fragment.app.FragmentManager?) {
         if (fragmentManager != null)
             defaultTransaction(fragmentManager)
                     .replace(R.id.fragment_holder, BookmarkFragment())
@@ -347,7 +345,7 @@ object NavigationHelper {
                     .commit()
     }
 
-    fun openSubscriptionFragment(fragmentManager: FragmentManager?) {
+    fun openSubscriptionFragment(fragmentManager: androidx.fragment.app.FragmentManager?) {
         if (fragmentManager != null)
             defaultTransaction(fragmentManager)
                     .replace(R.id.fragment_holder, SubscriptionFragment())
@@ -356,7 +354,7 @@ object NavigationHelper {
     }
 
     @Throws(ExtractionException::class)
-    fun openKioskFragment(fragmentManager: FragmentManager?, serviceId: Int, kioskId: String) {
+    fun openKioskFragment(fragmentManager: androidx.fragment.app.FragmentManager?, serviceId: Int, kioskId: String) {
         if (fragmentManager != null)
             defaultTransaction(fragmentManager)
                     .replace(R.id.fragment_holder, KioskFragment.getInstance(serviceId, kioskId))
@@ -364,7 +362,7 @@ object NavigationHelper {
                     .commit()
     }
 
-    fun openLocalPlaylistFragment(fragmentManager: FragmentManager?, playlistId: Long, name: String?) {
+    fun openLocalPlaylistFragment(fragmentManager: androidx.fragment.app.FragmentManager?, playlistId: Long, name: String?) {
         var name = name ?: ""
         if (fragmentManager != null)
             defaultTransaction(fragmentManager)
@@ -373,7 +371,7 @@ object NavigationHelper {
                     .commit()
     }
 
-    fun openStatisticFragment(fragmentManager: FragmentManager?) {
+    fun openStatisticFragment(fragmentManager: androidx.fragment.app.FragmentManager?) {
         if (fragmentManager != null)
             defaultTransaction(fragmentManager)
                     .replace(R.id.fragment_holder, StatisticsPlaylistFragment())
@@ -381,7 +379,7 @@ object NavigationHelper {
                     .commit()
     }
 
-    fun openSubscriptionsImportFragment(fragmentManager: FragmentManager?, serviceId: Int) {
+    fun openSubscriptionsImportFragment(fragmentManager: androidx.fragment.app.FragmentManager?, serviceId: Int) {
         if (fragmentManager != null)
             defaultTransaction(fragmentManager)
                     .replace(R.id.fragment_holder, SubscriptionsImportFragment.getInstance(serviceId))

@@ -1,14 +1,13 @@
 package org.schabi.newpipe.info_list.holder
 
 import android.content.Intent
-import android.support.v4.app.FragmentActivity
-import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.ui.PlayerView
 import org.schabi.newpipe.R
@@ -61,7 +60,7 @@ open class StreamMiniInfoItemHolder (infoItemBuilder: InfoItemBuilder, layoutId:
                         ImageDisplayConstants.DISPLAY_THUMBNAIL_OPTIONS)
 
         itemView.setOnClickListener { view ->
-            val fragment = (view.context as FragmentActivity).supportFragmentManager.findFragmentById(R.id.fragment_holder)
+            val fragment = (view.context as androidx.fragment.app.FragmentActivity).supportFragmentManager.findFragmentById(R.id.fragment_holder)
             if (fragment is VideoDetailFragment){
                 Log.d(TAG, "itemView onClick(): fragment is  VideoDetailFragment")
             } else {

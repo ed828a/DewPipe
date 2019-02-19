@@ -31,13 +31,6 @@ import android.os.Build
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.provider.Settings
-import android.support.annotation.ColorInt
-import android.support.v4.app.ActivityCompat
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.content.res.AppCompatResources
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.helper.ItemTouchHelper
 import android.util.Log
 import android.util.TypedValue
 import android.view.GestureDetector
@@ -45,6 +38,12 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.*
+import androidx.annotation.ColorInt
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.app.ActivityCompat
+import androidx.recyclerview.widget.ItemTouchHelper
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.text.CaptionStyleCompat
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
@@ -372,7 +371,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
 
         private var queueLayout: RelativeLayout? = null
         private var itemsListCloseButton: ImageButton? = null
-        private var itemsList: RecyclerView? = null
+        private var itemsList: androidx.recyclerview.widget.RecyclerView? = null
         private var itemTouchHelper: ItemTouchHelper? = null
 
         var queueVisible: Boolean = false
@@ -393,7 +392,7 @@ class MainVideoPlayer : AppCompatActivity(), StateSaver.WriteRead, PlaybackParam
         ///////////////////////////////////////////////////////////////////////////
         private val queueScrollListener: OnScrollBelowItemsListener
             get() = object : OnScrollBelowItemsListener() {
-                override fun onScrolledDown(recyclerView: RecyclerView) {
+                override fun onScrolledDown(recyclerView: androidx.recyclerview.widget.RecyclerView) {
                     if (playQueue != null && !playQueue!!.isComplete) {
                         playQueue!!.fetch()
                     } else if (itemsList != null) {

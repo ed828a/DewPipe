@@ -3,8 +3,6 @@ package org.schabi.newpipe.local.subscription
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.support.annotation.StringRes
-import android.support.v4.text.util.LinkifyCompat
 import android.text.TextUtils
 import android.text.util.Linkify
 import android.util.Log
@@ -14,6 +12,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import androidx.annotation.StringRes
+import androidx.core.text.util.LinkifyCompat
 import com.nononsenseapps.filepicker.Utils
 import icepick.State
 import org.schabi.newpipe.R

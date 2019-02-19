@@ -1,8 +1,6 @@
 package org.schabi.newpipe.local
 
 import android.app.Activity
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +14,7 @@ import java.text.DateFormat
 import java.util.*
 
 
-class LocalItemListAdapter(activity: Activity?) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class LocalItemListAdapter(activity: Activity?) : androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder>() {
 
     private val localItemBuilder: LocalItemBuilder = LocalItemBuilder(activity)
     val itemsList: ArrayList<LocalItem> = ArrayList()
@@ -149,7 +147,7 @@ class LocalItemListAdapter(activity: Activity?) : RecyclerView.Adapter<RecyclerV
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, type: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, type: Int): androidx.recyclerview.widget.RecyclerView.ViewHolder {
 
         Log.d(TAG, "onCreateViewHolder() called with: parent = [$parent], type = [$type]")
 
@@ -171,7 +169,7 @@ class LocalItemListAdapter(activity: Activity?) : RecyclerView.Adapter<RecyclerV
         }
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, pos: Int) {
+    override fun onBindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, pos: Int) {
         var position = pos
         Log.d(TAG, "onBindViewHolder() called with: holder = [${holder.javaClass.simpleName}], position = [$position]")
 
@@ -189,7 +187,7 @@ class LocalItemListAdapter(activity: Activity?) : RecyclerView.Adapter<RecyclerV
         }
     }
 
-    fun getSpanSizeLookup(spanCount: Int): GridLayoutManager.SpanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+    fun getSpanSizeLookup(spanCount: Int): androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup = object : androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
                 val type = getItemViewType(position)
                 return if (type == HEADER_TYPE || type == FOOTER_TYPE) spanCount else 1

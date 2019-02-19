@@ -1,10 +1,12 @@
 package org.schabi.newpipe.database
 
-import android.arch.persistence.room.Database
-import android.arch.persistence.room.Room
-import android.arch.persistence.room.RoomDatabase
-import android.arch.persistence.room.TypeConverters
 import android.content.Context
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import org.schabi.newpipe.database.downloadDB.DownloadDAO
+import org.schabi.newpipe.database.downloadDB.MissionEntity
 import org.schabi.newpipe.database.history.dao.SearchHistoryDAO
 import org.schabi.newpipe.database.history.dao.StreamHistoryDAO
 import org.schabi.newpipe.database.history.model.SearchHistoryEntry
@@ -21,8 +23,6 @@ import org.schabi.newpipe.database.stream.model.StreamEntity
 import org.schabi.newpipe.database.stream.model.StreamStateEntity
 import org.schabi.newpipe.database.subscription.SubscriptionDAO
 import org.schabi.newpipe.database.subscription.SubscriptionEntity
-import org.schabi.newpipe.database.downloadDB.DownloadDAO
-import org.schabi.newpipe.database.downloadDB.MissionEntity
 
 @TypeConverters(Converters::class)
 @Database(entities = [

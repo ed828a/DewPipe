@@ -1,19 +1,17 @@
 package org.schabi.newpipe.settings
 
 import android.os.Bundle
-import android.support.v7.app.AlertDialog
-import android.support.v7.preference.Preference
 import android.widget.Toast
-
+import androidx.appcompat.app.AlertDialog
+import androidx.preference.Preference
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import org.schabi.newpipe.R
 import org.schabi.newpipe.local.history.HistoryRecordManager
 import org.schabi.newpipe.report.ErrorActivity
+import org.schabi.newpipe.report.ErrorInfo
 import org.schabi.newpipe.report.UserAction
 import org.schabi.newpipe.util.InfoCache
-
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import org.schabi.newpipe.report.ErrorInfo
 
 class HistorySettingsFragment : BasePreferenceFragment() {
     private lateinit var cacheWipeKey: String

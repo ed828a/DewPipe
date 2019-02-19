@@ -8,10 +8,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.support.annotation.DrawableRes
-import android.support.v4.app.NotificationCompat
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
 import android.text.TextUtils
 import android.util.Log
 import android.view.ContextThemeWrapper
@@ -22,6 +18,10 @@ import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
+import androidx.annotation.DrawableRes
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationCompat
 import icepick.Icepick
 import icepick.State
 import io.reactivex.Observable
@@ -413,7 +413,7 @@ class RouterActivity : AppCompatActivity() {
                             downloadDialog.setSelectedVideoStream(selectedVideoStreamIndex)
                             downloadDialog.show(fm, "downloadDialog")
                             fm.executePendingTransactions()
-                            downloadDialog.dialog.setOnDismissListener { dialog -> finish() }
+                            downloadDialog.dialog?.setOnDismissListener { dialog -> finish() }
                         },
                         { throwable: Throwable -> onError() })
     }

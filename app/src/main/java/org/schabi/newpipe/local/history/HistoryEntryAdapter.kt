@@ -1,7 +1,6 @@
 package org.schabi.newpipe.local.history
 
 import android.content.Context
-import android.support.v7.widget.RecyclerView
 import org.schabi.newpipe.util.Localization
 import java.text.DateFormat
 import java.util.*
@@ -12,7 +11,7 @@ import java.util.*
  * @param <E> the type of the entries
  * @param <VH> the type of the view holder
 </VH></E> */
-abstract class HistoryEntryAdapter<E, VH : RecyclerView.ViewHolder>(private val mContext: Context) : RecyclerView.Adapter<VH>() {
+abstract class HistoryEntryAdapter<E, VH : androidx.recyclerview.widget.RecyclerView.ViewHolder>(private val mContext: Context) : androidx.recyclerview.widget.RecyclerView.Adapter<VH>() {
 
     private val mEntries: ArrayList<E> = ArrayList()
     private val mDateFormat: DateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM, Localization.getPreferredLocale(mContext))
