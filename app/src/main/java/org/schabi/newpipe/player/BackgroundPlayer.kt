@@ -39,7 +39,7 @@ import com.nostra13.universalimageloader.core.assist.FailReason
 import org.schabi.newpipe.BuildConfig
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.stream.StreamInfo
-import org.schabi.newpipe.player.event.PlayerEventListener
+import org.schabi.newpipe.player.playback.PlayerEventListener
 import org.schabi.newpipe.player.helper.LockManager
 import org.schabi.newpipe.player.helper.PlayerHelper.getTimeString
 import org.schabi.newpipe.player.model.PlayerServiceBinder

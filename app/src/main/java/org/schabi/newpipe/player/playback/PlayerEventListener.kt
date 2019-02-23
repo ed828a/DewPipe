@@ -1,4 +1,4 @@
-package org.schabi.newpipe.player.event
+package org.schabi.newpipe.player.playback
 
 
 import com.google.android.exoplayer2.PlaybackParameters

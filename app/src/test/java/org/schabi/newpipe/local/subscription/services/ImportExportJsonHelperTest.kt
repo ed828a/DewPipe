@@ -1,17 +1,14 @@
 package org.schabi.newpipe.local.subscription.services
 
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 import org.schabi.newpipe.extractor.subscription.SubscriptionExtractor
 import org.schabi.newpipe.extractor.subscription.SubscriptionItem
 import org.schabi.newpipe.local.subscription.ImportExportJsonHelper
-
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.InputStream
-import java.util.Arrays
-
-import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
+import java.util.*
 
 /**
  * @see ImportExportJsonHelper

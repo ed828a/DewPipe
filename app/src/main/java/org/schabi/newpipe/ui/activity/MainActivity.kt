@@ -304,7 +304,7 @@ class MainActivity : AppCompatActivity() {
 
         // close drawer on return, and don't show animation, so its looks like the drawer isn't open
         // when the user returns to MainActivity
-        drawer!!.closeDrawer(Gravity.START, false)
+        drawer!!.closeDrawer(Gravity.LEFT, false)
         try {
             val selectedServiceName = NewPipe.getService(
                     ServiceHelper.getSelectedServiceId(this)).serviceInfo.name
@@ -447,6 +447,7 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.action_show_downloads -> return NavigationHelper.openDownloads(this)
             R.id.action_history -> {
+//                val tem = 30/0
                 NavigationHelper.openStatisticFragment(supportFragmentManager)
                 return true
             }

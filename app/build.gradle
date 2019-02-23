@@ -18,6 +18,7 @@ android {
 
         multiDexEnabled true
     }
+
     buildTypes {
         release {
             minifyEnabled true

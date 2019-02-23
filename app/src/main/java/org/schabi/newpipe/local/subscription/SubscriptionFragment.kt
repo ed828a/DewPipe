@@ -39,7 +39,7 @@ import org.schabi.newpipe.ui.fragments.BaseStateFragment
 import org.schabi.newpipe.util.*
 import org.schabi.newpipe.util.AnimationUtils.animateRotation
 import org.schabi.newpipe.util.AnimationUtils.animateView
-import org.schabi.newpipe.views.CollapsibleView
+import org.schabi.newpipe.util.CollapsibleView
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.ArrayList

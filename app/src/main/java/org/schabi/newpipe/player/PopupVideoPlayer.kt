@@ -36,7 +36,7 @@ import org.schabi.newpipe.extractor.stream.VideoStream
 import org.schabi.newpipe.player.BasePlayer.Companion.STATE_PLAYING
 import org.schabi.newpipe.player.VideoPlayer.Companion.DEFAULT_CONTROLS_DURATION
 import org.schabi.newpipe.player.VideoPlayer.Companion.DEFAULT_CONTROLS_HIDE_TIME
-import org.schabi.newpipe.player.event.PlayerEventListener
+import org.schabi.newpipe.player.playback.PlayerEventListener
 import org.schabi.newpipe.player.helper.LockManager
 import org.schabi.newpipe.player.helper.PlayerHelper
 import org.schabi.newpipe.player.model.PlayerServiceBinder

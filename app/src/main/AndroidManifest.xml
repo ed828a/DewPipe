@@ -41,14 +41,6 @@
             android:theme="@style/OldVideoPlayerTheme"
             tools:ignore="UnusedAttribute" />
 
-        <service
-            android:name=".player.BackgroundPlayer"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
-            </intent-filter>
-        </service>
-
         <activity
             android:name=".player.BackgroundPlayerActivity"
             android:label="@string/title_activity_background_player"
@@ -58,21 +50,32 @@
             android:label="@string/title_activity_popup_player"
             android:launchMode="singleTask" />
 
-        <service
-            android:name=".player.PopupVideoPlayer"
-            android:exported="false" />
 
         <activity
             android:name=".player.MainVideoPlayer"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
             android:label="@string/app_name"
             android:launchMode="singleTask" />
+
         <activity
             android:name=".settings.SettingsActivity"
             android:label="@string/settings" />
+
         <activity
             android:name=".about.AboutActivity"
             android:label="@string/title_activity_about" />
+
+        <service
+            android:name=".player.BackgroundPlayer"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".player.PopupVideoPlayer"
+            android:exported="false" />
 
         <service android:name=".local.subscription.services.SubscriptionsImportService" />
         <service android:name=".local.subscription.services.SubscriptionsExportService" />

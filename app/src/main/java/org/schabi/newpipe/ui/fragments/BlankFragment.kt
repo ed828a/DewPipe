@@ -19,6 +19,6 @@ class BlankFragment : BaseFragment() {
 
     }
     companion object {
-        const val TITLE = "DEW"
+        const val TITLE = "Aihua"
     }
 }

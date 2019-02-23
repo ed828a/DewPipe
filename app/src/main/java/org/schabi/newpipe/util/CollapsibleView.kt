@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.schabi.newpipe.views
+package org.schabi.newpipe.util
 
 import android.animation.ValueAnimator
 import android.content.Context
@@ -31,7 +31,6 @@ import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import icepick.Icepick
 import icepick.State
-import org.schabi.newpipe.util.AnimationUtils
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy.SOURCE
 import java.util.*
@@ -62,7 +61,10 @@ class CollapsibleView : LinearLayout {
     }
 
     @Retention(SOURCE)
-    @IntDef(COLLAPSED, EXPANDED)
+    @IntDef(
+        COLLAPSED,
+        EXPANDED
+    )
     annotation class ViewMode
 
     /**

@@ -21,7 +21,7 @@ import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.stream.StreamInfo
 import org.schabi.newpipe.extractor.stream.StreamType
 import org.schabi.newpipe.local.dialog.PlaylistAppendDialog
-import org.schabi.newpipe.player.event.PlayerEventListener
+import org.schabi.newpipe.player.playback.PlayerEventListener
 import org.schabi.newpipe.player.helper.PlaybackParameterDialog
 import org.schabi.newpipe.player.helper.PlayerHelper.formatPitch
 import org.schabi.newpipe.player.helper.PlayerHelper.formatSpeed
